@@ -1,0 +1,28 @@
+---
+description: Payload CMS — prefer typed blocks fields for admin sections (NovaMira / msc-new)
+globs:
+  - collections/**/*.ts
+  - globals/**/*.ts
+  - payload.config.ts
+  - lib/payload-admin-defaults.ts
+alwaysApply: false
+---
+
+# Payload admin: blocks-first authoring (msc-new)
+
+When adding or refactoring **Payload** fields in this repo:
+
+1. **Prefer `type: "blocks"`** with one or more **typed block configs** whenever editors would otherwise see **many fields at once** or a **long vertical form**. This matches the **Sections Builder** row UI (drag handle, row index, block-type label, chevron collapse, Collapse All / Show All).
+
+2. **Use `type: "array"`** only when rows are **small and uniform** (e.g. a list of emails, simple label+link pairs, stat value+label) and the blocks drawer would add friction without benefit.
+
+3. **Defaults**
+   - Spread **`adminRowsStartCollapsed`** from `lib/payload-admin-defaults.ts` onto **`blocks`** and **`array`** fields so new sessions start with rows collapsed unless the user expands them.
+   - On **`blocks`** fields, also set **`admin.disableListColumn: true`** and **`admin.disableListFilter: true`** so collection list view never renders block row ids (ids repeat across block tables → React duplicate key warnings).
+   - For a singleton “one block only” pattern (like Page hero), use **`minRows: 0`**, **`maxRows: 1`**, and a single block `slug`.
+
+4. **Schema / SQLite** — This project uses **`db.push: false`**. New block types need matching **`pages_blocks_*`** (or collection-prefixed) tables and migrations when you add blocks to a collection; document or script migrations like existing `scripts/migrate-*.py`.
+
+5. **Never put two separate top-level `blocks` fields on the same collection document** (e.g. hero blocks + section blocks). Payload admin can reuse numeric row ids across block tables as React keys → duplicate key errors (`1`, `2`, …). Use **`collapsible` + `group`** (or `array`) for the secondary region, or merge into **one** `blocks` field with multiple block slugs. **Upstream `ArrayField` had the same raw-`id` pattern**; nested arrays (e.g. Feature Grid **items**) can duplicate keys with blocks until patched — this repo applies **`patches/@payloadcms+ui+3.81.0.patch`** (`npm install` → `patch-package`).
+
+6. **Do not** replace stable, working **`array`** editors with blocks **without** a migration plan and user sign-off—apply this rule to **new** work and intentional refactors.

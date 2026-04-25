@@ -1,0 +1,23 @@
+---
+description: NovaMira WordPress/Divi conventions for PHP, CSS, and content modules
+alwaysApply: false
+globs:
+  - "**/*.php"
+  - "**/*.css"
+  - "**/*.scss"
+---
+
+# NovaMira Divi conventions
+
+For WordPress/Divi-oriented files in this repo:
+
+1. Use Divi 4 conventions (`et_pb_*`) unless user explicitly asks for Divi 5 behavior.
+2. Prefix custom PHP symbols with `msc_`.
+3. Prefer custom class namespaces `msc-` or `nm-` for CSS.
+4. Keep security baseline in PHP:
+   - `defined( 'ABSPATH' ) || exit;`
+   - nonces for privileged mutations
+5. Follow the detailed project skill for edge cases:
+   - `.cursor/skills/Nova/SKILL.md`
+   - `.cursor/skills/NovaMira-Design/SKILL.md`
+

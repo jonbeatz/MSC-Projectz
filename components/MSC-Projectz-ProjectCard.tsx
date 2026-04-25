@@ -1,0 +1,541 @@
+'use client'
+
+import { useCallback, useMemo, useState } from 'react'
+import {
+  Copy,
+  ExternalLink,
+  Eye,
+  EyeOff,
+  FolderOpen,
+  Key,
+  MonitorPlay,
+  MoreVertical,
+  Plus,
+  Settings,
+  Trash2,
+} from 'lucide-react'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
+import { Input } from '@/components/ui/input'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import type { Credential, Project } from '@/lib/types'
+import { cn } from '@/lib/utils'
+import { useAppStore } from '@/lib/store'
+import { msc_launch_in_cursor, msc_open_project_folder } from '@/lib/msc_native_system_bridge'
+
+export interface MSC_Projectz_ProjectCardProps {
+  project: Project
+  onSelect: () => void
+  onDelete: () => void
+  onOpenVault: () => void
+  onEdit: () => void
+  onOpenTaskDrawer?: () => void
+}
+
+/** First credential whose label matches "WP Admin" (case-insensitive). */
+function msc_findWpAdminCredential(credentials: Credential[]): Credential | undefined {
+  return credentials.find((c) => c.label.trim().toLowerCase() === 'wp admin')
+}
+
+function msc_taskCounts(project: Project) {
+  const tasks = project.tasks.filter((t) => !t.archived)
+  let todo = 0
+  let inProgress = 0
+  let done = 0
+  for (const t of tasks) {
+    const s = t.status || 'todo'
+    if (s === 'done' || t.completed) done += 1
+    else if (s === 'in-progress') inProgress += 1
+    else todo += 1
+  }
+  const total = tasks.length
+  return { todo, inProgress, done, total }
+}
+
+export function MSC_Projectz_ProjectCard({
+  project,
+  onSelect,
+  onDelete,
+  onOpenVault,
+  onEdit,
+  onOpenTaskDrawer,
+}: MSC_Projectz_ProjectCardProps) {
+  const appSettings = useAppStore((s) => s.appSettings)
+  const addTask = useAppStore((s) => s.addTask)
+  const isDark = appSettings.theme === 'dark'
+
+  const [credPopoverOpen, setCredPopoverOpen] = useState(false)
+  const [pwVisible, setPwVisible] = useState(false)
+
+  const [injectOpen, setInjectOpen] = useState(false)
+  const [injectTitle, setInjectTitle] = useState('')
+  const [injectBusy, setInjectBusy] = useState(false)
+
+  const wpAdminCred = useMemo(() => msc_findWpAdminCredential(project.credentials), [project.credentials])
+  const counts = useMemo(() => msc_taskCounts(project), [project])
+
+  const handleOpenInCursor = () => {
+    if (!project.localPath?.trim()) return
+    void msc_launch_in_cursor(project.localPath).catch((err) => {
+      console.error('[MSC] msc_launch_in_cursor', err)
+    })
+  }
+
+  const handleOpenInExplorer = () => {
+    if (!project.localPath?.trim()) return
+    void msc_open_project_folder(project.localPath).catch((err) => {
+      console.error('[MSC] msc_open_project_folder', err)
+    })
+  }
+
+  const handleOpenLiveUrl = () => {
+    if (project.liveUrl) {
+      window.open(project.liveUrl, '_blank')
+    }
+  }
+
+  const totalTasks = project.tasks.length
+  const completedTasks = project.tasks.filter((t) => t.status === 'done' || t.completed).length
+  const calculatedProgress =
+    totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : project.progress || 0
+
+  const msc_copyText = useCallback(async (text: string) => {
+    try {
+      await navigator.clipboard.writeText(text)
+    } catch (e) {
+      console.error('[MSC] clipboard', e)
+    }
+  }, [])
+
+  const msc_submitQuickTask = async () => {
+    const title = injectTitle.trim()
+    if (!title || injectBusy) return
+    setInjectBusy(true)
+    try {
+      await addTask(project.id, title)
+      setInjectTitle('')
+      setInjectOpen(false)
+    } catch (e) {
+      console.error('[MSC] addTask', e)
+    } finally {
+      setInjectBusy(false)
+    }
+  }
+
+  const todoPct = counts.total > 0 ? (counts.todo / counts.total) * 100 : 0
+  const inProgressPct = counts.total > 0 ? (counts.inProgress / counts.total) * 100 : 0
+  const donePct = counts.total > 0 ? (counts.done / counts.total) * 100 : 0
+
+  return (
+    <div
+      className={cn(
+        'group relative rounded-xl overflow-hidden transition-all duration-200 cursor-pointer',
+        'bg-card border border-border',
+        !isDark && 'card-shadow hover:card-shadow-lg',
+      )}
+      onClick={onSelect}
+    >
+      <div className="aspect-video relative overflow-hidden bg-secondary">
+        {project.thumbnail ? (
+          <img src={project.thumbnail} alt={project.name} className="w-full h-full object-cover" />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center">
+            <div className="w-16 h-16 rounded-xl flex items-center justify-center bg-muted">
+              <MonitorPlay className="w-8 h-8 text-muted-foreground" />
+            </div>
+          </div>
+        )}
+
+        <Badge
+          className={cn(
+            'absolute top-3 right-3 uppercase text-[10px] font-semibold tracking-wider border-0',
+            project.status === 'live'
+              ? 'bg-primary text-primary-foreground'
+              : 'bg-muted text-muted-foreground',
+          )}
+        >
+          {project.status}
+        </Badge>
+
+        <button
+          onClick={(e) => {
+            e.stopPropagation()
+            onEdit()
+          }}
+          className={cn(
+            'absolute top-3 left-3 w-8 h-8 rounded-lg backdrop-blur-sm flex items-center justify-center transition-all',
+            isDark ? 'bg-card/80' : 'bg-card/90',
+            'text-muted-foreground hover:text-foreground',
+          )}
+        >
+          <Settings className="w-4 h-4" />
+        </button>
+
+        <div
+          className={cn(
+            'absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2',
+            isDark ? 'bg-background/90' : 'bg-background/95',
+          )}
+        >
+          <Button
+            size="sm"
+            className="h-8 text-xs gap-1.5 bg-secondary text-secondary-foreground hover:bg-secondary/80"
+            onClick={(e) => {
+              e.stopPropagation()
+              handleOpenInCursor()
+            }}
+          >
+            <MonitorPlay className="w-3.5 h-3.5" />
+            Cursor
+          </Button>
+          <Button
+            size="sm"
+            className="h-8 text-xs gap-1.5 bg-secondary text-secondary-foreground hover:bg-secondary/80"
+            onClick={(e) => {
+              e.stopPropagation()
+              handleOpenInExplorer()
+            }}
+          >
+            <FolderOpen className="w-3.5 h-3.5" />
+            Explorer
+          </Button>
+          {project.liveUrl && (
+            <Button
+              size="sm"
+              className="h-8 text-xs gap-1.5 bg-primary text-primary-foreground hover:bg-primary/90"
+              onClick={(e) => {
+                e.stopPropagation()
+                handleOpenLiveUrl()
+              }}
+            >
+              <ExternalLink className="w-3.5 h-3.5" />
+              Live
+            </Button>
+          )}
+        </div>
+      </div>
+
+      <div className="p-4">
+        <div className="flex items-start justify-between gap-2">
+          <div className="flex-1 min-w-0">
+            <h3 className="font-medium truncate text-foreground">{project.name}</h3>
+            <p className="text-xs truncate mt-0.5 text-muted-foreground">
+              {project.localPath || 'No local path configured'}
+            </p>
+          </div>
+
+          <div className="flex items-center gap-0.5 shrink-0">
+            <Popover
+              open={credPopoverOpen}
+              onOpenChange={(open) => {
+                setCredPopoverOpen(open)
+                if (!open) setPwVisible(false)
+              }}
+            >
+              <PopoverTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8 text-muted-foreground hover:text-primary"
+                  onClick={(e) => e.stopPropagation()}
+                  aria-label="WP Admin credential quick-peek"
+                >
+                  <Key className="w-4 h-4" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent
+                className="w-80"
+                align="end"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <div className="space-y-3">
+                  <p className="text-sm font-medium text-foreground">WP Admin</p>
+                  {!wpAdminCred ? (
+                    <p className="text-xs text-muted-foreground">No credential labeled WP Admin.</p>
+                  ) : (
+                    <>
+                      <div className="space-y-1">
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="text-xs text-muted-foreground">Username</span>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            className="h-7 gap-1"
+                            onClick={() => msc_copyText(wpAdminCred.username)}
+                          >
+                            <Copy className="w-3 h-3" />
+                            Copy
+                          </Button>
+                        </div>
+                        <p className="text-sm font-mono break-all rounded-md border border-border bg-muted/50 px-2 py-1.5">
+                          {wpAdminCred.username || '—'}
+                        </p>
+                      </div>
+                      <div className="space-y-1">
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="text-xs text-muted-foreground">Password</span>
+                          <div className="flex items-center gap-1">
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="sm"
+                              className="h-7 px-2"
+                              onClick={() => setPwVisible((v) => !v)}
+                              aria-label={pwVisible ? 'Mask password' : 'Show password'}
+                            >
+                              {pwVisible ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                            </Button>
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              className="h-7 gap-1"
+                              onClick={() => msc_copyText(wpAdminCred.password)}
+                            >
+                              <Copy className="w-3 h-3" />
+                              Copy
+                            </Button>
+                          </div>
+                        </div>
+                        <p className="text-sm font-mono break-all rounded-md border border-border bg-muted/50 px-2 py-1.5">
+                          {pwVisible ? wpAdminCred.password || '—' : '••••••••'}
+                        </p>
+                      </div>
+                    </>
+                  )}
+                </div>
+              </PopoverContent>
+            </Popover>
+
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
+                <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0 text-muted-foreground">
+                  <MoreVertical className="w-4 h-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48">
+                <DropdownMenuItem
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    onEdit()
+                  }}
+                  className="cursor-pointer"
+                >
+                  <Settings className="w-4 h-4 mr-2" />
+                  Edit Project
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    onOpenVault()
+                  }}
+                  className="cursor-pointer"
+                >
+                  <Key className="w-4 h-4 mr-2" />
+                  Open Vault
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    handleOpenInCursor()
+                  }}
+                  className="cursor-pointer"
+                >
+                  <MonitorPlay className="w-4 h-4 mr-2" />
+                  Open in Cursor
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    handleOpenInExplorer()
+                  }}
+                  className="cursor-pointer"
+                >
+                  <FolderOpen className="w-4 h-4 mr-2" />
+                  Copy Path
+                </DropdownMenuItem>
+                {project.liveUrl && (
+                  <DropdownMenuItem
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      handleOpenLiveUrl()
+                    }}
+                    className="cursor-pointer"
+                  >
+                    <ExternalLink className="w-4 h-4 mr-2" />
+                    Open Live URL
+                  </DropdownMenuItem>
+                )}
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    onDelete()
+                  }}
+                  className="cursor-pointer text-destructive focus:text-destructive"
+                >
+                  <Trash2 className="w-4 h-4 mr-2" />
+                  Delete Project
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        </div>
+
+        <div className="mt-3">
+          <div className="flex items-center justify-between mb-1.5">
+            <span className="text-xs text-muted-foreground">Progress</span>
+            <span className="text-xs font-medium text-primary">{calculatedProgress}%</span>
+          </div>
+          <div className="h-1.5 rounded-full overflow-hidden bg-muted">
+            <div
+              className="h-full rounded-full transition-all duration-300 bg-primary"
+              style={{ width: `${calculatedProgress}%` }}
+            />
+          </div>
+        </div>
+
+        <div
+          className="mt-3 pt-3 border-t border-border space-y-2"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <div className="flex h-2.5 w-full flex-row overflow-hidden rounded-full border border-border bg-muted">
+            {counts.total === 0 ? (
+              <div className="h-full w-full bg-muted" />
+            ) : (
+              <>
+                {counts.todo > 0 && (
+                  <div
+                    className="h-full shrink-0 bg-muted-foreground/35 transition-all"
+                    style={{ width: `${todoPct}%` }}
+                    title={`To do: ${counts.todo}`}
+                  />
+                )}
+                {counts.inProgress > 0 && (
+                  <div
+                    className="h-full shrink-0 bg-[hsl(var(--chart-4))] transition-all"
+                    style={{ width: `${inProgressPct}%` }}
+                    title={`In progress: ${counts.inProgress}`}
+                  />
+                )}
+                {counts.done > 0 && (
+                  <div
+                    className="h-full shrink-0 bg-primary transition-all"
+                    style={{ width: `${donePct}%` }}
+                    title={`Done: ${counts.done}`}
+                  />
+                )}
+              </>
+            )}
+          </div>
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-muted-foreground">
+            <span>
+              <span className="inline-block size-2 rounded-sm bg-muted-foreground/35 align-middle mr-1" />
+              {counts.todo} todo
+            </span>
+            <span>
+              <span
+                className="inline-block size-2 rounded-sm align-middle mr-1 bg-[hsl(var(--chart-4))]"
+                aria-hidden
+              />
+              {counts.inProgress} in progress
+            </span>
+            <span>
+              <span className="inline-block size-2 rounded-sm bg-primary align-middle mr-1" />
+              {counts.done} done
+            </span>
+            <span className="text-foreground/80">· {counts.total} total</span>
+          </div>
+
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-1.5 min-w-0">
+              <Key className="w-3.5 h-3.5 shrink-0 text-muted-foreground" />
+              <span className="text-xs text-muted-foreground truncate">
+                {project.credentials.length} credentials
+              </span>
+            </div>
+            <div className="flex items-center gap-1 shrink-0">
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  onOpenTaskDrawer?.()
+                }}
+                className="flex items-center gap-1.5 transition-transform hover:scale-105"
+                title="Open task drawer"
+              >
+                <svg className="w-5 h-5 -rotate-90" viewBox="0 0 20 20">
+                  <circle cx="10" cy="10" r="8" fill="none" className="stroke-muted" strokeWidth="2" />
+                  <circle
+                    cx="10"
+                    cy="10"
+                    r="8"
+                    fill="none"
+                    className="stroke-primary"
+                    strokeWidth="2"
+                    strokeDasharray={`${(completedTasks / Math.max(totalTasks, 1)) * 50.3} 50.3`}
+                    strokeLinecap="round"
+                  />
+                </svg>
+                <span className="text-xs text-muted-foreground whitespace-nowrap">
+                  {completedTasks}/{totalTasks} tasks
+                </span>
+              </button>
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                className="h-7 w-7 text-muted-foreground hover:text-primary"
+                aria-label="Quick add task"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  setInjectOpen((o) => !o)
+                }}
+              >
+                <Plus className="w-4 h-4" />
+              </Button>
+            </div>
+          </div>
+
+          {injectOpen && (
+            <div className="flex gap-2 pt-1" onClick={(e) => e.stopPropagation()}>
+              <Input
+                placeholder="New task title…"
+                value={injectTitle}
+                onChange={(e) => setInjectTitle(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') void msc_submitQuickTask()
+                  if (e.key === 'Escape') {
+                    setInjectOpen(false)
+                    setInjectTitle('')
+                  }
+                }}
+                className="h-8 text-sm"
+                disabled={injectBusy}
+                autoFocus
+              />
+              <Button
+                type="button"
+                size="sm"
+                className="h-8 shrink-0"
+                disabled={injectBusy || !injectTitle.trim()}
+                onClick={() => void msc_submitQuickTask()}
+              >
+                Add
+              </Button>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  )
+}

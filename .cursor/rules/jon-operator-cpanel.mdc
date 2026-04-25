@@ -1,0 +1,31 @@
+---
+description: Jon — cPanel bookmarks + always label Local (Cursor) vs Live (cPanel) for commands
+alwaysApply: true
+---
+
+# Operator: Jon — cPanel links and where commands run
+
+## When Jon needs Node.js app Start / Stop / Restart
+
+Give this **clickable** link (Spaceship cPanel — Node.js Selector for `mystudiochannel.com`):
+
+`https://server9.shared.spaceship.host:2083/cpsess0827945513/frontend/jupiter/lveversion/nodejs-selector.html.tt#/applications/mystudiochannel.com`
+
+Say explicitly: **Live (cPanel)** — open this in the browser, not in Cursor.
+
+## When Jon needs cPanel Terminal (host shell)
+
+Give this **clickable** link:
+
+`https://server9.shared.spaceship.host:2083/cpsess0827945513/frontend/jupiter/terminal/index.html`
+
+Say explicitly: **Live (cPanel → Terminal)** — run host commands here, not in Cursor.
+
+## Command locality (required)
+
+Whenever you tell Jon to run a command, **prefix or tag** where it runs:
+
+- **Local (Cursor / PC repo root)** — `npm run build`, `npm run pushitup`, `npm run dev`, `git`, PowerShell in the project folder on his machine. Never these in cPanel unless you are explicitly describing a mistake to avoid. **Agents:** for local dev recovery (`dev:recover`, `dev:fresh`, `repair:dev`, `verify:next:safe`, smoke `curl`, etc.), **run these yourself** from the repo root; do not only instruct Jon — see **`.cursor/rules/local-runtime-recovery.mdc`**.
+- **Live (cPanel → Terminal)** — `source …/nodevenv/.../activate`, `cd` to app path on the server, `npm install --legacy-peer-deps`, `rm -rf .next`, etc. Jon runs these in the host browser/terminal; the agent cannot execute cPanel for him.
+
+If a `cpsess…` link returns login or 404, tell Jon to sign in at `https://server9.shared.spaceship.host:2083/` and open Node.js / Terminal from the cPanel UI, then refresh bookmarks in `.cursor/docs/START-HERE.md` when he has new session URLs.

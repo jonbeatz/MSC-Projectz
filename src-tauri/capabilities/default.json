@@ -1,0 +1,46 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "default",
+  "description": "MSC Vader Vault — core + shell bridge (Explorer + Cursor)",
+  "windows": [
+    "main"
+  ],
+  "permissions": [
+    "core:default",
+    {
+      "identifier": "shell:allow-execute",
+      "allow": [
+        {
+          "name": "msc-open-folder",
+          "cmd": "explorer",
+          "args": [{ "validator": ".+" }],
+          "sidecar": false
+        },
+        {
+          "name": "msc-cursor-in-project",
+          "cmd": "cmd",
+          "args": ["/c", { "validator": ".+" }],
+          "sidecar": false
+        },
+        {
+          "name": "msc-open-folder-macos",
+          "cmd": "open",
+          "args": [{ "validator": ".+" }],
+          "sidecar": false
+        },
+        {
+          "name": "msc-open-folder-linux",
+          "cmd": "xdg-open",
+          "args": [{ "validator": ".+" }],
+          "sidecar": false
+        },
+        {
+          "name": "msc-cursor-dot",
+          "cmd": "cursor",
+          "args": ["."],
+          "sidecar": false
+        }
+      ]
+    }
+  ]
+}
