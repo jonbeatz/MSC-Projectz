@@ -11,5 +11,7 @@
 - [ ] Move local image uploads to the Tauri File System API.
 
 ## [ ] Phase 3: Polish & Deployment
+- [x] Refactor Command Center into route-based pages with shared dashboard shell.
+- [x] Guard `/settings` as admin-only while keeping `/profile` available to authenticated users.
 - [ ] Finalize Light/Dark theme variable persistence.
 - [ ] Build Tier 1 & Tier 2 deployment scripts.

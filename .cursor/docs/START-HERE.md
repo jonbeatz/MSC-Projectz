@@ -4,6 +4,15 @@
 
 Transition the v0 "Vader Protocol" UI into a production-ready desktop application using Tauri 2.0 and Payload 3.0.
 
+## Current Restart Point
+
+* **Branch:** `MSC-Projectz-v2`
+* **Remote:** `origin` -> `https://github.com/jonbeatz/MSC-Projectz.git`
+* **Latest pushed checkpoint:** `8602e72fb89b09523e87ad12b7c4179a9f262fec` (`Refactor Command Center routes`)
+* **Status:** Code changes are committed and pushed. Local working tree has one intentionally uncommitted SQLite backup: `payload.sqlite.bak.2026-04-25T18-38-26-162Z`.
+* **Architecture note:** Command Center pages are route-based under `app/(command-center)/` so `/dashboard`, `/profile`, `/settings`, `/help`, and `/tasks` share the same persistent `DashboardLayout`.
+* **Verification:** `npm run verify:next` passed; localhost smoke checks returned `200` for `/`, `/dashboard`, `/profile`, `/help`, and `/settings`.
+
 ## Core Features
 
 * **Project Dashboard:** Bento Grid view of all studio projects.

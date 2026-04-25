@@ -6,6 +6,7 @@
  */
 
 import { isTauri } from '@tauri-apps/api/core'
+import { getSafePath, isLive } from '@/lib/env-utils'
 
 function msc_sanitize_local_path(filePath: string): string {
   const t = filePath.trim()
@@ -40,7 +41,8 @@ async function msc_fallback_open_vscode(path: string): Promise<void> {
 
 /** Opens a directory in the OS file manager (Explorer on Windows). */
 export async function msc_open_project_folder(filePath: string): Promise<void> {
-  const path = msc_sanitize_local_path(filePath)
+  if (isLive()) return
+  const path = msc_sanitize_local_path(getSafePath(filePath))
   if (!isTauri()) {
     await msc_fallback_copy_path(path, 'explorer')
     return
@@ -60,7 +62,8 @@ export async function msc_open_project_folder(filePath: string): Promise<void> {
 
 /** Runs `cursor .` with the project directory as cwd (Windows: `cmd /c cd /d … && cursor .`). */
 export async function msc_launch_in_cursor(filePath: string): Promise<void> {
-  const path = msc_sanitize_local_path(filePath)
+  if (isLive()) return
+  const path = msc_sanitize_local_path(getSafePath(filePath))
   if (!isTauri()) {
     await msc_fallback_open_vscode(path)
     return

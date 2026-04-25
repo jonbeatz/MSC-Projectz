@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { AlertCircle, Apple, CheckCircle, Eye, EyeOff, Monitor, Save, Send, Server, Shield, Users } from 'lucide-react'
+import { AlertCircle, Apple, CheckCircle, DatabaseBackup, Eye, EyeOff, Monitor, Save, Send, Server, Shield, Users } from 'lucide-react'
 
 import { MSC_Projectz_PayloadUsersPanel } from '@/components/MSC-Projectz-PayloadUsersPanel'
 import { Button } from '@/components/ui/button'
@@ -9,6 +9,8 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
 import { UserManagementModal } from '@/components/user-management-modal'
+import { toast } from '@/hooks/use-toast'
+import { msc_backupDatabase } from '@/lib/msc_server_actions'
 import { msc_testSystemEmailConfig, msc_updateSystemConfig } from '@/lib/msc_vault_server_actions'
 import { useAppStore } from '@/lib/store'
 import { cn } from '@/lib/utils'
@@ -26,6 +28,7 @@ export function MSC_Projectz_AdminSettingsRouteView() {
   const [smtpSsl, setSmtpSsl] = useState(appSettings.smtp.ssl)
   const [showSmtpPassword, setShowSmtpPassword] = useState(false)
   const [saveMessage, setSaveMessage] = useState<string | null>(null)
+  const [backupBusy, setBackupBusy] = useState(false)
   const [testEmailSending, setTestEmailSending] = useState(false)
   const [testEmailMessage, setTestEmailMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
 
@@ -59,6 +62,25 @@ export function MSC_Projectz_AdminSettingsRouteView() {
     setTestEmailMessage({ type: result.success ? 'success' : 'error', text: result.message })
     setTestEmailSending(false)
     setTimeout(() => setTestEmailMessage(null), 3000)
+  }
+
+  const handleBackupDatabase = async () => {
+    setBackupBusy(true)
+    try {
+      const result = await msc_backupDatabase()
+      toast({
+        title: 'Backup created successfully',
+        description: result.fileName,
+      })
+    } catch (e) {
+      toast({
+        title: 'Backup failed',
+        description: e instanceof Error ? e.message : 'Unable to create database backup.',
+        variant: 'destructive',
+      })
+    } finally {
+      setBackupBusy(false)
+    }
   }
 
   return (
@@ -205,6 +227,25 @@ export function MSC_Projectz_AdminSettingsRouteView() {
               <p className="text-xs text-muted-foreground">Required for secure email transmission.</p>
             </div>
             <Switch checked={smtpSsl} onCheckedChange={setSmtpSsl} />
+          </div>
+
+          <div className="rounded-lg border border-border bg-secondary p-4">
+            <div className="flex items-center gap-2">
+              <DatabaseBackup className="h-4 w-4 text-primary" />
+              <p className="text-sm font-medium text-foreground">Database Backup</p>
+            </div>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Creates a timestamped SQLite copy in the local `/backups` directory.
+            </p>
+            <Button
+              variant="outline"
+              onClick={() => void handleBackupDatabase()}
+              disabled={backupBusy}
+              className="mt-4 gap-2"
+            >
+              <DatabaseBackup className="h-4 w-4" />
+              {backupBusy ? 'Backing up...' : 'Backup Database'}
+            </Button>
           </div>
 
           <div className="rounded-lg border border-border bg-secondary p-4">

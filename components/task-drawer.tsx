@@ -15,6 +15,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { useAppStore } from '@/lib/store'
 import { cn } from '@/lib/utils'
+import { getSafePath } from '@/lib/env-utils'
 import type { Project, Task, TaskStatus } from '@/lib/types'
 
 interface TaskDrawerProps {
@@ -144,7 +145,7 @@ export function TaskDrawer({ isOpen, onClose, project }: TaskDrawerProps) {
           type="button"
           onClick={() => void handleCycleStatus(task.id)}
           className={cn(
-            "flex items-center gap-1.5 px-2 py-1 rounded-md transition-all hover:scale-105 flex-shrink-0",
+            "flex items-center gap-1.5 px-2 py-1 rounded-md transition-all hover:scale-105 shrink-0",
             config.bgClass
           )}
           title={`Status: ${config.label} (click to change)`}
@@ -217,7 +218,7 @@ export function TaskDrawer({ isOpen, onClose, project }: TaskDrawerProps) {
         )}
       >
         {/* Header */}
-        <div className="flex items-center justify-between p-4 flex-shrink-0 border-b border-border">
+        <div className="flex items-center justify-between p-4 shrink-0 border-b border-border">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-lg flex items-center justify-center bg-primary/20">
               <FolderOpen className="w-5 h-5 text-primary" />
@@ -225,7 +226,7 @@ export function TaskDrawer({ isOpen, onClose, project }: TaskDrawerProps) {
             <div>
               <h2 className="font-semibold text-foreground">{liveProject.name}</h2>
               <p className="text-xs truncate max-w-[200px] text-muted-foreground">
-                {liveProject.localPath}
+                {getSafePath(liveProject.localPath)}
               </p>
             </div>
           </div>
@@ -238,7 +239,7 @@ export function TaskDrawer({ isOpen, onClose, project }: TaskDrawerProps) {
         </div>
         
         {/* Progress Summary */}
-        <div className="p-4 flex-shrink-0 border-b border-border">
+        <div className="p-4 shrink-0 border-b border-border">
           <div className="flex items-center justify-between mb-2">
             <span className="text-sm font-medium text-foreground">Task Progress</span>
             <span className="text-sm font-semibold text-primary">{progress}%</span>
@@ -266,7 +267,7 @@ export function TaskDrawer({ isOpen, onClose, project }: TaskDrawerProps) {
         </div>
         
         {/* Add Task Input */}
-        <div className="p-4 flex-shrink-0 border-b border-border">
+        <div className="p-4 shrink-0 border-b border-border">
           <div className="flex gap-2">
             <Input
               placeholder="Add a new task..."

@@ -28,6 +28,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import type { Credential, Project } from '@/lib/types'
 import { cn } from '@/lib/utils'
 import { useAppStore } from '@/lib/store'
+import { getSafePath } from '@/lib/env-utils'
 import { msc_launch_in_cursor, msc_open_project_folder } from '@/lib/msc_native_system_bridge'
 
 export interface MSC_Projectz_ProjectCardProps {
@@ -82,17 +83,18 @@ export function MSC_Projectz_ProjectCard({
 
   const wpAdminCred = useMemo(() => msc_findWpAdminCredential(project.credentials), [project.credentials])
   const counts = useMemo(() => msc_taskCounts(project), [project])
+  const safeLocalPath = getSafePath(project.localPath)
 
   const handleOpenInCursor = () => {
-    if (!project.localPath?.trim()) return
-    void msc_launch_in_cursor(project.localPath).catch((err) => {
+    if (!safeLocalPath.trim()) return
+    void msc_launch_in_cursor(safeLocalPath).catch((err) => {
       console.error('[MSC] msc_launch_in_cursor', err)
     })
   }
 
   const handleOpenInExplorer = () => {
-    if (!project.localPath?.trim()) return
-    void msc_open_project_folder(project.localPath).catch((err) => {
+    if (!safeLocalPath.trim()) return
+    void msc_open_project_folder(safeLocalPath).catch((err) => {
       console.error('[MSC] msc_open_project_folder', err)
     })
   }
@@ -228,8 +230,8 @@ export function MSC_Projectz_ProjectCard({
         <div className="flex items-start justify-between gap-2">
           <div className="flex-1 min-w-0">
             <h3 className="font-medium truncate text-foreground">{project.name}</h3>
-            {project.localPath?.trim() ? (
-              <p className="text-xs truncate mt-0.5 text-muted-foreground">{project.localPath}</p>
+            {safeLocalPath.trim() ? (
+              <p className="text-xs truncate mt-0.5 text-muted-foreground">{safeLocalPath}</p>
             ) : (
               <button
                 type="button"

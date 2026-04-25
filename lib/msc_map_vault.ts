@@ -1,4 +1,5 @@
 import type { Credential, EmailSettings, Project, Task, TaskStatus } from '@/lib/types'
+import { getSafePath } from '@/lib/env-utils'
 import { msc_parseReferencesJson } from '@/lib/msc_project_references'
 
 type MscVaultProjectDoc = {
@@ -89,7 +90,7 @@ export function msc_mapProjectDoc(doc: MscVaultProjectDoc, tasks: Task[]): Proje
     ownerUserId: ownerUserId as string | number | undefined,
     name: doc.name,
     thumbnail: doc.thumbnail || undefined,
-    localPath: doc.localPath || '',
+    localPath: getSafePath(doc.localPath || ''),
     liveUrl: doc.liveUrl || undefined,
     status: doc.status,
     localNotes: doc.localNotes?.trim() ? doc.localNotes.trim() : undefined,

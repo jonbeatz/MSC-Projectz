@@ -21,6 +21,7 @@ import { msc_vaultIsPayloadAdmin } from '@/lib/msc_vault_payload_access'
 import type { AppSettings, Credential, Project, Task, TaskStatus } from '@/lib/types'
 import { msc_mergeProjectsAndTasks, msc_mapProjectDoc, msc_mapTaskDoc } from '@/lib/msc_map_vault'
 import { msc_stringifyReferencesJson } from '@/lib/msc_project_references'
+import { getSafePath } from '@/lib/env-utils'
 
 type MscRegisterUserResult = { success: boolean; message: string }
 type MscLoginResult = {
@@ -256,7 +257,7 @@ export async function msc_createVaultProject(
       name: input.name,
       user: ownerId,
       ...msc_thumbnailPayload(input.thumbnail),
-      localPath: input.localPath || '',
+      localPath: getSafePath(input.localPath || ''),
       liveUrl: input.liveUrl?.trim() || '',
       status: input.status,
       progress: 0,
@@ -307,7 +308,7 @@ export async function msc_updateVaultProject(
     const t = updates.thumbnail?.trim() ?? ''
     data.thumbnail = t
   }
-  if (updates.localPath !== undefined) data.localPath = updates.localPath
+  if (updates.localPath !== undefined) data.localPath = getSafePath(updates.localPath)
   if (updates.liveUrl !== undefined) data.liveUrl = updates.liveUrl
   if (updates.status !== undefined) data.status = updates.status
   if (updates.progress !== undefined) data.progress = updates.progress
@@ -578,7 +579,7 @@ export async function msc_migratePersistedStateIfEmpty(raw: string): Promise<Pro
       data: {
         name: p.name,
         ...msc_thumbnailPayload(p.thumbnail),
-        localPath: p.localPath || '',
+        localPath: getSafePath(p.localPath || ''),
         liveUrl: p.liveUrl?.trim() || '',
         status: p.status,
         progress: p.progress ?? 0,

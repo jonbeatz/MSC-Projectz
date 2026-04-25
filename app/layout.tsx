@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 
 import { MSC_Projectz_SessionGuard } from '@/components/MSC-Projectz-SessionGuard'
+import { Toaster } from '@/components/ui/toaster'
 import './globals.css'
 
 const geistSans = Geist({ 
@@ -43,6 +44,7 @@ export default function RootLayout({
     >
       <body className="font-sans antialiased min-h-screen bg-background text-foreground">
         <MSC_Projectz_SessionGuard>{children}</MSC_Projectz_SessionGuard>
+        <Toaster />
         {process.env.NODE_ENV === 'production' && <Analytics />}
       </body>
     </html>

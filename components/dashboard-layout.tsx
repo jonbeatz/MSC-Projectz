@@ -2,11 +2,11 @@
 
 import { useState, useEffect } from 'react'
 import { ChevronDown, LayoutGrid, List, LogOut, Moon, Search, Shield, Sun, UserCircle } from 'lucide-react'
-import Image from 'next/image'
 import { usePathname, useRouter } from 'next/navigation'
 import { cn } from '@/lib/utils'
 import { DashboardSidebar } from './dashboard-sidebar'
 import { SystemStatus } from '@/components/SystemStatus'
+import { UserAvatar } from '@/components/shared/user-avatar'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -41,6 +41,7 @@ export function DashboardLayout({ children, onAddProject, searchQuery, onSearchC
   const setProjectViewMode = useAppStore((s) => s.setProjectViewMode)
 
   const isDark = appSettings.theme === 'dark'
+  const isAdmin = user?.role === 'admin'
   
   // Apply theme class to document
   useEffect(() => {
@@ -66,6 +67,9 @@ export function DashboardLayout({ children, onAddProject, searchQuery, onSearchC
   }
 
   const sessionUserLabel = user ? getDisplayName(user.email || user.username) : 'Loading...'
+  const sessionAvatar = user
+    ? ((user as typeof user & { avatarUrl?: string | null }).avatarUrl || user.avatar)
+    : null
   const handleSignOut = () => {
     logout()
     router.replace('/login')
@@ -98,24 +102,16 @@ export function DashboardLayout({ children, onAddProject, searchQuery, onSearchC
           <div className="flex items-center gap-4">
             {/* MSC Icon and User Info */}
             <div className="flex items-center gap-2.5">
-              <div className="w-7 h-7 rounded-lg overflow-hidden shrink-0 bg-card border border-border">
-                <Image 
-                  src="/msc-icon.png" 
-                  alt="MSC" 
-                  width={28} 
-                  height={28}
-                  className="object-contain"
-                />
-              </div>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <button
                     type="button"
                     className={cn(
-                      'inline-flex items-center gap-1.5 rounded-lg px-2 py-1 text-sm font-semibold leading-none transition-colors',
+                      'inline-flex items-center gap-2 rounded-lg px-2 py-1 text-sm font-semibold leading-none transition-colors',
                       user ? 'text-foreground hover:bg-card' : 'text-muted-foreground',
                     )}
                   >
+                    <UserAvatar src={sessionAvatar} fallback={sessionUserLabel} />
                     {sessionUserLabel}
                     <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />
                   </button>
@@ -132,7 +128,7 @@ export function DashboardLayout({ children, onAddProject, searchQuery, onSearchC
                     <UserCircle className="h-4 w-4" />
                     My Profile
                   </DropdownMenuItem>
-                  {user?.role === 'admin' && (
+                  {isAdmin && (
                     <DropdownMenuItem onClick={() => router.push('/settings')} className="cursor-pointer">
                       <Shield className="h-4 w-4" />
                       System Admin

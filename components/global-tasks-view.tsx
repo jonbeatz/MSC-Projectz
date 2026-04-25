@@ -18,6 +18,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { useAppStore } from '@/lib/store'
 import { cn } from '@/lib/utils'
+import { getSafePath } from '@/lib/env-utils'
 import type { Task, TaskStatus } from '@/lib/types'
 
 type TabType = 'inbox' | 'archived'
@@ -102,7 +103,7 @@ export function GlobalTasksView() {
   
   // Get all incomplete tasks grouped by project (todo + in-progress)
   const inboxTasks = useMemo(() => {
-    const grouped: Record<string, { projectId: string; projectName: string; tasks: Task[] }> = {}
+    const grouped: Record<string, { projectId: string; projectName: string; projectThumbnail?: string; tasks: Task[] }> = {}
     
     activeProjects.forEach((project) => {
       const incompleteTasks = project.tasks.filter((t) => 
@@ -112,6 +113,7 @@ export function GlobalTasksView() {
         grouped[project.id] = {
           projectId: project.id,
           projectName: project.name,
+          projectThumbnail: project.thumbnail,
           tasks: incompleteTasks.map(t => ({ ...t, status: t.status || 'todo' })),
         }
       }
@@ -122,7 +124,7 @@ export function GlobalTasksView() {
   
   // Get all done tasks grouped by project
   const archivedTasks = useMemo(() => {
-    const grouped: Record<string, { projectId: string; projectName: string; tasks: Task[] }> = {}
+    const grouped: Record<string, { projectId: string; projectName: string; projectThumbnail?: string; tasks: Task[] }> = {}
     
     activeProjects.forEach((project) => {
       const completedTasks = project.tasks.filter((t) => t.status === 'done' || t.archived)
@@ -130,6 +132,7 @@ export function GlobalTasksView() {
         grouped[project.id] = {
           projectId: project.id,
           projectName: project.name,
+          projectThumbnail: project.thumbnail,
           tasks: completedTasks.map(t => ({ ...t, status: t.status || 'done' })),
         }
       }
@@ -173,6 +176,24 @@ export function GlobalTasksView() {
   
   const inboxCount = Object.values(inboxTasks).reduce((sum, group) => sum + group.tasks.length, 0)
   const archivedCount = Object.values(archivedTasks).reduce((sum, group) => sum + group.tasks.length, 0)
+
+  const renderProjectThumbnail = (thumbnail: string | undefined, projectName: string) => {
+    if (thumbnail) {
+      return (
+        <img
+          src={thumbnail}
+          className="h-12 w-12 rounded-lg border border-zinc-700 object-cover shadow-sm"
+          alt={projectName}
+        />
+      )
+    }
+
+    return (
+      <div className="flex h-12 w-12 items-center justify-center rounded-lg border border-zinc-700 bg-zinc-800">
+        <FolderOpen className="h-6 w-6 text-zinc-400" />
+      </div>
+    )
+  }
 
   const renderTask = (task: Task, projectId: string) => {
     const status = task.status || 'todo'
@@ -324,8 +345,8 @@ export function GlobalTasksView() {
         <dl className="grid gap-3 text-sm md:grid-cols-3">
           <div className="rounded-lg border border-border bg-background/40 p-3">
             <dt className="text-xs uppercase tracking-wider text-muted-foreground">Local Path</dt>
-            <dd className="mt-1 truncate text-foreground" title={selectedProject?.localPath || undefined}>
-              {selectedProject?.localPath || 'Not configured'}
+            <dd className="mt-1 truncate text-foreground" title={selectedProject ? getSafePath(selectedProject.localPath) || undefined : undefined}>
+              {selectedProject ? getSafePath(selectedProject.localPath) || 'Not configured' : 'Not configured'}
             </dd>
           </div>
           <div className="rounded-lg border border-border bg-background/40 p-3">
@@ -467,14 +488,14 @@ export function GlobalTasksView() {
                   onClick={() => toggleProjectExpanded(group.projectId)}
                   className="w-full flex items-center justify-between p-4 transition-colors hover:bg-muted/50"
                 >
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-primary/20">
-                      <FolderOpen className="w-4 h-4 text-primary" />
+                  <div className="flex items-center gap-4 p-2 text-left">
+                    {renderProjectThumbnail(group.projectThumbnail, group.projectName)}
+                    <div>
+                      <h2 className="text-lg font-semibold tracking-tight text-foreground">{group.projectName}</h2>
+                      <span className="mt-1 inline-flex rounded bg-muted px-2 py-0.5 text-xs text-muted-foreground">
+                        {group.tasks.length} task{group.tasks.length !== 1 ? 's' : ''}
+                      </span>
                     </div>
-                    <span className="font-medium text-foreground">{group.projectName}</span>
-                    <span className="text-xs px-2 py-0.5 rounded bg-muted text-muted-foreground">
-                      {group.tasks.length} task{group.tasks.length !== 1 ? 's' : ''}
-                    </span>
                   </div>
                   {expandedProjects.includes(group.projectId) ? (
                     <ChevronDown className="w-4 h-4 text-muted-foreground" />
@@ -485,7 +506,7 @@ export function GlobalTasksView() {
                 
                 {expandedProjects.includes(group.projectId) && (
                   <div className="border-t border-border">
-                    {group.tasks.map((task) => renderTask(task, group.projectId))}
+                        {group.tasks.map((task) => renderTask(task, group.projectId))}
                   </div>
                 )}
               </div>
@@ -520,14 +541,14 @@ export function GlobalTasksView() {
                   onClick={() => toggleProjectExpanded(group.projectId)}
                   className="w-full flex items-center justify-between p-4 transition-colors hover:bg-muted/50"
                 >
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-muted">
-                      <FolderOpen className="w-4 h-4 text-muted-foreground" />
+                  <div className="flex items-center gap-4 p-2 text-left">
+                    {renderProjectThumbnail(group.projectThumbnail, group.projectName)}
+                    <div>
+                      <h2 className="text-lg font-semibold tracking-tight text-muted-foreground">{group.projectName}</h2>
+                      <span className="mt-1 inline-flex rounded bg-muted px-2 py-0.5 text-xs text-muted-foreground">
+                        {group.tasks.length} done
+                      </span>
                     </div>
-                    <span className="font-medium text-muted-foreground">{group.projectName}</span>
-                    <span className="text-xs px-2 py-0.5 rounded bg-muted text-muted-foreground">
-                      {group.tasks.length} done
-                    </span>
                   </div>
                   {expandedProjects.includes(group.projectId) ? (
                     <ChevronDown className="w-4 h-4 text-muted-foreground" />
@@ -538,7 +559,7 @@ export function GlobalTasksView() {
                 
                 {expandedProjects.includes(group.projectId) && (
                   <div className="border-t border-border">
-                    {group.tasks.map((task) => renderTask(task, group.projectId))}
+                        {group.tasks.map((task) => renderTask(task, group.projectId))}
                   </div>
                 )}
               </div>

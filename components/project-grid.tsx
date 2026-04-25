@@ -6,6 +6,7 @@ import { ProjectCard } from './project-card'
 import { useAppStore } from '@/lib/store'
 import { cn } from '@/lib/utils'
 import type { Project } from '@/lib/types'
+import { getSafePath } from '@/lib/env-utils'
 import { msc_launch_in_cursor, msc_open_project_folder } from '@/lib/msc_native_system_bridge'
 
 interface ProjectGridProps {
@@ -42,15 +43,16 @@ function ProjectListItem({
   const totalTasks = project.tasks.length
   const completedTasks = project.tasks.filter(t => t.completed).length
   const calculatedProgress = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : (project.progress || 0)
+  const safeLocalPath = getSafePath(project.localPath)
 
   const handleOpenInCursor = () => {
-    void msc_launch_in_cursor(project.localPath).catch((err) => {
+    void msc_launch_in_cursor(safeLocalPath).catch((err) => {
       console.error('[MSC] msc_launch_in_cursor', err)
     })
   }
 
   const handleOpenInExplorer = () => {
-    void msc_open_project_folder(project.localPath).catch((err) => {
+    void msc_open_project_folder(safeLocalPath).catch((err) => {
       console.error('[MSC] msc_open_project_folder', err)
     })
   }
@@ -94,8 +96,8 @@ function ProjectListItem({
             {project.status}
           </span>
         </div>
-        {project.localPath?.trim() ? (
-          <p className="text-xs truncate mt-0.5 text-muted-foreground">{project.localPath}</p>
+        {safeLocalPath.trim() ? (
+          <p className="text-xs truncate mt-0.5 text-muted-foreground">{safeLocalPath}</p>
         ) : (
           <button
             type="button"
