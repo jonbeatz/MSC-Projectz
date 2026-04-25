@@ -1,10 +1,20 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Search, Sun, Moon, LayoutGrid, List } from 'lucide-react'
+import { ChevronDown, LayoutGrid, List, LogOut, Moon, Search, Shield, Sun, UserCircle } from 'lucide-react'
 import Image from 'next/image'
+import { usePathname, useRouter } from 'next/navigation'
 import { cn } from '@/lib/utils'
 import { DashboardSidebar } from './dashboard-sidebar'
+import { SystemStatus } from '@/components/SystemStatus'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
 import { useAppStore } from '@/lib/store'
 
 interface DashboardLayoutProps {
@@ -22,9 +32,11 @@ function getDisplayName(email?: string): string {
 
 export function DashboardLayout({ children, onAddProject, searchQuery, onSearchChange }: DashboardLayoutProps) {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
-  const currentView = useAppStore((s) => s.currentView)
+  const router = useRouter()
+  const pathname = usePathname()
   const user = useAppStore((s) => s.user)
   const appSettings = useAppStore((s) => s.appSettings)
+  const logout = useAppStore((s) => s.logout)
   const toggleTheme = useAppStore((s) => s.toggleTheme)
   const setProjectViewMode = useAppStore((s) => s.setProjectViewMode)
 
@@ -41,17 +53,23 @@ export function DashboardLayout({ children, onAddProject, searchQuery, onSearchC
     }
   }, [isDark])
 
+  const isDashboardRoute = pathname === '/dashboard'
   const getViewTitle = () => {
-    switch (currentView) {
-      case 'dashboard': return 'Dashboard'
-      case 'global-tasks': return 'Tasks'
-      case 'settings': return 'Settings'
-      case 'help': return 'Help & Documentation'
+    switch (pathname) {
+      case '/dashboard': return 'Dashboard'
+      case '/tasks': return 'Tasks'
+      case '/profile': return 'My Profile'
+      case '/settings': return 'System Admin'
+      case '/help': return 'Help & Documentation'
       default: return 'Dashboard'
     }
   }
 
   const sessionUserLabel = user ? getDisplayName(user.email || user.username) : 'Loading...'
+  const handleSignOut = () => {
+    logout()
+    router.replace('/login')
+  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -89,26 +107,56 @@ export function DashboardLayout({ children, onAddProject, searchQuery, onSearchC
                   className="object-contain"
                 />
               </div>
-              <span className={cn(
-                'text-sm font-semibold leading-none',
-                user ? 'text-foreground' : 'text-muted-foreground'
-              )}>
-                {sessionUserLabel}
-              </span>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button
+                    type="button"
+                    className={cn(
+                      'inline-flex items-center gap-1.5 rounded-lg px-2 py-1 text-sm font-semibold leading-none transition-colors',
+                      user ? 'text-foreground hover:bg-card' : 'text-muted-foreground',
+                    )}
+                  >
+                    {sessionUserLabel}
+                    <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="start" className="w-64">
+                  <DropdownMenuLabel className="text-xs font-normal text-muted-foreground">
+                    Signed in as
+                    <span className="mt-1 block truncate text-sm font-medium text-foreground">
+                      {user?.email || 'Loading...'}
+                    </span>
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={() => router.push('/profile')} className="cursor-pointer">
+                    <UserCircle className="h-4 w-4" />
+                    My Profile
+                  </DropdownMenuItem>
+                  {user?.role === 'admin' && (
+                    <DropdownMenuItem onClick={() => router.push('/settings')} className="cursor-pointer">
+                      <Shield className="h-4 w-4" />
+                      System Admin
+                    </DropdownMenuItem>
+                  )}
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={handleSignOut} className="cursor-pointer text-destructive focus:text-destructive">
+                    <LogOut className="h-4 w-4" />
+                    Sign Out
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
             
             <div className="h-6 w-px bg-border" />
             
             <h1 className="text-lg font-semibold text-foreground">{getViewTitle()}</h1>
-            <div className="flex items-center gap-2">
-              <div className="w-2 h-2 rounded-full animate-pulse bg-primary" />
-              <span className="text-xs text-muted-foreground">System Online</span>
-            </div>
           </div>
           
           <div className="flex items-center gap-4">
+            <SystemStatus />
+
             {/* View Toggle (Bento Grid / List) */}
-            {currentView === 'dashboard' && (
+            {isDashboardRoute && (
               <div className={cn(
                 'flex items-center p-1 rounded-lg border border-border bg-card',
                 !isDark && 'card-shadow'
@@ -141,7 +189,7 @@ export function DashboardLayout({ children, onAddProject, searchQuery, onSearchC
             )}
 
             {/* Search Field */}
-            {currentView === 'dashboard' && (
+            {isDashboardRoute && (
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <input

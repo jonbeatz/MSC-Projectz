@@ -36,6 +36,7 @@ export interface MSC_Projectz_ProjectCardProps {
   onDelete: () => void
   onOpenVault: () => void
   onEdit: () => void
+  onConfigurePath: () => void
   onOpenTaskDrawer?: () => void
 }
 
@@ -65,6 +66,7 @@ export function MSC_Projectz_ProjectCard({
   onDelete,
   onOpenVault,
   onEdit,
+  onConfigurePath,
   onOpenTaskDrawer,
 }: MSC_Projectz_ProjectCardProps) {
   const appSettings = useAppStore((s) => s.appSettings)
@@ -226,9 +228,20 @@ export function MSC_Projectz_ProjectCard({
         <div className="flex items-start justify-between gap-2">
           <div className="flex-1 min-w-0">
             <h3 className="font-medium truncate text-foreground">{project.name}</h3>
-            <p className="text-xs truncate mt-0.5 text-muted-foreground">
-              {project.localPath || 'No local path configured'}
-            </p>
+            {project.localPath?.trim() ? (
+              <p className="text-xs truncate mt-0.5 text-muted-foreground">{project.localPath}</p>
+            ) : (
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  onConfigurePath()
+                }}
+                className="msc-cta-initialize mt-2 inline-flex rounded-md px-3 py-1.5 text-xs font-medium transition-opacity hover:opacity-90"
+              >
+                Configure Local Path
+              </button>
+            )}
           </div>
 
           <div className="flex items-center gap-0.5 shrink-0">

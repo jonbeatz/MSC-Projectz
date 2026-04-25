@@ -2,18 +2,18 @@
 
 import { 
   LayoutDashboard, 
-  Settings, 
   HelpCircle,
   LogOut,
   Plus,
   ChevronLeft,
-  ClipboardList
+  ClipboardList,
+  Settings
 } from 'lucide-react'
 import Image from 'next/image'
+import { usePathname, useRouter } from 'next/navigation'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { useAppStore } from '@/lib/store'
-import type { ViewType } from '@/lib/types'
 
 interface SidebarProps {
   collapsed: boolean
@@ -21,18 +21,18 @@ interface SidebarProps {
   onAddProject: () => void
 }
 
-const navItems: { id: ViewType; label: string; icon: React.ElementType }[] = [
-  { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { id: 'global-tasks', label: 'Tasks', icon: ClipboardList },
-  { id: 'settings', label: 'Settings', icon: Settings },
-  { id: 'help', label: 'Help', icon: HelpCircle },
+const navItems: { path: string; label: string; icon: React.ElementType }[] = [
+  { path: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+  { path: '/tasks', label: 'Tasks', icon: ClipboardList },
+  { path: '/settings', label: 'Settings', icon: Settings },
+  { path: '/help', label: 'Help', icon: HelpCircle },
 ]
 
 export function DashboardSidebar({ collapsed, onToggle, onAddProject }: SidebarProps) {
+  const router = useRouter()
+  const pathname = usePathname()
   const logout = useAppStore((s) => s.logout)
   const projects = useAppStore((s) => s.projects)
-  const currentView = useAppStore((s) => s.currentView)
-  const setCurrentView = useAppStore((s) => s.setCurrentView)
   const appSettings = useAppStore((s) => s.appSettings)
   
   const isDark = appSettings.theme === 'dark'
@@ -49,7 +49,7 @@ export function DashboardSidebar({ collapsed, onToggle, onAddProject }: SidebarP
       {/* Header */}
       <div className="flex items-center justify-between h-16 px-4 border-b border-sidebar-border">
         <div className={cn('flex items-center gap-3', collapsed && 'justify-center w-full')}>
-          <div className="w-10 h-10 rounded-lg overflow-hidden flex-shrink-0">
+          <div className="w-10 h-10 rounded-lg overflow-hidden shrink-0">
             <Image 
               src="/msc-icon.png" 
               alt="MSC" 
@@ -77,19 +77,6 @@ export function DashboardSidebar({ collapsed, onToggle, onAddProject }: SidebarP
         )}
       </div>
 
-      {!collapsed && (
-        <div
-          className="msc-system-status mx-3 mb-2 rounded-lg border border-sidebar-border bg-sidebar-accent/30 px-3 py-2.5"
-          role="status"
-          aria-label="Global system status"
-        >
-          <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-            Global System Status
-          </p>
-          <p className="text-xs text-sidebar-foreground/90">Nominal — telemetry stub</p>
-        </div>
-      )}
-
       {/* Add Project Button */}
       <div className={cn('p-3', collapsed && 'px-2')}>
         <Button
@@ -110,11 +97,11 @@ export function DashboardSidebar({ collapsed, onToggle, onAddProject }: SidebarP
         <ul className="space-y-1">
           {navItems.map((item) => {
             const Icon = item.icon
-            const isActive = currentView === item.id
+            const isActive = pathname === item.path
             return (
-              <li key={item.id}>
+              <li key={item.path}>
                 <button
-                  onClick={() => setCurrentView(item.id)}
+                  onClick={() => router.push(item.path)}
                   className={cn(
                     'w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors text-sm',
                     collapsed && 'justify-center px-0',
@@ -123,14 +110,14 @@ export function DashboardSidebar({ collapsed, onToggle, onAddProject }: SidebarP
                       : 'text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-foreground'
                   )}
                 >
-                  <Icon className="w-4 h-4 flex-shrink-0" />
+                  <Icon className="w-4 h-4 shrink-0" />
                   {!collapsed && <span>{item.label}</span>}
-                  {!collapsed && item.id === 'dashboard' && (
+                  {!collapsed && item.path === '/dashboard' && (
                     <span className="ml-auto text-xs px-1.5 py-0.5 rounded bg-primary/20 text-primary">
                       {projects.length}
                     </span>
                   )}
-                  {!collapsed && item.id === 'global-tasks' && projects.reduce((sum, p) => sum + p.tasks.filter(t => !t.completed && !t.archived).length, 0) > 0 && (
+                  {!collapsed && item.path === '/tasks' && projects.reduce((sum, p) => sum + p.tasks.filter(t => !t.completed && !t.archived).length, 0) > 0 && (
                     <span className="ml-auto text-xs px-1.5 py-0.5 rounded bg-primary/20 text-primary">
                       {projects.reduce((sum, p) => sum + p.tasks.filter(t => !t.completed && !t.archived).length, 0)}
                     </span>
@@ -156,7 +143,7 @@ export function DashboardSidebar({ collapsed, onToggle, onAddProject }: SidebarP
             collapsed && 'justify-center px-0'
           )}
         >
-          <LogOut className="w-4 h-4 flex-shrink-0" />
+          <LogOut className="w-4 h-4 shrink-0" />
           {!collapsed && <span>Sign Out</span>}
         </button>
       </div>

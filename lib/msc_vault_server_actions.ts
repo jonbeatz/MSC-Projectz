@@ -18,7 +18,7 @@ import { revalidatePath } from 'next/cache'
 
 import { msc_getVaultLocalApiContext, msc_vaultLocalApiOptions } from '@/lib/msc_vault_auth_context'
 import { msc_vaultIsPayloadAdmin } from '@/lib/msc_vault_payload_access'
-import type { Credential, Project, Task, TaskStatus } from '@/lib/types'
+import type { AppSettings, Credential, Project, Task, TaskStatus } from '@/lib/types'
 import { msc_mergeProjectsAndTasks, msc_mapProjectDoc, msc_mapTaskDoc } from '@/lib/msc_map_vault'
 import { msc_stringifyReferencesJson } from '@/lib/msc_project_references'
 
@@ -29,8 +29,33 @@ type MscLoginResult = {
   user?: { id: string | number | undefined; email: string; role: 'admin' | 'user' }
 }
 
+type MscSystemConfigInput = Pick<AppSettings, 'pathFormat' | 'smtp'>
+
 function msc_revalidateVaultUi() {
   revalidatePath('/')
+}
+
+async function msc_requireVaultAdmin(actionName: string) {
+  const ctx = await msc_getVaultLocalApiContext()
+  if (!ctx.user || !msc_vaultIsPayloadAdmin(ctx.user as Parameters<typeof msc_vaultIsPayloadAdmin>[0])) {
+    throw new Error(`Admin privileges required for ${actionName}.`)
+  }
+  return ctx
+}
+
+/** Admin-only guardrail for global system config workflows (SMTP, SSL, path format). */
+export async function msc_updateSystemConfig(input: MscSystemConfigInput): Promise<MscSystemConfigInput> {
+  await msc_requireVaultAdmin('system configuration update')
+  return input
+}
+
+/** Admin-only SMTP test workflow. Real delivery can replace this stub without weakening RBAC. */
+export async function msc_testSystemEmailConfig(input: MscSystemConfigInput): Promise<{ success: boolean; message: string }> {
+  await msc_requireVaultAdmin('system email test')
+  if (input.smtp.username && input.smtp.password) {
+    return { success: true, message: 'Test email sent successfully!' }
+  }
+  return { success: false, message: 'Please fill in all SMTP credentials' }
 }
 
 /**

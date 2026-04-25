@@ -15,6 +15,7 @@ interface ProjectGridProps {
   onSelectProject: (id: string) => void
   onOpenVault: (id: string) => void
   onEditProject: (id: string) => void
+  onConfigurePath: (id: string) => void
   onOpenTaskDrawer?: (id: string) => void
 }
 
@@ -24,6 +25,7 @@ function ProjectListItem({
   onDelete, 
   onOpenVault, 
   onEdit,
+  onConfigurePath,
   onOpenTaskDrawer
 }: { 
   project: Project
@@ -31,6 +33,7 @@ function ProjectListItem({
   onDelete: () => void
   onOpenVault: () => void
   onEdit: () => void
+  onConfigurePath: () => void
   onOpenTaskDrawer?: () => void
 }) {
   const appSettings = useAppStore((s) => s.appSettings)
@@ -68,7 +71,7 @@ function ProjectListItem({
       onClick={onSelect}
     >
       {/* Thumbnail */}
-      <div className="w-16 h-16 rounded-lg flex-shrink-0 overflow-hidden flex items-center justify-center bg-secondary">
+      <div className="w-16 h-16 rounded-lg shrink-0 overflow-hidden flex items-center justify-center bg-secondary">
         {project.thumbnail ? (
           <img src={project.thumbnail} alt={project.name} className="w-full h-full object-cover" />
         ) : (
@@ -91,7 +94,20 @@ function ProjectListItem({
             {project.status}
           </span>
         </div>
-        <p className="text-xs truncate mt-0.5 text-muted-foreground">{project.localPath}</p>
+        {project.localPath?.trim() ? (
+          <p className="text-xs truncate mt-0.5 text-muted-foreground">{project.localPath}</p>
+        ) : (
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation()
+              onConfigurePath()
+            }}
+            className="msc-cta-initialize mt-2 inline-flex rounded-md px-3 py-1.5 text-xs font-medium transition-opacity hover:opacity-90"
+          >
+            Configure Local Path
+          </button>
+        )}
         
         {/* Progress Bar with clickable task counter */}
         <div className="flex items-center gap-3 mt-2">
@@ -178,7 +194,16 @@ function ProjectListItem({
   )
 }
 
-export function ProjectGrid({ projects, searchQuery, onAddProject, onSelectProject, onOpenVault, onEditProject, onOpenTaskDrawer }: ProjectGridProps) {
+export function ProjectGrid({
+  projects,
+  searchQuery,
+  onAddProject,
+  onSelectProject,
+  onOpenVault,
+  onEditProject,
+  onConfigurePath,
+  onOpenTaskDrawer,
+}: ProjectGridProps) {
   const allProjects = useAppStore((s) => s.projects)
   const deleteProject = useAppStore((s) => s.deleteProject)
   const appSettings = useAppStore((s) => s.appSettings)
@@ -262,6 +287,7 @@ export function ProjectGrid({ projects, searchQuery, onAddProject, onSelectProje
               }}
               onOpenVault={() => onOpenVault(project.id)}
               onEdit={() => onEditProject(project.id)}
+              onConfigurePath={() => onConfigurePath(project.id)}
               onOpenTaskDrawer={() => onOpenTaskDrawer?.(project.id)}
             />
           ))}
@@ -278,6 +304,7 @@ export function ProjectGrid({ projects, searchQuery, onAddProject, onSelectProje
               }}
               onOpenVault={() => onOpenVault(project.id)}
               onEdit={() => onEditProject(project.id)}
+              onConfigurePath={() => onConfigurePath(project.id)}
               onOpenTaskDrawer={() => onOpenTaskDrawer?.(project.id)}
             />
           ))}

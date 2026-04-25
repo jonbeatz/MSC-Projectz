@@ -46,6 +46,7 @@ const statusConfig: Record<TaskStatus, { label: string; icon: typeof Circle; col
 
 export function GlobalTasksView() {
   const [activeTab, setActiveTab] = useState<TabType>('inbox')
+  const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null)
   const [quickAddText, setQuickAddText] = useState('')
   const [expandedProjects, setExpandedProjects] = useState<string[]>([])
   const [editingTaskId, setEditingTaskId] = useState<string | null>(null)
@@ -60,18 +61,50 @@ export function GlobalTasksView() {
   const appSettings = useAppStore((s) => s.appSettings)
   
   const isDark = appSettings.theme === 'dark'
+
+  const selectedProject = useMemo(() => {
+    if (projects.length === 0) return null
+    return projects.find((project) => project.id === selectedProjectId) ?? projects[0]
+  }, [projects, selectedProjectId])
+
+  const activeProjects = useMemo(() => (selectedProject ? [selectedProject] : []), [selectedProject])
+
+  const visibleProjectTasks = selectedProject?.tasks.filter((task) => !task.archived) ?? []
+  const totalProjectTasks = visibleProjectTasks.length
+  const completedProjectTasks =
+    visibleProjectTasks.filter((task) => task.status === 'done' || task.completed).length
+  const projectProgress =
+    totalProjectTasks > 0 ? Math.round((completedProjectTasks / totalProjectTasks) * 100) : selectedProject?.progress ?? 0
   
   useEffect(() => {
     if (editingTaskId && editInputRef.current) {
       editInputRef.current.focus()
     }
   }, [editingTaskId])
+
+  useEffect(() => {
+    if (projects.length === 0) {
+      setSelectedProjectId(null)
+      return
+    }
+    if (!selectedProjectId || !projects.some((project) => project.id === selectedProjectId)) {
+      setSelectedProjectId(projects[0].id)
+    }
+  }, [projects, selectedProjectId])
+
+  useEffect(() => {
+    if (selectedProject?.id) {
+      setExpandedProjects([selectedProject.id])
+    } else {
+      setExpandedProjects([])
+    }
+  }, [selectedProject?.id])
   
   // Get all incomplete tasks grouped by project (todo + in-progress)
   const inboxTasks = useMemo(() => {
     const grouped: Record<string, { projectId: string; projectName: string; tasks: Task[] }> = {}
     
-    projects.forEach((project) => {
+    activeProjects.forEach((project) => {
       const incompleteTasks = project.tasks.filter((t) => 
         (t.status || 'todo') !== 'done' && !t.archived
       )
@@ -85,13 +118,13 @@ export function GlobalTasksView() {
     })
     
     return grouped
-  }, [projects])
+  }, [activeProjects])
   
   // Get all done tasks grouped by project
   const archivedTasks = useMemo(() => {
     const grouped: Record<string, { projectId: string; projectName: string; tasks: Task[] }> = {}
     
-    projects.forEach((project) => {
+    activeProjects.forEach((project) => {
       const completedTasks = project.tasks.filter((t) => t.status === 'done' || t.archived)
       if (completedTasks.length > 0) {
         grouped[project.id] = {
@@ -103,7 +136,7 @@ export function GlobalTasksView() {
     })
     
     return grouped
-  }, [projects])
+  }, [activeProjects])
   
   const toggleProjectExpanded = (projectId: string) => {
     setExpandedProjects((prev) => 
@@ -114,8 +147,8 @@ export function GlobalTasksView() {
   }
   
   const handleQuickAdd = async () => {
-    if (!quickAddText.trim() || projects.length === 0) return
-    await addTask(projects[0].id, quickAddText.trim())
+    if (!quickAddText.trim() || !selectedProject) return
+    await addTask(selectedProject.id, quickAddText.trim())
     setQuickAddText('')
   }
 
@@ -163,7 +196,7 @@ export function GlobalTasksView() {
           type="button"
           onClick={() => void handleCycleStatus(projectId, task.id)}
           className={cn(
-            "flex items-center gap-1.5 px-2 py-1 rounded-md transition-all hover:scale-105 flex-shrink-0",
+            "flex items-center gap-1.5 px-2 py-1 rounded-md transition-all hover:scale-105 shrink-0",
             config.bgClass
           )}
           title={`Status: ${config.label} (click to change)`}
@@ -221,15 +254,113 @@ export function GlobalTasksView() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div>
-        <h1 className="text-2xl font-semibold mb-1 text-foreground">
-          Tasks
-        </h1>
-        <p className="text-sm text-muted-foreground">
-          Command center for all project tasks
-        </p>
+      {/* Breadcrumb + Project Switcher */}
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+        <div>
+          <nav className="mb-2 flex flex-wrap items-center gap-2 text-xs text-muted-foreground" aria-label="Breadcrumb">
+            <span>Dashboard</span>
+            <ChevronRight className="h-3 w-3" />
+            <span className="text-foreground/80">{selectedProject?.name ?? 'No Project'}</span>
+            <ChevronRight className="h-3 w-3" />
+            <span className="font-medium text-primary">Tasks</span>
+          </nav>
+          <h1 className="text-2xl font-semibold mb-1 text-foreground">
+            Tasks
+          </h1>
+          <p className="text-sm text-muted-foreground">
+            Focused command center for the active project task list.
+          </p>
+        </div>
+
+        {projects.length > 1 && (
+          <label className="flex min-w-[240px] flex-col gap-1 text-xs text-muted-foreground">
+            Active Project
+            <select
+              value={selectedProject?.id ?? ''}
+              onChange={(e) => setSelectedProjectId(e.target.value)}
+              className="rounded-lg border border-border bg-card px-3 py-2 text-sm text-foreground outline-none transition focus:ring-2 focus:ring-primary"
+            >
+              {projects.map((project) => (
+                <option key={project.id} value={project.id}>
+                  {project.name}
+                </option>
+              ))}
+            </select>
+          </label>
+        )}
       </div>
+
+      {/* Project Info */}
+      <section
+        className={cn(
+          'rounded-xl border border-border bg-card p-4',
+          !isDark && 'card-shadow',
+        )}
+        aria-label="Project Info"
+      >
+        <div className="mb-4 flex items-center justify-between gap-3 border-b border-border pb-3">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              Project Info
+            </p>
+            <h2 className="mt-1 text-lg font-semibold text-foreground">
+              {selectedProject?.name ?? 'No active project'}
+            </h2>
+          </div>
+          {selectedProject && (
+            <span
+              className={cn(
+                'rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider',
+                selectedProject.status === 'live'
+                  ? 'bg-primary/20 text-primary'
+                  : 'bg-muted text-muted-foreground',
+              )}
+            >
+              {selectedProject.status}
+            </span>
+          )}
+        </div>
+
+        <dl className="grid gap-3 text-sm md:grid-cols-3">
+          <div className="rounded-lg border border-border bg-background/40 p-3">
+            <dt className="text-xs uppercase tracking-wider text-muted-foreground">Local Path</dt>
+            <dd className="mt-1 truncate text-foreground" title={selectedProject?.localPath || undefined}>
+              {selectedProject?.localPath || 'Not configured'}
+            </dd>
+          </div>
+          <div className="rounded-lg border border-border bg-background/40 p-3">
+            <dt className="text-xs uppercase tracking-wider text-muted-foreground">Live URL</dt>
+            <dd className="mt-1 truncate text-foreground" title={selectedProject?.liveUrl || undefined}>
+              {selectedProject?.liveUrl || 'Not configured'}
+            </dd>
+          </div>
+          <div className="rounded-lg border border-border bg-background/40 p-3">
+            <dt className="text-xs uppercase tracking-wider text-muted-foreground">Task Progress</dt>
+            <dd className="mt-1 text-foreground">
+              {completedProjectTasks}/{totalProjectTasks} complete · {projectProgress}%
+            </dd>
+          </div>
+        </dl>
+      </section>
+
+      {/* Task List */}
+      <section
+        className={cn(
+          'space-y-4 rounded-xl border border-border bg-background/30 p-4',
+          !isDark && 'card-shadow',
+        )}
+        aria-label="Task List"
+      >
+        <div className="flex flex-col gap-1 border-b border-border pb-3">
+          <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            Task List
+          </p>
+          <p className="text-sm text-muted-foreground">
+            {selectedProject
+              ? `Tasks currently scoped to ${selectedProject.name}.`
+              : 'Select or create a project to manage tasks.'}
+          </p>
+        </div>
 
       {/* Tabs */}
       <div className={cn(
@@ -289,17 +420,17 @@ export function GlobalTasksView() {
           !isDark && 'card-shadow'
         )}>
           <Input
-            placeholder={projects.length > 0 ? `Quick add task to ${projects[0].name}...` : 'Add a project first...'}
+            placeholder={selectedProject ? `Quick add task to ${selectedProject.name}...` : 'Add a project first...'}
             value={quickAddText}
             onChange={(e) => setQuickAddText(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && void handleQuickAdd()}
-            disabled={projects.length === 0}
+            disabled={!selectedProject}
             className="text-base bg-secondary border-border text-foreground placeholder:text-muted-foreground"
           />
           <Button
             type="button"
             onClick={() => void handleQuickAdd()}
-            disabled={!quickAddText.trim() || projects.length === 0}
+            disabled={!quickAddText.trim() || !selectedProject}
             className="gap-1.5 bg-primary text-primary-foreground hover:bg-primary/90"
           >
             <Plus className="w-4 h-4" />
@@ -308,7 +439,6 @@ export function GlobalTasksView() {
         </div>
       )}
 
-      {/* Task List */}
       <div className="space-y-3">
         {activeTab === 'inbox' && (
           Object.keys(inboxTasks).length === 0 ? (
@@ -416,6 +546,7 @@ export function GlobalTasksView() {
           )
         )}
       </div>
+      </section>
     </div>
   )
 }

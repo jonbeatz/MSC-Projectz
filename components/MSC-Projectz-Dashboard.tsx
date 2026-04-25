@@ -19,6 +19,7 @@ export interface MSC_Projectz_DashboardProps {
   onSelectProject: (id: string) => void
   onOpenVault: (id: string) => void
   onEditProject: (id: string) => void
+  onConfigurePath: (id: string) => void
   onOpenTaskDrawer: (id: string) => void
   selectedProjectId: string | null
   onClearSelectedProject: () => void
@@ -38,6 +39,7 @@ export function MSC_Projectz_Dashboard({
   onSelectProject,
   onOpenVault,
   onEditProject,
+  onConfigurePath,
   onOpenTaskDrawer,
   selectedProjectId,
   onClearSelectedProject,
@@ -117,6 +119,7 @@ export function MSC_Projectz_Dashboard({
           onSelectProject={onSelectProject}
           onOpenVault={onOpenVault}
           onEditProject={onEditProject}
+          onConfigurePath={onConfigurePath}
           onOpenTaskDrawer={onOpenTaskDrawer}
         />
       </div>

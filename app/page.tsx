@@ -1,15 +1,5 @@
-'use client'
-
-import { useAppStore } from '@/lib/store'
-import { AuthScreen } from '@/components/auth-screen'
-import { Dashboard } from '@/components/dashboard'
+import { redirect } from 'next/navigation'
 
 export default function Home() {
-  const isAuthenticated = useAppStore((s) => s.isAuthenticated)
-
-  if (!isAuthenticated) {
-    return <AuthScreen />
-  }
-
-  return <Dashboard />
+  redirect('/dashboard')
 }
