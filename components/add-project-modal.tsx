@@ -40,6 +40,7 @@ const steps: { id: WizardStep; label: string; icon: React.ElementType }[] = [
 /** New projects are owned by the current Payload user when a session is present; see msc_createVaultProject. */
 export function AddProjectModal({ isOpen, onClose }: AddProjectModalProps) {
   const addProject = useAppStore((s) => s.addProject)
+  const user = useAppStore((s) => s.user)
   const fileInputRef = useRef<HTMLInputElement>(null)
   
   const [currentStep, setCurrentStep] = useState<WizardStep>('identity')
@@ -155,6 +156,12 @@ export function AddProjectModal({ isOpen, onClose }: AddProjectModalProps) {
 
     try {
       setIsSubmitting(true)
+      console.log('ADD_PROJECT: auth context before create', {
+        hasPayloadUserId: user?.payloadUserId != null,
+        payloadUserId: user?.payloadUserId ?? null,
+        email: user?.email ?? null,
+        headerFormat: 'server-action httpOnly Payload cookie; no client Authorization header',
+      })
       let thumbOut = (thumbnailPreview || thumbnail).trim()
       if (thumbOut.startsWith('data:image/')) {
         thumbOut = await msc_compressDataUrlImage(thumbOut)

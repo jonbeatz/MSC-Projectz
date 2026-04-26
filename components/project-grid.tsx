@@ -1,6 +1,7 @@
 'use client'
 
-import { Plus, Search, ExternalLink, FolderOpen, MonitorPlay, Settings, Key, Trash2 } from 'lucide-react'
+import { useState } from 'react'
+import { Plus, Search, ExternalLink, FolderOpen, MonitorPlay, Settings, Key, Trash2, Check } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { ProjectCard } from './project-card'
 import { useAppStore } from '@/lib/store'
@@ -39,16 +40,25 @@ function ProjectListItem({
 }) {
   const appSettings = useAppStore((s) => s.appSettings)
   const isDark = appSettings.theme === 'dark'
+  const [isCopied, setIsCopied] = useState(false)
   
   const totalTasks = project.tasks.length
   const completedTasks = project.tasks.filter(t => t.completed).length
   const calculatedProgress = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : (project.progress || 0)
   const safeLocalPath = getSafePath(project.localPath)
 
-  const handleOpenInExplorer = () => {
+  const handleOpenInExplorer = async () => {
     void msc_open_project_folder(safeLocalPath).catch((err) => {
       console.error('[MSC] msc_open_project_folder', err)
     })
+
+    try {
+      await navigator.clipboard.writeText(safeLocalPath)
+      setIsCopied(true)
+      window.setTimeout(() => setIsCopied(false), 2000)
+    } catch (err) {
+      console.error('[MSC] copy project path', err)
+    }
   }
 
   const handleOpenLiveUrl = () => {
@@ -132,10 +142,10 @@ function ProjectListItem({
           size="sm"
           variant="ghost"
           className="h-8 w-8 p-0 text-muted-foreground hover:text-foreground"
-          onClick={handleOpenInExplorer}
+          onClick={() => void handleOpenInExplorer()}
           title="Explorer"
         >
-          <FolderOpen className="w-4 h-4" />
+          {isCopied ? <Check className="w-4 h-4" /> : <FolderOpen className="w-4 h-4" />}
         </Button>
         {project.liveUrl && (
           <Button

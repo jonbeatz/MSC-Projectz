@@ -2,7 +2,10 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import {
+  Check,
   Copy,
+  Eye,
+  EyeOff,
   ExternalLink,
   FolderOpen,
   Key,
@@ -76,6 +79,8 @@ export function MSC_Projectz_ProjectCard({
   const [newCredentialLabel, setNewCredentialLabel] = useState('')
   const [newCredentialUsername, setNewCredentialUsername] = useState('')
   const [newCredentialPassword, setNewCredentialPassword] = useState('')
+  const [showNewCredentialPassword, setShowNewCredentialPassword] = useState(false)
+  const [isCopied, setIsCopied] = useState(false)
 
   const [injectOpen, setInjectOpen] = useState(false)
   const [injectTitle, setInjectTitle] = useState('')
@@ -106,6 +111,7 @@ export function MSC_Projectz_ProjectCard({
     setCredentialProjectId(project.id)
     setVisibleCredentialIds({})
     setCredentialFormOpen(false)
+    setShowNewCredentialPassword(false)
     setCredentialsLoaded(true)
   }, [credentialStorageKey, project.credentials, project.id])
 
@@ -116,11 +122,19 @@ export function MSC_Projectz_ProjectCard({
     window.localStorage.setItem(credentialStorageKey, JSON.stringify(managedCredentials))
   }, [credentialProjectId, credentialStorageKey, credentialsLoaded, managedCredentials, project.id])
 
-  const handleOpenInExplorer = () => {
+  const handleOpenInExplorer = async () => {
     if (!safeLocalPath.trim()) return
     void msc_open_project_folder(safeLocalPath).catch((err) => {
       console.error('[MSC] msc_open_project_folder', err)
     })
+
+    try {
+      await navigator.clipboard.writeText(safeLocalPath)
+      setIsCopied(true)
+      window.setTimeout(() => setIsCopied(false), 2000)
+    } catch (err) {
+      console.error('[MSC] copy project path', err)
+    }
   }
 
   const handleOpenLiveUrl = () => {
@@ -162,6 +176,7 @@ export function MSC_Projectz_ProjectCard({
     setNewCredentialLabel('')
     setNewCredentialUsername('')
     setNewCredentialPassword('')
+    setShowNewCredentialPassword(false)
     setCredentialFormOpen(false)
   }
 
@@ -249,10 +264,10 @@ export function MSC_Projectz_ProjectCard({
             className="h-8 text-xs gap-1.5 bg-secondary text-secondary-foreground hover:bg-secondary/80"
             onClick={(e) => {
               e.stopPropagation()
-              handleOpenInExplorer()
+              void handleOpenInExplorer()
             }}
           >
-            <FolderOpen className="w-3.5 h-3.5" />
+            {isCopied ? <Check className="w-3.5 h-3.5" /> : <FolderOpen className="w-3.5 h-3.5" />}
             Explorer
           </Button>
           {project.liveUrl && (
@@ -382,6 +397,9 @@ export function MSC_Projectz_ProjectCard({
                               <div>
                                 <p className="text-xs text-muted-foreground">Password</p>
                                 <div className="mt-1 flex items-center gap-2">
+                                  <p className="min-w-0 flex-1 break-all text-left text-sm text-foreground">
+                                    {passwordVisible ? credential.password || '—' : '••••••••'}
+                                  </p>
                                   <button
                                     type="button"
                                     onClick={() =>
@@ -390,9 +408,10 @@ export function MSC_Projectz_ProjectCard({
                                         [credential.id]: !current[credential.id],
                                       }))
                                     }
-                                    className="min-w-0 flex-1 break-all text-left text-sm text-foreground"
+                                    className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-primary/10 hover:text-primary"
+                                    aria-label={passwordVisible ? `Hide ${credential.label} password` : `Show ${credential.label} password`}
                                   >
-                                    {passwordVisible ? credential.password || '—' : '••••••••'}
+                                    {passwordVisible ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
                                   </button>
                                   <button
                                     type="button"
@@ -425,13 +444,23 @@ export function MSC_Projectz_ProjectCard({
                         placeholder="Username"
                         className="bg-[#1c1c1c] text-sm text-foreground"
                       />
-                      <Input
-                        value={newCredentialPassword}
-                        onChange={(e) => setNewCredentialPassword(e.target.value)}
-                        placeholder="Password"
-                        type="password"
-                        className="bg-[#1c1c1c] text-sm text-foreground"
-                      />
+                      <div className="relative">
+                        <Input
+                          value={newCredentialPassword}
+                          onChange={(e) => setNewCredentialPassword(e.target.value)}
+                          placeholder="Password"
+                          type={showNewCredentialPassword ? 'text' : 'password'}
+                          className="bg-[#1c1c1c] pr-10 text-sm text-foreground"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowNewCredentialPassword((value) => !value)}
+                          className="absolute right-2 top-1/2 -translate-y-1/2 rounded-md p-1 text-muted-foreground transition-colors hover:text-foreground"
+                          aria-label={showNewCredentialPassword ? 'Hide new credential password' : 'Show new credential password'}
+                        >
+                          {showNewCredentialPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                        </button>
+                      </div>
                       <div className="flex gap-2">
                         <Button
                           type="button"
@@ -445,7 +474,10 @@ export function MSC_Projectz_ProjectCard({
                           type="button"
                           size="sm"
                           variant="outline"
-                          onClick={() => setCredentialFormOpen(false)}
+                          onClick={() => {
+                            setCredentialFormOpen(false)
+                            setShowNewCredentialPassword(false)
+                          }}
                           className="flex-1"
                         >
                           Cancel
@@ -498,11 +530,11 @@ export function MSC_Projectz_ProjectCard({
                 <DropdownMenuItem
                   onClick={(e) => {
                     e.stopPropagation()
-                    handleOpenInExplorer()
+                    void handleOpenInExplorer()
                   }}
                   className="cursor-pointer"
                 >
-                  <FolderOpen className="w-4 h-4 mr-2" />
+                  {isCopied ? <Check className="w-4 h-4 mr-2" /> : <FolderOpen className="w-4 h-4 mr-2" />}
                   Explorer
                 </DropdownMenuItem>
                 {project.liveUrl && (

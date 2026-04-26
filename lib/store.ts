@@ -377,13 +377,33 @@ export const useAppStore = create<AppState>()(
           set({ projects, vaultHydrated: true, vaultUserId })
         } catch (e) {
           console.error('[MSC] hydrateVaultFromPayload', e)
-          set({ projects: [], vaultHydrated: true, vaultUserId })
+          const message = e instanceof Error ? e.message : String(e)
+          if (/authentication required/i.test(message)) {
+            get().msc_purgeClientSession()
+            return
+          }
+          set({ vaultHydrated: true, vaultUserId })
         }
       },
 
       addProject: async (project) => {
-        const created = await msc_createVaultProject(project)
-        set((state) => ({ projects: [...state.projects, created] }))
+        const { user } = get()
+        console.log('ADD_PROJECT: store auth context', {
+          hasPayloadUserId: user?.payloadUserId != null,
+          payloadUserId: user?.payloadUserId ?? null,
+          email: user?.email ?? null,
+        })
+        try {
+          const created = await msc_createVaultProject(project)
+          set((state) => ({ projects: [...state.projects, created] }))
+        } catch (e) {
+          const message = e instanceof Error ? e.message : String(e)
+          if (/authentication required/i.test(message)) {
+            get().msc_purgeClientSession()
+            throw new Error('Authentication required. Please sign in again.')
+          }
+          throw e
+        }
       },
 
       updateProject: async (id, updates) => {

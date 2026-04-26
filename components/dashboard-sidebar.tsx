@@ -14,7 +14,6 @@ import Image from 'next/image'
 import { usePathname, useRouter } from 'next/navigation'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
-import { ProjectBridge } from '@/components/ProjectBridge'
 import { useAppStore } from '@/lib/store'
 
 interface SidebarProps {
@@ -94,12 +93,6 @@ export function DashboardSidebar({ collapsed, onToggle, onAddProject }: SidebarP
           {!collapsed && <span>Add Project</span>}
         </Button>
       </div>
-
-      {!collapsed && (
-        <div className="px-3 pb-3">
-          <ProjectBridge />
-        </div>
-      )}
 
       {/* Navigation */}
       <nav className="flex-1 px-3 py-2">

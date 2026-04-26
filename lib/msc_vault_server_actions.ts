@@ -36,6 +36,17 @@ function msc_revalidateVaultUi() {
   revalidatePath('/')
 }
 
+async function msc_logVaultAuthDebug(actionName: string, user: unknown) {
+  const h = await headers()
+  const cookieHeader = h.get('cookie') || ''
+  console.log(`SERVER: ${actionName} auth context`, {
+    hasCookieHeader: cookieHeader.length > 0,
+    hasPayloadTokenCookie: /payload-token|payload.*-token|msc.*-token/i.test(cookieHeader),
+    userId: (user as { id?: string | number } | null)?.id ?? null,
+    role: (user as { role?: string | null } | null)?.role ?? null,
+  })
+}
+
 async function msc_requireVaultAdmin(actionName: string) {
   const ctx = await msc_getVaultLocalApiContext()
   if (!ctx.user || !msc_vaultIsPayloadAdmin(ctx.user as Parameters<typeof msc_vaultIsPayloadAdmin>[0])) {
@@ -209,6 +220,7 @@ export async function msc_loadVaultProjects(): Promise<Project[]> {
   const ctx = await msc_getVaultLocalApiContext()
   const o = msc_vaultLocalApiOptions(ctx)
   const { payload } = ctx
+  await msc_logVaultAuthDebug('load projects', ctx.user)
   if (!ctx.user) {
     throw new Error('Authentication required to fetch vault projects.')
   }
@@ -247,6 +259,7 @@ export async function msc_createVaultProject(
   const ctx = await msc_getVaultLocalApiContext()
   const o = msc_vaultLocalApiOptions(ctx)
   const { payload } = ctx
+  await msc_logVaultAuthDebug('create project', ctx.user)
   if (!ctx.user) {
     throw new Error('Authentication required to create a project.')
   }
