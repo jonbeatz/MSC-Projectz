@@ -5,6 +5,7 @@ import { Activity, Plus, Trash2, ChevronRight, CircleDot, Zap } from 'lucide-rea
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { MSC_Projectz_TaskAssigneeBadge } from '@/components/MSC-Projectz-TaskAssignee'
 import { useAppStore } from '@/lib/store'
 import type { Project, Task, TaskStatus } from '@/lib/types'
 
@@ -230,6 +231,7 @@ export function MSC_Projectz_TaskPulse({ project }: MSC_Projectz_TaskPulseProps)
                     >
                       <p className="pr-1 text-sm text-foreground">{task.title}</p>
                       <div className="mt-2 flex flex-wrap items-center gap-1">
+                        <MSC_Projectz_TaskAssigneeBadge project={project} task={task} />
                         {col.status === 'todo' && (
                           <Button
                             type="button"

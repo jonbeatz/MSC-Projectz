@@ -2,6 +2,8 @@
  * Non-interactive repair when Drizzle `push` would block on TTY (Windows / CI):
  * - `users.role` (select: user | admin) required by collections/MSC-Projectz-PayloadUsers.ts
  * - `msc_vault_projects.user_id` for the required relationship `user` (VaultProjects)
+ * - `msc_vault_projects_rels` for optional project `members` collaborators
+ * - `msc_vault_tasks.assigned_to_id` for optional task assignment
  *
  * Backs up the DB file before changes. No row deletions.
  */
@@ -27,6 +29,19 @@ function msc_resolveSqliteFile() {
 async function msc_tableColumnNames(client, table) {
   const r = await client.execute({ sql: `PRAGMA table_info(${JSON.stringify(table)})`, args: [] })
   return r.rows.map((row) => row.name)
+}
+
+async function msc_createIndexIfMissing(client, indexName, sql) {
+  const r = await client.execute({
+    sql: 'SELECT name FROM sqlite_master WHERE type = ? AND name = ?',
+    args: ['index', indexName],
+  })
+  if (r.rows.length > 0) {
+    console.log(`[msc_sqlite_repair] ${indexName} already present, skip.`)
+    return
+  }
+  await client.execute(sql)
+  console.log(`[msc_sqlite_repair] Added ${indexName}.`)
 }
 
 async function msc_main() {
@@ -79,6 +94,52 @@ async function msc_main() {
     } else {
       console.log('[msc_sqlite_repair] msc_vault_projects.user_id already present, skip.')
     }
+
+    await client.execute(`
+      CREATE TABLE IF NOT EXISTS msc_vault_projects_rels (
+        id integer PRIMARY KEY NOT NULL,
+        "order" integer,
+        parent_id integer NOT NULL,
+        path text NOT NULL,
+        users_id integer,
+        FOREIGN KEY (parent_id) REFERENCES msc_vault_projects(id) ON UPDATE no action ON DELETE cascade,
+        FOREIGN KEY (users_id) REFERENCES users(id) ON UPDATE no action ON DELETE cascade
+      )
+    `)
+    console.log('[msc_sqlite_repair] Ensured msc_vault_projects_rels for project members.')
+    await msc_createIndexIfMissing(
+      client,
+      'msc_vault_projects_rels_order_idx',
+      'CREATE INDEX msc_vault_projects_rels_order_idx ON msc_vault_projects_rels ("order")',
+    )
+    await msc_createIndexIfMissing(
+      client,
+      'msc_vault_projects_rels_parent_idx',
+      'CREATE INDEX msc_vault_projects_rels_parent_idx ON msc_vault_projects_rels (parent_id)',
+    )
+    await msc_createIndexIfMissing(
+      client,
+      'msc_vault_projects_rels_path_idx',
+      'CREATE INDEX msc_vault_projects_rels_path_idx ON msc_vault_projects_rels (path)',
+    )
+    await msc_createIndexIfMissing(
+      client,
+      'msc_vault_projects_rels_users_id_idx',
+      'CREATE INDEX msc_vault_projects_rels_users_id_idx ON msc_vault_projects_rels (users_id)',
+    )
+
+    const taskCols = await msc_tableColumnNames(client, 'msc_vault_tasks')
+    if (!taskCols.includes('assigned_to_id')) {
+      await client.execute('ALTER TABLE msc_vault_tasks ADD COLUMN assigned_to_id INTEGER')
+      console.log('[msc_sqlite_repair] Added msc_vault_tasks.assigned_to_id.')
+    } else {
+      console.log('[msc_sqlite_repair] msc_vault_tasks.assigned_to_id already present, skip.')
+    }
+    await msc_createIndexIfMissing(
+      client,
+      'msc_vault_tasks_assigned_to_idx',
+      'CREATE INDEX msc_vault_tasks_assigned_to_idx ON msc_vault_tasks (assigned_to_id)',
+    )
   } finally {
     await client.close()
   }

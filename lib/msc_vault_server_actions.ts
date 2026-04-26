@@ -98,13 +98,48 @@ async function msc_assertOwnedVaultProject(
   return project
 }
 
+async function msc_assertAuthorizedVaultProject(
+  ctx: MscVaultLocalApiContext,
+  projectId: string,
+  actionName: string,
+) {
+  const u = msc_requireVaultSessionUser(ctx, actionName)
+  const o = msc_vaultLocalApiOptions(ctx)
+  const authorizedProjectId = msc_coercePayloadRelationId(ctx.payload, 'msc-vault-projects', projectId)
+  const res = await ctx.payload.find({
+    collection: 'msc-vault-projects',
+    depth: 0,
+    limit: 1,
+    user: o.user,
+    overrideAccess: o.overrideAccess,
+    where: {
+      and: [
+        { id: { equals: authorizedProjectId } },
+        {
+          or: [
+            { user: { equals: u.id } },
+            { members: { contains: u.id } },
+          ],
+        },
+      ],
+    },
+  })
+
+  const project = res.docs[0]
+  if (!project) {
+    throw new Error(`Project not found or not shared with current user during ${actionName}.`)
+  }
+
+  return project
+}
+
 async function msc_assertOwnedVaultTask(
   ctx: MscVaultLocalApiContext,
   projectId: string,
   taskId: string,
   actionName: string,
 ) {
-  await msc_assertOwnedVaultProject(ctx, projectId, actionName)
+  await msc_assertAuthorizedVaultProject(ctx, projectId, actionName)
   const o = msc_vaultLocalApiOptions(ctx)
   const ownedTaskId = msc_coercePayloadRelationId(ctx.payload, 'msc-vault-tasks', taskId)
   const ownedProjectId = msc_coercePayloadRelationId(ctx.payload, 'msc-vault-projects', projectId)
@@ -328,11 +363,16 @@ export async function msc_loadVaultProjects(): Promise<Project[]> {
   await msc_logVaultAuthDebug('load projects', ctx.user)
   const u = msc_requireVaultSessionUser(ctx, 'fetch vault projects')
   console.log('SERVER: Fetching projects for User ID:', u.id)
-  /** Defense in depth: app runtime always reads the current user's tenant slice, including admins. */
-  const projectWhere: Where = { user: { equals: u.id } }
+  /** Defense in depth: app runtime reads projects owned by or shared with the current user. */
+  const projectWhere: Where = {
+    or: [
+      { user: { equals: u.id } },
+      { members: { contains: u.id } },
+    ],
+  }
   const projectsRes = await payload.find({
     collection: 'msc-vault-projects',
-    depth: 0,
+    depth: 1,
     limit: 500,
     sort: 'createdAt',
     user: o.user,
@@ -348,7 +388,7 @@ export async function msc_loadVaultProjects(): Promise<Project[]> {
   }
   const tasksRes = await payload.find({
     collection: 'msc-vault-tasks',
-    depth: 0,
+    depth: 1,
     limit: 5000,
     sort: 'createdAt',
     user: o.user,
@@ -416,6 +456,7 @@ export async function msc_updateVaultProject(
       | 'localNotes'
       | 'liveNotes'
       | 'references'
+      | 'members'
     >
   >,
 ): Promise<Project> {
@@ -447,11 +488,15 @@ export async function msc_updateVaultProject(
     }))
   }
   if (updates.emailSettings !== undefined) data.emailSettings = updates.emailSettings
+  if (updates.members !== undefined) {
+    data.members = updates.members.map((member) => msc_coercePayloadRelationId(payload, 'users', String(member.id)))
+  }
 
   const updated = await payload.update({
     collection: 'msc-vault-projects',
     id,
     data,
+    depth: 1,
     user: o.user,
     overrideAccess: o.overrideAccess,
   })
@@ -503,7 +548,7 @@ async function msc_createVaultTaskInPayload(projectId: string, title: string): P
   const ctx = await msc_getVaultLocalApiContext()
   const o = msc_vaultLocalApiOptions(ctx)
   const { payload } = ctx
-  await msc_assertOwnedVaultProject(ctx, projectId, 'create task')
+  await msc_assertAuthorizedVaultProject(ctx, projectId, 'create task')
   const projectRef = msc_coercePayloadRelationId(payload, 'msc-vault-projects', projectId)
   const created = await payload.create({
     collection: 'msc-vault-tasks',
@@ -608,15 +653,22 @@ export async function msc_updateVaultTaskTitle(
   projectId: string,
   taskId: string,
   title: string,
+  assignedTo?: string | number | null,
 ): Promise<Task> {
   const ctx = await msc_getVaultLocalApiContext()
   const o = msc_vaultLocalApiOptions(ctx)
   const { payload } = ctx
   await msc_assertOwnedVaultTask(ctx, projectId, taskId, 'update task title')
+  const data: Record<string, unknown> = { title }
+  if (assignedTo !== undefined) {
+    data.assignedTo =
+      assignedTo === null ? null : msc_coercePayloadRelationId(payload, 'users', String(assignedTo))
+  }
   const updated = await payload.update({
     collection: 'msc-vault-tasks',
     id: taskId,
-    data: { title },
+    depth: 1,
+    data,
     user: o.user,
     overrideAccess: o.overrideAccess,
   })

@@ -1,23 +1,24 @@
 'use client'
 
 import { useState } from 'react'
-import { AlertCircle, Apple, CheckCircle, DatabaseBackup, Eye, EyeOff, Monitor, Save, Send, Server, Shield, Users } from 'lucide-react'
+import { AlertCircle, Apple, CheckCircle, DatabaseBackup, Eye, EyeOff, Monitor, Save, Send, Server, Shield } from 'lucide-react'
 
 import { MSC_Projectz_PayloadUsersPanel } from '@/components/MSC-Projectz-PayloadUsersPanel'
+import { MSC_Projectz_SettingsUsersSection } from '@/components/settings/MSC-Projectz-SettingsUsersSection'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
-import { UserManagementModal } from '@/components/user-management-modal'
 import { toast } from '@/hooks/use-toast'
 import { msc_backupDatabase } from '@/lib/msc_server_actions'
 import { msc_testSystemEmailConfig, msc_updateSystemConfig } from '@/lib/msc_vault_server_actions'
 import { useAppStore } from '@/lib/store'
 import { cn } from '@/lib/utils'
 
+const MSC_PROJECTZ_USE_UNIFIED_SETTINGS_USERS = true
+
 export function MSC_Projectz_AdminSettingsRouteView() {
   const { appSettings, updateAppSettings } = useAppStore()
-  const [userManagementOpen, setUserManagementOpen] = useState(false)
   const [pathFormat, setPathFormat] = useState(appSettings.pathFormat)
   const [smtpIncomingHost, setSmtpIncomingHost] = useState(appSettings.smtp.incomingHost)
   const [smtpIncomingPort, setSmtpIncomingPort] = useState(appSettings.smtp.incomingPort)
@@ -113,25 +114,19 @@ export function MSC_Projectz_AdminSettingsRouteView() {
             </div>
           </div>
 
-      <section id="users" className="overflow-hidden rounded-lg border border-border bg-card">
-        <div className="border-b border-border px-6 py-4">
-          <h2 className="text-lg font-semibold text-foreground">Users</h2>
-          <p className="mt-1 text-sm text-muted-foreground">Manage Payload users, roles, and workspace invitations.</p>
-        </div>
-        <div className="space-y-6 p-6">
-          <MSC_Projectz_PayloadUsersPanel />
-          <div className="border-t border-border pt-4">
-            <p className="mb-2 text-xs text-muted-foreground">Workspace invites (in-app list)</p>
-            <Button
-              onClick={() => setUserManagementOpen(true)}
-              className="flex items-center gap-2 bg-primary text-primary-foreground hover:bg-primary/90"
-            >
-              <Users className="h-4 w-4" />
-              Open invite / pending users
-            </Button>
+      {MSC_PROJECTZ_USE_UNIFIED_SETTINGS_USERS ? (
+        <MSC_Projectz_SettingsUsersSection />
+      ) : (
+        <section id="users" className="overflow-hidden rounded-lg border border-border bg-card">
+          <div className="border-b border-border px-6 py-4">
+            <h2 className="text-lg font-semibold text-foreground">Users</h2>
+            <p className="mt-1 text-sm text-muted-foreground">Manage Payload users, roles, and workspace invitations.</p>
           </div>
-        </div>
-      </section>
+          <div className="space-y-6 p-6">
+            <MSC_Projectz_PayloadUsersPanel />
+          </div>
+        </section>
+      )}
 
       <section id="system" className="overflow-hidden rounded-lg border border-border bg-card">
         <div className="border-b border-border px-6 py-4">
@@ -291,7 +286,6 @@ export function MSC_Projectz_AdminSettingsRouteView() {
 
       </div>
 
-      <UserManagementModal isOpen={userManagementOpen} onClose={() => setUserManagementOpen(false)} />
     </div>
   )
 }

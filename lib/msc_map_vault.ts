@@ -1,11 +1,13 @@
 import type { Credential, EmailSettings, Project, Task, TaskStatus } from '@/lib/types'
 import { getSafePath } from '@/lib/env-utils'
 import { msc_parseReferencesJson } from '@/lib/msc_project_references'
+import type { MscProjectMember } from '@/types/user-admin'
 
 type MscVaultProjectDoc = {
   id: number | string
   name: string
   user?: string | number | { id: string | number } | null
+  members?: Array<string | number | MscProjectMember> | null
   thumbnail?: string | null
   localPath?: string | null
   liveUrl?: string | null
@@ -33,6 +35,7 @@ type MscVaultTaskDoc = {
   completed?: boolean | null
   archived?: boolean | null
   project: number | string | MscVaultProjectDoc
+  assignedTo?: string | number | MscProjectMember | null
   createdAt: string
   updatedAt: string
 }
@@ -48,12 +51,14 @@ export function msc_resolveProjectId(
 }
 
 export function msc_mapTaskDoc(doc: MscVaultTaskDoc): Task {
+  const assignedTo = doc.assignedTo == null ? null : msc_mapProjectMember(doc.assignedTo)
   return {
     id: String(doc.id),
     title: doc.title,
     status: (doc.status || 'todo') as TaskStatus,
     completed: Boolean(doc.completed),
     archived: Boolean(doc.archived),
+    assignedTo,
     createdAt: new Date(doc.createdAt),
   }
 }
@@ -66,6 +71,20 @@ export function msc_mapCredentialRow(row: NonNullable<MscVaultProjectDoc['creden
     username: row.username,
     password: row.password,
   }
+}
+
+function msc_mapProjectMember(member: string | number | MscProjectMember): MscProjectMember {
+  if (typeof member === 'object' && member !== null && 'id' in member) {
+    return {
+      id: member.id,
+      email: member.email ?? null,
+      username: member.username ?? null,
+      avatar: member.avatar ?? null,
+      avatarUrl: member.avatarUrl ?? null,
+    }
+  }
+
+  return { id: member }
 }
 
 function msc_generateLocalId(): string {
@@ -88,6 +107,7 @@ export function msc_mapProjectDoc(doc: MscVaultProjectDoc, tasks: Task[]): Proje
   return {
     id: String(doc.id),
     ownerUserId: ownerUserId as string | number | undefined,
+    members: (doc.members || []).map(msc_mapProjectMember),
     name: doc.name,
     thumbnail: doc.thumbnail || undefined,
     localPath: getSafePath(doc.localPath || ''),

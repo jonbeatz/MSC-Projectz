@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
-import { X, Upload, FolderOpen, Globe, ImageIcon, Save, Plus, Trash2, Link2, FileText } from 'lucide-react'
+import { X, Upload, FolderOpen, Globe, ImageIcon, Save, Plus, Trash2, Link2, FileText, Users } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -12,6 +12,8 @@ import type { Project, ProjectReference } from '@/lib/types'
 import { cn } from '@/lib/utils'
 import { msc_compressDataUrlImage } from '@/lib/msc_compress_thumbnail'
 import { msc_createEmptyReference } from '@/lib/msc_project_references'
+import { msc_listPayloadUsersForSettings } from '@/lib/msc_vault_user_admin'
+import type { MscProjectMember, MscUserAdminRow } from '@/types/user-admin'
 
 interface EditProjectModalProps {
   project: Project | null
@@ -30,6 +32,10 @@ export function EditProjectModal({ project, isOpen, onClose }: EditProjectModalP
   const [localNotes, setLocalNotes] = useState('')
   const [liveNotes, setLiveNotes] = useState('')
   const [references, setReferences] = useState<ProjectReference[]>([])
+  const [availableUsers, setAvailableUsers] = useState<MscUserAdminRow[]>([])
+  const [selectedMemberIds, setSelectedMemberIds] = useState<string[]>([])
+  const [membersLoading, setMembersLoading] = useState(false)
+  const [membersError, setMembersError] = useState<string | null>(null)
   const [activeTab, setActiveTab] = useState<'identity' | 'connectivity' | 'status' | 'references'>('identity')
   const refFileInputRef = useRef<HTMLInputElement>(null)
 
@@ -43,8 +49,35 @@ export function EditProjectModal({ project, isOpen, onClose }: EditProjectModalP
       setLocalNotes(project.localNotes || '')
       setLiveNotes(project.liveNotes || '')
       setReferences(project.references ? [...project.references] : [])
+      setSelectedMemberIds((project.members || []).map((member) => String(member.id)))
     }
   }, [project])
+
+  useEffect(() => {
+    if (!isOpen) return
+
+    let cancelled = false
+    const loadUsers = async () => {
+      setMembersLoading(true)
+      setMembersError(null)
+      const result = await msc_listPayloadUsersForSettings()
+      if (cancelled) return
+
+      if (result.ok) {
+        setAvailableUsers(result.users)
+      } else {
+        setAvailableUsers([])
+        setMembersError(result.error)
+      }
+      setMembersLoading(false)
+    }
+
+    void loadUsers()
+
+    return () => {
+      cancelled = true
+    }
+  }, [isOpen])
 
   const handleSave = async () => {
     if (!project) return
@@ -53,6 +86,18 @@ export function EditProjectModal({ project, isOpen, onClose }: EditProjectModalP
     if (thumb.startsWith('data:image/')) {
       thumb = await msc_compressDataUrlImage(thumb)
     }
+
+    const memberLookup = new Map(availableUsers.map((user) => [String(user.id), user]))
+    const members: MscProjectMember[] = selectedMemberIds.map((id) => {
+      const user = memberLookup.get(id)
+      return {
+        id,
+        email: user?.email ?? null,
+        username: user?.username ?? null,
+        avatar: user?.avatar ?? null,
+        avatarUrl: user?.avatarUrl ?? null,
+      }
+    })
 
     await updateProject(project.id, {
       name,
@@ -63,6 +108,7 @@ export function EditProjectModal({ project, isOpen, onClose }: EditProjectModalP
       localNotes: localNotes.trim() || undefined,
       liveNotes: liveNotes.trim() || undefined,
       references,
+      members,
     })
     onClose()
   }
@@ -111,7 +157,37 @@ export function EditProjectModal({ project, isOpen, onClose }: EditProjectModalP
     e.target.value = ''
   }
 
+  const msc_toggleMember = (userId: string | number) => {
+    const id = String(userId)
+    setSelectedMemberIds((current) =>
+      current.includes(id) ? current.filter((memberId) => memberId !== id) : [...current, id],
+    )
+  }
+
+  const msc_memberInitials = (user: MscUserAdminRow) => {
+    const label = user.username?.trim() || user.email
+    return label
+      .split(/[\s@._-]+/)
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((part) => part[0]?.toUpperCase())
+      .join('') || 'U'
+  }
+
   if (!project || !isOpen) return null
+
+  const rawOwner = project.ownerUserId ?? (project as Project & { owner?: string | number | { id: string | number } }).owner
+  const ownerId =
+    rawOwner && typeof rawOwner === 'object' && 'id' in rawOwner
+      ? String(rawOwner.id)
+      : rawOwner !== undefined && rawOwner !== null
+        ? String(rawOwner)
+        : null
+  const selectedMemberIdSet = new Set(selectedMemberIds)
+  const addableUsers = availableUsers.filter((user) => {
+    const userId = String(user.id)
+    return userId !== ownerId && !selectedMemberIdSet.has(userId)
+  })
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
@@ -206,6 +282,81 @@ export function EditProjectModal({ project, isOpen, onClose }: EditProjectModalP
                       </Button>
                     )}
                   </div>
+                </div>
+              </div>
+
+              <div className="space-y-3 rounded-lg border border-border bg-secondary/40 p-4">
+                <div>
+                  <Label className="flex items-center gap-2 text-sm text-foreground">
+                    <Users className="h-4 w-4 text-primary" />
+                    Project Members
+                  </Label>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    Add collaborators who should appear on this project.
+                  </p>
+                </div>
+
+                {selectedMemberIds.length > 0 && (
+                  <div className="flex flex-wrap gap-2">
+                    {selectedMemberIds.map((memberId) => {
+                      const user = availableUsers.find((candidate) => String(candidate.id) === memberId)
+                      return (
+                        <button
+                          key={memberId}
+                          type="button"
+                          onClick={() => msc_toggleMember(memberId)}
+                          className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-2.5 py-1 text-xs text-foreground transition-colors hover:border-destructive hover:text-destructive"
+                        >
+                          <span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary/15 text-[10px] font-semibold text-primary">
+                            {user ? msc_memberInitials(user) : memberId.slice(0, 2).toUpperCase()}
+                          </span>
+                          {user?.username || user?.email || `User ${memberId}`}
+                          <X className="h-3 w-3" />
+                        </button>
+                      )
+                    })}
+                  </div>
+                )}
+
+                <div className="grid gap-2">
+                  {membersLoading ? (
+                    <p className="rounded-md border border-border bg-card px-3 py-2 text-xs text-muted-foreground">
+                      Loading workspace users...
+                    </p>
+                  ) : membersError ? (
+                    <p className="rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-xs text-destructive">
+                      {membersError}
+                    </p>
+                  ) : addableUsers.length === 0 ? (
+                    <p className="rounded-md border border-border bg-card px-3 py-2 text-xs text-muted-foreground">
+                      No users available.
+                    </p>
+                  ) : (
+                    addableUsers.map((user) => {
+                      return (
+                        <button
+                          key={String(user.id)}
+                          type="button"
+                          onClick={() => msc_toggleMember(user.id)}
+                          className={cn(
+                            'flex items-center justify-between rounded-md border px-3 py-2 text-left transition-colors',
+                            'border-border bg-card text-muted-foreground hover:text-foreground',
+                          )}
+                        >
+                          <span className="flex min-w-0 items-center gap-2">
+                            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-border bg-secondary text-[11px] font-semibold text-foreground">
+                              {msc_memberInitials(user)}
+                            </span>
+                            <span className="min-w-0">
+                              <span className="block truncate text-sm">{user.username || user.email}</span>
+                              <span className="block truncate text-xs text-muted-foreground">{user.email}</span>
+                            </span>
+                          </span>
+                          <span className="text-xs">Add</span>
+                        </button>
+                      )
+                    })
+                  )}
                 </div>
               </div>
             </div>

@@ -94,7 +94,12 @@ interface AppState {
   cycleTaskStatus: (projectId: string, taskId: string) => Promise<void>
   /** Sets column status (Queue / Active / Stabilized); uses `msc_updateTaskStatus` server action. */
   updateTaskStatus: (projectId: string, taskId: string, status: TaskStatus) => Promise<void>
-  updateTaskTitle: (projectId: string, taskId: string, title: string) => Promise<void>
+  updateTaskTitle: (
+    projectId: string,
+    taskId: string,
+    title: string,
+    assignedTo?: string | number | null,
+  ) => Promise<void>
   deleteTask: (projectId: string, taskId: string) => Promise<void>
   archiveTask: (projectId: string, taskId: string) => Promise<void>
 
@@ -413,6 +418,7 @@ export const useAppStore = create<AppState>()(
           references: updates.references,
           credentials: updates.credentials,
           emailSettings: updates.emailSettings,
+          members: updates.members,
         }
         const cleaned = Object.fromEntries(
           Object.entries(payload).filter(([, v]) => v !== undefined),
@@ -545,8 +551,8 @@ export const useAppStore = create<AppState>()(
         }))
       },
 
-      updateTaskTitle: async (projectId, taskId, title) => {
-        const task = await msc_updateVaultTaskTitle(projectId, taskId, title)
+      updateTaskTitle: async (projectId, taskId, title, assignedTo) => {
+        const task = await msc_updateVaultTaskTitle(projectId, taskId, title, assignedTo)
         set((state) => ({
           projects: state.projects.map((p) =>
             p.id === projectId

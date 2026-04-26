@@ -73,6 +73,16 @@ export const MSC_Projectz_VaultProjects: CollectionConfig = {
       required: true,
       admin: { description: 'Tenant owner; new projects are assigned from the current session when present.' },
     },
+    {
+      name: 'members',
+      type: 'relationship',
+      relationTo: 'users',
+      hasMany: true,
+      admin: {
+        description: 'Workspace collaborators with access to this project.',
+        hidden: false,
+      },
+    },
     /**
      * Data-URL thumbnails exceed Payload default `defaultMaxTextLength` (40k) unless raised per-field.
      */

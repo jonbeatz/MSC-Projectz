@@ -1,3 +1,5 @@
+import type { MscProjectMember } from '@/types/user-admin'
+
 export interface Credential {
   id: string
   label: string
@@ -21,6 +23,7 @@ export interface Task {
   status: TaskStatus
   completed: boolean
   archived?: boolean
+  assignedTo?: MscProjectMember | null
   createdAt: Date
 }
 
@@ -40,6 +43,8 @@ export interface Project {
   id: string
   /** Owner in Payload `users` (set server-side; optional in client types for older builds). */
   ownerUserId?: string | number
+  /** Payload `users` collaborators for this project. */
+  members?: MscProjectMember[]
   name: string
   thumbnail?: string
   localPath: string

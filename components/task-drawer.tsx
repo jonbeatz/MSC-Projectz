@@ -13,6 +13,7 @@ import {
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { MSC_Projectz_TaskAssigneeBadge, MSC_Projectz_TaskAssigneeSelect } from '@/components/MSC-Projectz-TaskAssignee'
 import { useAppStore } from '@/lib/store'
 import { cn } from '@/lib/utils'
 import { getSafePath } from '@/lib/env-utils'
@@ -50,6 +51,7 @@ export function TaskDrawer({ isOpen, onClose, project }: TaskDrawerProps) {
   const [newTaskText, setNewTaskText] = useState('')
   const [editingTaskId, setEditingTaskId] = useState<string | null>(null)
   const [editingText, setEditingText] = useState('')
+  const [editingAssignedToId, setEditingAssignedToId] = useState<string | null>(null)
   const editInputRef = useRef<HTMLInputElement>(null)
   
   const addTask = useAppStore((s) => s.addTask)
@@ -89,6 +91,7 @@ export function TaskDrawer({ isOpen, onClose, project }: TaskDrawerProps) {
   const handleStartEdit = (task: Task) => {
     setEditingTaskId(task.id)
     setEditingText(task.title)
+    setEditingAssignedToId(task.assignedTo ? String(task.assignedTo.id) : null)
   }
   
   const handleSaveEdit = async () => {
@@ -96,9 +99,10 @@ export function TaskDrawer({ isOpen, onClose, project }: TaskDrawerProps) {
       setEditingTaskId(null)
       return
     }
-    await updateTaskTitle(liveProject.id, editingTaskId, editingText.trim())
+    await updateTaskTitle(liveProject.id, editingTaskId, editingText.trim(), editingAssignedToId)
     setEditingTaskId(null)
     setEditingText('')
+    setEditingAssignedToId(null)
   }
 
   const handleKeyDown = (e: React.KeyboardEvent, action: 'add' | 'edit') => {
@@ -158,24 +162,36 @@ export function TaskDrawer({ isOpen, onClose, project }: TaskDrawerProps) {
         
         {/* Task Title - Editable */}
         {editingTaskId === task.id ? (
-          <Input
-            ref={editInputRef}
-            value={editingText}
-            onChange={(e) => setEditingText(e.target.value)}
-            onKeyDown={(e) => handleKeyDown(e, 'edit')}
-            onBlur={handleSaveEdit}
-            className="flex-1 h-8 text-sm bg-card border-primary text-foreground"
-          />
+          <div className="flex flex-1 flex-wrap items-end gap-2">
+            <Input
+              ref={editInputRef}
+              value={editingText}
+              onChange={(e) => setEditingText(e.target.value)}
+              onKeyDown={(e) => handleKeyDown(e, 'edit')}
+              className="h-8 min-w-[180px] flex-1 text-sm bg-card border-primary text-foreground"
+            />
+            <MSC_Projectz_TaskAssigneeSelect
+              project={liveProject}
+              value={editingAssignedToId}
+              onChange={setEditingAssignedToId}
+            />
+            <Button type="button" size="sm" className="h-8 bg-primary text-primary-foreground" onClick={() => void handleSaveEdit()}>
+              Save Task
+            </Button>
+          </div>
         ) : (
-          <span 
-            className={cn(
-              'flex-1 text-sm cursor-pointer transition-colors hover:opacity-80',
-              isDone ? 'line-through text-muted-foreground' : 'text-foreground'
-            )}
-            onClick={() => handleStartEdit(task)}
-          >
-            {task.title}
-          </span>
+          <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2">
+            <span
+              className={cn(
+                'min-w-[120px] flex-1 text-sm cursor-pointer transition-colors hover:opacity-80',
+                isDone ? 'line-through text-muted-foreground' : 'text-foreground'
+              )}
+              onClick={() => handleStartEdit(task)}
+            >
+              {task.title}
+            </span>
+            <MSC_Projectz_TaskAssigneeBadge project={liveProject} task={task} />
+          </div>
         )}
         
         {/* Actions */}

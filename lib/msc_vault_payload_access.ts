@@ -8,14 +8,23 @@ export function msc_vaultIsPayloadAdmin(
   return Boolean(user && (user as MscUserWithRole).role === 'admin')
 }
 
+function msc_vaultProjectVisibilityWhere(userId: string | number): Where {
+  return {
+    or: [
+      { user: { equals: userId } },
+      { members: { contains: userId } },
+    ],
+  } as Where
+}
+
 /**
- * Zero-leak: non-admins only read rows where `user` = session id; admins read all.
+ * Zero-leak: non-admins only read rows where `user` = session id or they are a project member.
  * Unauthenticated `false` (Local API may still `overrideAccess` for migrations only).
  */
 export const msc_vaultReadOwnProjects: Access = ({ req: { user } }) => {
   if (!user) return false
   if ((user as MscUserWithRole).role === 'admin') return true
-  return { user: { equals: user.id } } as Where
+  return msc_vaultProjectVisibilityWhere(user.id)
 }
 
 export const msc_vaultUpdateOwnProject: Access = msc_vaultReadOwnProjects
@@ -24,7 +33,7 @@ export const msc_vaultDeleteOwnProject: Access = msc_vaultReadOwnProjects
 export const msc_vaultCreateProject: Access = ({ req }) => Boolean(req.user)
 
 /**
- * Task rows: non-admins only see tasks for projects they own. Resolve with a scoped `project.in` filter.
+ * Task rows: non-admins only see tasks for projects they own or where they are members.
  */
 export const msc_vaultReadOwnTasks: Access = async ({ req }) => {
   const u = req.user as MscUserWithRole | undefined
@@ -33,7 +42,7 @@ export const msc_vaultReadOwnTasks: Access = async ({ req }) => {
   const pl = req.payload
   const projs = await pl.find({
     collection: 'msc-vault-projects',
-    where: { user: { equals: u.id } },
+    where: msc_vaultProjectVisibilityWhere(u.id),
     limit: 5000,
     depth: 0,
     overrideAccess: true,

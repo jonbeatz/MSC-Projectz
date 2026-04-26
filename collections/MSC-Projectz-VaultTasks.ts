@@ -41,6 +41,14 @@ export const MSC_Projectz_VaultTasks: CollectionConfig = {
       relationTo: 'msc-vault-projects',
       required: true,
     },
+    {
+      name: 'assignedTo',
+      type: 'relationship',
+      relationTo: 'users',
+      admin: {
+        description: 'User assigned to this task.',
+      },
+    },
   ],
   timestamps: true,
 }
