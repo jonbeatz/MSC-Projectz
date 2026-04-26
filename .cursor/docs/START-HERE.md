@@ -1,4 +1,4 @@
-# Project Vision: MSC-Projectz (The Vader Vault)
+# Project Vision: MSC-Projectz (Code Manager Command Center)
 
 ## Current Objective
 
@@ -6,25 +6,30 @@ Transition the v0 "Vader Protocol" UI into a production-ready desktop applicatio
 
 ## Current Restart Point
 
-* **Branch:** `MSC-Projectz-v2`
+* **Branch:** `MSC-Projectz-v4`
 * **Remote:** `origin` -> `https://github.com/jonbeatz/MSC-Projectz.git`
-* **Latest pushed checkpoint:** `8602e72fb89b09523e87ad12b7c4179a9f262fec` (`Refactor Command Center routes`)
-* **Status:** Code changes are committed and pushed. Local working tree has one intentionally uncommitted SQLite backup: `payload.sqlite.bak.2026-04-25T18-38-26-162Z`.
-* **Architecture note:** Command Center pages are route-based under `app/(command-center)/` so `/dashboard`, `/profile`, `/settings`, `/help`, and `/tasks` share the same persistent `DashboardLayout`.
-* **Verification:** `npm run verify:next` passed; localhost smoke checks returned `200` for `/`, `/dashboard`, `/profile`, `/help`, and `/settings`.
+* **Latest local commit:** `aa764ba` (`Refine project card bridge and auth diagnostics`). Branch is currently ahead of `origin/MSC-Projectz-v4` by one commit.
+* **Status:** Current working tree contains uncommitted UI, multi-tenancy, avatar persistence, and docs updates. Local working tree also has one intentionally uncommitted SQLite backup: `payload.sqlite.bak.2026-04-25T18-38-26-162Z`.
+* **Architecture note:** Command Center pages are route-based under `app/(command-center)/` so `/dashboard`, `/profile`, `/settings`, `/help`, `/tasks`, and `/vault` share the same persistent `DashboardLayout`.
+* **Verification:** `npm run verify:next` passed after the avatar persistence update. Local dev is running on `http://localhost:3000`; smoke checks returned `200` for `/` and `/admin`.
 
 ## Core Features
 
 * **Project Dashboard:** Bento Grid view of all studio projects.
 * **Task Drawer:** Triple-state task management (To Do, In Progress, Done).
-* **Native Actions:** "Open in Explorer" and "Open in Cursor" via Rust shell commands.
+* **Code Manager:** `/vault` route now uses the shared Command Center shell and a localStorage-backed split-pane snippet manager.
+* **Project Credentials:** Each project card has a compact key popover with dynamic credential rows, password masking, copy actions, deletion, and inline "New +" entry.
+* **Native Actions:** Project card Explorer actions call the Tauri `open_folder` command and copy the project path as a fallback.
 * **Persistence:** Local SQLite database for 100% offline functionality.
+* **Soft Studio Light Mode:** Light theme is scoped through `.light` and `[data-theme='light']` variables using Soft Studio neutrals and Studio Green accent.
+* **Tenant Isolation:** Runtime project/task server actions assert ownership against the current Payload user; Code Manager snippets and project-card credential popovers use user-scoped browser storage keys.
+* **Profile Avatars:** Profile avatar uploads now create tenant-owned Payload `media` documents and save the resulting media ID on the current user record.
 
 ## Identity
 
 * **Name:** Jon Beatz
 * **System Name:** Vader
-* **Theme:** Studio Dark (#121212) / Studio Light (#FFFFFF)
+* **Theme:** Studio Dark / Soft Studio Light
 
 
 

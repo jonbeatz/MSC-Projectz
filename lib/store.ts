@@ -12,7 +12,6 @@ import {
   msc_deleteVaultProject,
   msc_deleteVaultTask,
   msc_loadVaultProjects,
-  msc_migratePersistedStateIfEmpty,
   msc_toggleVaultTask,
   msc_updateVaultProject,
   msc_updateVaultTaskTitle,
@@ -285,6 +284,11 @@ export const useAppStore = create<AppState>()(
       setAuthView: (view) => set({ authView: view }),
 
       updateUser: (updates) => {
+        const currentUserId = get().user?.payloadUserId ?? null
+        console.log('UPDATE_PROFILE: store auth context', {
+          hasPayloadUserId: currentUserId != null,
+          currentUserId,
+        })
         set((state) => ({
           user: state.user ? { ...state.user, ...updates } : null,
         }))
@@ -359,16 +363,6 @@ export const useAppStore = create<AppState>()(
         }
         const vaultUserId = user.payloadUserId
         try {
-          if (typeof window !== 'undefined') {
-            const raw = localStorage.getItem('msc-projectz-storage')
-            if (raw) {
-              const migrated = await msc_migratePersistedStateIfEmpty(raw)
-              if (migrated) {
-                set({ projects: migrated, vaultHydrated: true, vaultUserId })
-                return
-              }
-            }
-          }
           const projects = await msc_loadVaultProjects()
           const activeUser = get().user?.payloadUserId
           if (String(activeUser) !== String(vaultUserId)) {

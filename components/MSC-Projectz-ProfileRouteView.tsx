@@ -1,12 +1,15 @@
 'use client'
 
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { AlertCircle, CheckCircle, Eye, EyeOff, Lock, Mail, Save, Upload, User } from 'lucide-react'
-import Image from 'next/image'
 
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import {
+  msc_updateCurrentUserProfile,
+  msc_uploadProfileAvatar,
+} from '@/lib/msc_profile_server_actions'
 import { useAppStore } from '@/lib/store'
 import { cn } from '@/lib/utils'
 
@@ -14,8 +17,12 @@ export function MSC_Projectz_ProfileRouteView() {
   const { appSettings, changeMasterPassword, user, updateUser } = useAppStore()
   const [username, setUsername] = useState(user?.username || '')
   const [email, setEmail] = useState(user?.email || appSettings.email)
-  const [avatar, setAvatar] = useState(user?.avatar || '')
+  const [avatar, setAvatar] = useState(user?.avatarUrl || user?.avatar || '')
+  const [avatarId, setAvatarId] = useState<string | number | null>(user?.avatarId ?? null)
+  const [avatarUploading, setAvatarUploading] = useState(false)
+  const [profileSaving, setProfileSaving] = useState(false)
   const [saveMessage, setSaveMessage] = useState<string | null>(null)
+  const [saveError, setSaveError] = useState<string | null>(null)
 
   const [currentPassword, setCurrentPassword] = useState('')
   const [newPassword, setNewPassword] = useState('')
@@ -25,18 +32,60 @@ export function MSC_Projectz_ProfileRouteView() {
   const [passwordMessage, setPasswordMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
-  const handleAvatarUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  useEffect(() => {
+    setUsername(user?.username || '')
+    setEmail(user?.email || appSettings.email)
+    setAvatar(user?.avatarUrl || user?.avatar || '')
+    setAvatarId(user?.avatarId ?? null)
+  }, [appSettings.email, user])
+
+  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
-    const reader = new FileReader()
-    reader.onload = (event) => setAvatar(event.target?.result as string)
-    reader.readAsDataURL(file)
+    setSaveError(null)
+    setAvatarUploading(true)
+    try {
+      const formData = new FormData()
+      formData.append('avatar', file)
+      const uploaded = await msc_uploadProfileAvatar(formData)
+      setAvatarId(uploaded.id)
+      setAvatar(uploaded.url)
+    } catch (error) {
+      console.error('[MSC] upload profile avatar', error)
+      setSaveError('Avatar upload failed. Please try again.')
+    } finally {
+      setAvatarUploading(false)
+      e.target.value = ''
+    }
   }
 
-  const handleSaveProfile = () => {
-    updateUser({ username, email, avatar })
-    setSaveMessage('Profile saved successfully')
-    setTimeout(() => setSaveMessage(null), 3000)
+  const handleSaveProfile = async () => {
+    setSaveError(null)
+    setProfileSaving(true)
+    const payload = {
+      username,
+      email,
+      avatar: avatarId,
+    }
+    console.log('PROFILE_SAVE: sending payload', {
+      ...payload,
+      avatarType: typeof payload.avatar,
+      avatarPreviewIsBlob: typeof avatar === 'string' && avatar.startsWith('blob:'),
+      avatarPreviewIsDataUrl: typeof avatar === 'string' && avatar.startsWith('data:'),
+    })
+    try {
+      const updatedUser = await msc_updateCurrentUserProfile(payload)
+      updateUser(updatedUser)
+      setAvatar(updatedUser.avatarUrl || updatedUser.avatar || '')
+      setAvatarId(updatedUser.avatarId ?? null)
+      setSaveMessage('Profile saved successfully')
+      setTimeout(() => setSaveMessage(null), 3000)
+    } catch (error) {
+      console.error('[MSC] save profile', error)
+      setSaveError('Profile save failed. Please try again.')
+    } finally {
+      setProfileSaving(false)
+    }
   }
 
   const handleChangePassword = () => {
@@ -76,9 +125,19 @@ export function MSC_Projectz_ProfileRouteView() {
               {saveMessage}
             </span>
           )}
-          <Button onClick={handleSaveProfile} className="gap-2 bg-primary text-primary-foreground hover:bg-primary/90">
+          {saveError && (
+            <span className="flex items-center gap-2 text-sm text-destructive">
+              <AlertCircle className="h-4 w-4" />
+              {saveError}
+            </span>
+          )}
+          <Button
+            onClick={handleSaveProfile}
+            disabled={avatarUploading || profileSaving}
+            className="gap-2 bg-primary text-primary-foreground hover:bg-primary/90"
+          >
             <Save className="h-4 w-4" />
-            Save Profile
+            {profileSaving ? 'Saving...' : 'Save Profile'}
           </Button>
         </div>
       </div>
@@ -92,7 +151,7 @@ export function MSC_Projectz_ProfileRouteView() {
           <div className="flex shrink-0 flex-col items-center gap-3">
             <div className="flex h-24 w-24 items-center justify-center overflow-hidden rounded-full border-2 border-border bg-secondary">
               {avatar ? (
-                <Image src={avatar} alt="Avatar" width={96} height={96} className="h-full w-full object-cover" />
+                <img src={avatar} alt="Avatar" className="h-full w-full object-cover" />
               ) : (
                 <User className="h-12 w-12 text-muted-foreground" />
               )}
@@ -104,9 +163,15 @@ export function MSC_Projectz_ProfileRouteView() {
               onChange={handleAvatarUpload}
               className="hidden"
             />
-            <Button variant="outline" size="sm" onClick={() => fileInputRef.current?.click()} className="gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => fileInputRef.current?.click()}
+              disabled={avatarUploading}
+              className="gap-2"
+            >
               <Upload className="h-4 w-4" />
-              Choose File
+              {avatarUploading ? 'Uploading...' : 'Choose File'}
             </Button>
           </div>
 

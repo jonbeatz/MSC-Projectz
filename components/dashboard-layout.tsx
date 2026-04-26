@@ -48,9 +48,11 @@ export function DashboardLayout({ children, onAddProject, searchQuery, onSearchC
     if (isDark) {
       document.documentElement.classList.remove('light')
       document.documentElement.classList.add('dark')
+      document.documentElement.dataset.theme = 'dark'
     } else {
       document.documentElement.classList.remove('dark')
       document.documentElement.classList.add('light')
+      document.documentElement.dataset.theme = 'light'
     }
   }, [isDark])
 

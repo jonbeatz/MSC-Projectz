@@ -5,6 +5,8 @@ import { Copy, FileText, Pencil, Plus, Save, Trash } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { msc_getScopedKey } from '@/lib/msc_scoped_storage'
+import { useAppStore } from '@/lib/store'
 import { cn } from '@/lib/utils'
 
 type MscVaultSnippet = {
@@ -34,16 +36,36 @@ function msc_createEmptySnippet(): MscVaultSnippet {
 }
 
 export function VaultLayout() {
+  const userId = useAppStore((s) => s.user?.payloadUserId)
   const [snippets, setSnippets] = useState<MscVaultSnippet[]>([])
   const [activeId, setActiveId] = useState<string | null>(null)
   const [draftTitle, setDraftTitle] = useState('Untitled Snippet')
   const [draftContent, setDraftContent] = useState('')
   const [copied, setCopied] = useState(false)
+  const [loadedStorageKey, setLoadedStorageKey] = useState<string | null>(null)
 
   useEffect(() => {
+    if (userId === undefined || userId === null) {
+      setLoadedStorageKey(null)
+      setSnippets([])
+      setActiveId(null)
+      setDraftTitle('Untitled Snippet')
+      setDraftContent('')
+      return
+    }
+
+    const scopedKey = msc_getScopedKey(MSC_VAULT_SNIPPETS_KEY, userId)
+    setLoadedStorageKey(null)
     try {
-      const stored = window.localStorage.getItem(MSC_VAULT_SNIPPETS_KEY)
-      if (!stored) return
+      setSnippets([])
+      setActiveId(null)
+      setDraftTitle('Untitled Snippet')
+      setDraftContent('')
+      const stored = window.localStorage.getItem(scopedKey)
+      if (!stored) {
+        setLoadedStorageKey(scopedKey)
+        return
+      }
 
       const parsed = JSON.parse(stored) as MscVaultSnippet[]
       if (Array.isArray(parsed)) {
@@ -55,14 +77,19 @@ export function VaultLayout() {
           setDraftContent(firstSnippet.content)
         }
       }
+      setLoadedStorageKey(scopedKey)
     } catch (error) {
       console.error('[MSC] Failed to load vault snippets', error)
+      setLoadedStorageKey(scopedKey)
     }
-  }, [])
+  }, [userId])
 
   useEffect(() => {
-    window.localStorage.setItem(MSC_VAULT_SNIPPETS_KEY, JSON.stringify(snippets))
-  }, [snippets])
+    if (userId === undefined || userId === null) return
+    const scopedKey = msc_getScopedKey(MSC_VAULT_SNIPPETS_KEY, userId)
+    if (loadedStorageKey !== scopedKey) return
+    window.localStorage.setItem(scopedKey, JSON.stringify(snippets))
+  }, [loadedStorageKey, snippets, userId])
 
   const activeSnippet = useMemo(
     () => snippets.find((snippet) => snippet.id === activeId) ?? null,
@@ -134,8 +161,8 @@ export function VaultLayout() {
         </p>
       </div>
 
-      <div className="grid min-h-[640px] overflow-hidden rounded-xl border border-border bg-[#1c1c1c] lg:grid-cols-[320px_minmax(0,1fr)]">
-        <aside className="flex min-h-0 flex-col border-b border-border bg-[#1c1c1c] lg:border-b-0 lg:border-r">
+      <div className="grid min-h-[640px] overflow-hidden rounded-xl border border-border bg-surface lg:grid-cols-[320px_minmax(0,1fr)]">
+        <aside className="flex min-h-0 flex-col border-b border-border bg-surface lg:border-b-0 lg:border-r">
           <div className="flex items-center justify-between border-b border-border p-4">
             <div>
               <h2 className="text-sm font-semibold text-foreground">Snippets</h2>
@@ -209,7 +236,7 @@ export function VaultLayout() {
           </div>
         </aside>
 
-        <section className="flex min-h-0 flex-col bg-[#1c1c1c]">
+        <section className="flex min-h-0 flex-col bg-surface">
           <div className="flex flex-col gap-3 border-b border-border p-4 md:flex-row md:items-center md:justify-between">
             <div className="min-w-0 flex-1">
               <label htmlFor="vault-snippet-title" className="sr-only">
@@ -243,13 +270,13 @@ export function VaultLayout() {
               type="button"
               onClick={msc_handleCopySnippet}
               disabled={!draftContent.trim()}
-              className="absolute right-7 top-7 rounded-md border border-border bg-[#1c1c1c] p-2 text-muted-foreground shadow-xl transition-colors hover:border-primary/50 hover:text-primary disabled:pointer-events-none disabled:opacity-40"
+              className="absolute right-7 top-7 rounded-md border border-border bg-surface p-2 text-muted-foreground shadow-xl transition-colors hover:border-primary/50 hover:bg-surface/80 hover:text-primary disabled:pointer-events-none disabled:opacity-40"
               aria-label="Copy editor text"
             >
               <Copy className="h-4 w-4" />
             </button>
             {copied && (
-              <p className="absolute right-7 top-20 rounded-md border border-primary/30 bg-[#1c1c1c] px-2 py-1 text-xs text-primary">
+              <p className="absolute right-7 top-20 rounded-md border border-primary/30 bg-surface px-2 py-1 text-xs text-primary">
                 Copied!
               </p>
             )}

@@ -73,6 +73,8 @@ export interface User {
   username: string
   email: string
   avatar?: string
+  avatarId?: string | number | null
+  avatarUrl?: string | null
   role?: 'admin' | 'user'
   /** Payload `users` document id when signed in via `msc_vaultSignInToPayload` */
   payloadUserId?: string | number

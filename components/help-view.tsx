@@ -77,7 +77,7 @@ const faqItems: FAQItem[] = [
   {
     id: 'faq-7',
     question: 'Can I export my project data?',
-    answer: 'Project data is stored in localStorage under the key "msc-projectz-storage". You can export this data by copying the localStorage value from your browser developer tools.',
+    answer: 'Project data is stored in Payload/SQLite under your authenticated user ID. Browser-only helper data, like Code Manager snippets and project-card credential popovers, uses user-scoped localStorage keys.',
     category: 'data',
   },
   {
@@ -89,7 +89,7 @@ const faqItems: FAQItem[] = [
   {
     id: 'faq-9',
     question: 'How do I upload a profile avatar?',
-    answer: 'Go to Settings > Profile section. Click the "Choose File" button below your current avatar to select an image from your local machine. The avatar is stored locally and displayed in the sidebar and dashboard header.',
+    answer: 'Go to My Profile and click "Choose File" below your current avatar. The image uploads to Payload media, then Save Profile stores that media ID on your user record.',
     category: 'settings',
   },
   {
@@ -198,8 +198,7 @@ const workflowGuides: GuideItem[] = [
     category: 'workflow',
     steps: [
       'Locate the project card you want to edit',
-      'Click the Settings icon (gear) in the top-left of the thumbnail',
-      'Or use the dropdown menu and select "Edit Project"',
+      'Click the visible Settings icon (gear) in the project card header',
       'Update the project name, thumbnail, paths, or status',
       'Click "Save Changes" to apply your updates',
     ],
@@ -411,9 +410,9 @@ export function HelpView() {
               <AccordionItem
                 key={item.id}
                 value={item.id}
-                className="overflow-hidden border-b border-[#2a2a2a] transition-all data-[state=open]:rounded-lg data-[state=open]:border data-[state=open]:border-border data-[state=open]:bg-[#1c1c1c]"
+                className="overflow-hidden rounded-xl border border-border bg-surface transition-all data-[state=open]:bg-surface"
               >
-                <AccordionTrigger className="px-4 py-4 text-foreground no-underline hover:bg-secondary/50 hover:no-underline">
+                <AccordionTrigger className="px-4 py-4 text-foreground no-underline hover:bg-surface/80 hover:no-underline data-[state=open]:bg-surface/80">
                   <div className="flex min-w-0 items-center gap-3 text-left">
                     <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/20 text-primary">
                       {item.icon}
@@ -424,7 +423,7 @@ export function HelpView() {
                     </div>
                   </div>
                 </AccordionTrigger>
-                <AccordionContent className="bg-[#1c1c1c] p-4 transition-all">
+                <AccordionContent className="bg-surface p-4 transition-all">
                     {/* SMTP Fields with Copy Buttons */}
                     {item.smtpFields && (
                       <div className="space-y-4 mb-4">
@@ -540,9 +539,9 @@ export function HelpView() {
                 <AccordionItem 
                   key={faq.id} 
                   value={faq.id}
-                  className="rounded-xl border border-border bg-card overflow-hidden"
+                  className="overflow-hidden rounded-xl border border-border bg-surface"
                 >
-                  <AccordionTrigger className="px-4 py-3 hover:bg-secondary/50 transition-colors data-[state=open]:bg-secondary/50 text-foreground">
+                  <AccordionTrigger className="px-4 py-3 text-foreground transition-colors hover:bg-surface/80 data-[state=open]:bg-surface/80">
                     <div className="flex items-center gap-3 text-left">
                       <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 bg-primary/20 text-primary">
                         {getCategoryIcon(faq.category)}
@@ -577,9 +576,9 @@ export function HelpView() {
                 <AccordionItem
                   key={guide.id}
                   value={guide.id}
-                  className="overflow-hidden border-b border-[#2a2a2a] transition-all data-[state=open]:rounded-lg data-[state=open]:border data-[state=open]:border-border data-[state=open]:bg-[#1c1c1c]"
+                  className="overflow-hidden rounded-xl border border-border bg-surface transition-all data-[state=open]:bg-surface"
                 >
-                  <AccordionTrigger className="px-4 py-4 text-foreground no-underline hover:bg-secondary/50 hover:no-underline">
+                  <AccordionTrigger className="px-4 py-4 text-foreground no-underline hover:bg-surface/80 hover:no-underline data-[state=open]:bg-surface/80">
                     <div className="flex min-w-0 items-start gap-3 text-left">
                       <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/20 text-primary">
                         {getCategoryIcon(guide.category)}
@@ -590,7 +589,7 @@ export function HelpView() {
                       </div>
                     </div>
                   </AccordionTrigger>
-                  <AccordionContent className="bg-[#1c1c1c] p-4 transition-all">
+                  <AccordionContent className="bg-surface p-4 transition-all">
                     <ol className="space-y-2">
                       {guide.steps.map((step, index) => (
                         <li 

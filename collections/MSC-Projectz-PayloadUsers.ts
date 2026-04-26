@@ -12,6 +12,17 @@ export const MSC_Projectz_PayloadUsers: CollectionConfig = {
   auth: true,
   fields: [
     {
+      name: 'username',
+      type: 'text',
+      admin: { description: 'Display name shown in the Command Center UI.' },
+    },
+    {
+      name: 'avatar',
+      type: 'relationship',
+      relationTo: 'media',
+      admin: { description: 'Profile avatar media document.' },
+    },
+    {
       name: 'role',
       type: 'select',
       required: true,

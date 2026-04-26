@@ -22,12 +22,20 @@ import type { AppSettings, Credential, Project, Task, TaskStatus } from '@/lib/t
 import { msc_mergeProjectsAndTasks, msc_mapProjectDoc, msc_mapTaskDoc } from '@/lib/msc_map_vault'
 import { msc_stringifyReferencesJson } from '@/lib/msc_project_references'
 import { getSafePath } from '@/lib/env-utils'
+import type { MscVaultLocalApiContext } from '@/lib/msc_vault_auth_context'
 
 type MscRegisterUserResult = { success: boolean; message: string }
 type MscLoginResult = {
   success: boolean
   message: string
-  user?: { id: string | number | undefined; email: string; role: 'admin' | 'user' }
+  user?: {
+    id: string | number | undefined
+    email: string
+    username?: string
+    role: 'admin' | 'user'
+    avatarId?: string | number | null
+    avatarUrl?: string | null
+  }
 }
 
 type MscSystemConfigInput = Pick<AppSettings, 'pathFormat' | 'smtp'>
@@ -45,6 +53,81 @@ async function msc_logVaultAuthDebug(actionName: string, user: unknown) {
     userId: (user as { id?: string | number } | null)?.id ?? null,
     role: (user as { role?: string | null } | null)?.role ?? null,
   })
+}
+
+type MscVaultSessionUser = { id: string | number; role?: 'admin' | 'user' | null }
+
+function msc_requireVaultSessionUser(
+  ctx: MscVaultLocalApiContext,
+  actionName: string,
+): MscVaultSessionUser {
+  if (!ctx.user) {
+    throw new Error(`Authentication required to ${actionName}.`)
+  }
+
+  return ctx.user as MscVaultSessionUser
+}
+
+async function msc_assertOwnedVaultProject(
+  ctx: MscVaultLocalApiContext,
+  projectId: string,
+  actionName: string,
+) {
+  const u = msc_requireVaultSessionUser(ctx, actionName)
+  const o = msc_vaultLocalApiOptions(ctx)
+  const ownedProjectId = msc_coercePayloadRelationId(ctx.payload, 'msc-vault-projects', projectId)
+  const res = await ctx.payload.find({
+    collection: 'msc-vault-projects',
+    depth: 0,
+    limit: 1,
+    user: o.user,
+    overrideAccess: o.overrideAccess,
+    where: {
+      and: [
+        { id: { equals: ownedProjectId } },
+        { user: { equals: u.id } },
+      ],
+    },
+  })
+
+  const project = res.docs[0]
+  if (!project) {
+    throw new Error(`Project not found for current user during ${actionName}.`)
+  }
+
+  return project
+}
+
+async function msc_assertOwnedVaultTask(
+  ctx: MscVaultLocalApiContext,
+  projectId: string,
+  taskId: string,
+  actionName: string,
+) {
+  await msc_assertOwnedVaultProject(ctx, projectId, actionName)
+  const o = msc_vaultLocalApiOptions(ctx)
+  const ownedTaskId = msc_coercePayloadRelationId(ctx.payload, 'msc-vault-tasks', taskId)
+  const ownedProjectId = msc_coercePayloadRelationId(ctx.payload, 'msc-vault-projects', projectId)
+  const res = await ctx.payload.find({
+    collection: 'msc-vault-tasks',
+    depth: 0,
+    limit: 1,
+    user: o.user,
+    overrideAccess: o.overrideAccess,
+    where: {
+      and: [
+        { id: { equals: ownedTaskId } },
+        { project: { equals: ownedProjectId } },
+      ],
+    },
+  })
+
+  const task = res.docs[0]
+  if (!task) {
+    throw new Error(`Task not found for current user during ${actionName}.`)
+  }
+
+  return task
 }
 
 async function msc_requireVaultAdmin(actionName: string) {
@@ -175,6 +258,18 @@ export async function msc_login(email: string, password: string): Promise<MscLog
     return { success: false, message: 'Invalid email or password.' }
   }
 
+  const fullUser = result.user?.id
+    ? await payload.findByID({
+        collection: 'users',
+        id: result.user.id,
+        depth: 1,
+        overrideAccess: true,
+      })
+    : null
+  const avatar = (fullUser as { avatar?: string | number | { id?: string | number; url?: string | null } | null } | null)?.avatar
+  const avatarId = avatar && typeof avatar === 'object' ? avatar.id ?? null : avatar ?? null
+  const avatarUrl = avatar && typeof avatar === 'object' ? avatar.url ?? null : null
+
   const col = payload.collections['users']
   const prefix = payload.config.cookiePrefix
   const cookie = generatePayloadCookie({
@@ -204,10 +299,20 @@ export async function msc_login(email: string, password: string): Promise<MscLog
   })
 
   const msc_role = result.user?.role === 'admin' ? 'admin' : 'user'
+  const username =
+    (fullUser as { username?: string | null } | null)?.username?.trim() ||
+    msc_email.split('@')[0]
   return {
     success: true,
     message: 'Authenticated.',
-    user: { id: result.user?.id, email: msc_email, role: msc_role },
+    user: {
+      id: result.user?.id,
+      email: msc_email,
+      username,
+      role: msc_role,
+      avatarId,
+      avatarUrl,
+    },
   }
 }
 
@@ -221,15 +326,10 @@ export async function msc_loadVaultProjects(): Promise<Project[]> {
   const o = msc_vaultLocalApiOptions(ctx)
   const { payload } = ctx
   await msc_logVaultAuthDebug('load projects', ctx.user)
-  if (!ctx.user) {
-    throw new Error('Authentication required to fetch vault projects.')
-  }
-  const u = ctx.user as { id: string | number; role?: 'admin' | 'user' | null }
+  const u = msc_requireVaultSessionUser(ctx, 'fetch vault projects')
   console.log('SERVER: Fetching projects for User ID:', u.id)
-  const isAdmin = msc_vaultIsPayloadAdmin(u)
-  /** Defense in depth: AND with collection access (non-admins: own rows only). */
-  const projectWhere: Where | undefined =
-    !isAdmin ? { user: { equals: u.id } } : undefined
+  /** Defense in depth: app runtime always reads the current user's tenant slice, including admins. */
+  const projectWhere: Where = { user: { equals: u.id } }
   const projectsRes = await payload.find({
     collection: 'msc-vault-projects',
     depth: 0,
@@ -239,6 +339,13 @@ export async function msc_loadVaultProjects(): Promise<Project[]> {
     overrideAccess: o.overrideAccess,
     where: projectWhere,
   })
+  const projectIds = projectsRes.docs.map((project) => project.id)
+  if (projectIds.length === 0) {
+    return msc_mergeProjectsAndTasks(
+      projectsRes.docs as Parameters<typeof msc_mergeProjectsAndTasks>[0],
+      [],
+    )
+  }
   const tasksRes = await payload.find({
     collection: 'msc-vault-tasks',
     depth: 0,
@@ -246,6 +353,7 @@ export async function msc_loadVaultProjects(): Promise<Project[]> {
     sort: 'createdAt',
     user: o.user,
     overrideAccess: o.overrideAccess,
+    where: { project: { in: projectIds } },
   })
   return msc_mergeProjectsAndTasks(
     projectsRes.docs as Parameters<typeof msc_mergeProjectsAndTasks>[0],
@@ -260,10 +368,9 @@ export async function msc_createVaultProject(
   const o = msc_vaultLocalApiOptions(ctx)
   const { payload } = ctx
   await msc_logVaultAuthDebug('create project', ctx.user)
-  if (!ctx.user) {
-    throw new Error('Authentication required to create a project.')
-  }
-  const ownerId = msc_coercePayloadRelationId(payload, 'users', String(ctx.user.id))
+  const u = msc_requireVaultSessionUser(ctx, 'create a project')
+  console.log('SERVER: create project currentUserId', { currentUserId: u.id })
+  const ownerId = msc_coercePayloadRelationId(payload, 'users', String(u.id))
   const created = await payload.create({
     collection: 'msc-vault-projects',
     data: {
@@ -315,6 +422,7 @@ export async function msc_updateVaultProject(
   const ctx = await msc_getVaultLocalApiContext()
   const o = msc_vaultLocalApiOptions(ctx)
   const { payload } = ctx
+  await msc_assertOwnedVaultProject(ctx, id, 'update project')
   const data: Record<string, unknown> = {}
   if (updates.name !== undefined) data.name = updates.name
   if (updates.thumbnail !== undefined) {
@@ -349,7 +457,7 @@ export async function msc_updateVaultProject(
   })
   const tasksRes = await payload.find({
     collection: 'msc-vault-tasks',
-    where: { project: { equals: id } },
+    where: { project: { equals: msc_coercePayloadRelationId(payload, 'msc-vault-projects', id) } },
     depth: 0,
     limit: 5000,
     user: o.user,
@@ -365,9 +473,10 @@ export async function msc_deleteVaultProject(id: string): Promise<void> {
   const ctx = await msc_getVaultLocalApiContext()
   const o = msc_vaultLocalApiOptions(ctx)
   const { payload } = ctx
+  await msc_assertOwnedVaultProject(ctx, id, 'delete project')
   const tasks = await payload.find({
     collection: 'msc-vault-tasks',
-    where: { project: { equals: id } },
+    where: { project: { equals: msc_coercePayloadRelationId(payload, 'msc-vault-projects', id) } },
     limit: 5000,
     depth: 0,
     user: o.user,
@@ -394,6 +503,7 @@ async function msc_createVaultTaskInPayload(projectId: string, title: string): P
   const ctx = await msc_getVaultLocalApiContext()
   const o = msc_vaultLocalApiOptions(ctx)
   const { payload } = ctx
+  await msc_assertOwnedVaultProject(ctx, projectId, 'create task')
   const projectRef = msc_coercePayloadRelationId(payload, 'msc-vault-projects', projectId)
   const created = await payload.create({
     collection: 'msc-vault-tasks',
@@ -428,13 +538,7 @@ export async function msc_toggleVaultTask(projectId: string, taskId: string): Pr
   const ctx = await msc_getVaultLocalApiContext()
   const o = msc_vaultLocalApiOptions(ctx)
   const { payload } = ctx
-  const doc = await payload.findByID({
-    collection: 'msc-vault-tasks',
-    id: taskId,
-    depth: 0,
-    user: o.user,
-    overrideAccess: o.overrideAccess,
-  })
+  const doc = await msc_assertOwnedVaultTask(ctx, projectId, taskId, 'toggle task')
   const next = !doc.completed
   const updated = await payload.update({
     collection: 'msc-vault-tasks',
@@ -461,13 +565,7 @@ export async function msc_update_task_status(
   const ctx = await msc_getVaultLocalApiContext()
   const o = msc_vaultLocalApiOptions(ctx)
   const { payload } = ctx
-  const doc = await payload.findByID({
-    collection: 'msc-vault-tasks',
-    id: taskId,
-    depth: 0,
-    user: o.user,
-    overrideAccess: o.overrideAccess,
-  })
+  const doc = await msc_assertOwnedVaultTask(ctx, projectId, taskId, 'update task status')
   const completed = extra?.completed ?? (status === 'done')
   const archived = extra?.archived ?? Boolean(doc.archived)
   const updated = await payload.update({
@@ -496,13 +594,7 @@ export async function msc_cycleVaultTaskStatus(projectId: string, taskId: string
   const ctx = await msc_getVaultLocalApiContext()
   const o = msc_vaultLocalApiOptions(ctx)
   const { payload } = ctx
-  const doc = await payload.findByID({
-    collection: 'msc-vault-tasks',
-    id: taskId,
-    depth: 0,
-    user: o.user,
-    overrideAccess: o.overrideAccess,
-  })
+  const doc = await msc_assertOwnedVaultTask(ctx, projectId, taskId, 'cycle task status')
   const order: TaskStatus[] = ['todo', 'in-progress', 'done']
   const cur = (doc.status as TaskStatus) || 'todo'
   const next = order[(order.indexOf(cur) + 1) % order.length]
@@ -520,6 +612,7 @@ export async function msc_updateVaultTaskTitle(
   const ctx = await msc_getVaultLocalApiContext()
   const o = msc_vaultLocalApiOptions(ctx)
   const { payload } = ctx
+  await msc_assertOwnedVaultTask(ctx, projectId, taskId, 'update task title')
   const updated = await payload.update({
     collection: 'msc-vault-tasks',
     id: taskId,
@@ -536,6 +629,7 @@ export async function msc_deleteVaultTask(projectId: string, taskId: string): Pr
   const ctx = await msc_getVaultLocalApiContext()
   const o = msc_vaultLocalApiOptions(ctx)
   const { payload } = ctx
+  await msc_assertOwnedVaultTask(ctx, projectId, taskId, 'delete task')
   await payload.delete({
     collection: 'msc-vault-tasks',
     id: taskId,
@@ -550,6 +644,7 @@ export async function msc_archiveVaultTask(projectId: string, taskId: string): P
   const ctx = await msc_getVaultLocalApiContext()
   const o = msc_vaultLocalApiOptions(ctx)
   const { payload } = ctx
+  await msc_assertOwnedVaultTask(ctx, projectId, taskId, 'archive task')
   const updated = await payload.update({
     collection: 'msc-vault-tasks',
     id: taskId,
@@ -563,68 +658,9 @@ export async function msc_archiveVaultTask(projectId: string, taskId: string): P
 }
 
 export async function msc_migratePersistedStateIfEmpty(raw: string): Promise<Project[] | null> {
-  const payload = await getPayload({ config })
-  const uCheck = await payload.find({ collection: 'users', limit: 1, depth: 0, overrideAccess: true })
-  if (uCheck.docs.length === 0) {
-    return null
-  }
-  const existing = await payload.find({
-    collection: 'msc-vault-projects',
-    limit: 1,
-    depth: 0,
-    overrideAccess: true,
-  })
-  if (existing.docs.length > 0) return null
-
-  let parsed: unknown
-  try {
-    parsed = JSON.parse(raw)
-  } catch {
-    return null
-  }
-  const state = parsed as { state?: { projects?: Project[] } }
-  const projects = state.state?.projects
-  if (!projects?.length) return null
-
-  for (const p of projects) {
-    const created = await payload.create({
-      collection: 'msc-vault-projects',
-      data: {
-        name: p.name,
-        ...msc_thumbnailPayload(p.thumbnail),
-        localPath: getSafePath(p.localPath || ''),
-        liveUrl: p.liveUrl?.trim() || '',
-        status: p.status,
-        progress: p.progress ?? 0,
-        localNotes: p.localNotes?.trim() || '',
-        liveNotes: p.liveNotes?.trim() || '',
-        referencesJson: msc_stringifyReferencesJson(p.references ?? []),
-        credentials: (p.credentials || []).map((c) => ({
-          credentialId: c.id,
-          label: c.label,
-          username: c.username,
-          password: c.password,
-        })),
-        emailSettings: p.emailSettings,
-      },
-      overrideAccess: true,
-    })
-    const pid = String(created.id)
-    const projectRef = msc_coercePayloadRelationId(payload, 'msc-vault-projects', pid)
-    for (const t of p.tasks || []) {
-      await payload.create({
-        collection: 'msc-vault-tasks',
-        data: {
-          title: t.title,
-          status: t.status || 'todo',
-          completed: t.completed,
-          archived: t.archived ?? false,
-          project: projectRef,
-        },
-        overrideAccess: true,
-      })
-    }
-  }
-  msc_revalidateVaultUi()
-  return msc_loadVaultProjects()
+  void raw
+  // Legacy global localStorage migration is intentionally disabled. Importing
+  // unscoped browser data into Payload can assign one user's project cache to
+  // another tenant.
+  return null
 }

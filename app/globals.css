@@ -57,24 +57,26 @@
    TRUE LIGHT MODE - Clean Whites and High Contrast
    ===================================================== */
 .light {
-  --background: 210 20% 98%;
-  --foreground: 222 47% 11%;
-  --card: 0 0% 100%;
-  --card-foreground: 222 47% 11%;
-  --popover: 0 0% 100%;
-  --popover-foreground: 222 47% 11%;
+  --background: 0 0% 92%;
+  --foreground: 0 0% 16%;
+  --surface: 0 0% 86%;
+  --text: 0 0% 16%;
+  --card: 0 0% 86%;
+  --card-foreground: 0 0% 16%;
+  --popover: 0 0% 86%;
+  --popover-foreground: 0 0% 16%;
   --primary: 142 69% 58%;
-  --primary-foreground: 222 47% 11%;
-  --secondary: 220 14% 96%;
-  --secondary-foreground: 222 47% 11%;
-  --muted: 220 14% 96%;
-  --muted-foreground: 220 9% 46%;
+  --primary-foreground: 0 0% 16%;
+  --secondary: 0 0% 86%;
+  --secondary-foreground: 0 0% 16%;
+  --muted: 0 0% 86%;
+  --muted-foreground: 0 0% 42%;
   --accent: 142 69% 58%;
-  --accent-foreground: 222 47% 11%;
+  --accent-foreground: 0 0% 16%;
   --destructive: 0 84% 60%;
   --destructive-foreground: 0 0% 100%;
-  --border: 220 13% 91%;
-  --input: 0 0% 100%;
+  --border: 0 0% 76%;
+  --input: 0 0% 86%;
   --ring: 142 69% 58%;
   
   /* Light mode sidebar - can stay dark for contrast */
@@ -88,7 +90,31 @@
   --sidebar-ring: 142 69% 58%;
 
   --msc-accent: 142 69% 58%;
-  --msc-accent-foreground: 222 47% 11%;
+  --msc-accent-foreground: 0 0% 16%;
+}
+
+[data-theme='light'] {
+  --background: 0 0% 92%; /* #EAEAEA */
+  --foreground: 0 0% 16%; /* #2A2A2A */
+  --surface: 0 0% 86%; /* #DCDCDC */
+  --text: 0 0% 16%; /* #2A2A2A */
+  --card: 0 0% 86%;
+  --card-foreground: 0 0% 16%;
+  --popover: 0 0% 86%;
+  --popover-foreground: 0 0% 16%;
+  --primary: 142 71% 45%; /* #22C55E */
+  --primary-foreground: 0 0% 16%;
+  --secondary: 0 0% 86%;
+  --secondary-foreground: 0 0% 16%;
+  --muted: 0 0% 86%;
+  --muted-foreground: 0 0% 42%;
+  --accent: 142 71% 45%; /* #22C55E */
+  --accent-foreground: 0 0% 16%;
+  --border: 0 0% 76%; /* #C2C2C2 */
+  --input: 0 0% 86%;
+  --ring: 142 71% 45%;
+  --msc-accent: 142 71% 45%;
+  --msc-accent-foreground: 0 0% 16%;
 }
 
 /* Tailwind v4 Theme inline */
@@ -98,6 +124,8 @@
   
   --color-background: hsl(var(--background));
   --color-foreground: hsl(var(--foreground));
+  --color-surface: hsl(var(--surface, var(--card)));
+  --color-text: hsl(var(--text, var(--foreground)));
   --color-card: hsl(var(--card));
   --color-card-foreground: hsl(var(--card-foreground));
   --color-popover: hsl(var(--popover));

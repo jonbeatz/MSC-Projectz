@@ -135,7 +135,6 @@ export function DashboardSidebar({ collapsed, onToggle, onAddProject }: SidebarP
       <div className="p-3 border-t border-sidebar-border">
         <button
           onClick={() => {
-            localStorage.clear()
             logout()
             window.location.reload()
           }}

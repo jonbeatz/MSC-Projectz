@@ -31,6 +31,7 @@ import { cn } from '@/lib/utils'
 import { useAppStore } from '@/lib/store'
 import { getSafePath } from '@/lib/env-utils'
 import { msc_open_project_folder } from '@/lib/msc_native_system_bridge'
+import { msc_getScopedKey } from '@/lib/msc_scoped_storage'
 
 export interface MSC_Projectz_ProjectCardProps {
   project: Project
@@ -67,6 +68,7 @@ export function MSC_Projectz_ProjectCard({
   onOpenTaskDrawer,
 }: MSC_Projectz_ProjectCardProps) {
   const appSettings = useAppStore((s) => s.appSettings)
+  const userId = useAppStore((s) => s.user?.payloadUserId)
   const addTask = useAppStore((s) => s.addTask)
   const isDark = appSettings.theme === 'dark'
 
@@ -88,10 +90,20 @@ export function MSC_Projectz_ProjectCard({
 
   const counts = useMemo(() => msc_taskCounts(project), [project])
   const safeLocalPath = getSafePath(project.localPath)
-  const credentialStorageKey = `msc-projectz-credentials-${project.id}`
+  const credentialStorageBaseKey = `msc-projectz-credentials-${project.id}`
 
   useEffect(() => {
     setCredentialsLoaded(false)
+    if (userId === undefined || userId === null) {
+      setManagedCredentials([])
+      setCredentialProjectId(project.id)
+      setVisibleCredentialIds({})
+      setCredentialFormOpen(false)
+      setShowNewCredentialPassword(false)
+      return
+    }
+
+    const credentialStorageKey = msc_getScopedKey(credentialStorageBaseKey, userId)
 
     try {
       const stored = window.localStorage.getItem(credentialStorageKey)
@@ -113,14 +125,16 @@ export function MSC_Projectz_ProjectCard({
     setCredentialFormOpen(false)
     setShowNewCredentialPassword(false)
     setCredentialsLoaded(true)
-  }, [credentialStorageKey, project.credentials, project.id])
+  }, [credentialStorageBaseKey, project.credentials, project.id, userId])
 
   useEffect(() => {
     if (!credentialsLoaded) return
     if (credentialProjectId !== project.id) return
+    if (userId === undefined || userId === null) return
 
+    const credentialStorageKey = msc_getScopedKey(credentialStorageBaseKey, userId)
     window.localStorage.setItem(credentialStorageKey, JSON.stringify(managedCredentials))
-  }, [credentialProjectId, credentialStorageKey, credentialsLoaded, managedCredentials, project.id])
+  }, [credentialProjectId, credentialStorageBaseKey, credentialsLoaded, managedCredentials, project.id, userId])
 
   const handleOpenInExplorer = async () => {
     if (!safeLocalPath.trim()) return
@@ -239,26 +253,25 @@ export function MSC_Projectz_ProjectCard({
           {project.status}
         </Badge>
 
-        <button
-          onClick={(e) => {
-            e.stopPropagation()
-            onEdit()
-          }}
-          className={cn(
-            'absolute top-3 left-3 w-8 h-8 rounded-lg backdrop-blur-sm flex items-center justify-center transition-all',
-            isDark ? 'bg-card/80' : 'bg-card/90',
-            'text-muted-foreground hover:text-foreground',
-          )}
-        >
-          <Settings className="w-4 h-4" />
-        </button>
-
         <div
           className={cn(
-            'absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2',
+            'absolute inset-0 z-10 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2',
             isDark ? 'bg-background/90' : 'bg-background/95',
           )}
         >
+          <Button
+            size="sm"
+            title="Edit Project"
+            aria-label="Edit Project"
+            className="h-8 text-xs gap-1.5 bg-secondary text-secondary-foreground hover:bg-secondary/80"
+            onClick={(e) => {
+              e.stopPropagation()
+              onEdit()
+            }}
+          >
+            <Settings className="w-3.5 h-3.5" />
+            Edit
+          </Button>
           <Button
             size="sm"
             className="h-8 text-xs gap-1.5 bg-secondary text-secondary-foreground hover:bg-secondary/80"
@@ -506,16 +519,6 @@ export function MSC_Projectz_ProjectCard({
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-48">
-                <DropdownMenuItem
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    onEdit()
-                  }}
-                  className="cursor-pointer"
-                >
-                  <Settings className="w-4 h-4 mr-2" />
-                  Edit Project
-                </DropdownMenuItem>
                 <DropdownMenuItem
                   onClick={(e) => {
                     e.stopPropagation()
