@@ -2,6 +2,7 @@
 
 import { 
   LayoutDashboard, 
+  BookOpen,
   HelpCircle,
   LogOut,
   Plus,
@@ -13,6 +14,7 @@ import Image from 'next/image'
 import { usePathname, useRouter } from 'next/navigation'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
+import { ProjectBridge } from '@/components/ProjectBridge'
 import { useAppStore } from '@/lib/store'
 
 interface SidebarProps {
@@ -25,6 +27,7 @@ const navItems: { path: string; label: string; icon: React.ElementType }[] = [
   { path: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { path: '/tasks', label: 'Tasks', icon: ClipboardList },
   { path: '/settings', label: 'Settings', icon: Settings },
+  { path: '/vault', label: 'Code Manager', icon: BookOpen },
   { path: '/help', label: 'Help', icon: HelpCircle },
 ]
 
@@ -91,6 +94,12 @@ export function DashboardSidebar({ collapsed, onToggle, onAddProject }: SidebarP
           {!collapsed && <span>Add Project</span>}
         </Button>
       </div>
+
+      {!collapsed && (
+        <div className="px-3 pb-3">
+          <ProjectBridge />
+        </div>
+      )}
 
       {/* Navigation */}
       <nav className="flex-1 px-3 py-2">

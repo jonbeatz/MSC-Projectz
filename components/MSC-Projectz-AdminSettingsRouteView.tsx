@@ -76,7 +76,6 @@ export function MSC_Projectz_AdminSettingsRouteView() {
       toast({
         title: 'Backup failed',
         description: e instanceof Error ? e.message : 'Unable to create database backup.',
-        variant: 'destructive',
       })
     } finally {
       setBackupBusy(false)
@@ -84,29 +83,37 @@ export function MSC_Projectz_AdminSettingsRouteView() {
   }
 
   return (
-    <div className="mx-auto max-w-5xl space-y-6">
-      <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-        <div>
-          <h1 className="text-2xl font-semibold text-foreground">System Admin</h1>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Global user management, SMTP, telemetry, and advanced configuration.
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          {saveMessage && (
-            <span className="flex items-center gap-2 text-sm text-primary">
-              <CheckCircle className="h-4 w-4" />
-              {saveMessage}
-            </span>
-          )}
-          <Button onClick={() => void handleSaveSettings()} className="gap-2 bg-primary text-primary-foreground hover:bg-primary/90">
-            <Save className="h-4 w-4" />
-            Save System
-          </Button>
-        </div>
-      </div>
+    <div className="mx-auto max-w-4xl space-y-8 bg-background">
+      <h1 className="text-3xl font-bold tracking-tight text-foreground">Settings</h1>
 
-      <section className="overflow-hidden rounded-xl border border-border bg-card">
+      <div className="space-y-8">
+          <div className="rounded-lg border border-border bg-card p-6">
+            <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+        <div>
+                <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-muted-foreground">
+                  Control Center
+                </p>
+                <h2 className="mt-2 text-xl font-semibold text-foreground">System Admin</h2>
+                <p className="mt-2 text-sm text-muted-foreground">
+            Global user management, SMTP, telemetry, and advanced configuration.
+                </p>
+              </div>
+              <div className="flex items-center gap-2">
+                {saveMessage && (
+                  <span className="flex items-center gap-2 text-sm text-primary">
+                    <CheckCircle className="h-4 w-4" />
+                    {saveMessage}
+                  </span>
+                )}
+                <Button onClick={() => void handleSaveSettings()} className="gap-2 bg-primary text-primary-foreground hover:bg-primary/90">
+                  <Save className="h-4 w-4" />
+                  Save System
+                </Button>
+              </div>
+            </div>
+          </div>
+
+      <section id="users" className="overflow-hidden rounded-lg border border-border bg-card">
         <div className="border-b border-border px-6 py-4">
           <h2 className="text-lg font-semibold text-foreground">Users</h2>
           <p className="mt-1 text-sm text-muted-foreground">Manage Payload users, roles, and workspace invitations.</p>
@@ -126,13 +133,13 @@ export function MSC_Projectz_AdminSettingsRouteView() {
         </div>
       </section>
 
-      <section className="overflow-hidden rounded-xl border border-border bg-card">
+      <section id="system" className="overflow-hidden rounded-lg border border-border bg-card">
         <div className="border-b border-border px-6 py-4">
           <h2 className="text-lg font-semibold text-foreground">System</h2>
           <p className="mt-1 text-sm text-muted-foreground">Configure global paths, SMTP delivery, SSL, and telemetry.</p>
         </div>
         <div className="space-y-6 p-6">
-          <div className="rounded-lg border border-border bg-secondary p-4">
+          <div id="backup" className="rounded-lg border border-border bg-secondary p-4">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <div className="flex items-center gap-3">
                 <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-card">
@@ -258,7 +265,7 @@ export function MSC_Projectz_AdminSettingsRouteView() {
             </p>
           </div>
 
-          <div className="flex flex-wrap items-center gap-4">
+          <div id="mail" className="flex flex-wrap items-center gap-4">
             <Button variant="outline" onClick={handleSendTestEmail} disabled={testEmailSending} className="gap-2">
               <Send className="h-4 w-4" />
               {testEmailSending ? 'Sending...' : 'Send Test Email'}
@@ -267,7 +274,7 @@ export function MSC_Projectz_AdminSettingsRouteView() {
               <div
                 className={cn(
                   'flex items-center gap-2 text-sm',
-                  testEmailMessage.type === 'success' ? 'text-primary' : 'text-destructive',
+                  testEmailMessage.type === 'success' ? 'text-primary' : 'text-muted-foreground',
                 )}
               >
                 {testEmailMessage.type === 'success' ? (
@@ -281,6 +288,8 @@ export function MSC_Projectz_AdminSettingsRouteView() {
           </div>
         </div>
       </section>
+
+      </div>
 
       <UserManagementModal isOpen={userManagementOpen} onClose={() => setUserManagementOpen(false)} />
     </div>

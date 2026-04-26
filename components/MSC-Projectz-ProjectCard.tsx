@@ -1,11 +1,9 @@
 'use client'
 
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import {
   Copy,
   ExternalLink,
-  Eye,
-  EyeOff,
   FolderOpen,
   Key,
   MonitorPlay,
@@ -29,7 +27,7 @@ import type { Credential, Project } from '@/lib/types'
 import { cn } from '@/lib/utils'
 import { useAppStore } from '@/lib/store'
 import { getSafePath } from '@/lib/env-utils'
-import { msc_launch_in_cursor, msc_open_project_folder } from '@/lib/msc_native_system_bridge'
+import { msc_open_project_folder } from '@/lib/msc_native_system_bridge'
 
 export interface MSC_Projectz_ProjectCardProps {
   project: Project
@@ -39,11 +37,6 @@ export interface MSC_Projectz_ProjectCardProps {
   onEdit: () => void
   onConfigurePath: () => void
   onOpenTaskDrawer?: () => void
-}
-
-/** First credential whose label matches "WP Admin" (case-insensitive). */
-function msc_findWpAdminCredential(credentials: Credential[]): Credential | undefined {
-  return credentials.find((c) => c.label.trim().toLowerCase() === 'wp admin')
 }
 
 function msc_taskCounts(project: Project) {
@@ -75,22 +68,53 @@ export function MSC_Projectz_ProjectCard({
   const isDark = appSettings.theme === 'dark'
 
   const [credPopoverOpen, setCredPopoverOpen] = useState(false)
-  const [pwVisible, setPwVisible] = useState(false)
+  const [visibleCredentialIds, setVisibleCredentialIds] = useState<Record<string, boolean>>({})
+  const [managedCredentials, setManagedCredentials] = useState<Credential[]>(project.credentials)
+  const [credentialProjectId, setCredentialProjectId] = useState(project.id)
+  const [credentialsLoaded, setCredentialsLoaded] = useState(false)
+  const [credentialFormOpen, setCredentialFormOpen] = useState(false)
+  const [newCredentialLabel, setNewCredentialLabel] = useState('')
+  const [newCredentialUsername, setNewCredentialUsername] = useState('')
+  const [newCredentialPassword, setNewCredentialPassword] = useState('')
 
   const [injectOpen, setInjectOpen] = useState(false)
   const [injectTitle, setInjectTitle] = useState('')
   const [injectBusy, setInjectBusy] = useState(false)
 
-  const wpAdminCred = useMemo(() => msc_findWpAdminCredential(project.credentials), [project.credentials])
   const counts = useMemo(() => msc_taskCounts(project), [project])
   const safeLocalPath = getSafePath(project.localPath)
+  const credentialStorageKey = `msc-projectz-credentials-${project.id}`
 
-  const handleOpenInCursor = () => {
-    if (!safeLocalPath.trim()) return
-    void msc_launch_in_cursor(safeLocalPath).catch((err) => {
-      console.error('[MSC] msc_launch_in_cursor', err)
-    })
-  }
+  useEffect(() => {
+    setCredentialsLoaded(false)
+
+    try {
+      const stored = window.localStorage.getItem(credentialStorageKey)
+      if (stored) {
+        const parsed = JSON.parse(stored) as Credential[]
+        if (Array.isArray(parsed)) {
+          setManagedCredentials(parsed)
+        }
+      } else {
+        setManagedCredentials(project.credentials)
+      }
+    } catch (error) {
+      console.error('[MSC] Failed to load project credentials', error)
+      setManagedCredentials(project.credentials)
+    }
+
+    setCredentialProjectId(project.id)
+    setVisibleCredentialIds({})
+    setCredentialFormOpen(false)
+    setCredentialsLoaded(true)
+  }, [credentialStorageKey, project.credentials, project.id])
+
+  useEffect(() => {
+    if (!credentialsLoaded) return
+    if (credentialProjectId !== project.id) return
+
+    window.localStorage.setItem(credentialStorageKey, JSON.stringify(managedCredentials))
+  }, [credentialProjectId, credentialStorageKey, credentialsLoaded, managedCredentials, project.id])
 
   const handleOpenInExplorer = () => {
     if (!safeLocalPath.trim()) return
@@ -117,6 +141,38 @@ export function MSC_Projectz_ProjectCard({
       console.error('[MSC] clipboard', e)
     }
   }, [])
+
+  const msc_addManagedCredential = () => {
+    const label = newCredentialLabel.trim()
+    const username = newCredentialUsername.trim()
+    const password = newCredentialPassword
+    if (!label || !username || !password) return
+
+    const credential: Credential = {
+      id:
+        typeof crypto !== 'undefined' && 'randomUUID' in crypto
+          ? crypto.randomUUID()
+          : `credential-${Date.now()}`,
+      label,
+      username,
+      password,
+    }
+
+    setManagedCredentials((current) => [...current, credential])
+    setNewCredentialLabel('')
+    setNewCredentialUsername('')
+    setNewCredentialPassword('')
+    setCredentialFormOpen(false)
+  }
+
+  const msc_deleteManagedCredential = (credentialId: string) => {
+    setManagedCredentials((current) => current.filter((credential) => credential.id !== credentialId))
+    setVisibleCredentialIds((current) => {
+      const next = { ...current }
+      delete next[credentialId]
+      return next
+    })
+  }
 
   const msc_submitQuickTask = async () => {
     const title = injectTitle.trim()
@@ -193,17 +249,6 @@ export function MSC_Projectz_ProjectCard({
             className="h-8 text-xs gap-1.5 bg-secondary text-secondary-foreground hover:bg-secondary/80"
             onClick={(e) => {
               e.stopPropagation()
-              handleOpenInCursor()
-            }}
-          >
-            <MonitorPlay className="w-3.5 h-3.5" />
-            Cursor
-          </Button>
-          <Button
-            size="sm"
-            className="h-8 text-xs gap-1.5 bg-secondary text-secondary-foreground hover:bg-secondary/80"
-            onClick={(e) => {
-              e.stopPropagation()
               handleOpenInExplorer()
             }}
           >
@@ -251,80 +296,172 @@ export function MSC_Projectz_ProjectCard({
               open={credPopoverOpen}
               onOpenChange={(open) => {
                 setCredPopoverOpen(open)
-                if (!open) setPwVisible(false)
+                if (!open) {
+                  setVisibleCredentialIds({})
+                  setCredentialFormOpen(false)
+                }
               }}
             >
               <PopoverTrigger asChild>
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-8 w-8 text-muted-foreground hover:text-primary"
+                  className={cn(
+                    'h-8 w-8 text-muted-foreground hover:text-primary',
+                    credPopoverOpen && 'text-primary',
+                  )}
                   onClick={(e) => e.stopPropagation()}
-                  aria-label="WP Admin credential quick-peek"
+                  aria-label="Open credential quick-view"
                 >
                   <Key className="w-4 h-4" />
                 </Button>
               </PopoverTrigger>
               <PopoverContent
-                className="w-80"
                 align="end"
+                sideOffset={8}
+                className="z-50 w-72 rounded-md border border-[#2a2a2a] bg-[#1c1c1c] p-4 text-foreground shadow-xl"
                 onClick={(e) => e.stopPropagation()}
               >
-                <div className="space-y-3">
-                  <p className="text-sm font-medium text-foreground">WP Admin</p>
-                  {!wpAdminCred ? (
-                    <p className="text-xs text-muted-foreground">No credential labeled WP Admin.</p>
+                <div className="space-y-3 font-sans text-sm">
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <p className="text-xs text-muted-foreground">Credential Manager</p>
+                      <h4 className="mt-1 font-medium text-foreground">{project.name}</h4>
+                    </div>
+                    <span className="rounded-md border border-border px-2 py-1 text-xs text-muted-foreground">
+                      {managedCredentials.length}
+                    </span>
+                  </div>
+
+                  {managedCredentials.length === 0 ? (
+                    <p className="rounded-md border border-border bg-background/60 p-3 text-xs text-muted-foreground">
+                      No credentials saved for this project.
+                    </p>
                   ) : (
-                    <>
-                      <div className="space-y-1">
-                        <div className="flex items-center justify-between gap-2">
-                          <span className="text-xs text-muted-foreground">Username</span>
-                          <Button
-                            type="button"
-                            variant="outline"
-                            size="sm"
-                            className="h-7 gap-1"
-                            onClick={() => msc_copyText(wpAdminCred.username)}
+                    <div className="max-h-80 space-y-3 overflow-y-auto pr-1">
+                      {managedCredentials.map((credential) => {
+                        const passwordVisible = Boolean(visibleCredentialIds[credential.id])
+
+                        return (
+                          <div
+                            key={credential.id}
+                            className="rounded-md border border-[#2a2a2a] bg-background/70 p-3"
                           >
-                            <Copy className="w-3 h-3" />
-                            Copy
-                          </Button>
-                        </div>
-                        <p className="text-sm font-mono break-all rounded-md border border-border bg-muted/50 px-2 py-1.5">
-                          {wpAdminCred.username || '—'}
-                        </p>
-                      </div>
-                      <div className="space-y-1">
-                        <div className="flex items-center justify-between gap-2">
-                          <span className="text-xs text-muted-foreground">Password</span>
-                          <div className="flex items-center gap-1">
-                            <Button
-                              type="button"
-                              variant="ghost"
-                              size="sm"
-                              className="h-7 px-2"
-                              onClick={() => setPwVisible((v) => !v)}
-                              aria-label={pwVisible ? 'Mask password' : 'Show password'}
-                            >
-                              {pwVisible ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
-                            </Button>
-                            <Button
-                              type="button"
-                              variant="outline"
-                              size="sm"
-                              className="h-7 gap-1"
-                              onClick={() => msc_copyText(wpAdminCred.password)}
-                            >
-                              <Copy className="w-3 h-3" />
-                              Copy
-                            </Button>
+                            <div className="mb-3 flex items-center justify-between gap-2">
+                              <h5 className="truncate text-sm font-medium text-foreground">
+                                {credential.label}
+                              </h5>
+                              <button
+                                type="button"
+                                onClick={() => msc_deleteManagedCredential(credential.id)}
+                                className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-primary/10 hover:text-primary"
+                                aria-label={`Delete ${credential.label}`}
+                              >
+                                <Trash2 className="h-3.5 w-3.5" />
+                              </button>
+                            </div>
+
+                            <div className="space-y-2">
+                              <div>
+                                <p className="text-xs text-muted-foreground">Username</p>
+                                <div className="mt-1 flex items-center gap-2">
+                                  <p className="min-w-0 flex-1 break-all text-sm text-foreground">
+                                    {credential.username || '—'}
+                                  </p>
+                                  <button
+                                    type="button"
+                                    onClick={() => msc_copyText(credential.username)}
+                                    className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-primary/10 hover:text-primary"
+                                    aria-label={`Copy ${credential.label} username`}
+                                  >
+                                    <Copy className="h-3.5 w-3.5" />
+                                  </button>
+                                </div>
+                              </div>
+
+                              <div>
+                                <p className="text-xs text-muted-foreground">Password</p>
+                                <div className="mt-1 flex items-center gap-2">
+                                  <button
+                                    type="button"
+                                    onClick={() =>
+                                      setVisibleCredentialIds((current) => ({
+                                        ...current,
+                                        [credential.id]: !current[credential.id],
+                                      }))
+                                    }
+                                    className="min-w-0 flex-1 break-all text-left text-sm text-foreground"
+                                  >
+                                    {passwordVisible ? credential.password || '—' : '••••••••'}
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={() => msc_copyText(credential.password)}
+                                    className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-primary/10 hover:text-primary"
+                                    aria-label={`Copy ${credential.label} password`}
+                                  >
+                                    <Copy className="h-3.5 w-3.5" />
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
                           </div>
-                        </div>
-                        <p className="text-sm font-mono break-all rounded-md border border-border bg-muted/50 px-2 py-1.5">
-                          {pwVisible ? wpAdminCred.password || '—' : '••••••••'}
-                        </p>
+                        )
+                      })}
+                    </div>
+                  )}
+
+                  {credentialFormOpen ? (
+                    <div className="space-y-3 rounded-md border border-[#2a2a2a] bg-background/70 p-3">
+                      <Input
+                        value={newCredentialLabel}
+                        onChange={(e) => setNewCredentialLabel(e.target.value)}
+                        placeholder="Label, e.g. Client Access"
+                        className="bg-[#1c1c1c] text-sm text-foreground"
+                      />
+                      <Input
+                        value={newCredentialUsername}
+                        onChange={(e) => setNewCredentialUsername(e.target.value)}
+                        placeholder="Username"
+                        className="bg-[#1c1c1c] text-sm text-foreground"
+                      />
+                      <Input
+                        value={newCredentialPassword}
+                        onChange={(e) => setNewCredentialPassword(e.target.value)}
+                        placeholder="Password"
+                        type="password"
+                        className="bg-[#1c1c1c] text-sm text-foreground"
+                      />
+                      <div className="flex gap-2">
+                        <Button
+                          type="button"
+                          size="sm"
+                          onClick={msc_addManagedCredential}
+                          className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90"
+                        >
+                          Save
+                        </Button>
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant="outline"
+                          onClick={() => setCredentialFormOpen(false)}
+                          className="flex-1"
+                        >
+                          Cancel
+                        </Button>
                       </div>
-                    </>
+                    </div>
+                  ) : (
+                    <Button
+                        type="button"
+                        size="sm"
+                        onClick={() => setCredentialFormOpen(true)}
+                        className="w-full gap-2 bg-primary text-primary-foreground hover:bg-primary/90"
+                      >
+                        <Plus className="h-3.5 w-3.5" />
+                        New +
+                      </Button>
                   )}
                 </div>
               </PopoverContent>
@@ -361,22 +498,12 @@ export function MSC_Projectz_ProjectCard({
                 <DropdownMenuItem
                   onClick={(e) => {
                     e.stopPropagation()
-                    handleOpenInCursor()
-                  }}
-                  className="cursor-pointer"
-                >
-                  <MonitorPlay className="w-4 h-4 mr-2" />
-                  Open in Cursor
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={(e) => {
-                    e.stopPropagation()
                     handleOpenInExplorer()
                   }}
                   className="cursor-pointer"
                 >
                   <FolderOpen className="w-4 h-4 mr-2" />
-                  Copy Path
+                  Explorer
                 </DropdownMenuItem>
                 {project.liveUrl && (
                   <DropdownMenuItem
@@ -396,7 +523,7 @@ export function MSC_Projectz_ProjectCard({
                     e.stopPropagation()
                     onDelete()
                   }}
-                  className="cursor-pointer text-destructive focus:text-destructive"
+                  className="cursor-pointer text-muted-foreground focus:text-primary"
                 >
                   <Trash2 className="w-4 h-4 mr-2" />
                   Delete Project
@@ -475,7 +602,7 @@ export function MSC_Projectz_ProjectCard({
             <div className="flex items-center gap-1.5 min-w-0">
               <Key className="w-3.5 h-3.5 shrink-0 text-muted-foreground" />
               <span className="text-xs text-muted-foreground truncate">
-                {project.credentials.length} credentials
+                {managedCredentials.length} credentials
               </span>
             </div>
             <div className="flex items-center gap-1 shrink-0">

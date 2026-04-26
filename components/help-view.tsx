@@ -3,23 +3,17 @@
 import { useState } from 'react'
 import { 
   Search, 
-  BookOpen, 
-  Code, 
   Workflow, 
   HelpCircle, 
   FolderOpen,
   Key,
-  Globe,
   Server,
   Zap,
-  Monitor,
   Lock,
   Mail,
   Users,
-  Shield,
   Copy,
-  Check,
-  ChevronDown
+  Check
 } from 'lucide-react'
 import { 
   Accordion, 
@@ -27,7 +21,6 @@ import {
   AccordionItem, 
   AccordionTrigger 
 } from '@/components/ui/accordion'
-import { useAppStore } from '@/lib/store'
 
 interface FAQItem {
   id: string
@@ -59,8 +52,8 @@ const faqItems: FAQItem[] = [
   },
   {
     id: 'faq-3',
-    question: 'How do I open a project in VS Code / Cursor?',
-    answer: 'Click on a project card and hover over it to reveal quick actions. Click "Cursor" to open the project in your default code editor. This uses the vscode:// protocol.',
+    question: 'How do I open a project folder?',
+    answer: 'Click on a project card and hover over it to reveal quick actions. Click "Explorer" to open the project folder through the native desktop bridge.',
     category: 'workflow',
   },
   {
@@ -229,15 +222,6 @@ export function HelpView() {
   const [activeTab, setActiveTab] = useState<'faq' | 'guides' | 'instructionz'>('instructionz')
   const [expandedSections, setExpandedSections] = useState<string[]>([])
   const [copiedField, setCopiedField] = useState<string | null>(null)
-  const setCurrentView = useAppStore((s) => s.setCurrentView)
-
-  const toggleSection = (sectionId: string) => {
-    setExpandedSections(prev => 
-      prev.includes(sectionId) 
-        ? prev.filter(id => id !== sectionId)
-        : [...prev, sectionId]
-    )
-  }
 
   const copyToClipboard = async (text: string, fieldId: string) => {
     try {
@@ -348,21 +332,35 @@ export function HelpView() {
   ]
 
   return (
-    <div className="max-w-4xl mx-auto">
+    <div className="min-h-[calc(100vh-8rem)] bg-background">
       {/* Header */}
       <div className="mb-8">
-        <div className="flex items-center gap-3 mb-2">
-          <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-primary/20">
-            <BookOpen className="w-5 h-5 text-primary" />
-          </div>
-          <div>
-            <h1 className="text-2xl font-semibold text-foreground">Help & Documentation</h1>
-            <p className="text-sm text-muted-foreground">
-              Developer FAQ and workflow guides for MSC-Projectz
-            </p>
-          </div>
-        </div>
+        <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-muted-foreground">
+          MSC Engine
+        </p>
+        <h1 className="mt-2 text-3xl font-bold tracking-tight text-foreground">Engine Instructionz</h1>
+        <p className="mt-4 max-w-2xl text-sm text-muted-foreground">
+          Complete documentation for the MSC Media Pro engine, setup guides, and troubleshooting.
+        </p>
       </div>
+
+      <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_260px]">
+        <main className="space-y-6">
+          <section className="rounded-lg border border-border bg-card p-6">
+            <div className="mb-5">
+              <h2 className="text-lg font-semibold text-foreground">
+                {activeTab === 'instructionz'
+                  ? 'Setup Workflow'
+                  : activeTab === 'faq'
+                    ? 'Developer FAQ'
+                    : 'Workflow Guides'}
+              </h2>
+              <p className="mt-1 text-sm text-muted-foreground">
+                {activeTab === 'instructionz'
+                  ? 'Follow these steps to get your studio site fully operational.'
+                  : 'Search and filter the current documentation set.'}
+              </p>
+            </div>
 
       {/* Search */}
       <div className="relative mb-6">
@@ -376,34 +374,8 @@ export function HelpView() {
       </div>
 
       {/* Tabs */}
-      <div className="mb-6">
-        <div className="inline-flex rounded-lg p-1 bg-card border border-border">
-          <button
-            onClick={() => setActiveTab('instructionz')}
-            className="flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-colors"
-            style={{ 
-              backgroundColor: activeTab === 'instructionz' ? '#4ADE80' : 'transparent',
-              color: activeTab === 'instructionz' ? '#121212' : undefined
-            }}
-          >
-            <Shield className="w-4 h-4" />
-            Instructionz
-          </button>
-          <button
-            onClick={() => setActiveTab('faq')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-colors ${activeTab === 'faq' ? 'bg-secondary text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
-          >
-            <Code className="w-4 h-4" />
-            Developer FAQ
-          </button>
-          <button
-            onClick={() => setActiveTab('guides')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-colors ${activeTab === 'guides' ? 'bg-secondary text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
-          >
-            <Workflow className="w-4 h-4" />
-            Workflow Guides
-          </button>
-        </div>
+      <div className="sr-only" aria-live="polite">
+        Active section: {activeTab}
       </div>
 
       {/* Category Filters (for FAQ and Guides) */}
@@ -415,8 +387,8 @@ export function HelpView() {
               onClick={() => setActiveCategory(cat.id)}
               className="px-3 py-1.5 rounded-lg text-xs font-medium transition-colors"
               style={{ 
-                backgroundColor: activeCategory === cat.id ? '#4ADE80' : undefined,
-                color: activeCategory === cat.id ? '#121212' : undefined
+                backgroundColor: activeCategory === cat.id ? 'hsl(var(--msc-accent))' : undefined,
+                color: activeCategory === cat.id ? 'hsl(var(--msc-accent-foreground))' : undefined
               }}
             >
               {cat.label}
@@ -434,36 +406,25 @@ export function HelpView() {
             </p>
           </div>
           
-          {instructionzItems.map((item) => {
-            const isExpanded = expandedSections.includes(item.id)
-            return (
-              <div 
+          <Accordion type="multiple" value={expandedSections} onValueChange={setExpandedSections}>
+            {instructionzItems.map((item) => (
+              <AccordionItem
                 key={item.id}
-                className="rounded-xl overflow-hidden transition-all bg-card border"
-                style={{ 
-                  borderColor: isExpanded ? '#4ADE80' : undefined,
-                  boxShadow: isExpanded ? '0 0 12px rgba(74, 222, 128, 0.15)' : 'none'
-                }}
+                value={item.id}
+                className="overflow-hidden border-b border-[#2a2a2a] transition-all data-[state=open]:rounded-lg data-[state=open]:border data-[state=open]:border-border data-[state=open]:bg-[#1c1c1c]"
               >
-                <button 
-                  onClick={() => toggleSection(item.id)}
-                  className="flex items-center gap-3 p-4 w-full text-left hover:bg-secondary/50 transition-colors"
-                >
-                  <div className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 bg-primary/20 text-primary">
-                    {item.icon}
+                <AccordionTrigger className="px-4 py-4 text-foreground no-underline hover:bg-secondary/50 hover:no-underline">
+                  <div className="flex min-w-0 items-center gap-3 text-left">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/20 text-primary">
+                      {item.icon}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <h3 className="font-semibold text-foreground">{item.title}</h3>
+                      <p className="truncate text-sm text-muted-foreground">{item.description}</p>
+                    </div>
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <h3 className="font-semibold text-foreground">{item.title}</h3>
-                    <p className="text-sm truncate text-muted-foreground">{item.description}</p>
-                  </div>
-                  <ChevronDown 
-                    className="w-5 h-5 flex-shrink-0 transition-transform duration-200 text-muted-foreground"
-                    style={{ transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)' }}
-                  />
-                </button>
-                
-                {isExpanded && (
-                  <div className="p-4 bg-secondary/50 border-t border-border">
+                </AccordionTrigger>
+                <AccordionContent className="bg-[#1c1c1c] p-4 transition-all">
                     {/* SMTP Fields with Copy Buttons */}
                     {item.smtpFields && (
                       <div className="space-y-4 mb-4">
@@ -557,11 +518,10 @@ export function HelpView() {
                         </p>
                       ))}
                     </div>
-                  </div>
-                )}
-              </div>
-            )
-          })}
+                </AccordionContent>
+              </AccordionItem>
+            ))}
+          </Accordion>
         </div>
       )}
 
@@ -582,9 +542,9 @@ export function HelpView() {
                   value={faq.id}
                   className="rounded-xl border border-border bg-card overflow-hidden"
                 >
-                  <AccordionTrigger className="px-4 py-3 hover:bg-secondary/50 transition-colors [&[data-state=open]]:bg-secondary/50 text-foreground">
+                  <AccordionTrigger className="px-4 py-3 hover:bg-secondary/50 transition-colors data-[state=open]:bg-secondary/50 text-foreground">
                     <div className="flex items-center gap-3 text-left">
-                      <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 bg-primary/20 text-primary">
+                      <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 bg-primary/20 text-primary">
                         {getCategoryIcon(faq.category)}
                       </div>
                       <span className="font-medium text-sm">{faq.question}</span>
@@ -612,76 +572,77 @@ export function HelpView() {
               <p className="text-sm text-muted-foreground">Try a different search term or category</p>
             </div>
           ) : (
-            filteredGuides.map((guide) => (
-              <div 
-                key={guide.id}
-                className="rounded-xl overflow-hidden bg-card border border-border"
-              >
-                <div className="p-4 border-b border-border">
-                  <div className="flex items-start gap-3">
-                    <div className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 bg-primary/20 text-primary">
-                      {getCategoryIcon(guide.category)}
+            <Accordion type="single" collapsible>
+              {filteredGuides.map((guide) => (
+                <AccordionItem
+                  key={guide.id}
+                  value={guide.id}
+                  className="overflow-hidden border-b border-[#2a2a2a] transition-all data-[state=open]:rounded-lg data-[state=open]:border data-[state=open]:border-border data-[state=open]:bg-[#1c1c1c]"
+                >
+                  <AccordionTrigger className="px-4 py-4 text-foreground no-underline hover:bg-secondary/50 hover:no-underline">
+                    <div className="flex min-w-0 items-start gap-3 text-left">
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/20 text-primary">
+                        {getCategoryIcon(guide.category)}
+                      </div>
+                      <div className="min-w-0">
+                        <h3 className="font-semibold text-foreground">{guide.title}</h3>
+                        <p className="text-sm text-muted-foreground">{guide.description}</p>
+                      </div>
                     </div>
-                    <div>
-                      <h3 className="font-semibold text-foreground">{guide.title}</h3>
-                      <p className="text-sm text-muted-foreground">{guide.description}</p>
-                    </div>
-                  </div>
-                </div>
-                <div className="p-4 bg-secondary/30">
-                  <ol className="space-y-2">
-                    {guide.steps.map((step, index) => (
-                      <li 
-                        key={index}
-                        className="flex items-start gap-3 text-sm"
-                      >
-                        <span className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 text-xs font-medium bg-primary text-primary-foreground">
-                          {index + 1}
-                        </span>
-                        <span className="text-muted-foreground pt-0.5">{step}</span>
-                      </li>
-                    ))}
-                  </ol>
-                </div>
-              </div>
-            ))
+                  </AccordionTrigger>
+                  <AccordionContent className="bg-[#1c1c1c] p-4 transition-all">
+                    <ol className="space-y-2">
+                      {guide.steps.map((step, index) => (
+                        <li 
+                          key={index}
+                          className="flex items-start gap-3 text-sm"
+                        >
+                          <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary text-xs font-medium text-primary-foreground">
+                            {index + 1}
+                          </span>
+                          <span className="pt-0.5 text-muted-foreground">{step}</span>
+                        </li>
+                      ))}
+                    </ol>
+                  </AccordionContent>
+                </AccordionItem>
+              ))}
+            </Accordion>
           )}
         </div>
       )}
+          </section>
 
-      {/* Quick Links */}
-      <div className="mt-8 rounded-xl p-4 bg-card border border-border">
-        <h3 className="font-semibold mb-4 text-foreground">Quick Links</h3>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-          <button 
-            onClick={() => setCurrentView('dashboard')}
-            className="flex items-center gap-2 p-3 rounded-lg transition-colors bg-secondary hover:bg-secondary/80 text-foreground"
-          >
-            <Monitor className="w-4 h-4 text-muted-foreground" />
-            <span className="text-sm">Dashboard</span>
-          </button>
-          <button 
-            onClick={() => {}}
-            className="flex items-center gap-2 p-3 rounded-lg transition-colors bg-secondary hover:bg-secondary/80 text-foreground"
-          >
-            <Key className="w-4 h-4 text-muted-foreground" />
-            <span className="text-sm">Credentials</span>
-          </button>
-          <button 
-            onClick={() => setCurrentView('settings')}
-            className="flex items-center gap-2 p-3 rounded-lg transition-colors bg-secondary hover:bg-secondary/80 text-foreground"
-          >
-            <Mail className="w-4 h-4 text-muted-foreground" />
-            <span className="text-sm">SMTP Setup</span>
-          </button>
-          <button 
-            onClick={() => setCurrentView('dashboard')}
-            className="flex items-center gap-2 p-3 rounded-lg transition-colors bg-secondary hover:bg-secondary/80 text-foreground"
-          >
-            <Globe className="w-4 h-4 text-muted-foreground" />
-            <span className="text-sm">Live Projects</span>
-          </button>
-        </div>
+        </main>
+
+        <aside className="h-fit rounded-lg border border-border bg-card p-4 xl:sticky xl:top-24">
+          <h3 className="text-xs font-bold uppercase tracking-[0.18em] text-foreground">Quick Navigation</h3>
+          <div className="mt-4 space-y-1">
+            {[
+              { id: 'instructionz' as const, label: 'Setup Workflow' },
+              { id: 'faq' as const, label: 'How it Works' },
+              { id: 'guides' as const, label: 'Troubleshooting' },
+            ].map((item) => (
+              <button
+                key={item.id}
+                type="button"
+                onClick={() => setActiveTab(item.id)}
+                className={`block w-full rounded-md px-3 py-2 text-left text-sm transition-colors ${
+                  activeTab === item.id
+                    ? 'bg-primary text-primary-foreground'
+                    : 'text-muted-foreground hover:text-foreground'
+                }`}
+              >
+                {item.label}
+              </button>
+            ))}
+          </div>
+          <div className="mt-5 rounded-lg border border-border bg-background/60 p-3">
+            <p className="font-sans text-xs tracking-normal text-gray-400">
+              MSC-Projectz-v1.0
+            </p>
+          </div>
+        </aside>
       </div>
     </div>
   )

@@ -194,3 +194,110 @@ textarea::placeholder {
   background: hsl(var(--msc-accent) / 1);
   color: hsl(var(--msc-accent-foreground) / 1);
 }
+
+/* Vader Vault markdown + high-contrast code palette */
+.msc-vault-prose {
+  color: hsl(var(--foreground));
+}
+
+.msc-vault-prose h1,
+.msc-vault-prose h2,
+.msc-vault-prose h3,
+.msc-vault-prose h4 {
+  color: hsl(var(--foreground));
+  font-weight: 650;
+  letter-spacing: -0.02em;
+}
+
+.msc-vault-prose h1 {
+  margin-block: 1.4rem 0.8rem;
+  font-size: 2rem;
+}
+
+.msc-vault-prose h2 {
+  margin-block: 1.35rem 0.7rem;
+  font-size: 1.5rem;
+}
+
+.msc-vault-prose h3 {
+  margin-block: 1.1rem 0.5rem;
+  font-size: 1.15rem;
+}
+
+.msc-vault-prose p,
+.msc-vault-prose li {
+  color: hsl(var(--muted-foreground));
+  line-height: 1.75;
+}
+
+.msc-vault-prose ul,
+.msc-vault-prose ol {
+  margin-block: 0.75rem;
+  padding-left: 1.4rem;
+}
+
+.msc-vault-prose li::marker {
+  color: hsl(var(--msc-accent));
+}
+
+.msc-vault-prose blockquote {
+  margin-block: 1rem;
+  border-left: 2px solid hsl(var(--msc-accent));
+  background: hsl(var(--secondary) / 0.45);
+  padding: 0.8rem 1rem;
+  color: hsl(var(--foreground));
+}
+
+.msc-vault-prose table {
+  width: 100%;
+  border-collapse: collapse;
+  overflow: hidden;
+  border: 1px solid hsl(var(--border));
+  border-radius: var(--radius);
+}
+
+.msc-vault-prose th,
+.msc-vault-prose td {
+  border: 1px solid hsl(var(--border));
+  padding: 0.75rem;
+}
+
+.msc-vault-prose th {
+  background: hsl(var(--secondary));
+  color: hsl(var(--foreground));
+}
+
+.msc-vault-code {
+  background:
+    linear-gradient(135deg, hsl(var(--secondary) / 0.55), hsl(var(--background)));
+}
+
+.msc-vault-code code,
+.msc-vault-code .hljs {
+  background: transparent;
+  color: hsl(var(--foreground));
+}
+
+.msc-vault-code .hljs-keyword,
+.msc-vault-code .hljs-selector-tag,
+.msc-vault-code .hljs-title.function_ {
+  color: hsl(var(--msc-accent));
+}
+
+.msc-vault-code .hljs-string,
+.msc-vault-code .hljs-attr,
+.msc-vault-code .hljs-title.class_ {
+  color: hsl(var(--chart-2));
+}
+
+.msc-vault-code .hljs-number,
+.msc-vault-code .hljs-literal,
+.msc-vault-code .hljs-built_in {
+  color: hsl(var(--chart-3));
+}
+
+.msc-vault-code .hljs-comment,
+.msc-vault-code .hljs-quote {
+  color: hsl(var(--muted-foreground));
+  font-style: italic;
+}

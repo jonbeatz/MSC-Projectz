@@ -61,6 +61,7 @@ export function DashboardLayout({ children, onAddProject, searchQuery, onSearchC
       case '/tasks': return 'Tasks'
       case '/profile': return 'My Profile'
       case '/settings': return 'System Admin'
+      case '/vault': return 'Code Manager'
       case '/help': return 'Help & Documentation'
       default: return 'Dashboard'
     }

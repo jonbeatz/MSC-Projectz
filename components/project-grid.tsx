@@ -7,7 +7,7 @@ import { useAppStore } from '@/lib/store'
 import { cn } from '@/lib/utils'
 import type { Project } from '@/lib/types'
 import { getSafePath } from '@/lib/env-utils'
-import { msc_launch_in_cursor, msc_open_project_folder } from '@/lib/msc_native_system_bridge'
+import { msc_open_project_folder } from '@/lib/msc_native_system_bridge'
 
 interface ProjectGridProps {
   projects: Project[]
@@ -44,12 +44,6 @@ function ProjectListItem({
   const completedTasks = project.tasks.filter(t => t.completed).length
   const calculatedProgress = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : (project.progress || 0)
   const safeLocalPath = getSafePath(project.localPath)
-
-  const handleOpenInCursor = () => {
-    void msc_launch_in_cursor(safeLocalPath).catch((err) => {
-      console.error('[MSC] msc_launch_in_cursor', err)
-    })
-  }
 
   const handleOpenInExplorer = () => {
     void msc_open_project_folder(safeLocalPath).catch((err) => {
@@ -138,17 +132,8 @@ function ProjectListItem({
           size="sm"
           variant="ghost"
           className="h-8 w-8 p-0 text-muted-foreground hover:text-foreground"
-          onClick={handleOpenInCursor}
-          title="Open in Cursor"
-        >
-          <MonitorPlay className="w-4 h-4" />
-        </Button>
-        <Button
-          size="sm"
-          variant="ghost"
-          className="h-8 w-8 p-0 text-muted-foreground hover:text-foreground"
           onClick={handleOpenInExplorer}
-          title="Copy Path"
+          title="Explorer"
         >
           <FolderOpen className="w-4 h-4" />
         </Button>
@@ -185,7 +170,7 @@ function ProjectListItem({
         <Button
           size="sm"
           variant="ghost"
-          className="h-8 w-8 p-0 text-destructive hover:text-destructive/80"
+          className="h-8 w-8 p-0 text-muted-foreground hover:text-primary"
           onClick={onDelete}
           title="Delete Project"
         >

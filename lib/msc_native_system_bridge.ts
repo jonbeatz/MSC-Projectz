@@ -5,7 +5,7 @@
  * For browser-only dev, falls back to clipboard / vscode:// URL where applicable.
  */
 
-import { isTauri } from '@tauri-apps/api/core'
+import { invoke, isTauri } from '@tauri-apps/api/core'
 import { getSafePath, isLive } from '@/lib/env-utils'
 
 function msc_sanitize_local_path(filePath: string): string {
@@ -19,11 +19,6 @@ function msc_sanitize_local_path(filePath: string): string {
 function msc_detect_windows(): boolean {
   if (typeof navigator === 'undefined') return false
   return /Windows/i.test(navigator.userAgent)
-}
-
-function msc_detect_mac(): boolean {
-  if (typeof navigator === 'undefined') return false
-  return /Macintosh|Mac OS X/i.test(navigator.userAgent)
 }
 
 async function msc_fallback_copy_path(path: string, context: string): Promise<void> {
@@ -47,17 +42,7 @@ export async function msc_open_project_folder(filePath: string): Promise<void> {
     await msc_fallback_copy_path(path, 'explorer')
     return
   }
-  const { Command } = await import('@tauri-apps/plugin-shell')
-  if (msc_detect_windows()) {
-    const winPath = path.replace(/\//g, '\\')
-    await Command.create('msc-open-folder', [winPath]).execute()
-    return
-  }
-  if (msc_detect_mac()) {
-    await Command.create('msc-open-folder-macos', [path]).execute()
-    return
-  }
-  await Command.create('msc-open-folder-linux', [path]).execute()
+  await invoke('open_folder', { path })
 }
 
 /** Runs `cursor .` with the project directory as cwd (Windows: `cmd /c cd /d … && cursor .`). */
