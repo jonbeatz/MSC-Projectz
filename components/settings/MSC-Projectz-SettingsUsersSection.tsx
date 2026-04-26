@@ -1,7 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { AlertCircle, CheckCircle, Shield, UserCheck, Users } from 'lucide-react'
+import { AlertCircle, CheckCircle, Users } from 'lucide-react'
 
 import { MSC_Projectz_CreateUserForm } from '@/components/settings/MSC-Projectz-CreateUserForm'
 import { MSC_Projectz_UsersDirectory } from '@/components/settings/MSC-Projectz-UsersDirectory'
@@ -109,23 +109,6 @@ export function MSC_Projectz_SettingsUsersSection({ enabled = true }: MSC_Projec
             {message.text}
           </div>
         )}
-
-        <div className="grid gap-3 md:grid-cols-2">
-          <div className="rounded-lg border border-border bg-secondary/20 p-4">
-            <div className="flex items-center gap-2">
-              <Shield className="h-4 w-4 text-primary" />
-              <p className="text-sm font-medium text-foreground">Admin visibility</p>
-            </div>
-            <p className="mt-1 text-xs text-muted-foreground">Admins can view all vault projects and manage users.</p>
-          </div>
-          <div className="rounded-lg border border-border bg-secondary/20 p-4">
-            <div className="flex items-center gap-2">
-              <UserCheck className="h-4 w-4 text-primary" />
-              <p className="text-sm font-medium text-foreground">User visibility</p>
-            </div>
-            <p className="mt-1 text-xs text-muted-foreground">Standard users only see records scoped to their account.</p>
-          </div>
-        </div>
 
         <MSC_Projectz_UsersDirectory
           users={users}

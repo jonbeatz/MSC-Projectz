@@ -78,7 +78,7 @@ interface AppState {
   msc_purgeClientSession: () => void
 
   addProject: (project: Omit<Project, 'id' | 'createdAt' | 'updatedAt' | 'progress'>) => Promise<void>
-  updateProject: (id: string, updates: Partial<Project>) => Promise<void>
+  updateProject: (id: string, updates: Partial<Project> & { emailSettings?: Partial<EmailSettings> }) => Promise<void>
   deleteProject: (id: string) => Promise<void>
   selectProject: (id: string | null) => void
   updateProjectProgress: (id: string, progress: number) => Promise<void>

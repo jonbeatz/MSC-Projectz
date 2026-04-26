@@ -140,6 +140,70 @@ async function msc_main() {
       'msc_vault_tasks_assigned_to_idx',
       'CREATE INDEX msc_vault_tasks_assigned_to_idx ON msc_vault_tasks (assigned_to_id)',
     )
+
+    async function msc_addProjectCol(name, defSql) {
+      const cols = await msc_tableColumnNames(client, 'msc_vault_projects')
+      if (cols.includes(name)) {
+        console.log(`[msc_sqlite_repair] msc_vault_projects.${name} already present, skip.`)
+        return
+      }
+      await client.execute(`ALTER TABLE msc_vault_projects ADD COLUMN ${name} ${defSql}`)
+      console.log(`[msc_sqlite_repair] Added msc_vault_projects.${name}.`)
+    }
+    await msc_addProjectCol('email_settings_host', 'TEXT')
+    await msc_addProjectCol('email_settings_port', 'INTEGER')
+    await msc_addProjectCol('email_settings_username', 'TEXT')
+    await msc_addProjectCol('email_settings_password', 'TEXT')
+    await msc_addProjectCol('email_settings_encryption', 'TEXT')
+    const colsAfter = await msc_tableColumnNames(client, 'msc_vault_projects')
+    if (colsAfter.includes('email_settings_smtp_host') && colsAfter.includes('email_settings_host')) {
+      await client.execute(
+        "UPDATE msc_vault_projects SET email_settings_host = email_settings_smtp_host WHERE (email_settings_host IS NULL OR email_settings_host = '') AND email_settings_smtp_host IS NOT NULL AND email_settings_smtp_host != ''",
+      )
+      await client.execute(
+        "UPDATE msc_vault_projects SET email_settings_port = CAST(email_settings_smtp_port AS INTEGER) WHERE email_settings_port IS NULL AND email_settings_smtp_port IS NOT NULL AND TRIM(COALESCE(email_settings_smtp_port, '')) != ''",
+      )
+      await client.execute(
+        "UPDATE msc_vault_projects SET email_settings_username = email_settings_smtp_user WHERE (email_settings_username IS NULL OR email_settings_username = '') AND email_settings_smtp_user IS NOT NULL AND email_settings_smtp_user != ''",
+      )
+      await client.execute(
+        "UPDATE msc_vault_projects SET email_settings_password = email_settings_smtp_pass WHERE (email_settings_password IS NULL OR email_settings_password = '') AND email_settings_smtp_pass IS NOT NULL AND email_settings_smtp_pass != ''",
+      )
+      await client.execute(
+        "UPDATE msc_vault_projects SET email_settings_encryption = 'ssl' WHERE (email_settings_encryption IS NULL OR email_settings_encryption = '') AND (email_settings_smtp_host IS NOT NULL OR email_settings_smtp_port IS NOT NULL)",
+      )
+    }
+    for (const c of [
+      ['email_settings_incoming_host', 'TEXT'],
+      ['email_settings_incoming_port', 'INTEGER'],
+      ['email_settings_incoming_username', 'TEXT'],
+      ['email_settings_incoming_password', 'TEXT'],
+      ['email_settings_outgoing_host', 'TEXT'],
+      ['email_settings_outgoing_port', 'INTEGER'],
+      ['email_settings_outgoing_username', 'TEXT'],
+      ['email_settings_outgoing_password', 'TEXT'],
+      ['email_settings_outgoing_encryption', 'TEXT'],
+    ]) {
+      await msc_addProjectCol(c[0], c[1])
+    }
+    const allCols = await msc_tableColumnNames(client, 'msc_vault_projects')
+    if (allCols.includes('email_settings_host') && allCols.includes('email_settings_outgoing_host')) {
+      await client.execute(
+        "UPDATE msc_vault_projects SET email_settings_outgoing_host = email_settings_host WHERE (email_settings_outgoing_host IS NULL OR email_settings_outgoing_host = '') AND email_settings_host IS NOT NULL AND email_settings_host != ''",
+      )
+      await client.execute(
+        "UPDATE msc_vault_projects SET email_settings_outgoing_port = email_settings_port WHERE email_settings_outgoing_port IS NULL AND email_settings_port IS NOT NULL",
+      )
+      await client.execute(
+        "UPDATE msc_vault_projects SET email_settings_outgoing_username = email_settings_username WHERE (email_settings_outgoing_username IS NULL OR email_settings_outgoing_username = '') AND email_settings_username IS NOT NULL AND email_settings_username != ''",
+      )
+      await client.execute(
+        "UPDATE msc_vault_projects SET email_settings_outgoing_password = email_settings_password WHERE (email_settings_outgoing_password IS NULL OR email_settings_outgoing_password = '') AND email_settings_password IS NOT NULL AND email_settings_password != ''",
+      )
+      await client.execute(
+        "UPDATE msc_vault_projects SET email_settings_outgoing_encryption = email_settings_encryption WHERE (email_settings_outgoing_encryption IS NULL OR email_settings_outgoing_encryption = '') AND email_settings_encryption IS NOT NULL AND email_settings_encryption != ''",
+      )
+    }
   } finally {
     await client.close()
   }

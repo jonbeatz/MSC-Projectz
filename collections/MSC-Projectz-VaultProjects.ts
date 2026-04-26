@@ -138,12 +138,40 @@ export const MSC_Projectz_VaultProjects: CollectionConfig = {
     {
       name: 'emailSettings',
       type: 'group',
+      admin: { description: 'Per-project IMAP (incoming) and SMTP (outgoing). Empty fields fall back to studio defaults when applicable.' },
       fields: [
-        { name: 'email', type: 'text' },
-        { name: 'smtpHost', type: 'text' },
-        { name: 'smtpPort', type: 'text' },
-        { name: 'smtpUser', type: 'text' },
-        { name: 'smtpPass', type: 'text' },
+        {
+          name: 'incoming',
+          type: 'group',
+          label: 'Incoming (IMAP)',
+          fields: [
+            { name: 'host', type: 'text' },
+            { name: 'port', type: 'number', min: 1, max: 65535, defaultValue: 993 },
+            { name: 'username', type: 'text' },
+            { name: 'password', type: 'text' },
+          ],
+        },
+        {
+          name: 'outgoing',
+          type: 'group',
+          label: 'Outgoing (SMTP)',
+          fields: [
+            { name: 'host', type: 'text' },
+            { name: 'port', type: 'number', min: 1, max: 65535, defaultValue: 465 },
+            { name: 'username', type: 'text' },
+            { name: 'password', type: 'text' },
+            {
+              name: 'encryption',
+              type: 'select',
+              defaultValue: 'ssl',
+              options: [
+                { label: 'SSL (e.g. 465)', value: 'ssl' },
+                { label: 'TLS / STARTTLS (e.g. 587)', value: 'tls' },
+                { label: 'None', value: 'none' },
+              ],
+            },
+          ],
+        },
       ],
     },
   ],

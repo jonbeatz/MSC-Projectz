@@ -18,8 +18,9 @@ import { revalidatePath } from 'next/cache'
 
 import { msc_getVaultLocalApiContext, msc_vaultLocalApiOptions } from '@/lib/msc_vault_auth_context'
 import { msc_vaultIsPayloadAdmin } from '@/lib/msc_vault_payload_access'
-import type { AppSettings, Credential, Project, Task, TaskStatus } from '@/lib/types'
-import { msc_mergeProjectsAndTasks, msc_mapProjectDoc, msc_mapTaskDoc } from '@/lib/msc_map_vault'
+import type { AppSettings, Credential, EmailSettings, MscSmtpEncryption, Project, Task, TaskStatus } from '@/lib/types'
+import { msc_mergeProjectsAndTasks, msc_mapProjectDoc, msc_mapTaskDoc, msc_normalizeProjectEmailSettings } from '@/lib/msc_map_vault'
+import { msc_sendSendNotificationTaskEmail, msc_testSettingsFromForm } from '@/lib/msc_smtp_nodemailer'
 import { msc_stringifyReferencesJson } from '@/lib/msc_project_references'
 import { getSafePath } from '@/lib/env-utils'
 import type { MscVaultLocalApiContext } from '@/lib/msc_vault_auth_context'
@@ -213,6 +214,139 @@ function msc_thumbnailPayload(value: string | undefined | null): { thumbnail?: s
   const t = typeof value === 'string' ? value.trim() : ''
   if (!t) return {}
   return { thumbnail: t }
+}
+
+function msc_mergeMailEndpoint(
+  base: { host: string; port: number; username: string; password: string },
+  updates: { host?: string; port?: number; username?: string; password?: string } | undefined,
+) {
+  if (!updates) return { ...base }
+  const hasNewPassword = updates.password !== undefined && String(updates.password).trim() !== ''
+  return {
+    host: updates.host !== undefined ? String(updates.host).trim() : base.host,
+    port: updates.port !== undefined && typeof updates.port === 'number' && updates.port > 0 ? updates.port : base.port,
+    username: updates.username !== undefined ? String(updates.username) : base.username,
+    password: hasNewPassword ? String(updates.password) : base.password,
+  }
+}
+
+function msc_mergeEmailSettingsOnUpdate(
+  current: Record<string, unknown> | null | undefined,
+  updates: Partial<EmailSettings> | undefined,
+): EmailSettings {
+  const base = msc_normalizeProjectEmailSettings(current)
+  if (!updates) return base
+  const incoming = msc_mergeMailEndpoint(base.incoming, updates.incoming)
+  const o = updates.outgoing
+  if (o === undefined) return { ...base, incoming }
+  return {
+    incoming,
+    outgoing: {
+      host: o.host !== undefined ? String(o.host).trim() : base.outgoing.host,
+      port: o.port !== undefined && typeof o.port === 'number' && o.port > 0 ? o.port : base.outgoing.port,
+      username: o.username !== undefined ? String(o.username) : base.outgoing.username,
+      password:
+        o.password !== undefined && String(o.password).trim() !== '' ? String(o.password) : base.outgoing.password,
+      encryption: (o.encryption as MscSmtpEncryption) ?? base.outgoing.encryption,
+    },
+  }
+}
+
+/**
+ * `Socket` + TLS connectivity check (username/password) for the Connectivity form.
+ * Uses saved `password` when the client omits a new one (keeps the field out of the browser).
+ */
+export async function msc_testProjectSmtpConnection(
+  projectId: string,
+  input: {
+    host: string
+    port: number
+    username: string
+    password?: string
+    encryption: MscSmtpEncryption
+  },
+): Promise<{ success: true; message: string } | { success: false; message: string }> {
+  const ctx = await msc_getVaultLocalApiContext()
+  await msc_assertAuthorizedVaultProject(ctx, projectId, 'test project email connection')
+  const o = msc_vaultLocalApiOptions(ctx)
+  const { payload } = ctx
+  const raw = await payload.findByID({
+    collection: 'msc-vault-projects',
+    id: msc_coercePayloadRelationId(payload, 'msc-vault-projects', projectId),
+    depth: 0,
+    user: o.user,
+    overrideAccess: o.overrideAccess,
+  })
+  const prevE = msc_normalizeProjectEmailSettings(
+    (raw as { emailSettings?: Record<string, unknown> } | null)?.emailSettings,
+  )
+  const effectivePassword = (input.password && input.password.trim()) || prevE.outgoing.password
+  if (!String(input.host || '').trim() || !effectivePassword) {
+    return {
+      success: false,
+      message: 'Host and password (saved or entered) are required to test the connection.',
+    }
+  }
+  try {
+    await msc_testSettingsFromForm({
+      host: String(input.host).trim(),
+      port: input.port,
+      username: String(input.username || '').trim(),
+      password: effectivePassword,
+      encryption: input.encryption,
+    })
+    return { success: true, message: 'SMTP connection verified.' }
+  } catch (e) {
+    const message = e instanceof Error ? e.message : String(e)
+    return { success: false, message: message || 'Connection failed' }
+  }
+}
+
+async function msc_maybeSendNotificationTaskEmail(
+  ctx: MscVaultLocalApiContext,
+  projectId: string,
+  taskAfter: { title?: string | null; completed?: boolean | null; status?: string | null },
+) {
+  const title = String(taskAfter.title || '').trim()
+  if (!/send notification/i.test(title)) return
+  const isDone = taskAfter.status === 'done' || taskAfter.completed === true
+  if (!isDone) return
+  const o = msc_vaultLocalApiOptions(ctx)
+  const { payload } = ctx
+  const u = msc_requireVaultSessionUser(ctx, 'send notification email')
+  const proj = await payload.findByID({
+    collection: 'msc-vault-projects',
+    id: msc_coercePayloadRelationId(payload, 'msc-vault-projects', projectId),
+    depth: 0,
+    user: o.user,
+    overrideAccess: o.overrideAccess,
+  })
+  if (!proj) return
+  const me = await payload.findByID({
+    collection: 'users',
+    id: u.id,
+    depth: 0,
+    user: o.user,
+    overrideAccess: o.overrideAccess,
+  })
+  const toEmail = (me as { email?: string } | null)?.email
+  if (!toEmail) {
+    console.warn('[msc] Send Notification: current user has no email address in Payload.')
+    return
+  }
+  const fromProject = msc_normalizeProjectEmailSettings(
+    (proj as { emailSettings?: Record<string, unknown> }).emailSettings,
+  )
+  try {
+    await msc_sendSendNotificationTaskEmail({
+      toEmail,
+      taskTitle: title,
+      projectName: String((proj as { name?: string }).name || 'Project'),
+      fromProject,
+    })
+  } catch (e) {
+    console.warn('[msc] send notification task email failed', e)
+  }
 }
 
 export async function msc_registerUser(
@@ -442,23 +576,25 @@ export async function msc_createVaultProject(
 
 export async function msc_updateVaultProject(
   id: string,
-  updates: Partial<
-    Pick<
-      Project,
-      | 'name'
-      | 'thumbnail'
-      | 'localPath'
-      | 'liveUrl'
-      | 'status'
-      | 'progress'
-      | 'credentials'
-      | 'emailSettings'
-      | 'localNotes'
-      | 'liveNotes'
-      | 'references'
-      | 'members'
-    >
-  >,
+  updates: Omit<
+    Partial<
+      Pick<
+        Project,
+        | 'name'
+        | 'thumbnail'
+        | 'localPath'
+        | 'liveUrl'
+        | 'status'
+        | 'progress'
+        | 'credentials'
+        | 'localNotes'
+        | 'liveNotes'
+        | 'references'
+        | 'members'
+      >
+    >,
+    'emailSettings'
+  > & { emailSettings?: Partial<EmailSettings> },
 ): Promise<Project> {
   const ctx = await msc_getVaultLocalApiContext()
   const o = msc_vaultLocalApiOptions(ctx)
@@ -487,7 +623,17 @@ export async function msc_updateVaultProject(
       password: c.password,
     }))
   }
-  if (updates.emailSettings !== undefined) data.emailSettings = updates.emailSettings
+  if (updates.emailSettings !== undefined) {
+    const current = await payload.findByID({
+      collection: 'msc-vault-projects',
+      id: msc_coercePayloadRelationId(payload, 'msc-vault-projects', id),
+      depth: 0,
+      user: o.user,
+      overrideAccess: o.overrideAccess,
+    })
+    const curRaw = (current as { emailSettings?: Record<string, unknown> } | null)?.emailSettings
+    data.emailSettings = msc_mergeEmailSettingsOnUpdate(curRaw, updates.emailSettings)
+  }
   if (updates.members !== undefined) {
     data.members = updates.members.map((member) => msc_coercePayloadRelationId(payload, 'users', String(member.id)))
   }
@@ -595,9 +741,14 @@ export async function msc_toggleVaultTask(projectId: string, taskId: string): Pr
     user: o.user,
     overrideAccess: o.overrideAccess,
   })
-  void projectId
   msc_revalidateVaultUi()
-  return msc_mapTaskDoc(updated as Parameters<typeof msc_mapTaskDoc>[0])
+  const mapped = msc_mapTaskDoc(updated as Parameters<typeof msc_mapTaskDoc>[0])
+  void msc_maybeSendNotificationTaskEmail(ctx, projectId, {
+    title: mapped.title,
+    completed: mapped.completed,
+    status: mapped.status,
+  })
+  return mapped
 }
 
 /** Persists task status (and optional completed/archived) to `msc-vault-tasks` / SQLite. */
@@ -624,9 +775,14 @@ export async function msc_update_task_status(
     user: o.user,
     overrideAccess: o.overrideAccess,
   })
-  void projectId
   msc_revalidateVaultUi()
-  return msc_mapTaskDoc(updated as Parameters<typeof msc_mapTaskDoc>[0])
+  const mapped = msc_mapTaskDoc(updated as Parameters<typeof msc_mapTaskDoc>[0])
+  void msc_maybeSendNotificationTaskEmail(ctx, projectId, {
+    title: mapped.title,
+    completed: mapped.completed,
+    status: mapped.status,
+  })
+  return mapped
 }
 
 /**
@@ -704,9 +860,14 @@ export async function msc_archiveVaultTask(projectId: string, taskId: string): P
     user: o.user,
     overrideAccess: o.overrideAccess,
   })
-  void projectId
   msc_revalidateVaultUi()
-  return msc_mapTaskDoc(updated as Parameters<typeof msc_mapTaskDoc>[0])
+  const mapped = msc_mapTaskDoc(updated as Parameters<typeof msc_mapTaskDoc>[0])
+  void msc_maybeSendNotificationTaskEmail(ctx, projectId, {
+    title: mapped.title,
+    completed: mapped.completed,
+    status: mapped.status,
+  })
+  return mapped
 }
 
 export async function msc_migratePersistedStateIfEmpty(raw: string): Promise<Project[] | null> {

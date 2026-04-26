@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { 
   X, 
   Key, 
@@ -13,13 +13,18 @@ import {
   Check,
   Server,
   ChevronDown,
-  ChevronUp
+  ChevronUp,
+  Send,
+  Loader2,
+  Shield,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { useAppStore } from '@/lib/store'
-import type { Project, Credential, EmailSettings } from '@/lib/types'
+import type { Project, Credential, EmailSettings, MscSmtpEncryption } from '@/lib/types'
+import { msc_testProjectSmtpConnection } from '@/lib/msc_vault_server_actions'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 
 interface ProjectVaultProps {
   project: Project
@@ -38,16 +43,21 @@ export function ProjectVault({ project, isOpen, onClose }: ProjectVaultProps) {
   const [newCredential, setNewCredential] = useState({ label: '', username: '', password: '' })
   const [showNewForm, setShowNewForm] = useState(false)
 
-  // Email settings form
-  const [emailSettings, setEmailSettings] = useState<EmailSettings>(
-    project.emailSettings || {
-      email: '',
-      smtpHost: '',
-      smtpPort: '',
-      smtpUser: '',
-      smtpPass: '',
-    }
-  )
+  const msc_defaultEmail = (): EmailSettings => ({
+    incoming: { host: '', port: 993, username: '', password: '' },
+    outgoing: { host: '', port: 465, username: '', password: '', encryption: 'ssl' },
+  })
+
+  const [emailSettings, setEmailSettings] = useState<EmailSettings>(project.emailSettings || msc_defaultEmail())
+  const [showImapPass, setShowImapPass] = useState(false)
+  const [showSmtpPassword, setShowSmtpPassword] = useState(false)
+  const [emailTestBusy, setEmailTestBusy] = useState(false)
+  const [emailTestMessage, setEmailTestMessage] = useState<string | null>(null)
+
+  useEffect(() => {
+    setEmailSettings(project.emailSettings || msc_defaultEmail())
+    setEmailTestMessage(null)
+  }, [project.id, project.emailSettings])
 
   const togglePassword = (id: string) => {
     setShowPasswords((prev) => ({ ...prev, [id]: !prev[id] }))
@@ -69,6 +79,20 @@ export function ProjectVault({ project, isOpen, onClose }: ProjectVaultProps) {
 
   const handleSaveEmailSettings = () => {
     updateEmailSettings(project.id, emailSettings)
+  }
+
+  const handleTestEmail = async () => {
+    setEmailTestMessage(null)
+    setEmailTestBusy(true)
+    const r = await msc_testProjectSmtpConnection(project.id, {
+      host: emailSettings.outgoing.host,
+      port: emailSettings.outgoing.port,
+      username: emailSettings.outgoing.username,
+      password: emailSettings.outgoing.password || undefined,
+      encryption: emailSettings.outgoing.encryption,
+    })
+    setEmailTestBusy(false)
+    setEmailTestMessage(r.success ? r.message : r.message)
   }
 
   if (!isOpen) return null
@@ -201,7 +225,7 @@ export function ProjectVault({ project, isOpen, onClose }: ProjectVaultProps) {
             >
               <div className="flex items-center gap-2">
                 <Mail className="w-4 h-4 text-primary" />
-                <h3 className="font-medium text-foreground">Email & SMTP</h3>
+                <h3 className="font-medium text-foreground">IMAP & SMTP</h3>
               </div>
               {emailExpanded ? (
                 <ChevronUp className="w-4 h-4 text-muted-foreground" />
@@ -211,76 +235,204 @@ export function ProjectVault({ project, isOpen, onClose }: ProjectVaultProps) {
             </button>
 
             {emailExpanded && (
-              <div className="mt-4 p-4 rounded-lg space-y-4 bg-secondary border border-border">
-                <div className="space-y-2">
-                  <Label className="text-xs text-muted-foreground">Email Address</Label>
-                  <Input
-                    placeholder="admin@example.com"
-                    value={emailSettings.email}
-                    onChange={(e) => setEmailSettings({ ...emailSettings, email: e.target.value })}
-                    className="h-9 bg-card border-border text-foreground"
-                  />
+              <div className="mt-4 p-4 rounded-lg space-y-4 bg-[#1c1c1c] border border-border">
+                <div className="mb-2 flex items-center gap-2 text-xs text-muted-foreground">
+                  <Server className="h-3.5 w-3.5" />
+                  Same as Edit Project → SMTP
                 </div>
-
-                <div className="pt-2 border-t border-border">
-                  <div className="flex items-center gap-2 mb-3">
-                    <Server className="w-3.5 h-3.5 text-muted-foreground" />
-                    <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                      SMTP Settings
-                    </span>
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-2">
+                      <Shield className="h-3.5 w-3.5 text-primary" />
+                      <span className="text-xs font-medium text-foreground">IMAP</span>
+                    </div>
+                    <div className="grid grid-cols-2 gap-2">
+                      <div className="space-y-1">
+                        <Label className="text-[10px] text-muted-foreground">Host</Label>
+                        <Input
+                          value={emailSettings.incoming.host}
+                          onChange={(e) =>
+                            setEmailSettings({
+                              ...emailSettings,
+                              incoming: { ...emailSettings.incoming, host: e.target.value },
+                            })
+                          }
+                          className="h-8 text-xs bg-card border-border text-foreground"
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <Label className="text-[10px] text-muted-foreground">Port</Label>
+                        <Input
+                          type="number"
+                          value={emailSettings.incoming.port || 993}
+                          onChange={(e) =>
+                            setEmailSettings({
+                              ...emailSettings,
+                              incoming: {
+                                ...emailSettings.incoming,
+                                port: parseInt(e.target.value, 10) || 0,
+                              },
+                            })
+                          }
+                          className="h-8 text-xs bg-card border-border text-foreground"
+                        />
+                      </div>
+                    </div>
+                    <div className="space-y-1">
+                      <Label className="text-[10px] text-muted-foreground">Username</Label>
+                      <Input
+                        value={emailSettings.incoming.username}
+                        onChange={(e) =>
+                          setEmailSettings({
+                            ...emailSettings,
+                            incoming: { ...emailSettings.incoming, username: e.target.value },
+                          })
+                        }
+                        className="h-8 text-xs bg-card border-border text-foreground"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <Label className="text-[10px] text-muted-foreground">Password</Label>
+                      <div className="relative">
+                        <Input
+                          type={showImapPass ? 'text' : 'password'}
+                          value={emailSettings.incoming.password}
+                          onChange={(e) =>
+                            setEmailSettings({
+                              ...emailSettings,
+                              incoming: { ...emailSettings.incoming, password: e.target.value },
+                            })
+                          }
+                          className="h-8 pr-8 text-xs bg-card border-border text-foreground"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowImapPass((s) => !s)}
+                          className="absolute right-1.5 top-1/2 -translate-y-1/2 text-muted-foreground"
+                        >
+                          {showImapPass ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
+                        </button>
+                      </div>
+                    </div>
                   </div>
-                  
-                  <div className="grid grid-cols-2 gap-3">
-                    <div className="space-y-2">
-                      <Label className="text-xs text-muted-foreground">Host</Label>
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-2">
+                      <Send className="h-3.5 w-3.5 text-primary" />
+                      <span className="text-xs font-medium text-foreground">SMTP</span>
+                    </div>
+                    <div className="grid grid-cols-2 gap-2">
+                      <div className="space-y-1">
+                        <Label className="text-[10px] text-muted-foreground">Host</Label>
+                        <Input
+                          value={emailSettings.outgoing.host}
+                          onChange={(e) =>
+                            setEmailSettings({
+                              ...emailSettings,
+                              outgoing: { ...emailSettings.outgoing, host: e.target.value },
+                            })
+                          }
+                          className="h-8 text-xs bg-card border-border text-foreground"
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <Label className="text-[10px] text-muted-foreground">Port</Label>
+                        <Input
+                          type="number"
+                          value={emailSettings.outgoing.port || 465}
+                          onChange={(e) =>
+                            setEmailSettings({
+                              ...emailSettings,
+                              outgoing: {
+                                ...emailSettings.outgoing,
+                                port: parseInt(e.target.value, 10) || 0,
+                              },
+                            })
+                          }
+                          className="h-8 text-xs bg-card border-border text-foreground"
+                        />
+                      </div>
+                    </div>
+                    <div className="space-y-1">
+                      <Label className="text-[10px] text-muted-foreground">Username</Label>
                       <Input
-                        placeholder="smtp.example.com"
-                        value={emailSettings.smtpHost}
-                        onChange={(e) => setEmailSettings({ ...emailSettings, smtpHost: e.target.value })}
-                        className="h-9 text-sm bg-card border-border text-foreground"
+                        value={emailSettings.outgoing.username}
+                        onChange={(e) =>
+                          setEmailSettings({
+                            ...emailSettings,
+                            outgoing: { ...emailSettings.outgoing, username: e.target.value },
+                          })
+                        }
+                        className="h-8 text-xs bg-card border-border text-foreground"
                       />
                     </div>
-                    <div className="space-y-2">
-                      <Label className="text-xs text-muted-foreground">Port</Label>
-                      <Input
-                        placeholder="587"
-                        value={emailSettings.smtpPort}
-                        onChange={(e) => setEmailSettings({ ...emailSettings, smtpPort: e.target.value })}
-                        className="h-9 text-sm bg-card border-border text-foreground"
-                      />
+                    <div className="space-y-1">
+                      <Label className="text-[10px] text-muted-foreground">Password</Label>
+                      <div className="relative">
+                        <Input
+                          type={showSmtpPassword ? 'text' : 'password'}
+                          value={emailSettings.outgoing.password}
+                          onChange={(e) =>
+                            setEmailSettings({
+                              ...emailSettings,
+                              outgoing: { ...emailSettings.outgoing, password: e.target.value },
+                            })
+                          }
+                          className="h-8 pr-8 text-xs bg-card border-border text-foreground"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowSmtpPassword((s) => !s)}
+                          className="absolute right-1.5 top-1/2 -translate-y-1/2 text-muted-foreground"
+                        >
+                          {showSmtpPassword ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
+                        </button>
+                      </div>
                     </div>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-3 mt-3">
-                    <div className="space-y-2">
-                      <Label className="text-xs text-muted-foreground">Username</Label>
-                      <Input
-                        placeholder="smtp_user"
-                        value={emailSettings.smtpUser}
-                        onChange={(e) => setEmailSettings({ ...emailSettings, smtpUser: e.target.value })}
-                        className="h-9 text-sm bg-card border-border text-foreground"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label className="text-xs text-muted-foreground">Password</Label>
-                      <Input
-                        type="password"
-                        placeholder="smtp_pass"
-                        value={emailSettings.smtpPass}
-                        onChange={(e) => setEmailSettings({ ...emailSettings, smtpPass: e.target.value })}
-                        className="h-9 text-sm bg-card border-border text-foreground"
-                      />
+                    <div className="space-y-1">
+                      <span className="text-[10px] text-muted-foreground">Encryption</span>
+                      <Select
+                        value={emailSettings.outgoing.encryption}
+                        onValueChange={(v) =>
+                          setEmailSettings({
+                            ...emailSettings,
+                            outgoing: { ...emailSettings.outgoing, encryption: v as MscSmtpEncryption },
+                          })
+                        }
+                      >
+                        <SelectTrigger className="h-8 bg-card border-border text-foreground w-full text-xs">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="ssl">SSL</SelectItem>
+                          <SelectItem value="tls">TLS</SelectItem>
+                          <SelectItem value="none">None</SelectItem>
+                        </SelectContent>
+                      </Select>
                     </div>
                   </div>
                 </div>
+                {emailTestMessage && <p className="text-xs text-muted-foreground">{emailTestMessage}</p>}
 
-                <Button 
-                  size="sm" 
-                  onClick={handleSaveEmailSettings} 
-                  className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
-                >
-                  Save Email Settings
-                </Button>
+                <div className="grid grid-cols-2 gap-2">
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="secondary"
+                    onClick={handleTestEmail}
+                    disabled={emailTestBusy}
+                    className="gap-1.5"
+                  >
+                    {emailTestBusy ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Send className="h-3.5 w-3.5" />}
+                    Test
+                  </Button>
+                  <Button 
+                    size="sm" 
+                    onClick={handleSaveEmailSettings} 
+                    className="bg-primary text-primary-foreground hover:bg-primary/90"
+                  >
+                    Save
+                  </Button>
+                </div>
               </div>
             )}
           </section>

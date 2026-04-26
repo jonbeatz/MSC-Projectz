@@ -1,4 +1,13 @@
-import type { Credential, EmailSettings, Project, Task, TaskStatus } from '@/lib/types'
+import type {
+  Credential,
+  EmailSettings,
+  MscProjectIncomingMail,
+  MscProjectOutgoingSmtp,
+  MscSmtpEncryption,
+  Project,
+  Task,
+  TaskStatus,
+} from '@/lib/types'
 import { getSafePath } from '@/lib/env-utils'
 import { msc_parseReferencesJson } from '@/lib/msc_project_references'
 import type { MscProjectMember } from '@/types/user-admin'
@@ -23,7 +32,7 @@ type MscVaultProjectDoc = {
     username: string
     password: string
   }> | null
-  emailSettings?: EmailSettings | null
+  emailSettings?: Record<string, unknown> | null
   createdAt: string
   updatedAt: string
 }
@@ -94,6 +103,78 @@ function msc_generateLocalId(): string {
   return `cred-${Date.now()}-${Math.random().toString(16).slice(2)}`
 }
 
+function msc_coerceMscSmtpEncryption(value: string | null | undefined): MscSmtpEncryption {
+  const v = (value || 'ssl').toLowerCase()
+  if (v === 'tls' || v === 'none' || v === 'ssl') return v
+  return 'ssl'
+}
+
+function msc_mapIncomingDoc(sub: Record<string, unknown> | null | undefined): MscProjectIncomingMail {
+  if (!sub) return { host: '', port: 993, username: '', password: '' }
+  const p = sub
+  const port = typeof p.port === 'number' ? p.port : parseInt(String(p.port != null && p.port !== '' ? p.port : '993'), 10) || 993
+  return {
+    host: String((p.host as string) || '').trim(),
+    port,
+    username: String((p.username as string) || '').trim(),
+    password: String((p.password as string) || '').trim(),
+  }
+}
+
+function msc_mapOutgoingDoc(sub: Record<string, unknown> | null | undefined): MscProjectOutgoingSmtp {
+  if (!sub) {
+    return { host: '', port: 465, username: '', password: '', encryption: 'ssl' }
+  }
+  const p = sub
+  const port = typeof p.port === 'number' ? p.port : parseInt(String(p.port != null && p.port !== '' ? p.port : '465'), 10) || 465
+  return {
+    host: String((p.host as string) || '').trim(),
+    port,
+    username: String((p.username as string) || '').trim(),
+    password: String((p.password as string) || '').trim(),
+    encryption: msc_coerceMscSmtpEncryption((p.encryption as string) || undefined),
+  }
+}
+
+/**
+ * `emailSettings.incoming` / `outgoing` or legacy top-level `host` (SMTP) from older app builds.
+ */
+export function msc_normalizeProjectEmailSettings(raw: Record<string, unknown> | null | undefined): EmailSettings {
+  if (!raw || typeof raw !== 'object') {
+    return {
+      incoming: { host: '', port: 993, username: '', password: '' },
+      outgoing: { host: '', port: 465, username: '', password: '', encryption: 'ssl' },
+    }
+  }
+  const r = raw as Record<string, unknown>
+  if (r.incoming || r.outgoing) {
+    return {
+      incoming: msc_mapIncomingDoc((r.incoming as Record<string, unknown>) || undefined),
+      outgoing: msc_mapOutgoingDoc((r.outgoing as Record<string, unknown>) || undefined),
+    }
+  }
+  const legacyHost = (r.smtpHost as string) || (r.smtp_host as string) || ''
+  const host = String((r.host as string) || legacyHost || '').trim()
+  const rawPort = r.port ?? r.smtpPort
+  const portNum =
+    typeof rawPort === 'number'
+      ? rawPort
+      : parseInt(String(rawPort != null && rawPort !== '' ? rawPort : '465').trim(), 10) || 465
+  const username = String((r.username as string) || (r.smtpUser as string) || (r.smtp_user as string) || '')
+  const password = String((r.password as string) || (r.smtpPass as string) || (r.smtp_pass as string) || '')
+  const enc = msc_coerceMscSmtpEncryption((r.encryption as string) || undefined)
+  return {
+    incoming: { host: '', port: 993, username: '', password: '' },
+    outgoing: {
+      host,
+      port: portNum,
+      username,
+      password,
+      encryption: enc,
+    },
+  }
+}
+
 export function msc_mapProjectDoc(doc: MscVaultProjectDoc, tasks: Task[]): Project {
   const emailSettings = doc.emailSettings
   const refs = msc_parseReferencesJson(doc.referencesJson ?? undefined)
@@ -117,15 +198,7 @@ export function msc_mapProjectDoc(doc: MscVaultProjectDoc, tasks: Task[]): Proje
     liveNotes: doc.liveNotes?.trim() ? doc.liveNotes.trim() : undefined,
     references: refs.length ? refs : undefined,
     credentials: (doc.credentials || []).map(msc_mapCredentialRow),
-    emailSettings: emailSettings
-      ? {
-          email: emailSettings.email || '',
-          smtpHost: emailSettings.smtpHost || '',
-          smtpPort: emailSettings.smtpPort || '',
-          smtpUser: emailSettings.smtpUser || '',
-          smtpPass: emailSettings.smtpPass || '',
-        }
-      : undefined,
+    emailSettings: emailSettings ? msc_normalizeProjectEmailSettings(emailSettings) : undefined,
     tasks,
     progress: typeof doc.progress === 'number' ? doc.progress : 0,
     createdAt: new Date(doc.createdAt),

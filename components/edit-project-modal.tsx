@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
-import { X, Upload, FolderOpen, Globe, ImageIcon, Save, Plus, Trash2, Link2, FileText, Users } from 'lucide-react'
+import { X, Upload, FolderOpen, Globe, ImageIcon, Save, Plus, Trash2, Link2, FileText, Users, Send, Eye, EyeOff, Loader2, Shield } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -13,7 +13,10 @@ import { cn } from '@/lib/utils'
 import { msc_compressDataUrlImage } from '@/lib/msc_compress_thumbnail'
 import { msc_createEmptyReference } from '@/lib/msc_project_references'
 import { msc_listPayloadUsersForSettings } from '@/lib/msc_vault_user_admin'
+import { msc_testProjectSmtpConnection } from '@/lib/msc_vault_server_actions'
+import type { EmailSettings, MscSmtpEncryption } from '@/lib/types'
 import type { MscProjectMember, MscUserAdminRow } from '@/types/user-admin'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 
 interface EditProjectModalProps {
   project: Project | null
@@ -36,7 +39,20 @@ export function EditProjectModal({ project, isOpen, onClose }: EditProjectModalP
   const [selectedMemberIds, setSelectedMemberIds] = useState<string[]>([])
   const [membersLoading, setMembersLoading] = useState(false)
   const [membersError, setMembersError] = useState<string | null>(null)
-  const [activeTab, setActiveTab] = useState<'identity' | 'connectivity' | 'status' | 'references'>('identity')
+  const [activeTab, setActiveTab] = useState<'identity' | 'connectivity' | 'status' | 'files' | 'smtp'>('identity')
+  const [imapHost, setImapHost] = useState('')
+  const [imapPort, setImapPort] = useState(993)
+  const [imapUsername, setImapUsername] = useState('')
+  const [imapPassword, setImapPassword] = useState('')
+  const [showImapPassword, setShowImapPassword] = useState(false)
+  const [smtpHost, setSmtpHost] = useState('')
+  const [smtpPort, setSmtpPort] = useState(465)
+  const [smtpUsername, setSmtpUsername] = useState('')
+  const [smtpPassword, setSmtpPassword] = useState('')
+  const [smtpEncryption, setSmtpEncryption] = useState<MscSmtpEncryption>('ssl')
+  const [showSmtpPassword, setShowSmtpPassword] = useState(false)
+  const [emailTestMessage, setEmailTestMessage] = useState<string | null>(null)
+  const [emailTestBusy, setEmailTestBusy] = useState(false)
   const refFileInputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
@@ -50,6 +66,28 @@ export function EditProjectModal({ project, isOpen, onClose }: EditProjectModalP
       setLiveNotes(project.liveNotes || '')
       setReferences(project.references ? [...project.references] : [])
       setSelectedMemberIds((project.members || []).map((member) => String(member.id)))
+      const es = project.emailSettings
+      if (es) {
+        setImapHost(es.incoming?.host || '')
+        setImapPort(typeof es.incoming?.port === 'number' && es.incoming.port > 0 ? es.incoming.port : 993)
+        setImapUsername(es.incoming?.username || '')
+        setImapPassword('')
+        setSmtpHost(es.outgoing?.host || '')
+        setSmtpPort(typeof es.outgoing?.port === 'number' && es.outgoing.port > 0 ? es.outgoing.port : 465)
+        setSmtpUsername(es.outgoing?.username || '')
+        setSmtpPassword('')
+        setSmtpEncryption(es.outgoing?.encryption || 'ssl')
+      } else {
+        setImapHost('')
+        setImapPort(993)
+        setImapUsername('')
+        setImapPassword('')
+        setSmtpHost('')
+        setSmtpPort(465)
+        setSmtpUsername('')
+        setSmtpPassword('')
+        setSmtpEncryption('ssl')
+      }
     }
   }, [project])
 
@@ -109,8 +147,42 @@ export function EditProjectModal({ project, isOpen, onClose }: EditProjectModalP
       liveNotes: liveNotes.trim() || undefined,
       references,
       members,
+      emailSettings: {
+        incoming: {
+          host: imapHost.trim(),
+          port: imapPort,
+          username: imapUsername.trim(),
+          ...(imapPassword.trim() ? { password: imapPassword.trim() } : {}),
+        },
+        outgoing: {
+          host: smtpHost.trim(),
+          port: smtpPort,
+          username: smtpUsername.trim(),
+          ...(smtpPassword.trim() ? { password: smtpPassword.trim() } : {}),
+          encryption: smtpEncryption,
+        },
+      } as Partial<EmailSettings>,
     })
     onClose()
+  }
+
+  const msc_testSmtp = async () => {
+    if (!project) return
+    setEmailTestMessage(null)
+    setEmailTestBusy(true)
+    const r = await msc_testProjectSmtpConnection(project.id, {
+      host: smtpHost.trim(),
+      port: smtpPort,
+      username: smtpUsername.trim(),
+      password: smtpPassword.trim() || undefined,
+      encryption: smtpEncryption,
+    })
+    setEmailTestBusy(false)
+    if (r.success) {
+      setEmailTestMessage(r.message)
+    } else {
+      setEmailTestMessage(r.message)
+    }
   }
 
   const handleThumbnailUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -198,7 +270,7 @@ export function EditProjectModal({ project, isOpen, onClose }: EditProjectModalP
       />
       
       {/* Modal */}
-      <div className="relative w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden bg-card border border-border">
+      <div className="relative w-full max-w-2xl rounded-2xl shadow-2xl overflow-hidden bg-card border border-border">
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-border">
           <h2 className="text-lg font-semibold text-foreground">Edit Project</h2>
@@ -212,19 +284,28 @@ export function EditProjectModal({ project, isOpen, onClose }: EditProjectModalP
 
         {/* Tabs */}
         <div className="px-6 py-3 border-b border-border">
-          <div className="grid grid-cols-4 rounded-lg p-1 bg-secondary">
-            {(['identity', 'connectivity', 'status', 'references'] as const).map((tab) => (
+          <div className="grid grid-cols-5 gap-0.5 rounded-lg p-1 bg-secondary">
+            {(
+              [
+                { id: 'identity' as const, label: 'Identity' },
+                { id: 'connectivity' as const, label: 'Connect' },
+                { id: 'status' as const, label: 'Status' },
+                { id: 'files' as const, label: 'Files' },
+                { id: 'smtp' as const, label: 'SMTP' },
+              ] as const
+            ).map(({ id, label }) => (
               <button
-                key={tab}
-                onClick={() => setActiveTab(tab)}
+                key={id}
+                type="button"
+                onClick={() => setActiveTab(id)}
                 className={cn(
-                  "px-2 py-2 rounded-md text-xs font-medium transition-colors capitalize",
-                  activeTab === tab 
-                    ? "bg-card text-foreground shadow-sm" 
-                    : "text-muted-foreground hover:text-foreground"
+                  'px-1.5 py-2 rounded-md text-[11px] font-medium transition-colors sm:text-xs',
+                  activeTab === id
+                    ? 'bg-card text-foreground shadow-sm'
+                    : 'text-muted-foreground hover:text-foreground',
                 )}
               >
-                {tab === 'references' ? 'Refs' : tab}
+                {label}
               </button>
             ))}
           </div>
@@ -362,7 +443,7 @@ export function EditProjectModal({ project, isOpen, onClose }: EditProjectModalP
             </div>
           )}
 
-          {/* Connectivity Tab */}
+          {/* Connectivity Tab — paths only */}
           {activeTab === 'connectivity' && (
             <div className="space-y-4">
               <div className="space-y-2">
@@ -392,6 +473,161 @@ export function EditProjectModal({ project, isOpen, onClose }: EditProjectModalP
                   placeholder="https://myproject.com"
                   className="bg-input border-border text-foreground"
                 />
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'smtp' && (
+            <div className="space-y-4">
+              <p className="text-xs text-muted-foreground">
+                Per-project mail. Leave a password field blank to keep the current saved value.
+              </p>
+              <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+                <div className="space-y-3 rounded-lg border border-border bg-[#1c1c1c] p-4">
+                  <div className="mb-2 flex items-center gap-2">
+                    <Shield className="h-4 w-4 text-primary" />
+                    <span className="text-sm font-medium text-foreground">Incoming mail (IMAP)</span>
+                  </div>
+                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                    <div className="space-y-2 sm:col-span-1">
+                      <Label className="text-xs text-muted-foreground">Host</Label>
+                      <Input
+                        value={imapHost}
+                        onChange={(e) => setImapHost(e.target.value)}
+                        placeholder="mail.example.com"
+                        className="bg-input border-border text-foreground"
+                      />
+                    </div>
+                    <div className="space-y-2 sm:col-span-1">
+                      <Label className="text-xs text-muted-foreground">Port</Label>
+                      <Input
+                        type="number"
+                        min={1}
+                        max={65535}
+                        value={Number.isFinite(imapPort) ? imapPort : 993}
+                        onChange={(e) => setImapPort(parseInt(e.target.value, 10) || 0)}
+                        className="bg-input border-border text-foreground"
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-xs text-muted-foreground">Username</Label>
+                    <Input
+                      value={imapUsername}
+                      onChange={(e) => setImapUsername(e.target.value)}
+                      className="bg-input border-border text-foreground"
+                      autoComplete="off"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-xs text-muted-foreground">Password</Label>
+                    <div className="relative">
+                      <Input
+                        type={showImapPassword ? 'text' : 'password'}
+                        value={imapPassword}
+                        onChange={(e) => setImapPassword(e.target.value)}
+                        className="bg-input border-border pr-10 text-foreground"
+                        autoComplete="new-password"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowImapPassword((s) => !s)}
+                        className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-muted-foreground hover:text-foreground"
+                        aria-label={showImapPassword ? 'Hide password' : 'Show password'}
+                      >
+                        {showImapPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="space-y-3 rounded-lg border border-border bg-[#1c1c1c] p-4">
+                  <div className="mb-2 flex items-center gap-2">
+                    <Send className="h-4 w-4 text-primary" />
+                    <span className="text-sm font-medium text-foreground">Outgoing mail (SMTP)</span>
+                  </div>
+                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                    <div className="space-y-2 sm:col-span-1">
+                      <Label className="text-xs text-muted-foreground">Host</Label>
+                      <Input
+                        value={smtpHost}
+                        onChange={(e) => setSmtpHost(e.target.value)}
+                        placeholder="mail.example.com"
+                        className="bg-input border-border text-foreground"
+                      />
+                    </div>
+                    <div className="space-y-2 sm:col-span-1">
+                      <Label className="text-xs text-muted-foreground">Port</Label>
+                      <Input
+                        type="number"
+                        min={1}
+                        max={65535}
+                        value={Number.isFinite(smtpPort) ? smtpPort : 465}
+                        onChange={(e) => setSmtpPort(parseInt(e.target.value, 10) || 0)}
+                        className="bg-input border-border text-foreground"
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-xs text-muted-foreground">Username</Label>
+                    <Input
+                      value={smtpUsername}
+                      onChange={(e) => setSmtpUsername(e.target.value)}
+                      className="bg-input border-border text-foreground"
+                      autoComplete="off"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-xs text-muted-foreground">Password</Label>
+                    <div className="relative">
+                      <Input
+                        type={showSmtpPassword ? 'text' : 'password'}
+                        value={smtpPassword}
+                        onChange={(e) => setSmtpPassword(e.target.value)}
+                        className="bg-input border-border pr-10 text-foreground"
+                        autoComplete="new-password"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowSmtpPassword((s) => !s)}
+                        className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-muted-foreground hover:text-foreground"
+                        aria-label={showSmtpPassword ? 'Hide password' : 'Show password'}
+                      >
+                        {showSmtpPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      </button>
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <span className="text-xs text-muted-foreground">Encryption</span>
+                    <Select
+                      value={smtpEncryption}
+                      onValueChange={(v) => setSmtpEncryption(v as MscSmtpEncryption)}
+                    >
+                      <SelectTrigger className="w-full border-border bg-input text-foreground">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="ssl">SSL (e.g. 465)</SelectItem>
+                        <SelectItem value="tls">TLS / STARTTLS (e.g. 587)</SelectItem>
+                        <SelectItem value="none">None</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              </div>
+              {emailTestMessage && <p className="text-xs text-muted-foreground">{emailTestMessage}</p>}
+              <div className="flex flex-wrap gap-2">
+                <Button
+                  type="button"
+                  variant="secondary"
+                  size="sm"
+                  className="gap-1.5"
+                  onClick={msc_testSmtp}
+                  disabled={emailTestBusy}
+                >
+                  {emailTestBusy ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Send className="h-3.5 w-3.5" />}
+                  Test outgoing (SMTP) connection
+                </Button>
               </div>
             </div>
           )}
@@ -456,7 +692,7 @@ export function EditProjectModal({ project, isOpen, onClose }: EditProjectModalP
             </div>
           )}
 
-          {activeTab === 'references' && (
+          {activeTab === 'files' && (
             <div className="space-y-4">
               <div>
                 <h3 className="text-sm font-medium text-foreground">Reference library</h3>

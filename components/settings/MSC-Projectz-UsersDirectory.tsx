@@ -3,6 +3,7 @@
 import { RefreshCw, ShieldAlert, Users } from 'lucide-react'
 
 import { MSC_Projectz_UserRow } from '@/components/settings/MSC-Projectz-UserRow'
+import { Accordion } from '@/components/ui/accordion'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { cn } from '@/lib/utils'
@@ -51,7 +52,7 @@ export function MSC_Projectz_UsersDirectory({
           <p className="mt-1 text-xs text-muted-foreground">Create the first server user below, or refresh the directory.</p>
         </div>
       ) : (
-        <ul className="space-y-3">
+        <Accordion type="multiple" className="space-y-3">
           {users.map((user) => (
             <MSC_Projectz_UserRow
               key={String(user.id)}
@@ -60,7 +61,7 @@ export function MSC_Projectz_UsersDirectory({
               onMessage={onMessage}
             />
           ))}
-        </ul>
+        </Accordion>
       )}
     </div>
   )

@@ -32,5 +32,6 @@ next-env.d.ts
 # Payload / local SQLite
 payload.sqlite
 payload.sqlite-journal
+payload.sqlite.bak.*
 backups/
 media/

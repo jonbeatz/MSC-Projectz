@@ -7,12 +7,27 @@ export interface Credential {
   password: string
 }
 
+export type MscSmtpEncryption = 'ssl' | 'tls' | 'none'
+
+/** IMAP (or generic incoming) host credentials stored per project. */
+export type MscProjectIncomingMail = {
+  host: string
+  port: number
+  username: string
+  password: string
+}
+
+/** Outgoing SMTP row (Payload `emailSettings.outgoing` nested group). */
+export type MscProjectOutgoingSmtp = MscProjectIncomingMail & {
+  encryption: MscSmtpEncryption
+}
+
+/**
+ * Per-project mail: incoming (IMAP) + outgoing (SMTP). See `MSC-Projectz-VaultProjects` `emailSettings`.
+ */
 export interface EmailSettings {
-  email: string
-  smtpHost: string
-  smtpPort: string
-  smtpUser: string
-  smtpPass: string
+  incoming: MscProjectIncomingMail
+  outgoing: MscProjectOutgoingSmtp
 }
 
 export type TaskStatus = 'todo' | 'in-progress' | 'done'
