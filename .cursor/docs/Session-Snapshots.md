@@ -9,7 +9,21 @@ Purpose:
 
 Keep newest snapshot at the top.
 
-**Historical entries:** keep the **branch and SHA as recorded** for that session. Rows that show `MSC-Projectz-FullDev-v2` describe work **on that day**; **current primary branch** is **`MSC-Projectz-FullDev-v3`** (see `START-HERE.md` → *Current Restart Point*).
+**Historical entries:** keep the **branch and SHA as recorded** for that session. Rows that show `MSC-Projectz-FullDev-v2` or **`FullDev-v3`** describe work **on that day**; **current primary branch** is **`MSC-Projectz-FullDev-v4`** (see `START-HERE.md` → *Current Restart Point*).
+
+---
+
+## 2026-04-27 — Favicon rewrite + `MSC-Projectz-FullDev-v4` branch
+
+### Session state
+- **Branch:** `MSC-Projectz-FullDev-v4` (cut from `FullDev-v3` at the same tip; `v3` updated on `origin` first)
+- **Commit:** confirm with `git log -1 --oneline` on `MSC-Projectz-FullDev-v4`
+- **What shipped:** `next.config.mjs` rewrites `GET /favicon.ico` → `/media/msc-icon.png` (avoids 404; single asset in `./media`)
+- **Docs:** `START-HERE`, `ReCall`, `Project-Truth`, `Session-Snapshots` intro, `Development-Roadmap` changelog, `Restore-Points` (new row)
+
+### Start-next checklist
+1. `git pull` on `MSC-Projectz-FullDev-v4`
+2. Runtime edits: `npm run verify:next`, then `npm run dev`, smoke `/` and `/admin`
 
 ---
 

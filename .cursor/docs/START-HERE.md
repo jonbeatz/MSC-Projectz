@@ -79,13 +79,13 @@ Use the template in `Session-Snapshots.md` and keep newest entry at the top.
 
 ## Current Objective
 
-Ship a production-ready **Payload 3** + **Next.js 16** command center (with optional **Tauri 2**), including vault/collab features (e.g. per-project mail settings and admin configuration). **Primary integration branch:** `MSC-Projectz-FullDev-v3`. Longer-horizon collab work may still track `feature/collaborative-workspace` in parallel when revived.
+Ship a production-ready **Payload 3** + **Next.js 16** command center (with optional **Tauri 2**), including vault/collab features (e.g. per-project mail settings and admin configuration). **Primary integration branch:** `MSC-Projectz-FullDev-v4` (use `FullDev-v3` only for prior checkpoints). Longer-horizon collab work may still track `feature/collaborative-workspace` in parallel when revived.
 
 ## Current Restart Point
 
-* **Branch:** `MSC-Projectz-FullDev-v3`
+* **Branch:** `MSC-Projectz-FullDev-v4` (primary line; `MSC-Projectz-FullDev-v3` remains on the remote for earlier milestones)
 * **Remote:** `origin` → `https://github.com/jonbeatz/MSC-Projectz.git`
-* **Latest recorded commit (this doc refresh):** *docs: align operator docs with FullDev-v3 and app/(main) layout* — confirm SHA with `git log -1 --oneline` on `MSC-Projectz-FullDev-v3`.
+* **Latest recorded commit (this doc refresh):** favicon rewrite + `FullDev-v4` branch line — confirm SHA with `git log -1 --oneline` on `MSC-Projectz-FullDev-v4`.
 * **Layout / admin shell baseline:** `d5422dd` — *fix(admin): split app shell from Payload and harden local dev*
 * **Working-state note:** docs were expanded for start/continue workflow, snapshots, and closeout. Always trust `git status -sb` as the live state.
 * **Architecture:** Command Center routes live under `app/(main)/(command-center)/` (group `(main)` owns the app `<html>`/`<body>`); login and auth live under `app/(main)/`. Payload admin/API use `app/(payload)/` with its own document via `RootLayout`. Root `app/layout.tsx` only returns `children` so those shells are siblings, not nested documents.

@@ -2,6 +2,15 @@ import { withPayload } from '@payloadcms/next/withPayload'
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  /** Browsers still request /favicon.ico; forward to the same mark as app metadata (./media via /media/… route). */
+  async rewrites() {
+    return [
+      {
+        source: '/favicon.ico',
+        destination: '/media/msc-icon.png',
+      },
+    ]
+  },
   images: {
     unoptimized: true,
   },

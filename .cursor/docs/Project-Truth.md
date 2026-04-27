@@ -19,7 +19,7 @@ Use this file first, then follow its linked source-of-truth order.
 - **System name:** Vader
 - **Primary stack:** Next.js + React + Payload CMS + SQLite
 - **Optional shell:** Tauri
-- **Current workflow branch (at last docs update):** `MSC-Projectz-FullDev-v3`
+- **Current workflow branch (at last docs update):** `MSC-Projectz-FullDev-v4`
 
 Primary goal:
 - Ship and maintain a production-ready command center with stable local workflow, reliable deploy packaging, and strong continuity between sessions.
