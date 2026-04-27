@@ -172,8 +172,6 @@ export function MSC_Projectz_ProjectCard({
 
   const totalTasks = project.tasks.length
   const completedTasks = project.tasks.filter((t) => t.status === 'done' || t.completed).length
-  const calculatedProgress =
-    totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : project.progress || 0
 
   const msc_copyText = useCallback(async (text: string) => {
     try {
@@ -583,16 +581,6 @@ export function MSC_Projectz_ProjectCard({
         </div>
 
         <div className="mt-3">
-          <div className="flex items-center justify-between mb-1.5">
-            <span className="text-xs text-muted-foreground">Progress</span>
-            <span className="text-xs font-medium text-[#DA9516]">{calculatedProgress}%</span>
-          </div>
-          <div className="h-1.5 rounded-full overflow-hidden bg-[#DA9516]/20">
-            <div
-              className="h-full rounded-full transition-all duration-300 bg-[#DA9516]"
-              style={{ width: `${calculatedProgress}%` }}
-            />
-          </div>
           <div className="mt-2 flex items-center justify-between gap-2">
             <div className="flex min-w-0 items-center gap-1.5">
               {projectMembers.length > 0 ? (
@@ -650,7 +638,7 @@ export function MSC_Projectz_ProjectCard({
           className="mt-3 pt-3 border-t border-border space-y-2"
           onClick={(e) => e.stopPropagation()}
         >
-          <div className="flex h-2.5 w-full flex-row overflow-hidden rounded-full border border-border bg-muted">
+          <div className="flex h-2 w-full flex-row overflow-hidden rounded-full border border-border bg-muted">
             {counts.total === 0 ? (
               <div className="h-full w-full bg-muted" />
             ) : (
@@ -664,7 +652,7 @@ export function MSC_Projectz_ProjectCard({
                 )}
                 {counts.inProgress > 0 && (
                   <div
-                    className="h-full shrink-0 bg-[#DA9516] transition-all"
+                    className="h-full shrink-0 bg-msc-gold transition-all"
                     style={{ width: `${inProgressPct}%` }}
                     title={`In progress: ${counts.inProgress}`}
                   />
@@ -686,7 +674,7 @@ export function MSC_Projectz_ProjectCard({
             </span>
             <span>
               <span
-                className="inline-block size-2 rounded-sm align-middle mr-1 bg-[#DA9516]"
+                className="inline-block size-2 rounded-sm align-middle mr-1 bg-msc-gold"
                 aria-hidden
               />
               {counts.inProgress} in progress
@@ -781,3 +769,4 @@ export function MSC_Projectz_ProjectCard({
     </div>
   )
 }
+

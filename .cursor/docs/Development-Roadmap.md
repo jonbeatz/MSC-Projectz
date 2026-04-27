@@ -8,7 +8,7 @@
 - [x] **Password security (new passwords):** Shared policy in **`lib/msc_password_policy.ts`**: min **8** characters, at least one **uppercase** letter, one **number**, one **special** character. Applied to register form, server **`msc_registerUser`**, admin create/reset, and related UI. Login does not re-check complexity (existing accounts). *(Apr 2026)*
 - [x] **Dashboard identity:** Top header prefers **`user.username`** when set; falls back to email local-part. Dropdown “Signed in as” still shows full email. *(Apr 2026)*
 - [x] **Welcome email on registration:** `msc_registerUser` now triggers `msc_sendWelcomeEmail` in a fire-and-forget path (registration does not fail when SMTP send fails). *(Apr 2026)*
-- [ ] **Verification / activation emails (next):** Implement Brevo/FluentSMTP-specific verification-link flow (separate from welcome email).
+- [x] **Verification / activation emails:** Verification-link flow is now live via tokenized email verification and trust-gate routing (implemented under Sprint 3). *(Apr 2026)*
 
 ### Sprint 1 — notes
 
@@ -18,7 +18,7 @@
 | Password strength policy (8 + upper / number / special) | Done |
 | Nav display name (username first) | Done |
 | Welcome email on register (`msc_sendWelcomeEmail`) | Done |
-| Verification-link email flow (Brevo/FluentSMTP specific) | Not started |
+| Verification-link email flow (Brevo/FluentSMTP specific) | Done (implemented in Sprint 3) |
 
 ## Sprint 2: Access and vault logic (priority: medium)
 
@@ -59,6 +59,7 @@
 *Goal: Reduce clutter and improve mobile usage.*
 
 - [ ] **Cleanup:** Remove "Configure Local Path" (green button).
+- [x] **Tasks surface declutter pass:** Removed top project-card progress strip on dashboard, made Project Info collapsed by default on Tasks page, switched in-progress rows to neutral backgrounds, and slimmed progress bars for cleaner density. *(Apr 2026)*
 - [ ] **Mobile responsiveness:**
   - [ ] Force sidebar/menu to minimize by default on mobile.
   - [ ] Adjust container padding/spacing for mobile interactions.
@@ -95,3 +96,4 @@
 - **2026-04** — Sprint 3 outcome: reliability + trust hardening + dev-velocity tooling completed (schema repairs, trust gate, resend diagnostics, and local-only bypass controls).
 - **2026-04** — Sprint 3 polish: verification/playground components standardized with `msc_` filenames and Studio Dark active-state treatment.
 - **2026-04** — Sprint 3 polish: Identity Playground now includes Auth Flows previews, and dev bypass status moved to a compact header indicator with tooltip.
+- **2026-04** — Sprint 4 polish: tasks/dashboard declutter pass shipped (neutral in-progress rows, thinner progress bars, default-collapsed Project Info, and dashboard project-card top progress strip removed).

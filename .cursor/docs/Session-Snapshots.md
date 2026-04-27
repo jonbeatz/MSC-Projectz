@@ -11,6 +11,55 @@ Keep newest snapshot at the top.
 
 ---
 
+## 2026-04-27 02:52 (local) - Tasks UI declutter + roadmap sync
+
+### Session state
+- Branch: `MSC-Projectz-FullDev-v1`
+- Commit at snapshot: `4ef2bd2` (working tree has additional uncommitted UI/docs updates)
+- Working tree: `dirty`
+- Local dev URL: `http://127.0.0.1:3000` status `up`
+
+### What was done
+- Completed focused Tasks/UI polish pass: neutralized in-progress row backgrounds, default-collapsed Project Info, and thinner progress bars.
+- Removed top Progress strip from dashboard project cards to reduce visual clutter.
+- Synced roadmap status to reflect shipped verification flow + latest declutter updates.
+- Re-ran build gate and local smoke checks as part of runtime-edit closeout.
+
+### Files touched (high value)
+- `components/global-tasks-view.tsx`
+- `components/task-drawer.tsx`
+- `components/task-pulse.tsx`
+- `components/ui/progress.tsx`
+- `components/MSC-Projectz-ProjectCard.tsx`
+- `.cursor/docs/Development-Roadmap.md`
+
+### Commands run (important)
+- `npm run verify:next`
+- `npm run dev`
+- `Invoke-WebRequest http://127.0.0.1:3000/`
+- `Invoke-WebRequest http://127.0.0.1:3000/admin`
+
+### Validation / outcomes
+- Build gate: `pass` (`verify:next` succeeded after follow-up type fix).
+- Smoke checks: `/ 200`, `/admin 500` (known existing Payload admin runtime issue; not introduced by this UI pass).
+- Deploy status: `not started`.
+
+### Start-next checklist
+1. Run: `git branch --show-current && git status -sb`
+2. If continuing UI polish, start in `components/MSC-Projectz-ProjectCard.tsx` and `components/global-tasks-view.tsx`.
+3. If targeting stability next, run local admin recovery/debug flow first for `/admin` 500.
+4. Before next closeout on runtime changes, run `npm run verify:next`, then restart `npm run dev` on port `3000`.
+
+### Open risks / blockers
+- Local `/admin` route currently returns `500` due to existing Payload admin runtime error (`CodeEditor.tsx` config destructure path).
+
+### Deploy truth checks (required on closeout)
+- Profile changed? `no`
+- Secrets rotated/updated? `not-needed`
+- Windows/Linux native-module guard passed? `not-run this pass`
+
+---
+
 ## 2026-04-26 19:52 (local) - Daily Ops cheat sheet + doc map link
 
 ### Session state

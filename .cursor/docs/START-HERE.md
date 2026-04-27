@@ -66,9 +66,9 @@ Ship a production-ready **Payload 3** + **Next.js 16** command center (with opti
 
 ## Current Restart Point
 
-* **Branch:** `MSC-Projectz-Pro-Live-v1`
+* **Branch:** `MSC-Projectz-FullDev-v1`
 * **Remote:** `origin` → `https://github.com/jonbeatz/MSC-Projectz.git`
-* **Latest recorded commit (this doc refresh):** `f17b08f` — *docs(deploy): FlightPro/Alt, deploy pipeline, recovery; feat: vault mail, server.js, msc_package_deploy*
+* **Latest recorded commit (this doc refresh):** `4ef2bd2` — *feat(tasks): apply gold progress system across task surfaces*
 * **Working-state note:** docs were expanded for start/continue workflow, snapshots, and closeout. Always trust `git status -sb` as the live state.
 * **Architecture:** Command Center routes live under `app/(command-center)/` so `/dashboard`, `/profile`, `/settings`, `/help`, `/tasks`, and `/vault` share a persistent dashboard shell.
 * **Verification (operators):** after code changes, run **`npm run verify:next`** from the repo root. For a quick local smoke, **`npm run dev`** on port **3000** and check **`/`** and **`/admin`** (expect **200**).

@@ -51,6 +51,7 @@
   /* MSC / ACF-aligned accent (Vader — Studio Green); use with .msc-cta-initialize */
   --msc-accent: 142 69% 58%;
   --msc-accent-foreground: 0 0% 7%;
+  --msc-gold-hex: #DB9618;
   --msc-gold: 38 81% 47%;
   --msc-gold-foreground: 0 0% 7%;
 }
@@ -93,6 +94,7 @@
 
   --msc-accent: 142 69% 58%;
   --msc-accent-foreground: 0 0% 16%;
+  --msc-gold-hex: #DB9618;
   --msc-gold: 38 81% 47%;
   --msc-gold-foreground: 0 0% 16%;
 }
@@ -119,6 +121,7 @@
   --ring: 142 71% 45%;
   --msc-accent: 142 71% 45%;
   --msc-accent-foreground: 0 0% 16%;
+  --msc-gold-hex: #DB9618;
   --msc-gold: 38 81% 47%;
   --msc-gold-foreground: 0 0% 16%;
 }
@@ -158,7 +161,7 @@
   --color-sidebar-accent-foreground: hsl(var(--sidebar-accent-foreground));
   --color-sidebar-border: hsl(var(--sidebar-border));
   --color-sidebar-ring: hsl(var(--sidebar-ring));
-  --color-msc-gold: hsl(var(--msc-gold));
+  --color-msc-gold: var(--msc-gold-hex);
   --color-msc-gold-foreground: hsl(var(--msc-gold-foreground));
   
   --radius-sm: calc(var(--radius) - 4px);

@@ -36,8 +36,8 @@ const statusConfig: Record<TaskStatus, { label: string; icon: typeof Circle; col
   'in-progress': { 
     label: 'In Progress', 
     icon: Clock, 
-    color: 'text-[#DA9516]',
-    bgClass: 'bg-[#DA9516]/10'
+    color: 'text-msc-gold',
+    bgClass: 'bg-transparent'
   },
   'done': { 
     label: 'Done', 
@@ -49,6 +49,7 @@ const statusConfig: Record<TaskStatus, { label: string; icon: typeof Circle; col
 
 export function GlobalTasksView() {
   const [activeTab, setActiveTab] = useState<TabType>('inbox')
+  const [projectInfoOpen, setProjectInfoOpen] = useState(false)
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null)
   const [quickAddText, setQuickAddText] = useState('')
   const [expandedProjects, setExpandedProjects] = useState<string[]>([])
@@ -206,7 +207,6 @@ export function GlobalTasksView() {
     const config = statusConfig[status]
     const StatusIcon = config.icon
     const isDone = status === 'done'
-    const isInProgress = status === 'in-progress'
     
     return (
       <div 
@@ -214,8 +214,7 @@ export function GlobalTasksView() {
         className={cn(
           'group flex items-center gap-3 px-4 py-3 transition-all border-b border-border',
           'hover:bg-muted/50',
-          isDone && 'opacity-60',
-          isInProgress && 'bg-[#DA9516]/5'
+          isDone && 'opacity-60'
         )}
       >
         {/* Status Badge - Clickable */}
@@ -335,60 +334,68 @@ export function GlobalTasksView() {
       {/* Project Info */}
       <section
         className={cn(
-          'rounded-xl border border-border bg-card p-4',
+          'rounded-xl border border-border bg-card p-3',
           !isDark && 'card-shadow',
         )}
         aria-label="Project Info"
       >
-        <div className="mb-4 flex items-center justify-between gap-3 border-b border-border pb-3">
+        <button
+          type="button"
+          onClick={() => setProjectInfoOpen((v) => !v)}
+          className="mb-3 flex w-full items-center justify-between gap-2 border-b border-border pb-2 text-left"
+          aria-expanded={projectInfoOpen}
+        >
           <div>
             <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
               Project Info
             </p>
-            <h2 className="mt-1 text-base font-medium text-foreground">
+            <h2 className="mt-0.5 text-sm font-medium text-foreground">
               {selectedProject?.name ?? 'No active project'}
             </h2>
           </div>
-          {selectedProject && (
-            <span
-              className={cn(
-                'rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider',
-                selectedProject.status === 'live'
-                  ? 'bg-primary/20 text-primary'
-                  : 'bg-muted text-muted-foreground',
-              )}
-            >
-              {selectedProject.status}
-            </span>
-          )}
-        </div>
+          <div className="flex items-center gap-2">
+            {selectedProject && (
+              <span
+                className={cn(
+                  'rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider',
+                  selectedProject.status === 'live'
+                    ? 'bg-primary/20 text-primary'
+                    : 'bg-muted text-muted-foreground',
+                )}
+              >
+                {selectedProject.status}
+              </span>
+            )}
+            <ChevronDown className={cn('h-4 w-4 text-muted-foreground transition-transform', !projectInfoOpen && '-rotate-90')} />
+          </div>
+        </button>
 
-        <dl className="grid gap-3 text-sm md:grid-cols-3">
-          <div className="rounded-lg border border-border bg-background/40 p-3">
+        {projectInfoOpen && <dl className="grid gap-2 text-sm md:grid-cols-3">
+          <div className="rounded-lg border border-border bg-background/40 p-2.5">
             <dt className="text-xs uppercase tracking-wider text-muted-foreground">Local Path</dt>
-            <dd className="mt-1 truncate text-foreground" title={selectedProject ? getSafePath(selectedProject.localPath) || undefined : undefined}>
+            <dd className="mt-0.5 truncate text-sm text-foreground" title={selectedProject ? getSafePath(selectedProject.localPath) || undefined : undefined}>
               {selectedProject ? getSafePath(selectedProject.localPath) || 'Not configured' : 'Not configured'}
             </dd>
           </div>
-          <div className="rounded-lg border border-border bg-background/40 p-3">
+          <div className="rounded-lg border border-border bg-background/40 p-2.5">
             <dt className="text-xs uppercase tracking-wider text-muted-foreground">Live URL</dt>
-            <dd className="mt-1 truncate text-foreground" title={selectedProject?.liveUrl || undefined}>
+            <dd className="mt-0.5 truncate text-sm text-foreground" title={selectedProject?.liveUrl || undefined}>
               {selectedProject?.liveUrl || 'Not configured'}
             </dd>
           </div>
-          <div className="rounded-lg border border-border bg-background/40 p-3">
+          <div className="rounded-lg border border-border bg-background/40 p-2.5">
             <dt className="text-xs uppercase tracking-wider text-muted-foreground">Task Progress</dt>
-            <dd className="mt-1 text-[#DA9516] font-medium">
+            <dd className="mt-0.5 text-msc-gold font-medium">
               {completedProjectTasks}/{totalProjectTasks} complete · {projectProgress}%
             </dd>
-            <div className="mt-2 h-1.5 rounded-full bg-[#DA9516]/20">
+            <div className="mt-1.5 h-1 rounded-full bg-muted">
               <div
-                className="h-full rounded-full bg-[#DA9516] transition-all duration-300"
+                className="h-full rounded-full bg-msc-gold transition-all duration-300"
                 style={{ width: `${projectProgress}%` }}
               />
             </div>
           </div>
-        </dl>
+        </dl>}
       </section>
 
       {/* Task List */}
@@ -598,3 +605,4 @@ export function GlobalTasksView() {
     </div>
   )
 }
+

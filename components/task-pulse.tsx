@@ -65,9 +65,9 @@ export function TaskPulse({ project }: TaskPulseProps) {
       {/* Progress Bar */}
       {totalCount > 0 && (
         <div className="px-4 py-2 border-b border-border bg-secondary/50">
-          <div className="h-1.5 rounded-full overflow-hidden bg-secondary">
+          <div className="h-1 rounded-full overflow-hidden bg-secondary">
             <div
-              className="h-full rounded-full transition-all duration-300 bg-[#DA9516]"
+              className="h-full rounded-full transition-all duration-300 bg-msc-gold"
               style={{ width: `${progress}%` }}
             />
           </div>
@@ -161,3 +161,4 @@ export function TaskPulse({ project }: TaskPulseProps) {
     </div>
   )
 }
+
