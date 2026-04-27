@@ -33,14 +33,23 @@ export interface EmailSettings {
 
 export type TaskStatus = 'todo' | 'in-progress' | 'done'
 
+export type MscTaskPriority = 'low' | 'normal' | 'high'
+
 export interface Task {
   id: string
   title: string
+  /** Longer text; optional in admin and for calendar detail. */
+  description?: string
   status: TaskStatus
   completed: boolean
   archived?: boolean
+  /** Date-only (calendar placement); from Payload `dueDate` */
+  dueDate?: Date | null
+  /** Defaults to `normal` when not set in older rows. */
+  priority: MscTaskPriority
   assignedTo?: MscProjectMember | null
   createdAt: Date
+  updatedAt: Date
 }
 
 /** Saved link or small embedded file for project reference (JSON in Payload). */
@@ -96,6 +105,9 @@ export type ProjectViewMode = 'grid' | 'list'
 
 export type ProjectSortMode = 'manual' | 'name' | 'updated' | 'status'
 
+/** Command Center /calendar: month or week column layout. */
+export type CalendarViewMode = 'month' | 'week'
+
 export interface User {
   username: string
   email: string
@@ -133,5 +145,9 @@ export interface AppSettings {
   projectViewMode: ProjectViewMode
   /** Dashboard vault project list ordering (not persisted on project rows for non-manual). */
   projectSortMode: ProjectSortMode
+  /** /calendar: grid mode. */
+  calendarView: CalendarViewMode
+  /** /calendar: focused day (date-only, `yyyy-MM-dd`) for sidebar and cell selection. */
+  selectedDate: string
   smtp: SpacemailSMTP
 }

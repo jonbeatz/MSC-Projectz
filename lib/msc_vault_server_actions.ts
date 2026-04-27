@@ -18,7 +18,15 @@ import { revalidatePath } from 'next/cache'
 import { MSC_TRUST_GATE_COOKIE } from '@/lib/msc_trust_gate_cookie'
 
 import { msc_getVaultLocalApiContext, msc_vaultLocalApiOptions } from '@/lib/msc_vault_auth_context'
-import { msc_vaultIsPayloadAdmin } from '@/lib/msc_vault_payload_access'
+import {
+  msc_pacNotAuthorizedMessage,
+  msc_canViewProject,
+  msc_canWriteVaultProjectAsOwner,
+  msc_canEditTask,
+  msc_canCreateTaskOnProject,
+} from '@/lib/msc_access_control'
+import { msc_vaultIsPayloadAdmin, type MscUserWithRole } from '@/lib/msc_vault_payload_access'
+import { msc_coercePayloadRelationId } from '@/lib/msc_vault_payload_ids'
 import type { AppSettings, Credential, EmailSettings, MscSmtpEncryption, Project, Task, TaskStatus } from '@/lib/types'
 import { msc_mergeProjectsAndTasks, msc_mapProjectDoc, msc_mapTaskDoc, msc_normalizeProjectEmailSettings } from '@/lib/msc_map_vault'
 import { msc_sortProjectsForDashboard } from '@/lib/msc_project_sort'
@@ -92,8 +100,13 @@ async function msc_assertOwnedVaultProject(
   projectId: string,
   actionName: string,
 ) {
-  const u = msc_requireVaultSessionUser(ctx, actionName)
+  const u = msc_requireVaultSessionUser(ctx, actionName) as MscUserWithRole
   const o = msc_vaultLocalApiOptions(ctx)
+  const { payload } = ctx
+  const ok = await msc_canWriteVaultProjectAsOwner({ payload, user: u, projectId })
+  if (!ok) {
+    throw new Error(msc_pacNotAuthorizedMessage)
+  }
   const ownedProjectId = msc_coercePayloadRelationId(ctx.payload, 'msc-vault-projects', projectId)
   const res = await ctx.payload.find({
     collection: 'msc-vault-projects',
@@ -101,19 +114,12 @@ async function msc_assertOwnedVaultProject(
     limit: 1,
     user: o.user,
     overrideAccess: o.overrideAccess,
-    where: {
-      and: [
-        { id: { equals: ownedProjectId } },
-        { user: { equals: u.id } },
-      ],
-    },
+    where: { id: { equals: ownedProjectId } },
   })
-
   const project = res.docs[0]
   if (!project) {
     throw new Error(`Project not found for current user during ${actionName}.`)
   }
-
   return project
 }
 
@@ -122,8 +128,13 @@ async function msc_assertAuthorizedVaultProject(
   projectId: string,
   actionName: string,
 ) {
-  const u = msc_requireVaultSessionUser(ctx, actionName)
+  const u = msc_requireVaultSessionUser(ctx, actionName) as MscUserWithRole
   const o = msc_vaultLocalApiOptions(ctx)
+  const { payload } = ctx
+  const ok = await msc_canViewProject({ payload, user: u, projectId })
+  if (!ok) {
+    throw new Error(msc_pacNotAuthorizedMessage)
+  }
   const authorizedProjectId = msc_coercePayloadRelationId(ctx.payload, 'msc-vault-projects', projectId)
   const res = await ctx.payload.find({
     collection: 'msc-vault-projects',
@@ -131,24 +142,12 @@ async function msc_assertAuthorizedVaultProject(
     limit: 1,
     user: o.user,
     overrideAccess: o.overrideAccess,
-    where: {
-      and: [
-        { id: { equals: authorizedProjectId } },
-        {
-          or: [
-            { user: { equals: u.id } },
-            { members: { contains: u.id } },
-          ],
-        },
-      ],
-    },
+    where: { id: { equals: authorizedProjectId } },
   })
-
   const project = res.docs[0]
   if (!project) {
     throw new Error(`Project not found or not shared with current user during ${actionName}.`)
   }
-
   return project
 }
 
@@ -158,8 +157,13 @@ async function msc_assertOwnedVaultTask(
   taskId: string,
   actionName: string,
 ) {
-  await msc_assertAuthorizedVaultProject(ctx, projectId, actionName)
+  const u = msc_requireVaultSessionUser(ctx, actionName) as MscUserWithRole
   const o = msc_vaultLocalApiOptions(ctx)
+  const { payload } = ctx
+  const can = await msc_canEditTask({ payload, user: u, taskId })
+  if (!can) {
+    throw new Error(msc_pacNotAuthorizedMessage)
+  }
   const ownedTaskId = msc_coercePayloadRelationId(ctx.payload, 'msc-vault-tasks', taskId)
   const ownedProjectId = msc_coercePayloadRelationId(ctx.payload, 'msc-vault-projects', projectId)
   const res = await ctx.payload.find({
@@ -175,12 +179,10 @@ async function msc_assertOwnedVaultTask(
       ],
     },
   })
-
   const task = res.docs[0]
   if (!task) {
     throw new Error(`Task not found for current user during ${actionName}.`)
   }
-
   return task
 }
 
@@ -205,26 +207,6 @@ export async function msc_testSystemEmailConfig(input: MscSystemConfigInput): Pr
     return { success: true, message: 'Test email sent successfully!' }
   }
   return { success: false, message: 'Please fill in all SMTP credentials' }
-}
-
-/**
- * Payload `relationship` validation uses `isValidID` — for `defaultIDType: 'number'`, only a real
- * number is accepted, not a numeric string. The app uses string IDs in React state; coerce here.
- */
-function msc_coercePayloadRelationId(
-  payload: Payload,
-  relationTo: string,
-  id: string,
-): string | number {
-  const idType =
-    payload.collections[relationTo]?.customIDType || payload.db?.defaultIDType || 'text'
-  if (idType === 'number') {
-    const trimmed = id.trim()
-    if (trimmed !== '' && /^\d+$/.test(trimmed)) {
-      return Number(trimmed)
-    }
-  }
-  return id
 }
 
 /** Omit empty thumbnails so Payload never receives `undefined` / invalid placeholders. */
@@ -757,21 +739,50 @@ export async function msc_deleteVaultProject(id: string): Promise<void> {
   msc_revalidateVaultUi()
 }
 
-async function msc_createVaultTaskInPayload(projectId: string, title: string): Promise<Task> {
+async function msc_createVaultTaskInPayload(
+  projectId: string,
+  title: string,
+  options?: { dueDate?: string | null; assignedTo?: string | number | null },
+): Promise<Task> {
   const ctx = await msc_getVaultLocalApiContext()
   const o = msc_vaultLocalApiOptions(ctx)
   const { payload } = ctx
-  await msc_assertAuthorizedVaultProject(ctx, projectId, 'create task')
+  const u = msc_requireVaultSessionUser(ctx, 'create task') as MscUserWithRole
+  const canCreate = await msc_canCreateTaskOnProject({ payload, user: u, projectId })
+  if (!canCreate) {
+    throw new Error(msc_pacNotAuthorizedMessage)
+  }
   const projectRef = msc_coercePayloadRelationId(payload, 'msc-vault-projects', projectId)
+  const data: {
+    title: string
+    status: 'todo'
+    completed: boolean
+    archived: boolean
+    priority: 'normal'
+    project: number | string
+    dueDate?: string | null
+    assignedTo?: string | number | null
+  } = {
+    title,
+    status: 'todo',
+    completed: false,
+    archived: false,
+    priority: 'normal',
+    project: projectRef,
+  }
+  if (options?.dueDate != null) {
+    const s = String(options.dueDate).trim()
+    if (s) data.dueDate = s
+  }
+  if (options && options.assignedTo !== undefined) {
+    data.assignedTo =
+      options.assignedTo === null
+        ? null
+        : msc_coercePayloadRelationId(payload, 'users', String(options.assignedTo))
+  }
   const created = await payload.create({
     collection: 'msc-vault-tasks',
-    data: {
-      title,
-      status: 'todo',
-      completed: false,
-      archived: false,
-      project: projectRef,
-    },
+    data,
     user: o.user,
     overrideAccess: o.overrideAccess,
   })
@@ -784,12 +795,24 @@ export async function msc_addVaultTask(projectId: string, title: string): Promis
 }
 
 /** Rapid inject from dashboard cards — persists to `msc-vault-tasks` / SQLite. */
-export async function msc_quick_add_task(projectId: string, title: string): Promise<Task> {
+export async function msc_quick_add_task(
+  projectId: string,
+  title: string,
+  options?: { dueDate?: string | null; assignedTo?: string | number | null },
+): Promise<Task> {
   const t = typeof title === 'string' ? title.trim() : ''
   if (!t) {
     throw new Error('Task title is required')
   }
-  return msc_createVaultTaskInPayload(projectId, t)
+  return msc_createVaultTaskInPayload(projectId, t, options)
+}
+
+/**
+ * PAC path for Command Center /calendar: same as `msc_loadVaultProjects` (no extra filters).
+ * Call from client to rehydrate after navigation or to satisfy “all calendar fetches go through PAC” at the same boundary.
+ */
+export async function msc_loadCalendarVaultData() {
+  return msc_loadVaultProjects()
 }
 
 export async function msc_toggleVaultTask(projectId: string, taskId: string): Promise<Task> {
@@ -884,6 +907,70 @@ export async function msc_updateVaultTaskTitle(
   if (assignedTo !== undefined) {
     data.assignedTo =
       assignedTo === null ? null : msc_coercePayloadRelationId(payload, 'users', String(assignedTo))
+  }
+  const updated = await payload.update({
+    collection: 'msc-vault-tasks',
+    id: taskId,
+    depth: 1,
+    data,
+    user: o.user,
+    overrideAccess: o.overrideAccess,
+  })
+  void projectId
+  msc_revalidateVaultUi()
+  return msc_mapTaskDoc(updated as Parameters<typeof msc_mapTaskDoc>[0])
+}
+
+export type MscVaultTaskPatch = {
+  title?: string
+  assignedTo?: string | number | null
+  dueDate?: string | null
+  status?: TaskStatus
+  completed?: boolean
+}
+
+/**
+ * Partial update for calendar / task row (title, assignee, due date). Omitted keys are unchanged.
+ */
+export async function msc_patchVaultTask(
+  projectId: string,
+  taskId: string,
+  patch: MscVaultTaskPatch,
+): Promise<Task> {
+  const ctx = await msc_getVaultLocalApiContext()
+  const o = msc_vaultLocalApiOptions(ctx)
+  const { payload } = ctx
+  const existing = await msc_assertOwnedVaultTask(ctx, projectId, taskId, 'update task')
+  const data: Record<string, unknown> = {}
+  if (patch.title !== undefined) {
+    data.title = String(patch.title).trim()
+  }
+  if (patch.assignedTo !== undefined) {
+    data.assignedTo =
+      patch.assignedTo === null
+        ? null
+        : msc_coercePayloadRelationId(payload, 'users', String(patch.assignedTo))
+  }
+  if (patch.dueDate !== undefined) {
+    const s = patch.dueDate
+    if (s === null || String(s).trim() === '') {
+      data.dueDate = null
+    } else {
+      data.dueDate = String(s).trim()
+    }
+  }
+  if (patch.status !== undefined) {
+    data.status = patch.status
+    if (patch.completed !== undefined) {
+      data.completed = patch.completed
+    } else {
+      data.completed = patch.status === 'done'
+    }
+  } else if (patch.completed !== undefined) {
+    data.completed = patch.completed
+  }
+  if (Object.keys(data).length === 0) {
+    return msc_mapTaskDoc(existing as Parameters<typeof msc_mapTaskDoc>[0])
   }
   const updated = await payload.update({
     collection: 'msc-vault-tasks',

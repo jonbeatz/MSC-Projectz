@@ -1,6 +1,7 @@
 'use client'
 
 import { create } from 'zustand'
+import { format } from 'date-fns'
 import { persist } from 'zustand/middleware'
 
 import {
@@ -16,11 +17,14 @@ import {
   msc_toggleVaultTask,
   msc_updateVaultProject,
   msc_updateVaultTaskTitle,
+  msc_patchVaultTask,
 } from '@/lib/msc_vault_server_actions'
+import type { MscVaultTaskPatch } from '@/lib/msc_vault_server_actions'
 import { msc_vaultSignOutPayload } from '@/lib/msc_vault_payload_session'
 import type {
   AppSettings,
   AuthView,
+  CalendarViewMode,
   Credential,
   EmailSettings,
   Project,
@@ -65,6 +69,8 @@ interface AppState {
   toggleTheme: () => void
   setProjectViewMode: (mode: ProjectViewMode) => void
   setProjectSortMode: (mode: ProjectSortMode) => void
+  setCalendarView: (mode: CalendarViewMode) => void
+  setSelectedDate: (dateYmd: string) => void
   moveProjectManual: (projectId: string, direction: 'up' | 'down') => Promise<void>
 
   hydrateVaultFromPayload: () => Promise<void>
@@ -87,7 +93,11 @@ interface AppState {
 
   updateEmailSettings: (projectId: string, settings: EmailSettings) => Promise<void>
 
-  addTask: (projectId: string, title: string) => Promise<void>
+  addTask: (
+    projectId: string,
+    title: string,
+    options?: { dueDate?: string | null; assignedTo?: string | number | null },
+  ) => Promise<void>
   toggleTask: (projectId: string, taskId: string) => Promise<void>
   cycleTaskStatus: (projectId: string, taskId: string) => Promise<void>
   /** Sets column status (Queue / Active / Stabilized); uses `msc_updateTaskStatus` server action. */
@@ -98,6 +108,7 @@ interface AppState {
     title: string,
     assignedTo?: string | number | null,
   ) => Promise<void>
+  updateTaskFields: (projectId: string, taskId: string, patch: MscVaultTaskPatch) => Promise<void>
   deleteTask: (projectId: string, taskId: string) => Promise<void>
   archiveTask: (projectId: string, taskId: string) => Promise<void>
 
@@ -120,6 +131,8 @@ const defaultAppSettings: AppSettings = {
   theme: 'dark',
   projectViewMode: 'grid',
   projectSortMode: 'manual',
+  calendarView: 'month',
+  selectedDate: format(new Date(), 'yyyy-MM-dd'),
   smtp: {
     incomingHost: 'mail.spacemail.com',
     incomingPort: '993',
@@ -338,6 +351,20 @@ export const useAppStore = create<AppState>()(
         }))
       },
 
+      setCalendarView: (mode) => {
+        set((state) => ({
+          appSettings: { ...state.appSettings, calendarView: mode },
+        }))
+      },
+
+      setSelectedDate: (dateYmd) => {
+        const t = String(dateYmd).trim()
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(t)) return
+        set((state) => ({
+          appSettings: { ...state.appSettings, selectedDate: t },
+        }))
+      },
+
       moveProjectManual: async (projectId, direction) => {
         await msc_moveProjectManual(projectId, direction)
         await get().hydrateVaultFromPayload()
@@ -461,8 +488,11 @@ export const useAppStore = create<AppState>()(
         set((state) => ({ projects: msc_replaceProject(state.projects, updated) }))
       },
 
-      addTask: async (projectId, title) => {
-        const task = await msc_quick_add_task(projectId, title)
+      addTask: async (projectId, title, options) => {
+        const task = await msc_quick_add_task(projectId, title, {
+          dueDate: options?.dueDate ?? undefined,
+          assignedTo: options?.assignedTo,
+        })
         set((state) => ({
           projects: state.projects.map((p) =>
             p.id === projectId
@@ -536,6 +566,21 @@ export const useAppStore = create<AppState>()(
 
       updateTaskTitle: async (projectId, taskId, title, assignedTo) => {
         const task = await msc_updateVaultTaskTitle(projectId, taskId, title, assignedTo)
+        set((state) => ({
+          projects: state.projects.map((p) =>
+            p.id === projectId
+              ? {
+                  ...p,
+                  tasks: p.tasks.map((t) => (t.id === taskId ? task : t)),
+                  updatedAt: new Date(),
+                }
+              : p,
+          ),
+        }))
+      },
+
+      updateTaskFields: async (projectId, taskId, patch) => {
+        const task = await msc_patchVaultTask(projectId, taskId, patch)
         set((state) => ({
           projects: state.projects.map((p) =>
             p.id === projectId

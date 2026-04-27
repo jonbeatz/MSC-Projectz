@@ -17,6 +17,7 @@ import { MSC_Projectz_TaskAssigneeBadge, MSC_Projectz_TaskAssigneeSelect } from 
 import { useAppStore } from '@/lib/store'
 import { cn } from '@/lib/utils'
 import { getSafePath } from '@/lib/env-utils'
+import { MSC_TASK_STATUS_LABELS } from '@/lib/msc_task_status_labels'
 import type { Project, Task, TaskStatus } from '@/lib/types'
 
 interface TaskDrawerProps {
@@ -28,19 +29,19 @@ interface TaskDrawerProps {
 // Status configuration with Tailwind classes
 const statusConfig: Record<TaskStatus, { label: string; icon: typeof Circle; colorClass: string; bgClass: string }> = {
   'todo': { 
-    label: 'To Do', 
+    label: MSC_TASK_STATUS_LABELS.todo, 
     icon: Circle, 
     colorClass: 'text-muted-foreground',
     bgClass: 'bg-muted/50'
   },
   'in-progress': { 
-    label: 'In Progress', 
+    label: MSC_TASK_STATUS_LABELS['in-progress'], 
     icon: Clock, 
     colorClass: 'text-msc-gold',
     bgClass: 'bg-transparent'
   },
   'done': { 
-    label: 'Done', 
+    label: MSC_TASK_STATUS_LABELS.done, 
     icon: CheckCircle2, 
     colorClass: 'text-primary',
     bgClass: 'bg-primary/10'
@@ -263,15 +264,15 @@ export function TaskDrawer({ isOpen, onClose, project }: TaskDrawerProps) {
           <div className="flex items-center gap-4 mt-3 text-xs text-muted-foreground">
             <span className="flex items-center gap-1">
               <Circle className="w-3 h-3 text-muted-foreground" />
-              {todoTasks.length} To Do
+              {todoTasks.length} {MSC_TASK_STATUS_LABELS.todo}
             </span>
             <span className="flex items-center gap-1">
               <Clock className="w-3 h-3 text-msc-gold" />
-              {inProgressTasks.length} In Progress
+              {inProgressTasks.length} {MSC_TASK_STATUS_LABELS['in-progress']}
             </span>
             <span className="flex items-center gap-1">
               <CheckCircle2 className="w-3 h-3 text-primary" />
-              {doneTasks.length} Done
+              {doneTasks.length} {MSC_TASK_STATUS_LABELS.done}
             </span>
           </div>
         </div>
@@ -305,7 +306,7 @@ export function TaskDrawer({ isOpen, onClose, project }: TaskDrawerProps) {
             <div className="mb-6">
               <h3 className="text-xs font-semibold uppercase tracking-wider mb-3 flex items-center gap-2 text-muted-foreground">
                 <Circle className="w-3 h-3" />
-                To Do ({todoTasks.length})
+                {MSC_TASK_STATUS_LABELS.todo} ({todoTasks.length})
               </h3>
               <div className="space-y-2">
                 {todoTasks.map(renderTask)}
@@ -318,7 +319,7 @@ export function TaskDrawer({ isOpen, onClose, project }: TaskDrawerProps) {
             <div className="mb-6">
               <h3 className="text-xs font-semibold uppercase tracking-wider mb-3 flex items-center gap-2 text-msc-gold">
                 <Clock className="w-3 h-3" />
-                In Progress ({inProgressTasks.length})
+                {MSC_TASK_STATUS_LABELS['in-progress']} ({inProgressTasks.length})
               </h3>
               <div className="space-y-2">
                 {inProgressTasks.map(renderTask)}
@@ -331,7 +332,7 @@ export function TaskDrawer({ isOpen, onClose, project }: TaskDrawerProps) {
             <div>
               <h3 className="text-xs font-semibold uppercase tracking-wider mb-3 flex items-center gap-2 text-primary">
                 <CheckCircle2 className="w-3 h-3" />
-                Done ({doneTasks.length})
+                {MSC_TASK_STATUS_LABELS.done} ({doneTasks.length})
               </h3>
               <div className="space-y-2">
                 {doneTasks.map(renderTask)}

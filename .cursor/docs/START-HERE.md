@@ -79,13 +79,13 @@ Use the template in `Session-Snapshots.md` and keep newest entry at the top.
 
 ## Current Objective
 
-Ship a production-ready **Payload 3** + **Next.js 16** command center (with optional **Tauri 2**), including vault/collab features (e.g. per-project mail settings and admin configuration). **Primary integration branch:** `MSC-Projectz-FullDev-v4` (use `FullDev-v3` only for prior checkpoints). Longer-horizon collab work may still track `feature/collaborative-workspace` in parallel when revived.
+Ship a production-ready **Payload 3** + **Next.js 16** command center (with optional **Tauri 2**), including vault/collab features (e.g. per-project mail settings and admin configuration). **Primary integration branch:** `MSC-Projectz-FullDev-v5` (use `MSC-Projectz-FullDev-v4` / `FullDev-v3` for prior checkpoints). Longer-horizon collab work may still track `feature/collaborative-workspace` in parallel when revived.
 
 ## Current Restart Point
 
-* **Branch:** `MSC-Projectz-FullDev-v4` (primary line; `MSC-Projectz-FullDev-v3` remains on the remote for earlier milestones)
+* **Branch:** `MSC-Projectz-FullDev-v5` (primary line; `MSC-Projectz-FullDev-v4` and `MSC-Projectz-FullDev-v3` remain on the remote for history)
 * **Remote:** `origin` → `https://github.com/jonbeatz/MSC-Projectz.git`
-* **Latest recorded commit (this doc refresh):** favicon rewrite + `FullDev-v4` branch line — confirm SHA with `git log -1 --oneline` on `MSC-Projectz-FullDev-v4`.
+* **Latest recorded commit (this doc refresh):** calendar + `FullDev-v5` line — confirm SHA with `git log -1 --oneline` on `MSC-Projectz-FullDev-v5`.
 * **Layout / admin shell baseline:** `d5422dd` — *fix(admin): split app shell from Payload and harden local dev*
 * **Working-state note:** docs were expanded for start/continue workflow, snapshots, and closeout. Always trust `git status -sb` as the live state.
 * **Architecture:** Command Center routes live under `app/(main)/(command-center)/` (group `(main)` owns the app `<html>`/`<body>`); login and auth live under `app/(main)/`. Payload admin/API use `app/(payload)/` with its own document via `RootLayout`. Root `app/layout.tsx` only returns `children` so those shells are siblings, not nested documents.
@@ -97,6 +97,7 @@ Ship a production-ready **Payload 3** + **Next.js 16** command center (with opti
 * **Command Center (responsive):** &lt;1024px: **drawer** nav + backdrop (`components/dashboard-sidebar.tsx`, `dashboard-layout.tsx`); **lg+:** collapsible **rail**; **`useIsMobile`** in `lib/msc_hooks.ts` matches the same breakpoint; project **search** in the app header is **lg+** only.  
 * **Task Drawer / pulse:** Task workflows and indicators (see `components/MSC-Projectz-TaskPulse.tsx`, `components/task-drawer.tsx`).  
 * **Code Manager (`/vault`):** split-pane workspace with Markdown and vault utilities.  
+* **Calendar (`/calendar`):** month/week grid of tasks by due date; on **small screens** the grid scrolls horizontally and the day agenda opens in a **bottom sheet**; use **`useIsMaxMd`** (not **`useIsMobile`**) for **`md`-aligned** breakpoint logic. Day cells avoid nested **`<button>`** elements (see `CalendarGrid` / `CalendarTaskChip`).  
 * **Audit Logs (embedded in Settings):** admin-only audit trail section with filterable history/details for sensitive user-management actions.  
 * **Credentials & Explorer:** project cards with key popovers; native folder open via Tauri when available.  
 * **Persistence:** Local **SQLite** via Payload; uploads under **`./media`**.  

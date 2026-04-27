@@ -25,3 +25,20 @@ function getServerSnapshot() {
 export function useIsMobile() {
   return useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot)
 }
+
+/** `true` below Tailwind `md` (max-width: 767px) — for calendar mobile layout / Sheet. */
+const MAX_MD_MQ = '(max-width: 767px)'
+
+function subscribeMaxMd(onStoreChange: () => void) {
+  const mql = window.matchMedia(MAX_MD_MQ)
+  mql.addEventListener('change', onStoreChange)
+  return () => mql.removeEventListener('change', onStoreChange)
+}
+
+function getSnapshotMaxMd() {
+  return window.matchMedia(MAX_MD_MQ).matches
+}
+
+export function useIsMaxMd() {
+  return useSyncExternalStore(subscribeMaxMd, getSnapshotMaxMd, getServerSnapshot)
+}

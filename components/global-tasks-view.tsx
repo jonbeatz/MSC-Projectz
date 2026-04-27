@@ -21,26 +21,27 @@ import { MSC_Projectz_TaskAssigneeBadge, MSC_Projectz_TaskAssigneeSelect } from 
 import { useAppStore } from '@/lib/store'
 import { cn } from '@/lib/utils'
 import { getSafePath } from '@/lib/env-utils'
+import { MSC_TASK_STATUS_LABELS } from '@/lib/msc_task_status_labels'
 import type { Task, TaskStatus } from '@/lib/types'
 
 type TabType = 'inbox' | 'archived'
 
-// Status configuration
+// Status configuration (DB values todo | in-progress | done; display via MSC_TASK_STATUS_LABELS)
 const statusConfig: Record<TaskStatus, { label: string; icon: typeof Circle; color: string; bgClass: string }> = {
   'todo': { 
-    label: 'To Do', 
+    label: MSC_TASK_STATUS_LABELS.todo, 
     icon: Circle, 
     color: 'text-muted-foreground',
     bgClass: 'bg-muted/50'
   },
   'in-progress': { 
-    label: 'In Progress', 
+    label: MSC_TASK_STATUS_LABELS['in-progress'], 
     icon: Clock, 
     color: 'text-msc-gold',
     bgClass: 'bg-transparent'
   },
   'done': { 
-    label: 'Done', 
+    label: MSC_TASK_STATUS_LABELS.done, 
     icon: CheckCircle2, 
     color: 'text-primary',
     bgClass: 'bg-primary/10'
@@ -454,7 +455,7 @@ export function GlobalTasksView() {
           )}
         >
           <Archive className="w-4 h-4" />
-          Done
+          {MSC_TASK_STATUS_LABELS.done}
           {archivedCount > 0 && (
             <span className={cn(
               "px-1.5 py-0.5 rounded text-xs",
@@ -559,7 +560,7 @@ export function GlobalTasksView() {
               </div>
               <h3 className="font-medium mb-1 text-foreground">No Completed Tasks</h3>
               <p className="text-sm text-center max-w-xs text-muted-foreground">
-                Tasks marked as Done will appear here.
+                Tasks marked as {MSC_TASK_STATUS_LABELS.done} will appear here.
               </p>
             </div>
           ) : (

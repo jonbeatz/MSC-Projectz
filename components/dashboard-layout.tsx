@@ -122,6 +122,8 @@ export function DashboardLayout({ children, onAddProject, searchQuery, onSearchC
         return 'Dashboard'
       case '/tasks':
         return 'Tasks'
+      case '/calendar':
+        return 'Calendar'
       case '/profile':
         return 'My Profile'
       case '/settings':

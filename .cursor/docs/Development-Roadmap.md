@@ -70,7 +70,16 @@
 
 *Goal: Future roadmap items.*
 
-- [ ] **Calendar:** Implement calendar view for task management.
+- [x] **Calendar (Command Center):** Month/week grid at **`/calendar`** with vault tasks by due date, task chips, add-task + edit flows, and agenda for the selected day. **Mobile (narrow / `max-md`):** 7-column matrix in a horizontal scroll region (inner **`min-w-[600px]`**), reduced cell **`min-h` / `auto-rows`**, shared **`CalendarAgendaPanel`** in the desktop sidebar and in a **bottom `Sheet`**, day selection via **`handleDayPick`** + **`useIsMaxMd`** (`matchMedia('(max-width: 767px)')` in **`lib/msc_hooks.ts`**, aligned with Tailwind **`md`**). **Touch:** long-press + pencil control on chips; desktop keeps double-click. **A11y / DOM:** day cells are **`div role="button"`** (not nested **`<button>`** with chip controls). **Visual:** selected/today use **border** styling only (no **`ring`**) to avoid rounded-corner stroke glitches. *(Apr 2026)*
+
+### Sprint 5 — calendar notes
+
+| Item | Status |
+|------|--------|
+| `/calendar` grid + agenda + task edit/add | Done |
+| Mobile: scroll matrix + bottom sheet agenda + `useIsMaxMd` | Done |
+| No nested buttons (day cell vs chip / pencil) | Done |
+| Selection/today border (no ring corner artifacts) | Done |
 
 ---
 
@@ -110,3 +119,5 @@
 - **2026-04-27** — **Sprint 4 (mobile shell):** Responsive Command Center: `lib/msc_hooks.ts` (`useIsMobile`), drawer sidebar + `dashboard-layout` (hamburger, scroll lock, resize/ Escape), `MSC-Projectz-Dashboard` + `project-grid` spacing. **Do not** run `clean:next` / `verify:next` while `next dev` uses the same `.next` (see `Agent-Runbook`).
 - **2026-04-27** — **Sprint 4 (polish):** `next.config.mjs` **rewrites** `GET /favicon.ico` → `/media/msc-icon.png` so the browser default request matches the same on-disk mark under **`./media`** (no duplicate file in `public/`).
 - **2026-04-27** — **Git:** primary integration line continues on branch **`MSC-Projectz-FullDev-v4`** (created from `FullDev-v3` at the same commit as this doc pass); `FullDev-v3` remains on remote for history.
+- **2026-04-27** — **Calendar (Sprint 5 / mobile):** `/calendar` mobile layout (horizontal scroll matrix, `CalendarAgendaPanel` + bottom `Sheet`, `useIsMaxMd`), touch edit affordances on **`CalendarTaskChip`**, day cells as focusable **divs** to avoid invalid nested **`<button>`** hydration, border-only selection/today (no `ring` corner glitches). See **`Session-Snapshots`**, **`Restore-Points`**, **`START-HERE`** (Core Features).
+- **2026-04-27** — **Git:** primary integration line advances to **`MSC-Projectz-FullDev-v5`** (cut from the **`MSC-Projectz-FullDev-v4`** tip at calendar closeout; **`FullDev-v4`** remains for history). Operator pointers updated in **`START-HERE`**, **`Project-Truth`**, **`ReCall`**, **`Session-Snapshots`**, **`Restore-Points`**.

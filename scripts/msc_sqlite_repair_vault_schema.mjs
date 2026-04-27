@@ -7,6 +7,7 @@
  * - `msc_vault_projects.manual_rank` for persisted manual sort order
  * - `msc_vault_projects_rels` for optional project `members` collaborators
  * - `msc_vault_tasks.assigned_to_id` for optional task assignment
+ * - `msc_vault_tasks.description`, `due_date`, `priority` (Sprint 5 — calendar / task detail)
  * - `media.sizes_thumbnail_*` for Payload thumbnail image size metadata
  * - `payload_locked_documents_rels.msc_audit_logs_id` to match current relationship schema
  *
@@ -216,6 +217,17 @@ async function msc_main() {
       client,
       'msc_vault_tasks_assigned_to_idx',
       'CREATE INDEX msc_vault_tasks_assigned_to_idx ON msc_vault_tasks (assigned_to_id)',
+    )
+
+    const taskColsS5 = await msc_tableColumnNames(client, 'msc_vault_tasks')
+    await msc_addColumnIfMissing(client, 'msc_vault_tasks', taskColsS5, 'description', 'TEXT')
+    await msc_addColumnIfMissing(client, 'msc_vault_tasks', taskColsS5, 'due_date', 'TEXT')
+    await msc_addColumnIfMissing(
+      client,
+      'msc_vault_tasks',
+      taskColsS5,
+      'priority',
+      "TEXT NOT NULL DEFAULT 'normal'",
     )
 
     async function msc_addProjectCol(name, defSql) {

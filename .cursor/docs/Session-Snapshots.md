@@ -9,14 +9,49 @@ Purpose:
 
 Keep newest snapshot at the top.
 
-**Historical entries:** keep the **branch and SHA as recorded** for that session. Rows that show `MSC-Projectz-FullDev-v2` or **`FullDev-v3`** describe work **on that day**; **current primary branch** is **`MSC-Projectz-FullDev-v4`** (see `START-HERE.md` → *Current Restart Point*).
+**Historical entries:** keep the **branch and SHA as recorded** for that session. Rows that show `MSC-Projectz-FullDev-v2` or **`FullDev-v3`** describe work **on that day**; **current primary branch** is **`MSC-Projectz-FullDev-v5`** (see `START-HERE.md` → *Current Restart Point*).
+
+---
+
+## 2026-04-27 — `MSC-Projectz-FullDev-v5` cut (calendar + vault task alignment)
+
+### Session state
+- **Branch:** `MSC-Projectz-FullDev-v5` (cut from the same tip as **`MSC-Projectz-FullDev-v4`** at calendar closeout; confirm with `git branch --show-current` and `git log -1 --oneline`)
+- **What shipped:** Primary integration line moves to **v5**; includes Command Center **`/calendar`**, related vault/task wiring, docs pass, and operator restore rows. Use **`git fetch origin && git switch MSC-Projectz-FullDev-v5 && git pull`** for day-to-day work.
+
+### Start-next checklist
+1. `git switch MSC-Projectz-FullDev-v5` && `git pull`
+2. `npm run verify:next` after runtime edits; `npm run dev` + smoke `/`, `/admin`, `/calendar`, `/tasks`
+
+### Open risks / blockers
+- **None** for branch cut. Do not delete **`.next`** under a live **`next dev`** (see `Agent-Runbook` / `local-runtime-recovery`).
+
+---
+
+## 2026-04-27 — Calendar `/calendar` (mobile, sheet agenda, a11y, border fix)
+
+### Session state
+- **Branch:** `MSC-Projectz-FullDev-v4` → **`MSC-Projectz-FullDev-v5`** (see snapshot above for current line)
+- **Commit:** confirm with `git log -1 --oneline` after the calendar work is **committed and pushed**
+- **What shipped:** Command Center **Calendar** at **`/calendar`**: horizontal-scroll 7-col matrix on narrow viewports, **`useIsMaxMd`** (`(max-width: 767px)`) for Sheet + `handleDayPick` behavior, shared **`CalendarAgendaPanel`** in sidebar (`md+`) and bottom **`Sheet`**, **`CalendarTaskChip`** long-press + pencil on narrow, double-click on desktop. Day cells use **`div role="button"`** + keyboard (Enter/Space) so task chips are not inside a native **`<button>`** (hydration). Selected/today styling uses **borders** only (removed Tailwind **`ring`**) to fix rounded-corner stroke artifacts. **`Development-Roadmap.md`**, **`Restore-Points.md`**, **`START-HERE`**, **`Project-Truth`**, this file updated.
+
+### Files to remember
+- `components/CalendarGrid.tsx`, `components/CalendarTaskChip.tsx`, `components/CalendarAgendaPanel.tsx`, `components/CalendarSidebar.tsx`, `app/(main)/(command-center)/calendar/page.tsx`, `lib/msc_hooks.ts` (`useIsMaxMd`)
+
+### Start-next checklist
+1. `git pull` on `MSC-Projectz-FullDev-v5`
+2. After app edits: `npm run verify:next` (or avoid deleting `.next` while dev is on **3000**—see `Agent-Runbook` / `local-runtime-recovery`)
+3. `npm run dev` — smoke **`/calendar`**, `/`, `/admin` on `http://127.0.0.1:3000`
+
+### Open risks / blockers
+- **None** for the calendar feature set. If **`verify:next`** removed `.next`, restart **`npm run dev`**. If two devs run **`rimraf .next`** concurrently, you can see **ENOENT** under **`.next/dev/`**; recover with a single **kill 3000 → clean → one `next dev`**.
 
 ---
 
 ## 2026-04-27 — Project sort + manual order (`manualRank`)
 
 ### Session state
-- **Branch:** `MSC-Projectz-FullDev-v4` (confirm with `git branch --show-current`)
+- **Branch:** `MSC-Projectz-FullDev-v5` (confirm with `git branch --show-current`)
 - **Commit:** set after this commit with `git log -1 --oneline`
 - **What shipped:** Persisted **`manualRank`** on vault projects; client **`projectSortMode`**; **`msc_sortProjectsForDashboard`**; server **`msc_moveProjectManual`** (owner-only neighbor swap); dashboard **Sort** control; **Move up/down** on grid + list (manual + owner); UI component **`components/msc_ManualProjectMoveControls.tsx`**. SQLite repair script adds **`manual_rank`** for existing DBs. Sprint 4 “drag and drop” backlog item superseded in **`Development-Roadmap.md`**.
 
@@ -25,7 +60,7 @@ Keep newest snapshot at the top.
 - Docs: `Development-Roadmap.md`, `START-HERE.md`, `Project-Truth.md`, `Daily-Ops-Cheat-Sheet.md`, this file
 
 ### Start-next checklist
-1. `git pull` on `MSC-Projectz-FullDev-v4`
+1. `git pull` on `MSC-Projectz-FullDev-v5`
 2. Existing local DB: if you skipped repair, run **`npm run repair:sqlite`** once if needed
 3. Runtime gate: `npm run verify:next` after further app changes; `npm run dev` + smoke `/` and `/admin`
 

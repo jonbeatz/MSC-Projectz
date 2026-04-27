@@ -19,7 +19,7 @@ Use this file first, then follow its linked source-of-truth order.
 - **System name:** Vader
 - **Primary stack:** Next.js + React + Payload CMS + SQLite
 - **Optional shell:** Tauri
-- **Current workflow branch (at last docs update):** `MSC-Projectz-FullDev-v4`
+- **Current workflow branch (at last docs update):** `MSC-Projectz-FullDev-v5`
 
 Primary goal:
 - Ship and maintain a production-ready command center with stable local workflow, reliable deploy packaging, and strong continuity between sessions.
@@ -71,6 +71,7 @@ After rotation:
 Core product areas:
 - Route-based Command Center UI under `app/(main)/(command-center)/` (with `app/(main)/layout.tsx` as the app document shell; Payload admin stays in `app/(payload)/` with a separate document root)
 - Dashboard (project list **sort modes** in client app settings: **manual** / **name** / **updated** / **status**; **manual** uses stored **`manualRank`** on `msc-vault-projects`; use **`npm run repair:sqlite`** on an existing local DB if SQLite errors reference missing `manual_rank`)
+- **Calendar** (`/calendar`): month/week task grid from vault **due** dates; on viewports **below `md`**, the matrix scrolls horizontally (fixed min inner width) and the agenda is a **bottom sheet**; logic uses **`useIsMaxMd`** in `lib/msc_hooks.ts` (matches **`max-width: 767px`**, not **`useIsMobile()`** at `lg`). Day cells are interactive **divs** with **`role="button"`** so chips and the mobile pencil control are not nested inside a native **`<button>`** (valid HTML / hydration). Selection and “today” use **border** styling; avoid stacking **`ring`** on rounded cells to prevent corner stroke glitches
 - Dashboard, tasks, profile/settings/help, and vault/code manager paths
 - Payload-backed data and media handling
 - Local-first development and deploy packaging via zip artifact

@@ -7,6 +7,7 @@ import {
   LogOut,
   Plus,
   ChevronLeft,
+  Calendar,
   ClipboardList,
   Settings,
   X,
@@ -36,6 +37,7 @@ type NavItem = {
 
 const navItems: NavItem[] = [
   { path: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+  { path: '/calendar', label: 'Calendar', icon: Calendar },
   { path: '/tasks', label: 'Tasks', icon: ClipboardList },
   { path: '/settings', label: 'Settings', icon: Settings, adminOnly: true },
   { path: '/vault', label: 'Code Manager', icon: BookOpen },

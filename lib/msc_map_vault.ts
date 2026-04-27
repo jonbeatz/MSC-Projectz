@@ -4,6 +4,7 @@ import type {
   MscProjectIncomingMail,
   MscProjectOutgoingSmtp,
   MscSmtpEncryption,
+  MscTaskPriority,
   Project,
   Task,
   TaskStatus,
@@ -41,13 +42,32 @@ type MscVaultProjectDoc = {
 type MscVaultTaskDoc = {
   id: number | string
   title: string
+  description?: string | null
   status: TaskStatus
+  priority?: MscTaskPriority | null
+  /** Payload `date` (ISO or YYYY-MM-DD string) */
+  dueDate?: string | null
   completed?: boolean | null
   archived?: boolean | null
   project: number | string | MscVaultProjectDoc
   assignedTo?: string | number | MscProjectMember | null
   createdAt: string
   updatedAt: string
+}
+
+function msc_parseTaskDueDate(raw: string | null | undefined): Date | null {
+  if (raw == null || String(raw).trim() === '') return null
+  const d = new Date(raw)
+  return Number.isNaN(d.getTime()) ? null : d
+}
+
+const MSC_TASK_PRIORITIES: MscTaskPriority[] = ['low', 'normal', 'high']
+
+function msc_mapTaskPriority(raw: unknown): MscTaskPriority {
+  if (typeof raw === 'string' && (MSC_TASK_PRIORITIES as string[]).includes(raw)) {
+    return raw as MscTaskPriority
+  }
+  return 'normal'
 }
 
 export function msc_resolveProjectId(
@@ -62,14 +82,19 @@ export function msc_resolveProjectId(
 
 export function msc_mapTaskDoc(doc: MscVaultTaskDoc): Task {
   const assignedTo = doc.assignedTo == null ? null : msc_mapProjectMember(doc.assignedTo)
+  const desc = typeof doc.description === 'string' ? doc.description.trim() : ''
   return {
     id: String(doc.id),
     title: doc.title,
+    description: desc === '' ? undefined : desc,
     status: (doc.status || 'todo') as TaskStatus,
     completed: Boolean(doc.completed),
     archived: Boolean(doc.archived),
+    dueDate: msc_parseTaskDueDate(doc.dueDate),
+    priority: msc_mapTaskPriority(doc.priority),
     assignedTo,
     createdAt: new Date(doc.createdAt),
+    updatedAt: new Date(doc.updatedAt || doc.createdAt),
   }
 }
 

@@ -1,9 +1,52 @@
 import type { Access, Where, TypedUser } from 'payload'
 import { msc_hasAdminAccess } from '@/lib/msc_roles'
 
-type MscUserWithRole = TypedUser & {
+export type MscUserWithRole = TypedUser & {
   id: number | string
   role?: 'master-admin' | 'admin' | 'user' | null
+}
+
+/** Project doc shape for in-memory access checks (Payload `findByID` is wider). */
+type MscProjectRowLike = { user?: unknown; members?: unknown }
+
+/**
+ * In-memory read check mirroring `msc_vaultReadOwnProjects`: admin sees all; else owner
+ * or hasMany `members` contains the user. Used by `msc_access_control` (source of truth
+ * for PAC must stay aligned with this).
+ */
+export function msc_vaultUserMayReadProject(
+  user: MscUserWithRole | null | undefined,
+  project: MscProjectRowLike | null | undefined,
+): boolean {
+  if (!user) return false
+  if (msc_hasAdminAccess(user.role)) return true
+  if (!project) return false
+  const owner = project.user
+  const ownerId = typeof owner === 'object' && owner !== null && 'id' in owner ? owner.id : owner
+  if (String(ownerId) === String(user.id)) return true
+  const members = project.members
+  if (!Array.isArray(members)) return false
+  for (const m of members) {
+    const mid = m && typeof m === 'object' && m !== null && 'id' in m ? (m as { id: string | number }).id : m
+    if (mid != null && String(mid) === String(user.id)) return true
+  }
+  return false
+}
+
+/**
+ * Mirrors `msc_vaultWriteOwnProjects` (project row update/delete): admin or project owner
+ * only — not collaborators listed in `members` alone.
+ */
+export function msc_vaultUserOwnsProjectForWrite(
+  user: MscUserWithRole | null | undefined,
+  project: MscProjectRowLike | null | undefined,
+): boolean {
+  if (!user) return false
+  if (msc_hasAdminAccess(user.role)) return true
+  if (!project) return false
+  const owner = project.user
+  const ownerId = typeof owner === 'object' && owner !== null && 'id' in owner ? owner.id : owner
+  return String(ownerId) === String(user.id)
 }
 
 export function msc_vaultIsPayloadAdmin(
