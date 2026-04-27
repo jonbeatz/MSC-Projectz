@@ -67,7 +67,7 @@ export function TaskPulse({ project }: TaskPulseProps) {
         <div className="px-4 py-2 border-b border-border bg-secondary/50">
           <div className="h-1.5 rounded-full overflow-hidden bg-secondary">
             <div
-              className="h-full rounded-full transition-all duration-300 bg-primary"
+              className="h-full rounded-full transition-all duration-300 bg-[#DA9516]"
               style={{ width: `${progress}%` }}
             />
           </div>
@@ -97,7 +97,7 @@ export function TaskPulse({ project }: TaskPulseProps) {
                 <button
                   type="button"
                   onClick={() => void toggleTask(project.id, task.id)}
-                  className="flex-shrink-0"
+                  className="shrink-0"
                 >
                   {task.completed ? (
                     <CheckCircle2 className="w-4 h-4 text-primary" />

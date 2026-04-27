@@ -585,11 +585,11 @@ export function MSC_Projectz_ProjectCard({
         <div className="mt-3">
           <div className="flex items-center justify-between mb-1.5">
             <span className="text-xs text-muted-foreground">Progress</span>
-            <span className="text-xs font-medium text-primary">{calculatedProgress}%</span>
+            <span className="text-xs font-medium text-[#DA9516]">{calculatedProgress}%</span>
           </div>
-          <div className="h-1.5 rounded-full overflow-hidden bg-muted">
+          <div className="h-1.5 rounded-full overflow-hidden bg-[#DA9516]/20">
             <div
-              className="h-full rounded-full transition-all duration-300 bg-primary"
+              className="h-full rounded-full transition-all duration-300 bg-[#DA9516]"
               style={{ width: `${calculatedProgress}%` }}
             />
           </div>
@@ -664,7 +664,7 @@ export function MSC_Projectz_ProjectCard({
                 )}
                 {counts.inProgress > 0 && (
                   <div
-                    className="h-full shrink-0 bg-[hsl(var(--chart-4))] transition-all"
+                    className="h-full shrink-0 bg-[#DA9516] transition-all"
                     style={{ width: `${inProgressPct}%` }}
                     title={`In progress: ${counts.inProgress}`}
                   />
@@ -686,7 +686,7 @@ export function MSC_Projectz_ProjectCard({
             </span>
             <span>
               <span
-                className="inline-block size-2 rounded-sm align-middle mr-1 bg-[hsl(var(--chart-4))]"
+                className="inline-block size-2 rounded-sm align-middle mr-1 bg-[#DA9516]"
                 aria-hidden
               />
               {counts.inProgress} in progress

@@ -51,6 +51,8 @@
   /* MSC / ACF-aligned accent (Vader — Studio Green); use with .msc-cta-initialize */
   --msc-accent: 142 69% 58%;
   --msc-accent-foreground: 0 0% 7%;
+  --msc-gold: 38 81% 47%;
+  --msc-gold-foreground: 0 0% 7%;
 }
 
 /* =====================================================
@@ -91,6 +93,8 @@
 
   --msc-accent: 142 69% 58%;
   --msc-accent-foreground: 0 0% 16%;
+  --msc-gold: 38 81% 47%;
+  --msc-gold-foreground: 0 0% 16%;
 }
 
 [data-theme='light'] {
@@ -115,6 +119,8 @@
   --ring: 142 71% 45%;
   --msc-accent: 142 71% 45%;
   --msc-accent-foreground: 0 0% 16%;
+  --msc-gold: 38 81% 47%;
+  --msc-gold-foreground: 0 0% 16%;
 }
 
 /* Tailwind v4 Theme inline */
@@ -152,6 +158,8 @@
   --color-sidebar-accent-foreground: hsl(var(--sidebar-accent-foreground));
   --color-sidebar-border: hsl(var(--sidebar-border));
   --color-sidebar-ring: hsl(var(--sidebar-ring));
+  --color-msc-gold: hsl(var(--msc-gold));
+  --color-msc-gold-foreground: hsl(var(--msc-gold-foreground));
   
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);

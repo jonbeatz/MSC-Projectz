@@ -60,20 +60,27 @@ export function Msc_EmailPreviewsClient() {
       <section className="min-w-0 flex-1 rounded-xl border border-border bg-card p-3">
         <div className="h-[560px] overflow-y-auto rounded-lg border border-border bg-background px-4 py-[100px] text-sm text-[#E0E0E0]">
         {activeTab === 'template' ? (
-          <div>
-            <h2 className="mb-2 text-base font-semibold text-foreground">Verification Email Template</h2>
-            <p className="mb-2">Subject: Verify your MSC-Projectz account</p>
-            <p>
-              Body preview:
-              <br />
-              Hello NAME,
-              <br />
-              Please verify your email address to activate your account.
-              <br />
-              {'{verification_link}'}
-              <br />
-              This link expires in 24 hours.
-            </p>
+          <div className="h-full p-4">
+            <div className="mx-auto flex h-full w-full max-w-lg items-center justify-center">
+              <section className="w-full rounded-xl border border-border bg-card p-6 text-center">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
+                  MSC-Projectz
+                </p>
+                <h2 className="mt-3 text-xl font-semibold text-foreground">Verification Email Template</h2>
+                <div className="mt-5 space-y-1 text-left text-sm text-muted-foreground">
+                  <p>
+                    <span className="font-medium text-foreground">Subject:</span> Verify your MSC-Projectz account
+                  </p>
+                  <p className="pt-1">
+                    <span className="font-medium text-foreground">Body preview:</span>
+                  </p>
+                  <p>Hello NAME,</p>
+                  <p>Please verify your email address to activate your account.</p>
+                  <p>{'{verification_link}'}</p>
+                  <p>This link expires in 24 hours.</p>
+                </div>
+              </section>
+            </div>
           </div>
         ) : activeTab === 'success' ? (
           <Msc_VerificationView forceState="success" embedded />

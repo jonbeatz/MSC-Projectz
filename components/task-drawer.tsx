@@ -36,8 +36,8 @@ const statusConfig: Record<TaskStatus, { label: string; icon: typeof Circle; col
   'in-progress': { 
     label: 'In Progress', 
     icon: Clock, 
-    colorClass: 'text-amber-500',
-    bgClass: 'bg-amber-500/10'
+    colorClass: 'text-[#DA9516]',
+    bgClass: 'bg-[#DA9516]/10'
   },
   'done': { 
     label: 'Done', 
@@ -137,7 +137,7 @@ export function TaskDrawer({ isOpen, onClose, project }: TaskDrawerProps) {
           'group flex items-center gap-3 p-3 rounded-lg transition-all border',
           isDone && 'opacity-60',
           isInProgress 
-            ? 'bg-amber-500/5 border-amber-500/30' 
+            ? 'bg-[#DA9516]/5 border-[#DA9516]/30' 
             : 'bg-secondary border-border'
         )}
       >
@@ -255,11 +255,11 @@ export function TaskDrawer({ isOpen, onClose, project }: TaskDrawerProps) {
         <div className="p-4 shrink-0 border-b border-border">
           <div className="flex items-center justify-between mb-2">
             <span className="text-sm font-medium text-foreground">Task Progress</span>
-            <span className="text-sm font-semibold text-primary">{progress}%</span>
+            <span className="text-sm font-semibold text-[#DA9516]">{progress}%</span>
           </div>
-          <div className="h-2 rounded-full overflow-hidden bg-muted">
+          <div className="h-2 rounded-full overflow-hidden bg-[#DA9516]/20">
             <div 
-              className="h-full rounded-full transition-all duration-300 bg-primary"
+              className="h-full rounded-full transition-all duration-300 bg-[#DA9516]"
               style={{ width: `${progress}%` }}
             />
           </div>
@@ -269,7 +269,7 @@ export function TaskDrawer({ isOpen, onClose, project }: TaskDrawerProps) {
               {todoTasks.length} To Do
             </span>
             <span className="flex items-center gap-1">
-              <Clock className="w-3 h-3 text-amber-500" />
+              <Clock className="w-3 h-3 text-[#DA9516]" />
               {inProgressTasks.length} In Progress
             </span>
             <span className="flex items-center gap-1">
@@ -319,7 +319,7 @@ export function TaskDrawer({ isOpen, onClose, project }: TaskDrawerProps) {
           {/* In Progress Tasks */}
           {inProgressTasks.length > 0 && (
             <div className="mb-6">
-              <h3 className="text-xs font-semibold uppercase tracking-wider mb-3 flex items-center gap-2 text-amber-500">
+              <h3 className="text-xs font-semibold uppercase tracking-wider mb-3 flex items-center gap-2 text-[#DA9516]">
                 <Clock className="w-3 h-3" />
                 In Progress ({inProgressTasks.length})
               </h3>

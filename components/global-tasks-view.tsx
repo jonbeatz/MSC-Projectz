@@ -16,6 +16,7 @@ import {
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { MSC_Projectz_TaskAssigneeBadge, MSC_Projectz_TaskAssigneeSelect } from '@/components/MSC-Projectz-TaskAssignee'
 import { useAppStore } from '@/lib/store'
 import { cn } from '@/lib/utils'
@@ -35,8 +36,8 @@ const statusConfig: Record<TaskStatus, { label: string; icon: typeof Circle; col
   'in-progress': { 
     label: 'In Progress', 
     icon: Clock, 
-    color: 'text-amber-500',
-    bgClass: 'bg-amber-500/10'
+    color: 'text-[#DA9516]',
+    bgClass: 'bg-[#DA9516]/10'
   },
   'done': { 
     label: 'Done', 
@@ -214,7 +215,7 @@ export function GlobalTasksView() {
           'group flex items-center gap-3 px-4 py-3 transition-all border-b border-border',
           'hover:bg-muted/50',
           isDone && 'opacity-60',
-          isInProgress && 'bg-amber-500/5'
+          isInProgress && 'bg-[#DA9516]/5'
         )}
       >
         {/* Status Badge - Clickable */}
@@ -315,17 +316,18 @@ export function GlobalTasksView() {
         {projects.length > 1 && (
           <label className="flex min-w-[240px] flex-col gap-1 text-xs text-muted-foreground">
             Active Project
-            <select
-              value={selectedProject?.id ?? ''}
-              onChange={(e) => setSelectedProjectId(e.target.value)}
-              className="rounded-lg border border-border bg-card px-3 py-2 text-sm text-foreground outline-none transition focus:ring-2 focus:ring-primary"
-            >
-              {projects.map((project) => (
-                <option key={project.id} value={project.id}>
-                  {project.name}
-                </option>
-              ))}
-            </select>
+            <Select value={selectedProject?.id ?? ''} onValueChange={setSelectedProjectId}>
+              <SelectTrigger className="w-full rounded-lg border-border bg-card text-sm text-foreground focus-visible:ring-primary">
+                <SelectValue placeholder="Select project" />
+              </SelectTrigger>
+              <SelectContent>
+                {projects.map((project) => (
+                  <SelectItem key={project.id} value={project.id} className="focus:bg-primary focus:text-primary-foreground">
+                    {project.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </label>
         )}
       </div>
@@ -343,7 +345,7 @@ export function GlobalTasksView() {
             <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
               Project Info
             </p>
-            <h2 className="mt-1 text-lg font-semibold text-foreground">
+            <h2 className="mt-1 text-base font-medium text-foreground">
               {selectedProject?.name ?? 'No active project'}
             </h2>
           </div>
@@ -376,9 +378,15 @@ export function GlobalTasksView() {
           </div>
           <div className="rounded-lg border border-border bg-background/40 p-3">
             <dt className="text-xs uppercase tracking-wider text-muted-foreground">Task Progress</dt>
-            <dd className="mt-1 text-foreground">
+            <dd className="mt-1 text-[#DA9516] font-medium">
               {completedProjectTasks}/{totalProjectTasks} complete · {projectProgress}%
             </dd>
+            <div className="mt-2 h-1.5 rounded-full bg-[#DA9516]/20">
+              <div
+                className="h-full rounded-full bg-[#DA9516] transition-all duration-300"
+                style={{ width: `${projectProgress}%` }}
+              />
+            </div>
           </div>
         </dl>
       </section>
