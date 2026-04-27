@@ -191,6 +191,13 @@ Startup pattern:
 2. Verify branch/status
 3. Continue from listed next task/file
 
+Morning handshake rule:
+- Operator trigger: `Ready to begin`
+- Assistant startup response must end with exact line: `Ready to start Jedi Master`
+- Before that final line, assistant must provide:
+  - a short checklist proving startup context checks
+  - 3-4 prioritized next-work recommendations
+
 Closeout pattern:
 1. Update snapshot
 2. Record commands/outcomes

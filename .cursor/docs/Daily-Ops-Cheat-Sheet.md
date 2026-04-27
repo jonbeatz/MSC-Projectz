@@ -11,6 +11,12 @@ Fast daily workflow for MSC-Projectz.
    - `START-HERE.md`
 3. Run: `npm run deploy:preflight`
 4. If coding runtime paths, start local dev: `npm run dev`
+5. After finishing docs read/checks, type this exact confirmation in chat: `Ready to start Jedi Master`
+
+Startup response format required from assistant:
+- verified checklist (branch/status + doc-order confirmation + blockers)
+- 3-4 recommended next tasks (ordered)
+- final exact line: `Ready to start Jedi Master`
 
 ## 2) Local development (no live deploy)
 

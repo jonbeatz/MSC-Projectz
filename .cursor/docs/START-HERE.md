@@ -15,6 +15,15 @@ Use this quick flow at the beginning of every session:
    - `npm run dev`
    - smoke test `/` and `/admin` on `http://127.0.0.1:3000`
 8. Read latest handoff in `Session-Snapshots.md` and continue from its "Start-next checklist".
+9. Final startup confirmation line (must be exact): **`Ready to start Jedi Master`**.
+
+### Morning startup response contract (assistant)
+
+When operator says `Ready to begin`, the startup response must include:
+
+1. A short verified checklist (branch/status, docs-read order, immediate blocker state).
+2. `3-4` prioritized next tasks for the session.
+3. Final line exactly: **`Ready to start Jedi Master`**.
 
 If localhost is broken, follow recovery in `FlightPro.md` and `Agent-Runbook.md`.
 
@@ -37,6 +46,7 @@ At recognized workflow starts, first status line should be:
 Use once at flow start to confirm context/docs were read, then continue normally.
 
 Recognized triggers:
+- `Ready to start Jedi Master` (use after docs-read completion check)
 - `Ready to begin`
 - `Lets Start`
 - `Lets Continue`
@@ -66,9 +76,9 @@ Ship a production-ready **Payload 3** + **Next.js 16** command center (with opti
 
 ## Current Restart Point
 
-* **Branch:** `MSC-Projectz-FullDev-v1`
+* **Branch:** `MSC-Projectz-FullDev-v2`
 * **Remote:** `origin` → `https://github.com/jonbeatz/MSC-Projectz.git`
-* **Latest recorded commit (this doc refresh):** `4ef2bd2` — *feat(tasks): apply gold progress system across task surfaces*
+* **Latest recorded commit (this doc refresh):** `fd6419d` — *feat(tasks): declutter dashboard task surfaces*
 * **Working-state note:** docs were expanded for start/continue workflow, snapshots, and closeout. Always trust `git status -sb` as the live state.
 * **Architecture:** Command Center routes live under `app/(command-center)/` so `/dashboard`, `/profile`, `/settings`, `/help`, `/tasks`, and `/vault` share a persistent dashboard shell.
 * **Verification (operators):** after code changes, run **`npm run verify:next`** from the repo root. For a quick local smoke, **`npm run dev`** on port **3000** and check **`/`** and **`/admin`** (expect **200**).
