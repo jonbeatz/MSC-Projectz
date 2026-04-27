@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Link from 'next/link'
 import { 
   Search, 
   Workflow, 
@@ -392,12 +393,6 @@ export function HelpView() {
       {/* Instructionz Tab */}
       {activeTab === 'instructionz' && (
         <div className="space-y-4">
-          <div className="p-4 rounded-xl bg-primary/10 border border-primary/30">
-            <p className="text-sm text-primary">
-              Essential documentation for Master Password Recovery, SMTP Setup, and Adding New Users.
-            </p>
-          </div>
-          
           <Accordion type="multiple" value={expandedSections} onValueChange={setExpandedSections}>
             {instructionzItems.map((item) => (
               <AccordionItem
@@ -628,11 +623,12 @@ export function HelpView() {
                 {item.label}
               </button>
             ))}
-          </div>
-          <div className="mt-5 rounded-lg border border-border bg-background/60 p-3">
-            <p className="font-sans text-xs tracking-normal text-gray-400">
-              MSC-Projectz-v1.0
-            </p>
+            <Link
+              href="/admin/dev/email-previews"
+              className="block w-full rounded-md px-3 py-2 text-left text-sm text-muted-foreground transition-colors hover:bg-secondary hover:text-white"
+            >
+              Dev Playground
+            </Link>
           </div>
         </aside>
       </div>

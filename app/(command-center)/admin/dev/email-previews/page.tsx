@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation'
-import { MSC_Projectz_EmailPreviewsClient } from '@/app/(command-center)/admin/dev/email-previews/MSC-Projectz-EmailPreviewsClient'
+import { Msc_EmailPreviewsClient } from '@/app/(command-center)/admin/dev/email-previews/msc_EmailPreviewsClient'
 import { msc_getVaultLocalApiContext } from '@/lib/msc_vault_auth_context'
 import { msc_vaultIsPayloadAdmin } from '@/lib/msc_vault_payload_access'
 
@@ -9,5 +9,5 @@ export default async function MSC_Projectz_AdminEmailPreviewsPage() {
     redirect('/dashboard')
   }
 
-  return <MSC_Projectz_EmailPreviewsClient />
+  return <Msc_EmailPreviewsClient />
 }

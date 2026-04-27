@@ -6,23 +6,24 @@ import { useRouter } from 'next/navigation'
 import { CheckCircle2, Loader2, XCircle } from 'lucide-react'
 import { msc_verifyEmailAction } from '@/app/actions/verify-email'
 
-type VerificationState = 'success' | 'error' | 'expired' | 'loading'
+type MscVerificationState = 'success' | 'error' | 'expired' | 'loading'
 
-type VerificationViewProps = {
+type MscVerificationViewProps = {
   token?: string
-  forceState?: VerificationState
+  forceState?: MscVerificationState
+  embedded?: boolean
 }
 
-function msc_stateMessage(state: VerificationState): string {
+function msc_stateMessage(state: MscVerificationState): string {
   if (state === 'success') return 'Email verified successfully. Redirecting to login...'
   if (state === 'expired') return 'Verification link is invalid or expired.'
   if (state === 'error') return 'Unable to verify this email right now. Please try again.'
   return 'Verifying your email...'
 }
 
-export function VerificationView({ token = '', forceState }: VerificationViewProps) {
+export function Msc_VerificationView({ token = '', forceState, embedded = false }: MscVerificationViewProps) {
   const router = useRouter()
-  const [state, setState] = useState<VerificationState>(forceState || 'loading')
+  const [state, setState] = useState<MscVerificationState>(forceState || 'loading')
   const [message, setMessage] = useState(msc_stateMessage(forceState || 'loading'))
 
   useEffect(() => {
@@ -62,8 +63,14 @@ export function VerificationView({ token = '', forceState }: VerificationViewPro
   }, [forceState, router, token])
 
   return (
-    <main className="min-h-screen bg-background p-4 text-foreground">
-      <div className="mx-auto flex min-h-screen w-full max-w-lg items-center justify-center">
+    <main className={embedded ? 'h-full p-4 text-foreground' : 'min-h-screen bg-[#121212] p-4 text-foreground'}>
+      <div
+        className={
+          embedded
+            ? 'mx-auto flex h-full w-full max-w-lg items-center justify-center'
+            : 'mx-auto flex min-h-screen w-full max-w-lg items-center justify-center'
+        }
+      >
         <section className="w-full rounded-xl border border-border bg-card p-6 text-center">
           <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
             MSC-Projectz

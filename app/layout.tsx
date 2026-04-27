@@ -3,7 +3,6 @@ import { Geist, Geist_Mono } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 
 import { MSC_Projectz_SessionGuard } from '@/components/MSC-Projectz-SessionGuard'
-import { BypassBadge } from '@/components/dev/BypassBadge'
 import { Toaster } from '@/components/ui/toaster'
 import './globals.css'
 
@@ -45,7 +44,6 @@ export default function RootLayout({
     >
       <body className="font-sans antialiased min-h-screen bg-background text-foreground">
         <MSC_Projectz_SessionGuard>{children}</MSC_Projectz_SessionGuard>
-        <BypassBadge />
         <Toaster />
         {process.env.NODE_ENV === 'production' && <Analytics />}
       </body>

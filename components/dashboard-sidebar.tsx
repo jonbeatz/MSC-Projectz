@@ -34,7 +34,7 @@ const navItems: NavItem[] = [
   { path: '/tasks', label: 'Tasks', icon: ClipboardList },
   { path: '/settings', label: 'Settings', icon: Settings, adminOnly: true },
   { path: '/vault', label: 'Code Manager', icon: BookOpen },
-  { path: '/help', label: 'Help', icon: HelpCircle },
+  { path: '/help', label: 'Engine', icon: HelpCircle },
 ]
 
 export function DashboardSidebar({ collapsed, onToggle, onAddProject }: SidebarProps) {

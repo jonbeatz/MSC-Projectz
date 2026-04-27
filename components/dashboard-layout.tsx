@@ -6,6 +6,7 @@ import { usePathname, useRouter } from 'next/navigation'
 import { cn } from '@/lib/utils'
 import { DashboardSidebar } from './dashboard-sidebar'
 import { SystemStatus } from '@/components/SystemStatus'
+import { Msc_DevStatusIndicator } from '@/components/dev/msc_DevStatusIndicator'
 import { UserAvatar } from '@/components/shared/user-avatar'
 import {
   DropdownMenu,
@@ -156,6 +157,7 @@ export function DashboardLayout({ children, onAddProject, searchQuery, onSearchC
           
           <div className="flex items-center gap-4">
             <SystemStatus />
+            <Msc_DevStatusIndicator />
 
             {/* View Toggle (Bento Grid / List) */}
             {isDashboardRoute && (

@@ -39,8 +39,10 @@
 - [x] **Verification token service:** Added `lib/msc_auth_verification.ts` with SHA-256 token hashing, expiry validation, and verification email sender. *(Apr 2026)*
 - [x] **Email verification action + page:** Added `msc_verifyEmailAction` and `/auth/verify` flow (verifying, success, expired/error states). *(Apr 2026)*
 - [x] **Trust gate + resend hold flow:** Added middleware guard for unverified sessions and `/auth/verify-reminder` resend UX with cooldown and token rotation. *(Apr 2026)*
-- [x] **UI refactor + identity playground:** Verification UI extracted to reusable `VerificationView` and admin-only identity preview playground added for success/error/expired states. *(Apr 2026)*
+- [x] **UI refactor + identity playground:** Verification UI unified on `components/auth/msc_VerificationView.tsx`; admin-only identity preview playground uses `msc_EmailPreviewsClient.tsx` with Studio Dark styling and deterministic success/error/expired states. *(Apr 2026)*
 - [x] **Dev bypass defense-in-depth:** Local trust bypass now requires env master switch (`DEV_BYPASS_ENABLED=true`) + bypass cookie, plus dev visual indicator badge when active. *(Apr 2026)*
+- [x] **Identity Playground expansion: auth flow integration:** Added `Auth Flows` preview section to the playground with Verify Reminder and Verify Email page previews, plus high-contrast text refinements for dark-mode legibility. *(Apr 2026)*
+- [x] **UI polish: header-based dev indicators:** Replaced global floating bypass badge with compact header status dot tooltip (`Dev Bypass Active`) near session controls for cleaner dashboard chrome. *(Apr 2026)*
 - [ ] **Monitoring + rate-limit hardening follow-up:** Add IP-aware resend throttling/telemetry and monitor verification funnel drop-off.
 
 **Sprint 3 core status:** **Sprint 3 core closed; monitoring + rate-limit hardening follow-up.**
@@ -91,3 +93,5 @@
 - **2026-04** — Sprint 3 UI refactor complete: reusable `VerificationView` plus admin identity playground for deterministic verification-state previews.
 - **2026-04** — Sprint 3 hardening: dev bypass refined with env master switch + cookie gate and global dev badge indicator when active.
 - **2026-04** — Sprint 3 outcome: reliability + trust hardening + dev-velocity tooling completed (schema repairs, trust gate, resend diagnostics, and local-only bypass controls).
+- **2026-04** — Sprint 3 polish: verification/playground components standardized with `msc_` filenames and Studio Dark active-state treatment.
+- **2026-04** — Sprint 3 polish: Identity Playground now includes Auth Flows previews, and dev bypass status moved to a compact header indicator with tooltip.

@@ -9,6 +9,9 @@ type MscDevBypassResult = {
   ok: boolean
   message: string
 }
+type MscDevBypassStatus = {
+  active: boolean
+}
 
 function msc_isLocalHostValue(value: string | null): boolean {
   if (!value) return false
@@ -56,4 +59,12 @@ export async function msc_setDevTrustBypass(enabled: boolean): Promise<MscDevByp
     console.error('[msc] dev trust bypass action failed:', error)
     return { ok: false, message: 'Unable to update dev trust bypass right now.' }
   }
+}
+
+export async function msc_getDevTrustBypassStatus(): Promise<MscDevBypassStatus> {
+  if (process.env.NODE_ENV !== 'development') return { active: false }
+  if (process.env.DEV_BYPASS_ENABLED !== 'true') return { active: false }
+
+  const c = await cookies()
+  return { active: c.get(MSC_DEV_TRUST_BYPASS_COOKIE)?.value === '1' }
 }

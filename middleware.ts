@@ -35,6 +35,18 @@ function msc_isDevBypassMasterSwitchOn(): boolean {
 
 export function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl
+
+  if (pathname === '/admin/auth/verify' || pathname === '/admin/auth/verify/') {
+    const url = req.nextUrl.clone()
+    url.pathname = '/auth/verify'
+    return NextResponse.redirect(url)
+  }
+  if (pathname === '/admin/auth/verify-reminder' || pathname === '/admin/auth/verify-reminder/') {
+    const url = req.nextUrl.clone()
+    url.pathname = '/auth/verify-reminder'
+    return NextResponse.redirect(url)
+  }
+
   if (msc_isAllowlistedPath(pathname)) {
     return NextResponse.next()
   }
