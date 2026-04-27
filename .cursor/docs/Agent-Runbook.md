@@ -1,5 +1,25 @@
 # Agent-Runbook: Standard Operating Procedures
 
+## Operator handshake ("Ok Jon")
+
+For recognized workflow trigger points (start, continue, deploy, verify, checkpoint, finish), begin the first status message with:
+
+- `Ok Jon - <recognized command>. <one-line action plan>.`
+
+Use it once at flow start, then continue with normal concise updates. This confirms context/doc-read state before execution.
+
+Suggested triggers:
+- `Ready to begin`
+- `Lets Start`
+- `Lets Continue`
+- `Lets Push It Live`
+- `Lets Push It Live (Safe)`
+- `Lets Verify Live`
+- `Lets Checkpoint Docs + Commit`
+- `Lets Checkpoint + Deploy`
+- `Lets Finish`
+- `Lets Finish + Deploy`
+
 ## Error recovery (local — port 3000)
 
 This repository’s **`package.json`** may **not** define `dev:recover` / `dev:fresh` / `verify:next:safe`. If a one-liner is missing, use the **manual** sequence (Windows):
@@ -12,7 +32,21 @@ This repository’s **`package.json`** may **not** define `dev:recover` / `dev:f
 
 **Build gate (after code edits):** `npm run verify:next` from repo root until it exits with code **0**. **Do not** run `verify:next` or `clean:next` while `next dev` is still running on 3000 — it will delete **`.next`** and break the dev server; stop dev first.
 
-Longer playbooks in **`.cursor/rules/local-runtime-recovery.mdc`** may name scripts that are not wired in this repo; fall back to this section + **`FlightPro.md` §2.
+Longer playbooks in **`.cursor/rules/local-runtime-recovery.mdc`** may name scripts that are not wired in this repo; fall back to this section + **`FlightPro.md` §2. Use **`FlightPro-Alt.md`** only for advanced edge cases (`sharp`, ownership, WSL/OOM escalation).
+
+## Session closeout checklist (one-command style)
+
+At the end of every session, update `Session-Snapshots.md` (newest entry at top) with:
+
+1. Session state: branch, commit (or uncommitted), tree clean/dirty, localhost up/down.
+2. What was done: 3-7 bullets.
+3. Where changed: high-value files touched.
+4. Validation: build gate/smoke/deploy outcomes.
+5. Start-next checklist: exact first commands and first file/task.
+6. Open risks/blockers.
+
+Closeout command phrase (operator shorthand):
+- `Lets Finish` -> update `Session-Snapshots.md`, then summarize final next-start steps.
 
 ## Current local routes
 

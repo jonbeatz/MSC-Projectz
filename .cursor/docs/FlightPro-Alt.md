@@ -1,8 +1,8 @@
 # FlightPro-Alt — Alternate master deployment blueprint
 
-> **Version:** 1.0.0  
+> **Version:** 1.0.1  
 > **Target:** jon-beatz.com (Linux / cPanel)  
-> **Pairing doc:** `FlightPro.md` (SOP and recovery). Use this file for **WSL / OOM** and **script-level** detail.
+> **Pairing doc:** `FlightPro.md` (primary SOP). Use this file only when standard flow fails or you hit advanced Linux/runtime edge cases.
 
 ---
 
@@ -60,40 +60,55 @@ Keep secrets in the repo-root **`.env`**. Do not paste real secrets into cPanel 
 
 **OOM / WSL note:** to include **`node_modules`** in the package (emergency only, large artifact), add `{ from: 'node_modules', type: 'dir' }` to **COPY_PLAN** in `msc_package_deploy.mjs` after a **Linux** or WSL `npm install`+`npm run build`. Prefer server-side `npm install` when possible.
 
+### Native `sharp` (binary correction — read if `stderr` mentions `sharp`)
+
+**Symptom:** `Failed to load external module sharp` (or similar) in **`stderr.log`**.  
+**Cause:** `sharp` ships **OS- and arch-specific** native binaries. A `node_modules` tree built on **Windows** (or copied from a dev PC) will not run `sharp` on **Linux**.
+
+**Fix on the server** (**Live (cPanel → Terminal)** or SSH), from the app root after a correct `npm install` for that OS:
+
+```bash
+npm rebuild sharp --platform=linux --arch=x64
+```
+
+**Best practice:** do **not** upload Windows `node_modules`. Run `npm install` on the server (or use a **WSL/Linux** build for any zipped `node_modules`) so `sharp` resolves the right prebuild.
+
 ---
 
-## 3. Workflows
+## 3. Escalation workflows (appendix)
 
-### Scenario A — Standard deployment (code + build artifacts only)
+### Scenario A — Standard flow failed, now verify assumptions
 
-Use when the **server has enough RAM** to run `npm install` after deploy.
+Before changing anything major, re-check:
 
-1. `npm run pushitlive` (in this repo: runs `build:prod` → `node msc_package_deploy.mjs` — check `package.json` for the exact graph).
-2. Upload **`final_deploy.zip`** to the app root.
-3. Unzip (e.g. `https://jon-beatz.com/unzip.php` if that helper is deployed and allowed).
-4. **cPanel → Node.js** → **Restart** the app.
-5. On the server, **`npm install`** if `package.json` changed and `node_modules` was not shipped.
+1. `package.json` script names still match docs (`pushitlive`, `build:prod`, etc.).
+2. Zip contains expected runtime files from `COPY_PLAN`.
+3. Server restart was performed after unzip.
+4. `stderr.log` confirms the current error, not a stale one.
 
-### Scenario B — WSL / high-memory (optional `node_modules` in zip)
+### Scenario B — WSL / high-memory recovery (optional Linux `node_modules`)
 
-Use when the **host or build** hits **OOM** and you must ship a pre-built tree.
+Use when host build/runtime repeatedly hits OOM or Linux native module issues.
 
-1. Build in **WSL or Linux** (or match the server ABI): e.g. `npm install` then `npm run build`.
-2. Optionally add `{ from: 'node_modules', type: 'dir' }` to **COPY_PLAN** in `msc_package_deploy.mjs` (see §2).
-3. `npm run pushitlive` (or `node msc_package_deploy.mjs` per `package.json`).
-4. Upload **`final_deploy.zip`**, unzip, restart Node.
-5. On Linux shell (cPanel **Terminal** or SSH): e.g. `chmod -R 755 .next public media` and, if shipped, `node_modules`; `chmod 644` for `server.js`, `payload.sqlite`, `.env` as required by the host. Replace user/host paths (e.g. `wjehbnzcoy`) with **your** account.
+1. Build in **WSL/Linux** to match server ABI: `npm install` then `npm run build`.
+2. Optional emergency path: add `{ from: 'node_modules', type: 'dir' }` to `COPY_PLAN`.
+3. Build package with `npm run pushitlive`.
+4. Upload zip, unzip, restart Node.
+5. If permission issues remain, run Linux permission/ownership correction from §4/§5.
 
 ---
 
 ## 4. Troubleshooting
 
-| Symptom | Likely cause | What to do |
+| Symptom | Cause | Solution |
 | --- | --- | --- |
-| **500, EACCES** | File permissions on Linux | Dirs (e.g. `.next`, `public`, `media`): **755**; key files: **644** (or host-corrected). |
-| **500, module not found** | `node_modules` / native mismatch (Windows vs Linux) | Reinstall on **server** or WSL, or use Scenario B with Linux-built `node_modules`. |
-| **Process killed / OOM** | Low server memory at build or runtime | Lighter build (more RAM on PC, or WSL), or Scenario B; avoid building huge monoliths on the smallest tier without swap. |
-| **Database locked** | SQLite permissions / two writers | Ensure one process owns **`payload.sqlite`**; check owner matches the Node user; avoid editing DB from two services at once. |
+| **500, EACCES** | Permissions; Next may **write** under **`.next`** at runtime | Run `chmod -R 755` on **`.next`**, `public`, and `media` (and `node_modules` if present). If errors **continue**, see **ownership** below — cPanel often breaks when files are uploaded or unzipped as a **different user** than the Node app. |
+| **`sharp` / `Failed to load external module sharp`** | **Binary mismatch** (Windows vs Linux `node_modules`, or wrong prebuild) | On the server: `npm rebuild sharp --platform=linux --arch=x64` (from app root). Prefer server-side `npm install` or a WSL/Linux-built tree — see §2 **Native sharp**. |
+| **Process killed / OOM** | Low server memory at build or runtime | Use the **WSL / Linux** build pipeline (§3 B) to produce a **Linux-native** build locally, or add RAM/swap; avoid huge in-place builds on the smallest tier. |
+| **500, generic module not found** | Bad `node_modules` tree or path | Reinstall on the **server** (`rm -rf node_modules && npm install` if policy allows) or use Scenario B with a Linux-built `node_modules`. |
+| **Database locked** | SQLite permissions / two writers | Ensure one process owns **`payload.sqlite`**; same **owner** as the Node process; avoid two services writing the DB at once. |
+
+**If you still get EACCES after `chmod`:** permissions are not always enough. **Reset ownership** so the cPanel/Node system user owns the app tree (exact UI varies: File Manager “Change ownership”, JetBackup tools, or host support / SSH `chown` if your plan allows). Symptom: app starts but cannot write cache or temp files under **`.next`**.
 
 ---
 
@@ -123,15 +138,19 @@ This repo (example — verify with `package.json`):
 }
 ```
 
-**Server-side permission fix** (run on **Linux** after deploy, from app root; adjust paths and user as needed — not a Windows one-liner):
+**Server-side permission fix (first line of defense)** — run on **Linux** after deploy, from the **app root** (not a Windows one-liner):
 
 ```bash
 chmod -R 755 .next public media
 chmod 644 server.js payload.sqlite .env
 ```
 
+**If EACCES persists:** Next.js may still be unable to write under **`.next`**. Re-check **ownership** (see §4): uploads via FTP/zip are often owned by a user that is **not** the cPanel **Node** user — use the host’s ownership repair flow or `chown` when permitted so the app user owns the project tree.
+
 ---
 
 ## 6. Changelog (doc)
 
+- **1.0.2** — Re-scoped as advanced appendix only; removed duplicated standard deploy path; added escalation-first workflow and cleaned formatting.
+- **1.0.1** — EACCES: ownership note after `chmod`; `sharp` binary mismatch and `npm rebuild sharp --platform=linux --arch=x64` in §2 and troubleshooting; expanded table for common production errors.
 - **1.0.0** — Reformatted: fixed escaped Markdown, merged run-on lines into sections, table for **COPY_PLAN**, aligned script description with `msc_package_deploy.mjs`, placeholders for secrets, cross-link to `FlightPro.md`.
