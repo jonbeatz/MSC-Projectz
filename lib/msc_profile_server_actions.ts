@@ -9,6 +9,7 @@ import type { User } from '@/lib/types'
 type MscMediaDoc = {
   id: string | number
   url?: string | null
+  owner?: string | number | { id?: string | number } | null
 }
 
 type MscPayloadUserDoc = {
@@ -112,6 +113,26 @@ export async function msc_updateCurrentUserProfile(input: {
   })
 
   const payload = await getPayload({ config })
+  if (input.avatar !== null && input.avatar !== undefined && String(input.avatar).trim() !== '') {
+    const media = (await payload.findByID({
+      collection: 'media',
+      id: input.avatar,
+      depth: 0,
+      overrideAccess: true,
+    })) as MscMediaDoc | null
+    if (!media) {
+      throw new Error('Selected avatar media was not found.')
+    }
+    const owner = media.owner
+    const ownerId =
+      typeof owner === 'object' && owner !== null && 'id' in owner ? owner.id : owner
+    const isOwner = ownerId !== undefined && ownerId !== null && String(ownerId) === String(ctx.user.id)
+    const isAdmin = (ctx.user as { role?: string | null }).role === 'admin'
+    if (!isOwner && !isAdmin) {
+      throw new Error('Unauthorized: cannot use this media as avatar.')
+    }
+  }
+
   const updated = await payload.update({
     collection: 'users',
     id: ctx.user.id,

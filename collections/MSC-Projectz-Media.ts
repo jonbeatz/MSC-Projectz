@@ -1,4 +1,4 @@
-import type { Access, CollectionConfig, Where } from 'payload'
+import type { Access, CollectionConfig, TypeWithID, Where } from 'payload'
 
 type MscMediaUser = { id: string | number; role?: 'admin' | 'user' | null }
 
@@ -9,6 +9,10 @@ const msc_mediaReadAccess: Access = ({ req: { user } }) => {
 }
 
 const msc_mediaWriteAccess: Access = ({ req: { user } }) => Boolean(user)
+
+type MscMediaRow = TypeWithID & {
+  owner?: string | number | { id?: string | number } | null
+}
 
 export const MSC_Projectz_Media: CollectionConfig = {
   slug: 'media',
@@ -27,6 +31,28 @@ export const MSC_Projectz_Media: CollectionConfig = {
         width: 400,
         height: 300,
         position: 'centre',
+      },
+    ],
+  },
+  hooks: {
+    beforeChange: [
+      ({ req, data, operation, originalDoc }) => {
+        if (!req.user) return data
+        if ((req.user as MscMediaUser).role === 'admin') return data
+
+        const next = { ...(data as Record<string, unknown>) }
+        if (operation === 'create') {
+          next.owner = req.user.id
+          return next
+        }
+
+        const prevOwner = (originalDoc as MscMediaRow | undefined)?.owner
+        const prevOwnerId =
+          typeof prevOwner === 'object' && prevOwner !== null && 'id' in prevOwner
+            ? prevOwner.id
+            : prevOwner
+        next.owner = prevOwnerId ?? req.user.id
+        return next
       },
     ],
   },

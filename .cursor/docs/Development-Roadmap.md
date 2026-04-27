@@ -28,7 +28,7 @@
 - [ ] **Member cards:** Fix "Add Member" so it successfully opens Task Pulse.
 - [x] **Vault projects — write-strict (Payload):** **`msc_vaultReadOwnProjects`** unchanged (owner or `members` can read). **`msc_vaultWriteOwnProjects`** for `update`/`delete` on **`msc-vault-projects`**: admins full; non-admins only when `user` = self (members no longer edit/delete project rows). *(Apr 2026)*
 - [x] **Audit logs (admin actions):** Added `msc-audit-logs` collection, non-blocking audit writes for user admin actions, and admin-only audit viewer embedded in Settings with filters + details modal. *(Apr 2026)*
-- [ ] **Credential scoping (remaining):** Keep auditing Local API / app routes so non-owners cannot mutate others’ data; collection read already scopes non-admins to visible projects; write on projects is now owner-only.
+- [x] **Core collection/profile hardening complete:** users collection now enforces self/admin read-update boundaries, media owner is forced/locked for non-admin writes, and avatar assignment validates media ownership (admin override only). *(Apr 2026)*
 
 ## Sprint 3: Interface polish (priority: low)
 
@@ -61,3 +61,4 @@
 - **2026-04** — Sprint 2: Vault collection `update`/`delete` use `msc_vaultWriteOwnProjects` (read still `msc_vaultReadOwnProjects`).
 - **2026-04** — Sprint 2: Role-based UI gating unified on `RoleGate`; deprecated `AdminGate` removed and docs updated (`START-HERE`, `Project-Truth`).
 - **2026-04** — Sprint 2: Admin audit trail shipped (`msc-audit-logs`), shared admin guard extracted, and Settings-embedded audit viewer added with filter + JSON details viewer.
+- **2026-04** — Sprint 2: Final hardening pass shipped for users/media/profile ownership controls (IDOR/spoofing mitigation) and marked core hardening complete.

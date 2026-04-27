@@ -1,4 +1,4 @@
-import type { CollectionConfig } from 'payload'
+import type { Access, CollectionConfig, Where } from 'payload'
 
 /**
  * Distinguish Payload admins (full vault visibility) from standard users (tenant-scoped data).
@@ -10,6 +10,20 @@ export const MSC_Projectz_PayloadUsers: CollectionConfig = {
     useAsTitle: 'email',
   },
   auth: true,
+  access: {
+    read: ({ req: { user } }) => {
+      if (!user) return false
+      if (user.role === 'admin') return true
+      return { id: { equals: user.id } } as Where
+    },
+    update: ({ req: { user }, id }) => {
+      if (!user) return false
+      if (user.role === 'admin') return true
+      return String(user.id) === String(id)
+    },
+    create: ({ req: { user } }) => Boolean(user && user.role === 'admin'),
+    delete: ({ req: { user } }) => Boolean(user && user.role === 'admin'),
+  },
   fields: [
     {
       name: 'username',
