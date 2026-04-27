@@ -43,9 +43,9 @@
 - [x] **Dev bypass defense-in-depth:** Local trust bypass now requires env master switch (`DEV_BYPASS_ENABLED=true`) + bypass cookie, plus dev visual indicator badge when active. *(Apr 2026)*
 - [x] **Identity Playground expansion: auth flow integration:** Added `Auth Flows` preview section to the playground with Verify Reminder and Verify Email page previews, plus high-contrast text refinements for dark-mode legibility. *(Apr 2026)*
 - [x] **UI polish: header-based dev indicators:** Replaced global floating bypass badge with compact header status dot tooltip (`Dev Bypass Active`) near session controls for cleaner dashboard chrome. *(Apr 2026)*
-- [ ] **Monitoring + rate-limit hardening follow-up:** Add IP-aware resend throttling/telemetry and monitor verification funnel drop-off.
+- [x] **Monitoring + rate-limit hardening follow-up:** IP-based sliding-window limits (in-process) for resend + registration **requests**; structured `[msc:verification]` JSON log lines (hashed `ipHash`, `userId`, `kind`) for funnel drop-off analysis; env overrides in `lib/msc_verification_ip_rate_limit.ts`. *(Apr 2026)*
 
-**Sprint 3 core status:** **Sprint 3 core closed; monitoring + rate-limit hardening follow-up.**
+**Sprint 3 core status:** **Sprint 3 closed.**
 
 ### Sprint 3 outcome snapshot (why this mattered)
 
@@ -59,7 +59,7 @@
 *Goal: Reduce clutter and improve mobile usage.*
 
 - [x] **Admin runtime blocker resolved:** Local `/admin/login` Payload crash (`CodeEditor` config undefined) fixed by restoring required Payload route-group layout wiring (`app/(payload)/layout.tsx` -> `RootLayout` + `handleServerFunctions` with `config` + `importMap`). Added regression guardrail to run import-map regeneration + build/smoke auth checks after admin-layout edits. *(Apr 2026)*
-- [ ] **Cleanup:** Remove "Configure Local Path" (green button).
+- [x] **Cleanup:** Removed duplicate **Configure Local Path** CTA; path is set only via **Edit project** (same field). *(Apr 2026)*
 - [x] **Tasks surface declutter pass:** Removed top project-card progress strip on dashboard, made Project Info collapsed by default on Tasks page, switched in-progress rows to neutral backgrounds, and slimmed progress bars for cleaner density. *(Apr 2026)*
 - [ ] **Mobile responsiveness:**
   - [ ] Force sidebar/menu to minimize by default on mobile.
@@ -105,3 +105,5 @@
 - **2026-04** — Sprint 4 release gate closeout: created `v1.03` tag after full build/auth/access proofs; removed unsupported `next.config` key (`devBundleServerPackages`) to keep production console clean while preserving green build/smoke checks.
 - **2026-04** — Local ops: documented `*gate-user*@msc.local` as optional audit fixtures (not dev bypass); added `npm run db:prune-gate-users` + `scripts/msc_delete_gate_test_users.mjs` for safe removal with backup; `MSC-Users.md` / `FlightPro.md` / `Agent-Runbook.md` / `START-HERE.md` updated.
 - **2026-04-27** — **Next route groups:** moved Command Center, auth, and login under `app/(main)/` with a dedicated document layout; root `app/layout.tsx` is pass-through so Payload `RootLayout` in `app/(payload)/` is not nested under the main `<body>`. Fixes `/admin` duplicate `<html>`/`<body>` and related hydration errors. Operator docs (`START-HERE`, `Project-Truth`, `ReCall`, `Agent-Runbook`, `Restore-Points`, `Session-Snapshots`, roadmap changelog) updated for `MSC-Projectz-FullDev-v3` and the new paths.
+- **2026-04-27** — **Sprint 3 final:** IP-aware throttling (resend + per-submit registration) and `[msc:verification]` JSON funnel telemetry; see `lib/msc_verification_ip_rate_limit.ts`, `lib/msc_verification_telemetry.ts`, `app/actions/resend-verification.ts`, `lib/msc_auth_actions.ts`, `app/actions/verify-email.ts`. Disable with `MSC_VERIFICATION_DISABLE_IP_RATE_LIMIT=true` (local only).
+- **2026-04-27** — **Sprint 4 cleanup:** Removed **Configure Local Path** green CTA and `ConfigurePathModal`; users set `localPath` in **Edit project** only.

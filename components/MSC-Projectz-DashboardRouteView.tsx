@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from 'react'
 
-import { ConfigurePathModal } from '@/components/ConfigurePathModal'
 import { EditProjectModal } from '@/components/edit-project-modal'
 import { MSC_Projectz_Dashboard } from '@/components/MSC-Projectz-Dashboard'
 import { useMSCProjectzCommandCenter } from '@/components/MSC-Projectz-CommandCenterContext'
@@ -14,7 +13,6 @@ import { useTaskPulseSignal } from '@/lib/useTaskPulseSignal'
 export function MSC_Projectz_DashboardRouteView() {
   const [editProjectId, setEditProjectId] = useState<string | null>(null)
   const [vaultProjectId, setVaultProjectId] = useState<string | null>(null)
-  const [configurePathProjectId, setConfigurePathProjectId] = useState<string | null>(null)
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null)
   const [taskDrawerProjectId, setTaskDrawerProjectId] = useState<string | null>(null)
 
@@ -24,10 +22,8 @@ export function MSC_Projectz_DashboardRouteView() {
   const user = useAppStore((s) => s.user)
   const vaultHydrated = useAppStore((s) => s.vaultHydrated)
   const vaultUserId = useAppStore((s) => s.vaultUserId)
-  const updateProject = useAppStore((s) => s.updateProject)
 
   const vaultProject = projects.find((p) => p.id === vaultProjectId)
-  const configurePathProject = projects.find((p) => p.id === configurePathProjectId)
   const selectedProject = projects.find((p) => p.id === selectedProjectId)
   const editProject = projects.find((p) => p.id === editProjectId)
   const taskDrawerProject = projects.find((p) => p.id === taskDrawerProjectId)
@@ -85,7 +81,6 @@ export function MSC_Projectz_DashboardRouteView() {
         onSelectProject={(id) => setSelectedProjectId(id)}
         onOpenVault={(id) => setVaultProjectId(id)}
         onEditProject={(id) => setEditProjectId(id)}
-        onConfigurePath={(id) => setConfigurePathProjectId(id)}
         onOpenTaskDrawer={(id) => setTaskDrawerProjectId(id)}
         selectedProjectId={selectedProjectId}
         onClearSelectedProject={() => setSelectedProjectId(null)}
@@ -96,17 +91,6 @@ export function MSC_Projectz_DashboardRouteView() {
         project={editProject || null}
         isOpen={!!editProjectId}
         onClose={() => setEditProjectId(null)}
-      />
-
-      <ConfigurePathModal
-        isOpen={!!configurePathProject}
-        initialPath={configurePathProject?.localPath ?? ''}
-        projectName={configurePathProject?.name}
-        onClose={() => setConfigurePathProjectId(null)}
-        onSave={async (localPath) => {
-          if (!configurePathProject) return
-          await updateProject(configurePathProject.id, { localPath })
-        }}
       />
 
       {vaultProject && (

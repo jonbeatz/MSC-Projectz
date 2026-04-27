@@ -49,6 +49,13 @@ If local admin crashes with errors like `Cannot destructure property 'config' ..
 
 Do not treat dependency pinning/import-map refresh alone as sufficient if the `(payload)` layout provider pattern is missing.
 
+## Email verification: rate limits and funnel logs
+
+- **Resend** (`app/actions/resend-verification.ts`): per-account cooldown unchanged; **per-IP** sliding window (default **20** sends / **60m**, env `MSC_IP_RESEND_MAX`, `MSC_IP_RESEND_WINDOW_MS`).
+- **Register** (`lib/msc_auth_actions.ts`): per-IP cap on **each valid form submit** including duplicate-email paths (default **25** / **60m**, `MSC_IP_REGISTER_ATTEMPT_MAX`, `MSC_IP_REGISTER_ATTEMPT_WINDOW_MS`) so addresses cannot be probed endlessly.
+- **Telemetry:** JSON lines prefixed `[msc:verification]` with `kind` (e.g. `resend_sent`, `register_ip_limited`, `verify_token_ok`) and **`ipHash`** (short SHA, not raw IP). For production log shipping, filter that prefix in your host or APM.
+- **Local:** set `MSC_VERIFICATION_DISABLE_IP_RATE_LIMIT=true` to turn off IP windows (in-process only; not for multi-replica without a shared store).
+
 ## Local SQLite: `*gate-user*@msc.local` test users
 
 - These are **optional local audit users** (e.g. verified vs unverified, cross-tenant checks). They are **not** the dev trust-bypass path — that is **`DEV_BYPASS_ENABLED` + the dev bypass cookie** (see `middleware.ts`, `app/actions/dev-trust-bypass.ts`).

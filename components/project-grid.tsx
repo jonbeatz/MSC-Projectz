@@ -17,7 +17,6 @@ interface ProjectGridProps {
   onSelectProject: (id: string) => void
   onOpenVault: (id: string) => void
   onEditProject: (id: string) => void
-  onConfigurePath: (id: string) => void
   onOpenTaskDrawer?: (id: string) => void
 }
 
@@ -25,9 +24,8 @@ function ProjectListItem({
   project, 
   onSelect, 
   onDelete, 
-  onOpenVault, 
+  onOpenVault,
   onEdit,
-  onConfigurePath,
   onOpenTaskDrawer
 }: { 
   project: Project
@@ -35,7 +33,6 @@ function ProjectListItem({
   onDelete: () => void
   onOpenVault: () => void
   onEdit: () => void
-  onConfigurePath: () => void
   onOpenTaskDrawer?: () => void
 }) {
   const appSettings = useAppStore((s) => s.appSettings)
@@ -103,16 +100,7 @@ function ProjectListItem({
         {safeLocalPath.trim() ? (
           <p className="text-xs truncate mt-0.5 text-muted-foreground">{safeLocalPath}</p>
         ) : (
-          <button
-            type="button"
-            onClick={(e) => {
-              e.stopPropagation()
-              onConfigurePath()
-            }}
-            className="msc-cta-initialize mt-2 inline-flex rounded-md px-3 py-1.5 text-xs font-medium transition-opacity hover:opacity-90"
-          >
-            Configure Local Path
-          </button>
+          <p className="mt-1 text-xs text-muted-foreground/90">No local path — use Edit to set one</p>
         )}
         
         {/* Progress Bar with clickable task counter */}
@@ -198,7 +186,6 @@ export function ProjectGrid({
   onSelectProject,
   onOpenVault,
   onEditProject,
-  onConfigurePath,
   onOpenTaskDrawer,
 }: ProjectGridProps) {
   const allProjects = useAppStore((s) => s.projects)
@@ -284,7 +271,6 @@ export function ProjectGrid({
               }}
               onOpenVault={() => onOpenVault(project.id)}
               onEdit={() => onEditProject(project.id)}
-              onConfigurePath={() => onConfigurePath(project.id)}
               onOpenTaskDrawer={() => onOpenTaskDrawer?.(project.id)}
             />
           ))}
@@ -301,7 +287,6 @@ export function ProjectGrid({
               }}
               onOpenVault={() => onOpenVault(project.id)}
               onEdit={() => onEditProject(project.id)}
-              onConfigurePath={() => onConfigurePath(project.id)}
               onOpenTaskDrawer={() => onOpenTaskDrawer?.(project.id)}
             />
           ))}

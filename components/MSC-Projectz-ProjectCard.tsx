@@ -39,7 +39,6 @@ export interface MSC_Projectz_ProjectCardProps {
   onDelete: () => void
   onOpenVault: () => void
   onEdit: () => void
-  onConfigurePath: () => void
   onOpenTaskDrawer?: () => void
 }
 
@@ -77,7 +76,6 @@ export function MSC_Projectz_ProjectCard({
   onDelete,
   onOpenVault,
   onEdit,
-  onConfigurePath,
   onOpenTaskDrawer,
 }: MSC_Projectz_ProjectCardProps) {
   const appSettings = useAppStore((s) => s.appSettings)
@@ -318,16 +316,7 @@ export function MSC_Projectz_ProjectCard({
             {safeLocalPath.trim() ? (
               <p className="text-xs truncate mt-0.5 text-muted-foreground">{safeLocalPath}</p>
             ) : (
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation()
-                  onConfigurePath()
-                }}
-                className="msc-cta-initialize mt-2 inline-flex rounded-md px-3 py-1.5 text-xs font-medium transition-opacity hover:opacity-90"
-              >
-                Configure Local Path
-              </button>
+              <p className="mt-1 text-xs text-muted-foreground/90">No local path — use Edit to set one</p>
             )}
           </div>
 

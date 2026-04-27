@@ -5,11 +5,15 @@
  * Vault/project APIs remain in `lib/msc_vault_server_actions.ts`.
  */
 
+import { headers } from 'next/headers'
 import { getPayload } from 'payload'
 import config from '@payload-config'
+import { msc_getClientIpFromHeaders } from '@/lib/msc_client_ip'
 import { msc_generateVerificationToken, msc_sendVerificationEmail } from '@/lib/msc_auth_verification'
 import { msc_validateNewPassword } from '@/lib/msc_password_policy'
 import { msc_sendWelcomeEmail } from '@/lib/msc_smtp_nodemailer'
+import { msc_checkAndRecordRegisterRequest } from '@/lib/msc_verification_ip_rate_limit'
+import { msc_logVerificationTelemetry } from '@/lib/msc_verification_telemetry'
 
 type MscRegisterUserResult = { success: boolean; message: string }
 
@@ -33,6 +37,21 @@ export async function msc_registerUser(
   }
   if (!msc_name) return { success: false, message: 'Name is required.' }
 
+  const h = await headers()
+  const clientIp = msc_getClientIpFromHeaders(h)
+  const regLimit = msc_checkAndRecordRegisterRequest(clientIp)
+  if (!regLimit.ok) {
+    msc_logVerificationTelemetry({
+      kind: 'register_ip_limited',
+      ip: clientIp,
+      extra: { retryAfterSeconds: regLimit.retryAfterSeconds, scope: 'register_request' },
+    })
+    return {
+      success: false,
+      message: 'Registration is temporarily limited. Please try again in a little while.',
+    }
+  }
+
   try {
     const existing = await payload.find({
       collection: 'users',
@@ -49,7 +68,7 @@ export async function msc_registerUser(
 
   try {
     const verification = msc_generateVerificationToken()
-    await payload.create({
+    const created = await payload.create({
       collection: 'users',
       data: {
         username: msc_name,
@@ -62,6 +81,11 @@ export async function msc_registerUser(
         lastVerificationSentAt: new Date().toISOString(),
       },
       overrideAccess: true,
+    })
+    msc_logVerificationTelemetry({
+      kind: 'register_send',
+      userId: (created as { id?: string | number }).id,
+      ip: clientIp,
     })
     void msc_sendVerificationEmail({
       email: msc_email,

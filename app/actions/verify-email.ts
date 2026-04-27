@@ -1,9 +1,11 @@
 'use server'
 
 import { getPayload } from 'payload'
-import { cookies } from 'next/headers'
+import { cookies, headers } from 'next/headers'
 import config from '@payload-config'
+import { msc_getClientIpFromHeaders } from '@/lib/msc_client_ip'
 import { msc_hashVerificationToken, msc_verifyToken } from '@/lib/msc_auth_verification'
+import { msc_logVerificationTelemetry } from '@/lib/msc_verification_telemetry'
 import { MSC_TRUST_GATE_COOKIE } from '@/lib/msc_trust_gate_cookie'
 
 type MscVerifyEmailResult = {
@@ -19,8 +21,12 @@ type MscVerificationUserDoc = {
 }
 
 export async function msc_verifyEmailAction(token: string): Promise<MscVerifyEmailResult> {
+  const h = await headers()
+  const clientIp = msc_getClientIpFromHeaders(h)
+
   const rawToken = token.trim()
   if (!rawToken) {
+    msc_logVerificationTelemetry({ kind: 'verify_token_invalid', ip: clientIp, extra: { reason: 'empty' } })
     return { ok: false, message: 'Invalid verification link.' }
   }
 
@@ -42,6 +48,7 @@ export async function msc_verifyEmailAction(token: string): Promise<MscVerifyEma
 
     const user = result.docs[0] as MscVerificationUserDoc | undefined
     if (!user) {
+      msc_logVerificationTelemetry({ kind: 'verify_token_invalid', ip: clientIp, extra: { reason: 'no_user' } })
       return { ok: false, message: 'Verification link is invalid or expired.' }
     }
 
@@ -54,6 +61,7 @@ export async function msc_verifyEmailAction(token: string): Promise<MscVerifyEma
         httpOnly: true,
         sameSite: 'lax',
       })
+      msc_logVerificationTelemetry({ kind: 'verify_token_ok', userId: user.id, ip: clientIp, extra: { already: true } })
       return { ok: true, message: 'Your account is already verified.' }
     }
 
@@ -63,6 +71,7 @@ export async function msc_verifyEmailAction(token: string): Promise<MscVerifyEma
       expiresAt: user.verificationTokenExpires,
     })
     if (!isValid) {
+      msc_logVerificationTelemetry({ kind: 'verify_token_expired', userId: user.id, ip: clientIp })
       await payload.update({
         collection: 'users',
         id: user.id,
@@ -85,6 +94,7 @@ export async function msc_verifyEmailAction(token: string): Promise<MscVerifyEma
       },
       overrideAccess: true,
     })
+    msc_logVerificationTelemetry({ kind: 'verify_token_ok', userId: user.id, ip: clientIp, extra: { firstVerify: true } })
     const c = await cookies()
     c.set({
       name: MSC_TRUST_GATE_COOKIE,
@@ -97,6 +107,7 @@ export async function msc_verifyEmailAction(token: string): Promise<MscVerifyEma
     return { ok: true, message: 'Email verified successfully. Redirecting to login...' }
   } catch (error) {
     console.error('[msc] verify email action failed:', error)
+    msc_logVerificationTelemetry({ kind: 'error', ip: clientIp, extra: { where: 'verify_email' } })
     return { ok: false, message: 'Unable to verify this email right now. Please try again.' }
   }
 }
