@@ -94,6 +94,7 @@ export function MSC_Projectz_UserAdminActions({
             <SelectContent>
               <SelectItem value="user">User</SelectItem>
               <SelectItem value="admin">Admin</SelectItem>
+              <SelectItem value="master-admin">Master Admin</SelectItem>
             </SelectContent>
           </Select>
           <Button

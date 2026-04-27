@@ -48,11 +48,13 @@ export function MSC_Projectz_SettingsUsersSection({ enabled = true }: MSC_Projec
   }, [enabled, msc_loadUsers])
 
   const stats = useMemo(() => {
+    const masterAdmins = users.filter((user) => user.role === 'master-admin').length
     const admins = users.filter((user) => user.role === 'admin').length
     return {
       total: users.length,
+      masterAdmins,
       admins,
-      standard: users.length - admins,
+      standard: users.length - admins - masterAdmins,
     }
   }, [users])
 
@@ -82,10 +84,14 @@ export function MSC_Projectz_SettingsUsersSection({ enabled = true }: MSC_Projec
               Manage server-backed Payload accounts, roles, and administrative access.
             </p>
           </div>
-          <div className="grid grid-cols-3 gap-2 text-center">
-            <div className="rounded-lg border border-border bg-secondary/40 px-3 py-2">
+          <div className="grid grid-cols-2 gap-2 text-center md:grid-cols-4">
+            <div className="col-span-2 rounded-lg border border-border bg-secondary/40 px-3 py-2 md:col-span-1">
               <p className="text-lg font-semibold text-foreground">{stats.total}</p>
               <p className="text-[10px] uppercase tracking-wide text-muted-foreground">Total</p>
+            </div>
+            <div className="rounded-lg border border-border bg-secondary/40 px-3 py-2">
+              <p className="text-lg font-semibold text-amber-400">{stats.masterAdmins}</p>
+              <p className="text-[10px] uppercase tracking-wide text-muted-foreground">Master</p>
             </div>
             <div className="rounded-lg border border-border bg-secondary/40 px-3 py-2">
               <p className="text-lg font-semibold text-primary">{stats.admins}</p>

@@ -29,11 +29,13 @@ type MscPayloadUserDoc = {
 }
 
 function msc_normalizePayloadRole(role: unknown): MscUserAdminRole {
-  return role === 'admin' ? 'admin' : 'user'
+  if (role === 'master-admin') return 'master-admin'
+  if (role === 'admin') return 'admin'
+  return 'user'
 }
 
 function msc_validatePayloadRole(role: unknown): role is MscUserAdminRole {
-  return role === 'admin' || role === 'user'
+  return role === 'master-admin' || role === 'admin' || role === 'user'
 }
 
 /**
@@ -85,6 +87,9 @@ export async function msc_createPayloadUserAsAdmin(
   if (!msc_validatePayloadRole(input.role)) {
     return { ok: false, error: 'Valid role is required' }
   }
+  if (input.role === 'master-admin' && !admin.isMasterAdmin) {
+    return { ok: false, error: 'Only a Master Admin can create another Master Admin.' }
+  }
   try {
     const created = await admin.ctx.payload.create({
       collection: 'users',
@@ -129,6 +134,9 @@ export async function msc_deletePayloadUserAsAdmin(
       depth: 0,
       overrideAccess: true,
     })) as MscPayloadUserDoc
+    if (before?.role === 'master-admin' && !admin.isMasterAdmin) {
+      return { ok: false, error: 'Only a Master Admin can delete a Master Admin account.' }
+    }
     await admin.ctx.payload.delete({ collection: 'users', id: String(id), overrideAccess: true })
     void msc_logAdminAction(admin.ctx.payload, {
       actorId: admin.currentUserId,
@@ -155,6 +163,9 @@ export async function msc_updatePayloadUserRoleAsAdmin(
   if (!msc_validatePayloadRole(input.role)) {
     return { ok: false, error: 'Valid role is required' }
   }
+  if (input.role === 'master-admin' && !admin.isMasterAdmin) {
+    return { ok: false, error: 'Only a Master Admin can assign the Master Admin role.' }
+  }
 
   try {
     const before = (await admin.ctx.payload.findByID({
@@ -163,6 +174,9 @@ export async function msc_updatePayloadUserRoleAsAdmin(
       depth: 0,
       overrideAccess: true,
     })) as MscPayloadUserDoc
+    if (before?.role === 'master-admin' && !admin.isMasterAdmin) {
+      return { ok: false, error: 'Only a Master Admin can change another Master Admin role.' }
+    }
     await admin.ctx.payload.update({
       collection: 'users',
       id: String(input.id),

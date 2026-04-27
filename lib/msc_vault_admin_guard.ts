@@ -1,6 +1,7 @@
 'use server'
 
 import { msc_getVaultLocalApiContext } from '@/lib/msc_vault_auth_context'
+import { msc_isMasterAdminRole } from '@/lib/msc_roles'
 import { msc_vaultIsPayloadAdmin } from '@/lib/msc_vault_payload_access'
 
 export type MscPayloadAdminContext = Awaited<ReturnType<typeof msc_getVaultLocalApiContext>> & {
@@ -8,7 +9,8 @@ export type MscPayloadAdminContext = Awaited<ReturnType<typeof msc_getVaultLocal
 }
 
 export async function msc_requirePayloadAdminForSettings(): Promise<
-  { ok: true; ctx: MscPayloadAdminContext; currentUserId: string | number } | { ok: false; error: string }
+  | { ok: true; ctx: MscPayloadAdminContext; currentUserId: string | number; isMasterAdmin: boolean }
+  | { ok: false; error: string }
 > {
   const ctx = await msc_getVaultLocalApiContext()
   if (!ctx.user) {
@@ -27,5 +29,6 @@ export async function msc_requirePayloadAdminForSettings(): Promise<
     return { ok: false, error: 'Admin session required' }
   }
 
-  return { ok: true, ctx: ctx as MscPayloadAdminContext, currentUserId }
+  const isMasterAdmin = msc_isMasterAdminRole((full as { role?: string | null }).role)
+  return { ok: true, ctx: ctx as MscPayloadAdminContext, currentUserId, isMasterAdmin }
 }

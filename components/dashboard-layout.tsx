@@ -7,6 +7,7 @@ import { cn } from '@/lib/utils'
 import { DashboardSidebar } from './dashboard-sidebar'
 import { SystemStatus } from '@/components/SystemStatus'
 import { Msc_DevStatusIndicator } from '@/components/dev/msc_DevStatusIndicator'
+import { msc_hasAdminAccess } from '@/lib/msc_roles'
 import { UserAvatar } from '@/components/shared/user-avatar'
 import {
   DropdownMenu,
@@ -45,7 +46,7 @@ export function DashboardLayout({ children, onAddProject, searchQuery, onSearchC
   const setProjectViewMode = useAppStore((s) => s.setProjectViewMode)
 
   const isDark = appSettings.theme === 'dark'
-  const isAdmin = user?.role === 'admin'
+  const isAdmin = msc_hasAdminAccess(user?.role)
   
   // Apply theme class to document
   useEffect(() => {

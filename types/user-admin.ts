@@ -1,4 +1,4 @@
-export type MscUserAdminRole = 'admin' | 'user'
+export type MscUserAdminRole = 'master-admin' | 'admin' | 'user'
 
 export type MscUserAdminRow = {
   id: string | number

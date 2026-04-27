@@ -5,7 +5,7 @@ import { msc_getVaultLocalApiContext } from '@/lib/msc_vault_auth_context'
 type MscReminderUser = {
   email?: string | null
   isVerified?: boolean | null
-  role?: 'admin' | 'user' | null
+  role?: 'master-admin' | 'admin' | 'user' | null
 }
 
 function msc_maskEmail(email: string): string {
@@ -36,7 +36,7 @@ export default async function MSC_Projectz_VerifyReminderPage() {
   const maskedEmail = user?.email ? msc_maskEmail(user.email) : 'your email'
   const canUseDevBypass =
     process.env.NODE_ENV !== 'production' &&
-    user?.role === 'admin'
+    (user?.role === 'admin' || user?.role === 'master-admin')
 
   return (
     <main className="min-h-screen bg-background p-4 text-foreground">

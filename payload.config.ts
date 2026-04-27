@@ -73,12 +73,15 @@ db: sqliteAdapter({
       return
     }
     const nUsers = await payload.find({ collection: 'users', limit: 2, overrideAccess: true, depth: 0 })
-    const u = firstU.docs[0] as { id: string | number; role?: 'admin' | 'user' | null }
-    if (nUsers.docs.length === 1 && u.role !== 'admin') {
+    const u = firstU.docs[0] as {
+      id: string | number
+      role?: 'master-admin' | 'admin' | 'user' | null
+    }
+    if (nUsers.docs.length === 1 && u.role !== 'master-admin') {
       await payload.update({
         collection: 'users',
         id: u.id,
-        data: { role: 'admin' },
+        data: { role: 'master-admin' },
         overrideAccess: true,
       })
     }

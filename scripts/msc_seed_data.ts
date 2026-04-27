@@ -37,20 +37,24 @@ async function msc_findUserByEmail(payload: Payload) {
     depth: 0,
     overrideAccess: true,
   })
-  return docs[0] as { id: string | number; email?: string; role?: 'admin' | 'user' } | undefined
+  return docs[0] as {
+    id: string | number
+    email?: string
+    role?: 'master-admin' | 'admin' | 'user'
+  } | undefined
 }
 
 async function msc_ensureAdminUser(payload: Payload): Promise<string | number> {
   const existing = await msc_findUserByEmail(payload)
   if (existing) {
-    if (existing.role !== 'admin') {
+    if (existing.role !== 'master-admin') {
       await payload.update({
         collection: 'users',
         id: existing.id,
-        data: { role: 'admin' },
+        data: { role: 'master-admin' },
         overrideAccess: true,
       })
-      console.log('[db:seed] User exists; updated role to admin:', msc_SEED_EMAIL)
+      console.log('[db:seed] User exists; updated role to master-admin:', msc_SEED_EMAIL)
     } else {
       console.log('[db:seed] User already present (idempotent):', msc_SEED_EMAIL)
     }
@@ -61,7 +65,7 @@ async function msc_ensureAdminUser(payload: Payload): Promise<string | number> {
     data: {
       email: msc_SEED_EMAIL,
       password: msc_SEED_PASSWORD,
-      role: 'admin',
+      role: 'master-admin',
     },
     overrideAccess: true,
   })

@@ -24,6 +24,7 @@ import { msc_mergeProjectsAndTasks, msc_mapProjectDoc, msc_mapTaskDoc, msc_norma
 import { msc_sendSendNotificationTaskEmail, msc_testSettingsFromForm } from '@/lib/msc_smtp_nodemailer'
 import { msc_stringifyReferencesJson } from '@/lib/msc_project_references'
 import { getSafePath } from '@/lib/env-utils'
+import { msc_normalizeRole } from '@/lib/msc_roles'
 import type { MscVaultLocalApiContext } from '@/lib/msc_vault_auth_context'
 type MscLoginResult = {
   success: boolean
@@ -32,7 +33,7 @@ type MscLoginResult = {
     id: string | number | undefined
     email: string
     username?: string
-    role: 'admin' | 'user'
+    role: 'master-admin' | 'admin' | 'user'
     isVerified: boolean
     avatarId?: string | number | null
     avatarUrl?: string | null
@@ -72,7 +73,7 @@ async function msc_logVaultAuthDebug(actionName: string, user: unknown) {
   })
 }
 
-type MscVaultSessionUser = { id: string | number; role?: 'admin' | 'user' | null }
+type MscVaultSessionUser = { id: string | number; role?: 'master-admin' | 'admin' | 'user' | null }
 
 function msc_requireVaultSessionUser(
   ctx: MscVaultLocalApiContext,
@@ -440,7 +441,7 @@ export async function msc_login(email: string, password: string): Promise<MscLog
     secure: Boolean(cookie.secure),
   })
 
-  const msc_role = result.user?.role === 'admin' ? 'admin' : 'user'
+  const msc_role = msc_normalizeRole(result.user?.role)
   const username =
     (fullUser as { username?: string | null } | null)?.username?.trim() ||
     msc_email.split('@')[0]

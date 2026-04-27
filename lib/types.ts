@@ -1,4 +1,5 @@
 import type { MscProjectMember } from '@/types/user-admin'
+import type { MscAppRole } from '@/lib/msc_roles'
 
 export interface Credential {
   id: string
@@ -95,7 +96,7 @@ export interface User {
   avatar?: string
   avatarId?: string | number | null
   avatarUrl?: string | null
-  role?: 'admin' | 'user'
+  role?: MscAppRole
   isVerified?: boolean
   /** Payload `users` document id when signed in via `msc_vaultSignInToPayload` */
   payloadUserId?: string | number

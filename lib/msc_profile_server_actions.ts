@@ -4,6 +4,7 @@ import { getPayload } from 'payload'
 
 import config from '@payload-config'
 import { msc_getVaultLocalApiContext } from '@/lib/msc_vault_auth_context'
+import { msc_hasAdminAccess, msc_normalizeRole } from '@/lib/msc_roles'
 import type { User } from '@/lib/types'
 
 type MscMediaDoc = {
@@ -16,7 +17,7 @@ type MscPayloadUserDoc = {
   id: string | number
   email?: string | null
   username?: string | null
-  role?: 'admin' | 'user' | null
+  role?: 'master-admin' | 'admin' | 'user' | null
   avatar?: string | number | MscMediaDoc | null
 }
 
@@ -45,7 +46,7 @@ function msc_mapProfileUser(doc: MscPayloadUserDoc): User {
   return {
     username,
     email: doc.email || '',
-    role: doc.role === 'admin' ? 'admin' : 'user',
+    role: msc_normalizeRole(doc.role),
     payloadUserId: doc.id,
     avatar: avatarUrl || undefined,
     avatarId: msc_avatarIdFromDoc(doc.avatar),
@@ -127,7 +128,7 @@ export async function msc_updateCurrentUserProfile(input: {
     const ownerId =
       typeof owner === 'object' && owner !== null && 'id' in owner ? owner.id : owner
     const isOwner = ownerId !== undefined && ownerId !== null && String(ownerId) === String(ctx.user.id)
-    const isAdmin = (ctx.user as { role?: string | null }).role === 'admin'
+    const isAdmin = msc_hasAdminAccess((ctx.user as { role?: string | null }).role)
     if (!isOwner && !isAdmin) {
       throw new Error('Unauthorized: cannot use this media as avatar.')
     }

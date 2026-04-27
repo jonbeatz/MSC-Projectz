@@ -1,11 +1,15 @@
 import type { Access, Where, TypedUser } from 'payload'
+import { msc_hasAdminAccess } from '@/lib/msc_roles'
 
-type MscUserWithRole = TypedUser & { id: number | string; role?: 'admin' | 'user' | null }
+type MscUserWithRole = TypedUser & {
+  id: number | string
+  role?: 'master-admin' | 'admin' | 'user' | null
+}
 
 export function msc_vaultIsPayloadAdmin(
   user: MscUserWithRole | null | undefined,
 ): user is MscUserWithRole {
-  return Boolean(user && (user as MscUserWithRole).role === 'admin')
+  return Boolean(user && msc_hasAdminAccess((user as MscUserWithRole).role))
 }
 
 function msc_vaultProjectVisibilityWhere(userId: string | number): Where {
@@ -24,7 +28,7 @@ function msc_vaultProjectVisibilityWhere(userId: string | number): Where {
 export const msc_vaultReadOwnProjects: Access = ({ req: { user } }) => {
   const u = user as MscUserWithRole | undefined
   if (!u) return false
-  if (u.role === 'admin') return true
+  if (msc_hasAdminAccess(u.role)) return true
   return msc_vaultProjectVisibilityWhere(u.id)
 }
 
@@ -35,7 +39,7 @@ export const msc_vaultReadOwnProjects: Access = ({ req: { user } }) => {
 export const msc_vaultWriteOwnProjects: Access = ({ req: { user } }) => {
   const u = user as MscUserWithRole | undefined
   if (!u) return false
-  if (u.role === 'admin') return true
+  if (msc_hasAdminAccess(u.role)) return true
   return { user: { equals: u.id } } as Where
 }
 
@@ -47,7 +51,7 @@ export const msc_vaultCreateProject: Access = ({ req }) => Boolean(req.user)
 export const msc_vaultReadOwnTasks: Access = async ({ req }) => {
   const u = req.user as MscUserWithRole | undefined
   if (!u) return false
-  if (u.role === 'admin') return true
+  if (msc_hasAdminAccess(u.role)) return true
   const pl = req.payload
   const projs = await pl.find({
     collection: 'msc-vault-projects',
@@ -74,7 +78,7 @@ export const msc_vaultDeleteOwnTasks: Access = msc_vaultReadOwnTasks
 export const msc_vaultCreateTask: Access = async ({ req, data }) => {
   const u = req.user as MscUserWithRole | undefined
   if (!u) return false
-  if (u.role === 'admin') return true
+  if (msc_hasAdminAccess(u.role)) return true
   const pl = req.payload
   const projectId = (data as { project?: string | number } | undefined)?.project
   if (projectId === undefined || projectId === null) return false

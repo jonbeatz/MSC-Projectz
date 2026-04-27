@@ -1,4 +1,5 @@
 import type { Access, CollectionConfig, Where } from 'payload'
+import { msc_hasAdminAccess } from '@/lib/msc_roles'
 
 /**
  * Distinguish Payload admins (full vault visibility) from standard users (tenant-scoped data).
@@ -13,16 +14,16 @@ export const MSC_Projectz_PayloadUsers: CollectionConfig = {
   access: {
     read: ({ req: { user } }) => {
       if (!user) return false
-      if (user.role === 'admin') return true
+      if (msc_hasAdminAccess(user.role)) return true
       return { id: { equals: user.id } } as Where
     },
     update: ({ req: { user }, id }) => {
       if (!user) return false
-      if (user.role === 'admin') return true
+      if (msc_hasAdminAccess(user.role)) return true
       return String(user.id) === String(id)
     },
-    create: ({ req: { user } }) => Boolean(user && user.role === 'admin'),
-    delete: ({ req: { user } }) => Boolean(user && user.role === 'admin'),
+    create: ({ req: { user } }) => Boolean(user && msc_hasAdminAccess(user.role)),
+    delete: ({ req: { user } }) => Boolean(user && msc_hasAdminAccess(user.role)),
   },
   fields: [
     {
@@ -44,8 +45,12 @@ export const MSC_Projectz_PayloadUsers: CollectionConfig = {
       options: [
         { label: 'User', value: 'user' },
         { label: 'Admin', value: 'admin' },
+        { label: 'Master Admin', value: 'master-admin' },
       ],
-      admin: { description: 'Admins can see all vault projects; users are scoped to their own.' },
+      admin: {
+        description:
+          'Master Admin and Admin can see all vault projects; users are scoped to their own.',
+      },
     },
     {
       name: 'isVerified',

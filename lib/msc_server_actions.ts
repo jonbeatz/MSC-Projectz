@@ -5,6 +5,7 @@ import path from 'path'
 import { fileURLToPath } from 'url'
 
 import { msc_getVaultLocalApiContext } from '@/lib/msc_vault_auth_context'
+import { msc_hasAdminAccess } from '@/lib/msc_roles'
 
 function msc_resolveSqliteFilePath(): string {
   const raw = process.env.DATABASE_URI || 'file:./payload.sqlite'
@@ -24,7 +25,7 @@ function msc_resolveSqliteFilePath(): string {
 export async function msc_backupDatabase(): Promise<{ success: boolean; fileName: string }> {
   const { user } = await msc_getVaultLocalApiContext()
 
-  if ((user as { role?: string } | null)?.role !== 'admin') {
+  if (!msc_hasAdminAccess((user as { role?: string } | null)?.role)) {
     throw new Error('Unauthorized')
   }
 

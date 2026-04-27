@@ -40,7 +40,7 @@ async function msc_main() {
       collection: 'users',
       id: msc_user.id,
       data: {
-        role: 'admin',
+        role: 'master-admin',
         password: msc_TARGET_PASSWORD,
         loginAttempts: 0,
         lockUntil: null,
@@ -48,7 +48,7 @@ async function msc_main() {
       overrideAccess: true,
     })
 
-    console.log('[db:fix-admin] Admin restored for:', msc_TARGET_EMAIL)
+    console.log('[db:fix-admin] Master Admin restored for:', msc_TARGET_EMAIL)
   } finally {
     await payload.destroy()
   }

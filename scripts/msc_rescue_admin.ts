@@ -35,7 +35,9 @@ async function msc_main() {
       ? exact
       : await payload.find({
       collection: 'users',
-      where: { role: { equals: 'admin' } },
+      where: {
+        or: [{ role: { equals: 'master-admin' } }, { role: { equals: 'admin' } }],
+      },
       limit: 1,
       depth: 0,
       overrideAccess: true,
@@ -54,12 +56,14 @@ async function msc_main() {
     const updateData =
       msc_originalEmail === msc_RESCUE_EMAIL
         ? {
+            role: 'master-admin',
             password: msc_RESCUE_PASSWORD,
             loginAttempts: 0,
             lockUntil: null,
           }
         : {
             email: msc_RESCUE_EMAIL,
+            role: 'master-admin',
             password: msc_RESCUE_PASSWORD,
             loginAttempts: 0,
             lockUntil: null,

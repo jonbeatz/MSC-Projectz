@@ -24,7 +24,7 @@
 
 *Goal: Secure the data and fix internal interactions.*
 
-- [ ] **Global vault:** Implement "Master Admin" role-based access control (RBAC).
+- [x] **Global vault (Master Admin RBAC):** Added `master-admin` role with inherited admin vault access, explicit Master-Admin-only controls for assigning/removing Master Admin role, and bootstrap/rescue alignment so first/repair admin can be promoted safely. *(Apr 2026)*
 - [x] **Member cards:** Fixed "Add member" CTA to open the selected project panel (Task Pulse) instead of opening project edit settings. *(Apr 2026)*
 - [x] **Cross-route signaling for Task Pulse:** Added one-shot signal bus so successful user creation in Settings can open Task Pulse with project context on dashboard routes. *(Apr 2026)*
 - [x] **Vault projects — write-strict (Payload):** **`msc_vaultReadOwnProjects`** unchanged (owner or `members` can read). **`msc_vaultWriteOwnProjects`** for `update`/`delete` on **`msc-vault-projects`**: admins full; non-admins only when `user` = self (members no longer edit/delete project rows). *(Apr 2026)*
@@ -86,6 +86,7 @@
 - **2026-04** — Sprint 1: single auth/register path, password policy module, dashboard username preference; help doc updated for `/auth/register`; welcome email trigger added in `msc_auth_actions` via `msc_sendWelcomeEmail`.
 - **2026-04** — Sprint 2: Vault collection `update`/`delete` use `msc_vaultWriteOwnProjects` (read still `msc_vaultReadOwnProjects`).
 - **2026-04** — Sprint 2: Role-based UI gating unified on `RoleGate`; deprecated `AdminGate` removed and docs updated (`START-HERE`, `Project-Truth`).
+- **2026-04** — Sprint 2 closeout: implemented Master Admin RBAC (`master-admin` role), elevated admin access helpers, settings role controls, and bootstrap/rescue scripts updated to preserve privileged restore paths.
 - **2026-04** — Sprint 2: Admin audit trail shipped (`msc-audit-logs`), shared admin guard extracted, and Settings-embedded audit viewer added with filter + JSON details viewer.
 - **2026-04** — Sprint 2: Final hardening pass shipped for users/media/profile ownership controls (IDOR/spoofing mitigation) and marked core hardening complete.
 - **2026-04** — Sprint 2 cleanup: `Add member` on project cards now opens Task Pulse (project selection) to prevent dead-end edit flow.

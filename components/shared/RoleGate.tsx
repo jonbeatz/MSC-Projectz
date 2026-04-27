@@ -2,6 +2,7 @@
 
 import type { ReactNode } from 'react'
 import { useAppStore } from '@/lib/store'
+import { msc_isMasterAdminRole } from '@/lib/msc_roles'
 
 type RoleGateProps = {
   allowedRoles: string[]
@@ -13,7 +14,13 @@ export function RoleGate({ allowedRoles, children, fallback = null }: RoleGatePr
   const user = useAppStore((s) => s.user)
   const role = user?.role
 
-  if (!role || !allowedRoles.includes(role)) {
+  const allowMasterAdminForAdminGate =
+    msc_isMasterAdminRole(role) && allowedRoles.includes('admin')
+  const isAllowed =
+    Boolean(role && allowedRoles.includes(role)) ||
+    allowMasterAdminForAdminGate
+
+  if (!isAllowed) {
     return <>{fallback}</>
   }
 

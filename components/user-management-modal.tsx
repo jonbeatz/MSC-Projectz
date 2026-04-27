@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { useAppStore } from '@/lib/store'
 import { msc_validateNewPassword } from '@/lib/msc_password_policy'
+import { msc_hasAdminAccess } from '@/lib/msc_roles'
 
 interface UserManagementModalProps {
   isOpen: boolean
@@ -24,7 +25,7 @@ export function UserManagementModal({ isOpen, onClose }: UserManagementModalProp
 
   const { users, inviteUser, deleteUser, updateUserStatus, user } = useAppStore()
 
-  const isAdmin = user?.role === 'admin'
+  const isAdmin = msc_hasAdminAccess(user?.role)
 
   // Separate pending and active users
   const pendingUsers = users.filter(u => u.status === 'pending')
@@ -277,7 +278,7 @@ export function UserManagementModal({ isOpen, onClose }: UserManagementModalProp
                       <span className="ml-2 text-xs px-2 py-0.5 rounded bg-primary text-primary-foreground">
                         Admin
                       </span>
-                      {user.role === 'admin' && (
+                      {msc_hasAdminAccess(user.role) && (
                         <span className="ml-2 text-xs text-primary">(You)</span>
                       )}
                     </p>

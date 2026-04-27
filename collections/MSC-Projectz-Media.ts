@@ -1,10 +1,11 @@
 import type { Access, CollectionConfig, TypeWithID, Where } from 'payload'
+import { msc_hasAdminAccess } from '@/lib/msc_roles'
 
-type MscMediaUser = { id: string | number; role?: 'admin' | 'user' | null }
+type MscMediaUser = { id: string | number; role?: 'master-admin' | 'admin' | 'user' | null }
 
 const msc_mediaReadAccess: Access = ({ req: { user } }) => {
   if (!user) return false
-  if ((user as MscMediaUser).role === 'admin') return true
+  if (msc_hasAdminAccess((user as MscMediaUser).role)) return true
   return { owner: { equals: (user as MscMediaUser).id } } as Where
 }
 
@@ -38,7 +39,7 @@ export const MSC_Projectz_Media: CollectionConfig = {
     beforeChange: [
       ({ req, data, operation, originalDoc }) => {
         if (!req.user) return data
-        if ((req.user as MscMediaUser).role === 'admin') return data
+        if (msc_hasAdminAccess((req.user as MscMediaUser).role)) return data
 
         const next = { ...(data as Record<string, unknown>) }
         if (operation === 'create') {

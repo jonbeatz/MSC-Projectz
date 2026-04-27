@@ -43,13 +43,15 @@ export function MSC_Projectz_UserRow({ user, onChanged, onMessage }: MSC_Project
               {user.isCurrentUser && <Badge variant="outline">You</Badge>}
               <Badge
                 className={cn(
-                  user.role === 'admin'
+                  user.role === 'master-admin'
+                    ? 'border-transparent bg-amber-500/90 text-black'
+                    : user.role === 'admin'
                     ? 'border-transparent bg-primary text-primary-foreground'
                     : 'border-border bg-secondary text-secondary-foreground',
                 )}
               >
                 <Shield className="h-3 w-3" />
-                {user.role === 'admin' ? 'Admin' : 'User'}
+                {user.role === 'master-admin' ? 'Master Admin' : user.role === 'admin' ? 'Admin' : 'User'}
               </Badge>
             </div>
             <p className="mt-1 truncate text-xs text-muted-foreground">{user.email}</p>

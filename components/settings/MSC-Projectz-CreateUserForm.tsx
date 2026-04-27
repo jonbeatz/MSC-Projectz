@@ -119,6 +119,7 @@ export function MSC_Projectz_CreateUserForm({ onCreated, onMessage }: MSC_Projec
             <SelectContent>
               <SelectItem value="user">User</SelectItem>
               <SelectItem value="admin">Admin</SelectItem>
+              <SelectItem value="master-admin">Master Admin</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -126,7 +127,8 @@ export function MSC_Projectz_CreateUserForm({ onCreated, onMessage }: MSC_Projec
 
       <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <p className="text-xs text-muted-foreground">
-          Users see their own vault projects. Admins can manage all server users and project records.
+          Users see their own vault projects. Admins can manage server users and project records.
+          Master Admin can assign or remove Master Admin access.
         </p>
         <Button
           type="button"

@@ -11,6 +11,7 @@ import {
   msc_listPayloadUsersForSettings,
   type MscPayloadUserRow,
 } from '@/lib/msc_vault_user_admin'
+import type { MscUserAdminRole } from '@/types/user-admin'
 import { cn } from '@/lib/utils'
 import { msc_isNewPasswordCompliant } from '@/lib/msc_password_policy'
 
@@ -23,7 +24,7 @@ export function MSC_Projectz_PayloadUsersPanel() {
   const [error, setError] = useState<string | null>(null)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [role, setRole] = useState<'user' | 'admin'>('user')
+  const [role, setRole] = useState<MscUserAdminRole>('user')
   const [submitting, setSubmitting] = useState(false)
 
   const load = useCallback(async () => {
@@ -118,10 +119,14 @@ export function MSC_Projectz_PayloadUsersPanel() {
                 <span
                   className={cn(
                     'text-xs px-2 py-0.5 rounded',
-                    u.role === 'admin' ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground',
+                    u.role === 'master-admin'
+                      ? 'bg-amber-500/90 text-black'
+                      : u.role === 'admin'
+                        ? 'bg-primary text-primary-foreground'
+                        : 'bg-muted text-muted-foreground',
                   )}
                 >
-                  {u.role === 'admin' ? 'Admin' : 'User'}
+                  {u.role === 'master-admin' ? 'Master Admin' : u.role === 'admin' ? 'Admin' : 'User'}
                 </span>
                 <button
                   type="button"
@@ -168,11 +173,12 @@ export function MSC_Projectz_PayloadUsersPanel() {
           <Label className="text-xs text-muted-foreground">Role</Label>
           <select
             value={role}
-            onChange={(e) => setRole(e.target.value as 'user' | 'admin')}
+            onChange={(e) => setRole(e.target.value as MscUserAdminRole)}
             className="h-9 rounded-md border border-border bg-input px-2 text-sm"
           >
             <option value="user">User</option>
             <option value="admin">Admin</option>
+            <option value="master-admin">Master Admin</option>
           </select>
         </div>
         <Button
@@ -184,7 +190,8 @@ export function MSC_Projectz_PayloadUsersPanel() {
           {submitting ? 'Creating…' : 'Create user'}
         </Button>
         <p className="text-xs text-muted-foreground">
-          Admins on Payload can see all vault projects; users only see their own. Sign in from the lock screen
+          Admins on Payload can see all vault projects; Master Admin can additionally assign Master Admin
+          role. Users only see their own. Sign in from the lock screen
           (same email/password as <span className="text-foreground/90">/admin</span>) so the browser holds the session cookie.
         </p>
       </div>

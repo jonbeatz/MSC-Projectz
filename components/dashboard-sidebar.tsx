@@ -15,6 +15,7 @@ import { usePathname, useRouter } from 'next/navigation'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { useAppStore } from '@/lib/store'
+import { msc_hasAdminAccess } from '@/lib/msc_roles'
 
 interface SidebarProps {
   collapsed: boolean
@@ -46,7 +47,7 @@ export function DashboardSidebar({ collapsed, onToggle, onAddProject }: SidebarP
   const appSettings = useAppStore((s) => s.appSettings)
   
   const isDark = appSettings.theme === 'dark'
-  const isAdmin = user?.role === 'admin'
+  const isAdmin = msc_hasAdminAccess(user?.role)
 
   return (
     <aside
