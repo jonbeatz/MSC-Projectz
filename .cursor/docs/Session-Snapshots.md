@@ -11,6 +11,54 @@ Keep newest snapshot at the top.
 
 ---
 
+## 2026-04-27 08:55 (local) - v1.03 finalized + config warning cleanup
+
+### Session state
+- Branch: `MSC-Projectz-FullDev-v2`
+- Commit at snapshot: `4ca04ac` (tag `v1.03` already created)
+- Working tree: `dirty` (post-tag cleanup change in `next.config.mjs`)
+- Local dev URL: `http://127.0.0.1:3000` status `up`
+
+### What was done
+- Completed release-gate sequence end-to-end and created release commit/tag:
+  - commit: `4ca04ac`
+  - tag: `v1.03`
+- Applied final config polish: removed unsupported `devBundleServerPackages` key from `next.config.mjs` to eliminate invalid-config warning noise.
+- Re-ran build gate and smoke checks after cleanup.
+
+### Files touched (high value)
+- `next.config.mjs`
+- `.cursor/docs/Session-Snapshots.md`
+- `.cursor/docs/Development-Roadmap.md`
+
+### Commands run (important)
+- `npm run verify:next`
+- `npm run dev`
+- `curl -L http://127.0.0.1:3000/`
+- `curl -L http://127.0.0.1:3000/admin`
+
+### Validation / outcomes
+- Build gate: `pass` (`verify:next` exits `0`).
+- Invalid `next.config` key warning: `resolved` (removed unsupported key).
+- Smoke checks: `/ 200`, `/admin 200`.
+- Release tag status: `v1.03` present and points to `4ca04ac`.
+
+### Start-next checklist
+1. Run: `git branch --show-current && git status -sb`
+2. Commit the final config/docs cleanup so HEAD includes warning-free config.
+3. Re-run `npm run verify:next` only if additional runtime edits are made.
+4. Keep dev healthy on `3000` with `npm run dev` and smoke `/` + `/admin`.
+
+### Open risks / blockers
+- No active runtime blocker identified; remaining work is housekeeping (final cleanup commit/push if desired).
+
+### Deploy truth checks (required on closeout)
+- Profile changed? `no`
+- Secrets rotated/updated? `not-needed`
+- Windows/Linux native-module guard passed? `yes` (lock cleared during release gate)
+
+---
+
 ## 2026-04-27 08:43 (local) - v1.03 release gate paused on Windows file lock
 
 ### Session state

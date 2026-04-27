@@ -101,3 +101,4 @@
 - **2026-04** — Sprint 4 stability: `/admin/login` Payload runtime blocker documented after deep isolation attempts (layouts, custom admin component, dependency unification, import-map regen) with follow-up focused on admin-shell context/module path.
 - **2026-04** — Sprint 4 stability: final nightly attempt (remove direct `@payloadcms/ui`, keep unified `3.84.1` pins/overrides) still reproduced `/admin/login` 500; proceeded to admin-shell/layout recovery.
 - **2026-04** — Sprint 4 stability: blocker resolved by restoring canonical Payload `(payload)` `RootLayout` wiring (`config` + `importMap` + `handleServerFunctions`) and re-validating login flow (`/admin` healthy, auth submit path clean).
+- **2026-04** — Sprint 4 release gate closeout: created `v1.03` tag after full build/auth/access proofs; removed unsupported `next.config` key (`devBundleServerPackages`) to keep production console clean while preserving green build/smoke checks.
