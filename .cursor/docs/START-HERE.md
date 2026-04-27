@@ -32,9 +32,10 @@ If localhost is broken, follow recovery in `FlightPro.md` and `Agent-Runbook.md`
 - Day rhythm: see `Daily-Ops-Cheat-Sheet.md`
 - Context: `git branch --show-current && git status -sb`
 - Deploy profile preflight: `npm run deploy:preflight`
-- Build gate (runtime edits): `npm run verify:next`
+- Build gate (runtime edits): `npm run verify:next` — or **`npm run verify:next:safe`** if `next dev` may be on **3000** (avoids corrupt `.next`)
+- Broken localhost: **`npm run dev:recover`** (kill **3000** → clean **`.next`** → `next dev`); then **`npm run verify:local`**
 - Dev server: `npm run dev`
-- Smoke: `http://127.0.0.1:3000/` and `http://127.0.0.1:3000/admin`
+- Smoke: `npm run verify:local` or `http://127.0.0.1:3000/` and `http://127.0.0.1:3000/admin`
 - Release package: `npm run pushitlive`
 
 ### Known fixes (do this first)

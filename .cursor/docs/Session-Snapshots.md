@@ -13,6 +13,13 @@ Keep newest snapshot at the top.
 
 ---
 
+## 2026-04-27 — Local dev recovery scripts (`verify:next:safe`, `dev:recover`, `verify:local`)
+
+- **Shipped:** `package.json` scripts — **`verify:next:safe`** (free **3000** then build), **`dev:fresh` / `dev:recover`** (kill + `rimraf .next` + `next dev`), **`verify:local` / `smoke:local`** (HTTP checks on **`127.0.0.1:3000`**). **`scripts/local-http-smoke.mjs`**. Docs: **`Daily-Ops-Cheat-Sheet`**, **`Project-Truth`** (fragility #4), **`START-HERE`** (daily commands).
+- **Why:** Running **`verify:next`** / **`clean:next`** while **`next dev`** still uses **`.next`** causes **500** / missing **`routes-manifest.json`**; one-command recovery reduces repeat pain.
+
+---
+
 ## 2026-04-27 — `MSC-Projectz-FullDev-v5` cut (calendar + vault task alignment)
 
 ### Session state

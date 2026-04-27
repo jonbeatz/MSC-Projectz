@@ -43,7 +43,8 @@ These are recurring failure points where agents must be extra careful:
    - Prefer host/WSL-native installs; rebuild on Linux when needed.
 
 4. **`.next` state corruption during active dev**
-   - Running clean/build steps that delete `.next` while dev is active can break localhost.
+   - Running clean/build steps that delete `.next` while dev is active can break localhost (500s, missing `routes-manifest.json`, etc.).
+   - **Prefer:** `npm run verify:next:safe` when port **3000** might be in use; **`npm run dev:recover`** to reset dev; **`npm run verify:local`** to smoke URLs after dev is up.
    - Stop dev or use a safe sequence before cache/build cleanup.
 
 5. **Ownership vs permission confusion on cPanel**

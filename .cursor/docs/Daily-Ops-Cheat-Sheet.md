@@ -21,11 +21,12 @@ Startup response format required from assistant:
 ## 2) Local development (no live deploy)
 
 1. Implement changes.
-2. For runtime edits, run build gate: `npm run verify:next`
-3. Smoke test locally:
-   - `http://127.0.0.1:3000/`
-   - `http://127.0.0.1:3000/admin`
-4. Continue iterating.
+2. For runtime edits, run build gate:
+   - If **`next dev` might be on port 3000**, use **`npm run verify:next:safe`** (frees **3000** first, then `clean:next` + `next build`). Raw **`npm run verify:next`** while dev is running **wipes `.next` under a live server** → **500** / missing `routes-manifest.json` / broken chunks.
+   - If **3000 is free**, `npm run verify:next` is fine.
+3. After a successful verify, start dev again: **`npm run dev`** (verify deletes **`.next`**).
+4. Smoke (with dev up): **`npm run verify:local`** or open `http://127.0.0.1:3000/` and `/admin`.
+5. Continue iterating.
 
 **Schema pull (SQLite):** if after `git pull` the app errors with **no such column** (e.g. `manual_rank` on `msc_vault_projects`), run from repo root: **`npm run repair:sqlite`** (creates a timestamped `payload.sqlite` backup, idempotent). Then restart dev.
 
@@ -38,13 +39,13 @@ Startup response format required from assistant:
 5. Unzip on host, restart Node app in cPanel.
 6. Validate live and check `stderr.log` if needed.
 
-## 4) If localhost breaks
+## 4) If localhost breaks (500, “Internal Server Error”, missing `.next/...`)
 
-1. Find PID on 3000: `netstat -ano | findstr ":3000"`
-2. Kill stale process: `taskkill /PID <pid> /F`
-3. Clear stale build output: `npm run clean:next`
-4. Restart: `npm run dev`
-5. Re-test `/` and `/admin`
+**One shot (recommended):** from repo root — **`npm run dev:recover`**  
+(kills **3000**, deletes **`.next`**, starts a single **`next dev`**).  
+Then: **`npm run verify:local`** (or hit `/`, `/admin`, `/settings` in the browser; hard-refresh if needed).
+
+**Manual:** `node scripts/kill-dev-port.mjs` → `npm run clean:next` → `npm run dev` → re-test.
 
 Use `FlightPro-Alt.md` only for advanced Linux/`sharp`/ownership failures.
 
