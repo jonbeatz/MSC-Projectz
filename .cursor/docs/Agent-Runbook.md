@@ -78,7 +78,7 @@ Closeout command phrase (operator shorthand):
 - `/tasks` — global task view.  
 - `/vault` — Code Manager / vault workspace.  
 
-Shared shell: `app/(command-center)/layout.tsx`, `components/MSC-Projectz-CommandCenterShell.tsx`, `components/dashboard-layout.tsx`, `components/dashboard-sidebar.tsx`.
+Shared shell: `app/(main)/(command-center)/layout.tsx`, `components/MSC-Projectz-CommandCenterShell.tsx`, `components/dashboard-layout.tsx`, `components/dashboard-sidebar.tsx`. Do not wrap Payload `RootLayout` inside the `(main)` `<body>`; root `app/layout.tsx` must remain a pass-through between `(main)` and `(payload)` route groups.
 
 ## Coding style
 

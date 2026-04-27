@@ -79,15 +79,16 @@ Use the template in `Session-Snapshots.md` and keep newest entry at the top.
 
 ## Current Objective
 
-Ship a production-ready **Payload 3** + **Next.js 16** command center (with optional **Tauri 2**), including vault/collab features (e.g. per-project mail settings and admin configuration) on the `feature/collaborative-workspace` line of work.
+Ship a production-ready **Payload 3** + **Next.js 16** command center (with optional **Tauri 2**), including vault/collab features (e.g. per-project mail settings and admin configuration). **Primary integration branch:** `MSC-Projectz-FullDev-v3`. Longer-horizon collab work may still track `feature/collaborative-workspace` in parallel when revived.
 
 ## Current Restart Point
 
-* **Branch:** `MSC-Projectz-FullDev-v2`
+* **Branch:** `MSC-Projectz-FullDev-v3`
 * **Remote:** `origin` → `https://github.com/jonbeatz/MSC-Projectz.git`
-* **Latest recorded commit (this doc refresh):** `fd6419d` — *feat(tasks): declutter dashboard task surfaces*
+* **Latest recorded commit (this doc refresh):** *docs: align operator docs with FullDev-v3 and app/(main) layout* — confirm SHA with `git log -1 --oneline` on `MSC-Projectz-FullDev-v3`.
+* **Layout / admin shell baseline:** `d5422dd` — *fix(admin): split app shell from Payload and harden local dev*
 * **Working-state note:** docs were expanded for start/continue workflow, snapshots, and closeout. Always trust `git status -sb` as the live state.
-* **Architecture:** Command Center routes live under `app/(command-center)/` so `/dashboard`, `/profile`, `/settings`, `/help`, `/tasks`, and `/vault` share a persistent dashboard shell.
+* **Architecture:** Command Center routes live under `app/(main)/(command-center)/` (group `(main)` owns the app `<html>`/`<body>`); login and auth live under `app/(main)/`. Payload admin/API use `app/(payload)/` with its own document via `RootLayout`. Root `app/layout.tsx` only returns `children` so those shells are siblings, not nested documents.
 * **Verification (operators):** after code changes, run **`npm run verify:next`** from the repo root. For a quick local smoke, **`npm run dev`** on port **3000** and check **`/`** and **`/admin`** (expect **200**).
 
 ## Core Features

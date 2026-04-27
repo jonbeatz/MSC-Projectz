@@ -1,20 +1,28 @@
 # ReCall
 
+## 2026-04-27 — Current operator pointer
+
+- **Active branch:** `MSC-Projectz-FullDev-v3` (always confirm with `git branch --show-current`).
+- **Restart point + app map:** **`START-HERE.md`** → *Current Restart Point* and *Architecture* (Command Center under `app/(main)/(command-center)/`, Payload admin in `app/(payload)/`, root `app/layout.tsx` pass-through only).
+- **Deploy / recovery:** **`FlightPro.md`** remains the master deploy SOP; local recovery patterns in **`Agent-Runbook.md`**.
+
 ## 2026-04-26 — Docs + deploy alignment
 
 - **`FlightPro.md`** is the master file for **deploy** (`pushitlive` → `msc_package_deploy.mjs` → `final_deploy.zip`), **COPY_PLAN** contents, **local recovery** (no dependency on a `dev:recover` script), and a **“how to keep this file current”** section for the next fix.  
-- **`START-HERE.md`** now points to branch `feature/collaborative-workspace` and commit `2f91ba5` (update when you move branches).  
+- **`START-HERE.md`** on 2026-04-26 also recorded `feature/collaborative-workspace@2f91ba5` for that checkpoint; **as of 2026-04-27** the canonical primary line is **`MSC-Projectz-FullDev-v3`** — see **`START-HERE.md`** *Current Restart Point* for the live SHA.  
 - **`Agent-Runbook.md`** recovery section matches **real** `package.json` scripts (`clean:next`, `dev`, `verify:next`).  
 - **`Jedi-List`**: deploy packaging v1 marked done; optional Spaceship `pushitup:*` scripts remain organization-specific until re-added to `package.json`.  
 - New checkpoint: **`Restore-Points.md`** — `RP-2026-04-26-docs-flightpro-deploy`.  
 
 ## 2026-04-25 Session Resume Notes
 
+*Recorded 2026-04-25 on `MSC-Projectz-v4` at `aa764ba`; the “Current app shape” bullets were refreshed 2026-04-27 for the `app/(main)/` route group. Branch/commit lines below describe that day’s checkpoint, not necessarily today’s branch.*
+
 Start on branch `MSC-Projectz-v4`. The GitHub remote is `https://github.com/jonbeatz/MSC-Projectz.git`. The latest local commit is `aa764ba` (`Refine project card bridge and auth diagnostics`), and the branch is currently ahead of `origin/MSC-Projectz-v4` by one commit.
 
 Current app shape:
 
-- Command Center is route-based under `app/(command-center)/`.
+- Command Center is route-based under `app/(main)/(command-center)/` (URLs unchanged: `/dashboard`, etc.). The `app/(main)/layout.tsx` shell holds `<html>`/`<body>`; `app/layout.tsx` is pass-through so Payload’s `RootLayout` in `app/(payload)/layout.tsx` is not nested inside that shell.
 - `/dashboard`, `/profile`, `/settings`, `/help`, `/tasks`, and `/vault` share `components/MSC-Projectz-CommandCenterShell.tsx`, which wraps `DashboardLayout`.
 - `components/dashboard-sidebar.tsx` uses `usePathname()` for active navigation.
 - `/settings` is admin-only and guarded server-side with `msc_getVaultLocalApiContext()` plus `msc_vaultIsPayloadAdmin()`.

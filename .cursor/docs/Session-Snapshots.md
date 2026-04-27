@@ -9,6 +9,33 @@ Purpose:
 
 Keep newest snapshot at the top.
 
+**Historical entries:** keep the **branch and SHA as recorded** for that session. Rows that show `MSC-Projectz-FullDev-v2` describe work **on that day**; **current primary branch** is **`MSC-Projectz-FullDev-v3`** (see `START-HERE.md` → *Current Restart Point*).
+
+---
+
+## 2026-04-27 — Full docs pass: `(main)` routing + branch truth
+
+### Session state
+- **Branch:** `MSC-Projectz-FullDev-v3`
+- **Commit:** doc-only on `MSC-Projectz-FullDev-v3` — subject *docs: align operator docs with FullDev-v3 and app/(main) layout*; parent history includes layout baseline `d5422dd`. Confirm tip with `git log -1 --oneline`.
+- **Working tree:** clean after the doc commit lands
+- **Local dev URL:** `http://127.0.0.1:3000`
+
+### What was done
+- Aligned **`ReCall.md`**, **`START-HERE.md`**, **`Project-Truth.md`**, **`Restore-Points.md`**, **`Development-Roadmap.md`**, and this file with **dual document roots**: `app/(main)/` (app shell), `app/(payload)/` (Payload `RootLayout`), root `app/layout.tsx` pass-through.
+- Corrected stale **branch** pointers (`Pro-Live-v1`, `collaborative-workspace`-only objective) and added **RP-2026-04-27** restore row for `FullDev-v3`.
+- Clarified that **older snapshots** that list `FullDev-v2` remain valid **historical** records.
+
+### Files touched (high value)
+- `.cursor/docs/ReCall.md`, `START-HERE.md`, `Project-Truth.md`, `Restore-Points.md`, `Development-Roadmap.md`, `Session-Snapshots.md`
+
+### Start-next checklist
+1. `git pull && git status -sb`
+2. After runtime edits: `npm run verify:next`, then `npm run dev`, smoke `/` and `/admin`
+
+### Open risks / blockers
+- None for documentation alignment.
+
 ---
 
 ## 2026-04-27 (local) — gate-user test accounts removed + docs aligned
@@ -304,7 +331,7 @@ Keep newest snapshot at the top.
 1. Run: `git branch --show-current && git status -sb`
 2. Re-test current state quickly: `npm run dev` then `/` and `/admin/login`.
 3. Continue with Payload admin shell isolation (module/context path), starting from `app/(payload)/admin/[[...segments]]/page.tsx`, `app/(payload)/layout.tsx`, and current `next.config.mjs`.
-4. If needed, create temporary minimal Payload config branch to bisect admin runtime behavior without command-center wrappers.
+4. If needed, create temporary minimal Payload config branch to bisect admin runtime behavior without the `(main)` dashboard shell wrappers.
 
 ### Open risks / blockers
 - Primary blocker remains: local Payload admin login route (`/admin/login`) returns `500` with `CodeEditor` context error despite aligned versions/import map and clean builds.

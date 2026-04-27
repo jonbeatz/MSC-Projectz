@@ -6,8 +6,8 @@ Use this file first, then follow its linked source-of-truth order.
 
 ## Versioning
 
-- **Version:** `v1.2.1`
-- **Updated:** `2026-04-26`
+- **Version:** `v1.2.2`
+- **Updated:** `2026-04-27`
 - **Owner:** `Jon Beatz / MSC-Projectz`
 
 ---
@@ -19,7 +19,7 @@ Use this file first, then follow its linked source-of-truth order.
 - **System name:** Vader
 - **Primary stack:** Next.js + React + Payload CMS + SQLite
 - **Optional shell:** Tauri
-- **Current workflow branch (at last docs update):** `MSC-Projectz-Pro-Live-v1`
+- **Current workflow branch (at last docs update):** `MSC-Projectz-FullDev-v3`
 
 Primary goal:
 - Ship and maintain a production-ready command center with stable local workflow, reliable deploy packaging, and strong continuity between sessions.
@@ -69,7 +69,7 @@ After rotation:
 ## 3) What This Project Is
 
 Core product areas:
-- Route-based Command Center UI under `app/(command-center)/`
+- Route-based Command Center UI under `app/(main)/(command-center)/` (with `app/(main)/layout.tsx` as the app document shell; Payload admin stays in `app/(payload)/` with a separate document root)
 - Dashboard, tasks, profile/settings/help, and vault/code manager paths
 - Payload-backed data and media handling
 - Local-first development and deploy packaging via zip artifact
