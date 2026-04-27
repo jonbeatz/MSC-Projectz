@@ -13,18 +13,23 @@ globs:
 When discussing or running deploy operations:
 
 1. Distinguish responsibilities:
-   - Local PC terminal: build + `pushitup` uploads
+   - Local PC terminal: build + **release packaging** (this repo: **`npm run pushitlive`** → `final_deploy.zip`; FTP to host). Legacy **`pushitup`** / **`pushit:live`** tiers apply only if those scripts exist in `package.json`.
    - cPanel: nodevenv activation, optional `npm install`, app restart
-2. Never tell users to run `pushitup` in cPanel Terminal.
+2. Never tell users to run `pushitup` in cPanel Terminal (or confuse PC FTP with host shell).
 3. For runtime/app changes, prefer full `.next` upload over partial artifact uploads.
 4. If upload reports failures, retry failed paths before restart.
 5. If live shows `vendor-chunks` module errors, treat it as mixed/incomplete `.next` and perform clean server `.next` replace flow.
 
-## Tier scripts (must match `package.json`)
+## Current `package.json` (verify before citing)
+
+- **Primary zips:** `npm run pushitlive` (alias: `build:prod`) runs `msc_package_deploy.mjs` → **`final_deploy.zip`**. **Source of truth:** `FlightPro.md` + `msc_package_deploy.mjs` (COPY_PLAN).
+- If **`pushitup` / `pushit:live` / `pushitup:*`** are **absent** from `package.json`, treat the following tier list as **archive / future** and do not instruct operators to run missing scripts.
+
+## Tier scripts (when present — must match `package.json`)
 
 - **Tier 1:** `npm run pushitup:admin-branding` — **Custom-Prompts** item **37**.
 - **Tier 2:** `npm run pushit:live` (build → `pushitup:admin-ui` → `pushitup -- .next` → `pushitup -- payload.sqlite` → `pushitup -- public/media`; local `dev:fresh` only if `PUSHIT_LIVE_RUN_DEV_FRESH=1`) — items **3** / **38**.
 - **Tier 3:** `npm run pushitup:server-config` — item **39**.
 
-Full reference: **Jedi-List.md** (Deploy uploaders), **Spaceship.md**, **Go-Live-Checklist.md**.
+Full reference: **Jedi-List.md**, **Spaceship.md**, **`FlightPro.md`**. ( **`Go-Live-Checklist.md`** only if that file exists in the repo. )
 

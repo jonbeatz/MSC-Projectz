@@ -300,6 +300,7 @@ export const useAppStore = create<AppState>()(
       },
 
       inviteUser: (username, email, tempPassword) => {
+        void tempPassword
         const newUser: RegisteredUser = {
           id: generateId(),
           username,

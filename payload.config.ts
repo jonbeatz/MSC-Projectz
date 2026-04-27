@@ -49,13 +49,15 @@ export default buildConfig({
   typescript: {
     outputFile: path.resolve(dirname, 'payload-types.ts'),
   },
-  db: sqliteAdapter({
-    client: {
-      url: process.env.DATABASE_URI || 'file:./payload.sqlite',
-    },
-    /** Dev push only when DB file is missing — avoids duplicate timestamp index errors on existing SQLite. */
-    push: msc_resolveSqlitePush(),
-  }),
+  // payload.config.ts
+  // Ensure your db configuration looks like this:
+db: sqliteAdapter({
+  client: {
+    // Process.env.DATABASE_URL will now be 'file:./payload.sqlite'
+    url: process.env.DATABASE_URL || 'file:./payload.sqlite',
+  },
+  push: msc_resolveSqlitePush(),
+}),
   sharp,
   onInit: async (payload) => {
     const firstU = await payload.find({

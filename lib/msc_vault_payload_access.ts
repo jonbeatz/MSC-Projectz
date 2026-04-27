@@ -22,9 +22,10 @@ function msc_vaultProjectVisibilityWhere(userId: string | number): Where {
  * Unauthenticated `false` (Local API may still `overrideAccess` for migrations only).
  */
 export const msc_vaultReadOwnProjects: Access = ({ req: { user } }) => {
-  if (!user) return false
-  if ((user as MscUserWithRole).role === 'admin') return true
-  return msc_vaultProjectVisibilityWhere(user.id)
+  const u = user as MscUserWithRole | undefined
+  if (!u) return false
+  if (u.role === 'admin') return true
+  return msc_vaultProjectVisibilityWhere(u.id)
 }
 
 export const msc_vaultUpdateOwnProject: Access = msc_vaultReadOwnProjects
@@ -38,7 +39,7 @@ export const msc_vaultCreateProject: Access = ({ req }) => Boolean(req.user)
 export const msc_vaultReadOwnTasks: Access = async ({ req }) => {
   const u = req.user as MscUserWithRole | undefined
   if (!u) return false
-  if (msc_vaultIsPayloadAdmin(u)) return true
+  if (u.role === 'admin') return true
   const pl = req.payload
   const projs = await pl.find({
     collection: 'msc-vault-projects',
@@ -65,7 +66,7 @@ export const msc_vaultDeleteOwnTasks: Access = msc_vaultReadOwnTasks
 export const msc_vaultCreateTask: Access = async ({ req, data }) => {
   const u = req.user as MscUserWithRole | undefined
   if (!u) return false
-  if (msc_vaultIsPayloadAdmin(u)) return true
+  if (u.role === 'admin') return true
   const pl = req.payload
   const projectId = (data as { project?: string | number } | undefined)?.project
   if (projectId === undefined || projectId === null) return false

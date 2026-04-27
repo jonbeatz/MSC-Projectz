@@ -20,8 +20,8 @@ export const metadata: Metadata = {
   description: 'High-performance project management dashboard powered by the MSC Media Engine',
   generator: 'v0.app',
   icons: {
-    icon: '/msc-icon.png',
-    apple: '/msc-icon.png',
+    icon: '/media/msc-icon.png',
+    apple: '/media/msc-icon.png',
   },
 }
 

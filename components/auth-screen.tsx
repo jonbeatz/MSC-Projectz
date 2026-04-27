@@ -196,7 +196,7 @@ export function AuthScreen() {
         <div className="relative">
           <div className="w-24 h-24 rounded-full overflow-hidden border-2 border-border flex items-center justify-center bg-card">
             <Image 
-              src="/msc-icon.png" 
+              src="/media/msc-icon.png" 
               alt="MSC-Projectz" 
               width={96} 
               height={96}

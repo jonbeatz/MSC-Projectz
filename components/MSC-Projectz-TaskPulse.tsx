@@ -2,7 +2,6 @@
 
 import { useMemo, useState } from 'react'
 import { Activity, Plus, Trash2, ChevronRight, CircleDot, Zap } from 'lucide-react'
-import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { MSC_Projectz_TaskAssigneeBadge } from '@/components/MSC-Projectz-TaskAssignee'
@@ -26,7 +25,7 @@ function msc_formatTaskPulseDate(d: Date): string {
   }
 }
 
-function msc_taskPulseHealth(project: Project, tasks: Task[]): string {
+function msc_taskPulseHealth(tasks: Task[]): string {
   const q = tasks.filter((t) => t.status === 'todo').length
   const a = tasks.filter((t) => t.status === 'in-progress').length
   if (a > 0) return 'In motion'
@@ -59,7 +58,7 @@ export function MSC_Projectz_TaskPulse({ project }: MSC_Projectz_TaskPulseProps)
     return Math.round((done / visibleTasks.length) * 100)
   }, [visibleTasks])
 
-  const health = msc_taskPulseHealth(project, visibleTasks)
+  const health = msc_taskPulseHealth(visibleTasks)
   const circumference = 2 * Math.PI * 36
   const strokeDash = (progressPercent / 100) * circumference
 

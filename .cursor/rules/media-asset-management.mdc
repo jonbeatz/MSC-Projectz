@@ -1,0 +1,20 @@
+---
+description: Enforce project-root media storage for uploads and generated assets
+alwaysApply: true
+---
+
+# Media Asset Management
+
+- Store uploaded media and generated binary assets under project-root `./media`.
+- This includes thumbnails, avatars, PDFs, archives, and deployment zips.
+- For Payload upload collections, always set:
+
+```ts
+upload: {
+  staticDir: 'media',
+}
+```
+
+- Do not use absolute host paths such as `/home/...`, `C:\...`, or `/Users/...` for media storage.
+- Use relative paths like `media/...` or server-safe resolution such as `path.resolve(dirname, 'media')`.
+- Before adding upload/media features, check for scattered assets outside `./media` and move them into appropriate `media/msc_*` subfolders while preserving `msc_` naming.

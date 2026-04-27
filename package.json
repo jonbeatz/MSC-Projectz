@@ -9,6 +9,8 @@
     "lint": "eslint .",
     "clean:next": "npx rimraf .next",
     "verify:next": "npm run clean:next && next build",
+    "package:production": "node scripts/msc_package_for_production.mjs",
+    "package:deploy": "node msc_package_deploy.mjs",
     "repair:sqlite": "node scripts/msc_sqlite_repair_vault_schema.mjs",
     "db:seed": "jiti scripts/msc_seed_data.ts",
     "db:fix-admin": "jiti scripts/msc_force_admin_reset.ts",
@@ -17,7 +19,10 @@
     "payload": "payload",
     "tauri": "tauri",
     "tauri:dev": "tauri dev",
-    "tauri:build": "tauri build"
+    "tauri:build": "tauri build",
+    "build:prod": "node msc_package_deploy.mjs",
+    "pushitlive": "npm run build:prod",
+    "test:local": "npm run build && node server.js"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.1",

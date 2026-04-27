@@ -22,4 +22,4 @@
 - [x] Scope Code Manager snippets and project-card credential popover storage by Payload user ID.
 - [x] Persist profile avatars through tenant-owned Payload media and user `avatar` relationship.
 - [ ] Finalize broader Light/Dark component audit beyond the current surgical pass.
-- [ ] Build Tier 1 & Tier 2 deployment scripts.
+- [x] **Deploy packaging (v1):** `npm run pushitlive` / `build:prod` run `msc_package_deploy.mjs` → `final_deploy.zip` (staged from **COPY_PLAN**; no `node_modules` — server install required). **Docs:** `FlightPro.md`, `DeployUpdate.md`. Optional deeper tiers (`pushitup:*`, `pushit:live`) are referenced from **`.cursor/rules/deploy-safety-spaceship.mdc`** when that workflow is re-linked in `package.json`.

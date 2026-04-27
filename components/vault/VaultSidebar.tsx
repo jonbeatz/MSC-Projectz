@@ -12,7 +12,7 @@ function msc_filterTree(nodes: MscVaultTreeNode[], query: string): MscVaultTreeN
   if (!q) return nodes
 
   return nodes
-    .map((node) => {
+    .map<MscVaultTreeNode | null>((node) => {
       const selfMatch = node.name.toLowerCase().includes(q) || node.path.toLowerCase().includes(q)
       const children = node.children ? msc_filterTree(node.children, q) : []
 

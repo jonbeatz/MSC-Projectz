@@ -39,7 +39,7 @@ async function msc_readVaultDirectory(absDir: string, relativeDir = ''): Promise
   }
 
   const nodes = await Promise.all(
-    entries.map(async (entry) => {
+    entries.map(async (entry): Promise<MscVaultTreeNode | null> => {
       const absPath = path.join(absDir, entry)
       const relPath = msc_vaultNormalizePath(path.join(relativeDir, entry))
       const info = await stat(absPath)

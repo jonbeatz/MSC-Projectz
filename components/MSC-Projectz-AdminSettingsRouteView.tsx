@@ -131,8 +131,8 @@ export function MSC_Projectz_AdminSettingsRouteView() {
                   <p className="text-sm font-medium text-foreground">Local Path Format</p>
                   <p className="text-xs text-muted-foreground">
                     {pathFormat === 'windows'
-                      ? 'Windows style: C:\\Projects\\my-project'
-                      : 'Mac style: /Users/name/Projects/my-project'}
+                      ? 'Use Windows project root paths while working locally.'
+                      : 'Use POSIX project root paths while working on Linux/macOS.'}
                   </p>
                 </div>
               </div>

@@ -18,7 +18,18 @@ export const MSC_Projectz_Media: CollectionConfig = {
     update: msc_mediaReadAccess,
     delete: msc_mediaReadAccess,
   },
-  upload: true,
+  upload: {
+    staticDir: 'media',
+    adminThumbnail: 'thumbnail',
+    imageSizes: [
+      {
+        name: 'thumbnail',
+        width: 400,
+        height: 300,
+        position: 'centre',
+      },
+    ],
+  },
   fields: [
     {
       name: 'owner',

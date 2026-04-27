@@ -7,7 +7,6 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { useAppStore } from '@/lib/store'
-import type { RegisteredUser } from '@/lib/types'
 
 interface UserManagementModalProps {
   isOpen: boolean

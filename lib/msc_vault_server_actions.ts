@@ -45,6 +45,22 @@ function msc_revalidateVaultUi() {
   revalidatePath('/')
 }
 
+function msc_resolvePayloadRequestOrigin(h: Headers): string {
+  const envOrigin = process.env.NEXT_PUBLIC_SITE_URL?.trim()
+  const configured = (() => {
+    if (!envOrigin) return null
+    try {
+      return new URL(envOrigin)
+    } catch (e) {
+      console.warn('[msc] Invalid NEXT_PUBLIC_SITE_URL; falling back to request headers.', e)
+      return null
+    }
+  })()
+  const host = h.get('x-forwarded-host') || h.get('host') || configured?.host || 'example.com'
+  const proto = h.get('x-forwarded-proto') || configured?.protocol.replace(':', '') || 'https'
+  return `${proto}://${host}`
+}
+
 async function msc_logVaultAuthDebug(actionName: string, user: unknown) {
   const h = await headers()
   const cookieHeader = h.get('cookie') || ''
@@ -407,9 +423,7 @@ export async function msc_login(email: string, password: string): Promise<MscLog
   }
 
   const h = await headers()
-  const host = h.get('x-forwarded-host') || h.get('host') || 'localhost:3000'
-  const proto = h.get('x-forwarded-proto') || 'http'
-  const request = new Request(`${proto}://${host}/`, { headers: h })
+  const request = new Request(`${msc_resolvePayloadRequestOrigin(h)}/`, { headers: h })
   const req = await createPayloadRequest({ request, config })
 
   let result: { token?: string; user?: { id?: string | number; role?: string | null } } | null = null
@@ -793,8 +807,6 @@ export const msc_updateTaskStatus = msc_update_task_status
 
 export async function msc_cycleVaultTaskStatus(projectId: string, taskId: string): Promise<Task> {
   const ctx = await msc_getVaultLocalApiContext()
-  const o = msc_vaultLocalApiOptions(ctx)
-  const { payload } = ctx
   const doc = await msc_assertOwnedVaultTask(ctx, projectId, taskId, 'cycle task status')
   const order: TaskStatus[] = ['todo', 'in-progress', 'done']
   const cur = (doc.status as TaskStatus) || 'todo'

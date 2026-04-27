@@ -1,5 +1,13 @@
 # ReCall
 
+## 2026-04-26 — Docs + deploy alignment
+
+- **`FlightPro.md`** is the master file for **deploy** (`pushitlive` → `msc_package_deploy.mjs` → `final_deploy.zip`), **COPY_PLAN** contents, **local recovery** (no dependency on a `dev:recover` script), and a **“how to keep this file current”** section for the next fix.  
+- **`START-HERE.md`** now points to branch `feature/collaborative-workspace` and commit `2f91ba5` (update when you move branches).  
+- **`Agent-Runbook.md`** recovery section matches **real** `package.json` scripts (`clean:next`, `dev`, `verify:next`).  
+- **`Jedi-List`**: deploy packaging v1 marked done; optional Spaceship `pushitup:*` scripts remain organization-specific until re-added to `package.json`.  
+- New checkpoint: **`Restore-Points.md`** — `RP-2026-04-26-docs-flightpro-deploy`.  
+
 ## 2026-04-25 Session Resume Notes
 
 Start on branch `MSC-Projectz-v4`. The GitHub remote is `https://github.com/jonbeatz/MSC-Projectz.git`. The latest local commit is `aa764ba` (`Refine project card bridge and auth diagnostics`), and the branch is currently ahead of `origin/MSC-Projectz-v4` by one commit.

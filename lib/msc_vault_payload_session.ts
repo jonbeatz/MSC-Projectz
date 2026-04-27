@@ -10,6 +10,22 @@ function msc_revalidateVaultUi() {
   revalidatePath('/')
 }
 
+function msc_resolvePayloadRequestOrigin(h: Headers): string {
+  const envOrigin = process.env.NEXT_PUBLIC_SITE_URL?.trim()
+  const configured = (() => {
+    if (!envOrigin) return null
+    try {
+      return new URL(envOrigin)
+    } catch (e) {
+      console.warn('[msc] Invalid NEXT_PUBLIC_SITE_URL; falling back to request headers.', e)
+      return null
+    }
+  })()
+  const host = h.get('x-forwarded-host') || h.get('host') || configured?.host || 'example.com'
+  const proto = h.get('x-forwarded-proto') || configured?.protocol.replace(':', '') || 'https'
+  return `${proto}://${host}`
+}
+
 /**
  * Signs into Payload (same `users` collection as `/admin`) and sets the auth cookie
  * so server actions see `req.user` for tenant-scoped vault access.
@@ -30,9 +46,7 @@ export async function msc_vaultSignInToPayload(
 
   const payload = await getPayload({ config })
   const h = await headers()
-  const host = h.get('x-forwarded-host') || h.get('host') || 'localhost:3000'
-  const proto = h.get('x-forwarded-proto') || 'http'
-  const request = new Request(`${proto}://${host}/`, { headers: h })
+  const request = new Request(`${msc_resolvePayloadRequestOrigin(h)}/`, { headers: h })
   const req = await createPayloadRequest({ request, config })
 
   let result: { token?: string; user?: { id?: string | number; role?: string | null } } | null = null
@@ -77,7 +91,7 @@ export async function msc_vaultSignInToPayload(
     path: cookie.path || '/',
     maxAge: cookie.maxAge,
     httpOnly: cookie.httpOnly,
-    sameSite: (cookie.sameSite as 'lax' | 'strict' | 'none' | undefined) || 'Lax',
+    sameSite: (cookie.sameSite?.toLowerCase() as 'lax' | 'strict' | 'none' | undefined) || 'lax',
     secure: Boolean(cookie.secure),
   })
   msc_revalidateVaultUi()

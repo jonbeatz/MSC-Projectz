@@ -14,7 +14,7 @@ import { msc_compressDataUrlImage } from '@/lib/msc_compress_thumbnail'
 import { msc_createEmptyReference } from '@/lib/msc_project_references'
 import { msc_listPayloadUsersForSettings } from '@/lib/msc_vault_user_admin'
 import { msc_testProjectSmtpConnection } from '@/lib/msc_vault_server_actions'
-import type { EmailSettings, MscSmtpEncryption } from '@/lib/types'
+import type { MscSmtpEncryption } from '@/lib/types'
 import type { MscProjectMember, MscUserAdminRow } from '@/types/user-admin'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 
@@ -152,16 +152,16 @@ export function EditProjectModal({ project, isOpen, onClose }: EditProjectModalP
           host: imapHost.trim(),
           port: imapPort,
           username: imapUsername.trim(),
-          ...(imapPassword.trim() ? { password: imapPassword.trim() } : {}),
+          password: imapPassword.trim() || project.emailSettings?.incoming.password || '',
         },
         outgoing: {
           host: smtpHost.trim(),
           port: smtpPort,
           username: smtpUsername.trim(),
-          ...(smtpPassword.trim() ? { password: smtpPassword.trim() } : {}),
+          password: smtpPassword.trim() || project.emailSettings?.outgoing.password || '',
           encryption: smtpEncryption,
         },
-      } as Partial<EmailSettings>,
+      },
     })
     onClose()
   }
@@ -455,7 +455,7 @@ export function EditProjectModal({ project, isOpen, onClose }: EditProjectModalP
                   id="edit-path"
                   value={localPath}
                   onChange={(e) => setLocalPath(e.target.value)}
-                  placeholder="C:\Projects\my-project"
+                  placeholder="Enter the project root path"
                   className="font-mono text-sm bg-input border-border text-foreground"
                 />
               </div>

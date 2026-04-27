@@ -53,7 +53,7 @@ export function DashboardSidebar({ collapsed, onToggle, onAddProject }: SidebarP
         <div className={cn('flex items-center gap-3', collapsed && 'justify-center w-full')}>
           <div className="w-10 h-10 rounded-lg overflow-hidden shrink-0">
             <Image 
-              src="/msc-icon.png" 
+              src="/media/msc-icon.png" 
               alt="MSC" 
               width={40} 
               height={40}

@@ -103,7 +103,7 @@ export function MarkdownViewer({ document }: { document: MscVaultDocument | null
             rehypePlugins={[rehypeHighlight]}
             components={{
               code(props) {
-                const { children, className, ...rest } = props
+                const { children, className } = props
                 const inline = !className
                 if (inline) {
                   return <InlineCode>{children}</InlineCode>

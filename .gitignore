@@ -35,3 +35,7 @@ payload.sqlite-journal
 payload.sqlite.bak.*
 backups/
 media/
+.deploy-package/
+deploy-package.zip
+deploy_package/
+final_deploy.zip

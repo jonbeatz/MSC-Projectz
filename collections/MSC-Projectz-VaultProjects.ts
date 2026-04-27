@@ -31,6 +31,7 @@ async function msc_assignProjectUserBeforeChange<T extends TypeWithID>({
   originalDoc?: T
   req: PayloadRequest
 } & Record<string, unknown>): Promise<Partial<T>> {
+  const projectData = data as Partial<T> & { user?: string | number | null }
   if (operation === 'update' && originalDoc) {
     const owner = (originalDoc as { user?: string | number | null }).user
     if (owner !== undefined && owner !== null) {
@@ -40,7 +41,7 @@ async function msc_assignProjectUserBeforeChange<T extends TypeWithID>({
   if (req.user) {
     return { ...data, user: msc_coerceUsersRelId(req, req.user.id) } as Partial<T>
   }
-  if (data.user) {
+  if (projectData.user) {
     return data
   }
   return data

@@ -87,7 +87,7 @@ export function ConfigurePathModal({
           id="msc-local-path"
           value={localPath}
           onChange={(e) => setLocalPath(e.target.value)}
-          placeholder="D:\\Cursor_Projectz\\My-Project"
+          placeholder="Enter the project root path"
           className="bg-background text-foreground"
           autoFocus
         />

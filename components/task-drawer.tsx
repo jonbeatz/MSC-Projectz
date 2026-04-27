@@ -58,13 +58,10 @@ export function TaskDrawer({ isOpen, onClose, project }: TaskDrawerProps) {
   const cycleTaskStatus = useAppStore((s) => s.cycleTaskStatus)
   const updateTaskTitle = useAppStore((s) => s.updateTaskTitle)
   const deleteTask = useAppStore((s) => s.deleteTask)
-  const appSettings = useAppStore((s) => s.appSettings)
   const projects = useAppStore((s) => s.projects)
   
   // Get live project data from store
   const liveProject = projects.find(p => p.id === project?.id) || project
-  
-  const isDark = appSettings.theme === 'dark'
   
   useEffect(() => {
     if (editingTaskId && editInputRef.current) {

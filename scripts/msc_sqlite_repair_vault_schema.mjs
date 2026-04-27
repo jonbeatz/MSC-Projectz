@@ -4,6 +4,7 @@
  * - `msc_vault_projects.user_id` for the required relationship `user` (VaultProjects)
  * - `msc_vault_projects_rels` for optional project `members` collaborators
  * - `msc_vault_tasks.assigned_to_id` for optional task assignment
+ * - `media.sizes_thumbnail_*` for Payload thumbnail image size metadata
  *
  * Backs up the DB file before changes. No row deletions.
  */
@@ -44,6 +45,16 @@ async function msc_createIndexIfMissing(client, indexName, sql) {
   console.log(`[msc_sqlite_repair] Added ${indexName}.`)
 }
 
+async function msc_addColumnIfMissing(client, table, existingColumns, column, definition) {
+  if (existingColumns.includes(column)) {
+    console.log(`[msc_sqlite_repair] ${table}.${column} already present, skip.`)
+    return
+  }
+  await client.execute(`ALTER TABLE ${table} ADD COLUMN ${column} ${definition}`)
+  existingColumns.push(column)
+  console.log(`[msc_sqlite_repair] Added ${table}.${column}.`)
+}
+
 async function msc_main() {
   const dbPath = msc_resolveSqliteFile()
   if (!fs.existsSync(dbPath)) {
@@ -68,6 +79,14 @@ async function msc_main() {
     } else {
       console.log('[msc_sqlite_repair] users.role already present, skip.')
     }
+
+    const mediaCols = await msc_tableColumnNames(client, 'media')
+    await msc_addColumnIfMissing(client, 'media', mediaCols, 'sizes_thumbnail_url', 'TEXT')
+    await msc_addColumnIfMissing(client, 'media', mediaCols, 'sizes_thumbnail_width', 'INTEGER')
+    await msc_addColumnIfMissing(client, 'media', mediaCols, 'sizes_thumbnail_height', 'INTEGER')
+    await msc_addColumnIfMissing(client, 'media', mediaCols, 'sizes_thumbnail_mime_type', 'TEXT')
+    await msc_addColumnIfMissing(client, 'media', mediaCols, 'sizes_thumbnail_filesize', 'INTEGER')
+    await msc_addColumnIfMissing(client, 'media', mediaCols, 'sizes_thumbnail_filename', 'TEXT')
 
     const projectCols = await msc_tableColumnNames(client, 'msc_vault_projects')
     if (!projectCols.includes('user_id')) {

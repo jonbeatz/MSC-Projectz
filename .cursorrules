@@ -31,7 +31,7 @@ alwaysApply: true
 - **Tauri Shell:** Use `tauri-plugin-shell` for system actions:
   - `open_in_explorer`: Opens the local project `filePath`.
   - `launch_cursor`: Executes `cursor [path]` via native shell command.
-- **File System:** Store project media/thumbnails in the native `appDataDirectory`. 
+- **File System:** Store uploaded media/thumbnails/avatars/PDFs/zips under project-root `./media`; Payload upload collections must use `upload: { staticDir: 'media' }`.
 - **Tasks:** Implement Triple-State Logic: `todo` (Gray), `in-progress` (Yellow/Amber), `done` (Studio Green).
 
 ## 5. Safety & Deployment Defaults

@@ -375,7 +375,7 @@ export function AddProjectModal({ isOpen, onClose }: AddProjectModalProps) {
                 <Label htmlFor="localPath" className="text-foreground">Local Path</Label>
                 <Input
                   id="localPath"
-                  placeholder="C:\Projects\my-project"
+                  placeholder="Enter the project root path"
                   value={localPath}
                   onChange={(e) => setLocalPath(e.target.value)}
                   className="font-mono text-sm bg-input border-border text-foreground"

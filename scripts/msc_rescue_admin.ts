@@ -23,7 +23,17 @@ async function msc_main() {
   })
 
   try {
-    const result = await payload.find({
+    const exact = await payload.find({
+      collection: 'users',
+      where: { email: { equals: msc_RESCUE_EMAIL } },
+      limit: 1,
+      depth: 0,
+      overrideAccess: true,
+    })
+
+    const result = exact.docs[0]
+      ? exact
+      : await payload.find({
       collection: 'users',
       where: { role: { equals: 'admin' } },
       limit: 1,
@@ -38,18 +48,27 @@ async function msc_main() {
 
     const msc_originalEmail =
       typeof (msc_admin as { email?: unknown }).email === 'string'
-        ? (msc_admin as { email: string }).email
+        ? (msc_admin as unknown as { email: string }).email
         : '(unknown email)'
+
+    const updateData =
+      msc_originalEmail === msc_RESCUE_EMAIL
+        ? {
+            password: msc_RESCUE_PASSWORD,
+            loginAttempts: 0,
+            lockUntil: null,
+          }
+        : {
+            email: msc_RESCUE_EMAIL,
+            password: msc_RESCUE_PASSWORD,
+            loginAttempts: 0,
+            lockUntil: null,
+          }
 
     await payload.update({
       collection: 'users',
       id: msc_admin.id,
-      data: {
-        email: msc_RESCUE_EMAIL,
-        password: msc_RESCUE_PASSWORD,
-        loginAttempts: 0,
-        lockUntil: null,
-      },
+      data: updateData,
       overrideAccess: true,
     })
 

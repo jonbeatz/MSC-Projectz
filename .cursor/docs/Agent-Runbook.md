@@ -1,37 +1,49 @@
 # Agent-Runbook: Standard Operating Procedures
 
-## Error Recovery
-If the local environment fails to boot:
-1. Run `npm run dev:recover`.
-2. Wait for the "Ready" signal in the terminal.
-3. Smoke test `http://localhost:3000`.
+## Error recovery (local — port 3000)
 
-## Current Local Routes
-- `/dashboard` - project dashboard.
-- `/profile` - authenticated user profile and security settings.
-- `/settings` - admin-only system settings and user management.
-- `/help` - help and documentation.
-- `/tasks` - global task view.
-- `/vault` - Code Manager snippet workspace.
+This repository’s **`package.json`** may **not** define `dev:recover` / `dev:fresh` / `verify:next:safe`. If a one-liner is missing, use the **manual** sequence (Windows):
 
-All routes above share the Command Center shell in `app/(command-center)/layout.tsx`, so sidebar/header behavior should be debugged in `components/MSC-Projectz-CommandCenterShell.tsx`, `components/dashboard-layout.tsx`, and `components/dashboard-sidebar.tsx`.
+1. Find PID: `netstat -ano | findstr ":3000"` (note **LISTENING** PID on **3000**).  
+2. Stop it: `taskkill /PID <pid> /F`  
+3. `npm run clean:next`  
+4. `npm run dev` — wait for **Local:** / **Ready** in the terminal.  
+5. Open `http://127.0.0.1:3000/` and `http://127.0.0.1:3000/admin` (expect **200**).
 
-## Coding Style
-- Always use `msc_` prefix for new logic.
-- Prefer modular components in the `/components/msc-projectz/` directory.
-- Use Lucide-React for all icons.
+**Build gate (after code edits):** `npm run verify:next` from repo root until it exits with code **0**. **Do not** run `verify:next` or `clean:next` while `next dev` is still running on 3000 — it will delete **`.next`** and break the dev server; stop dev first.
 
-## Theme Logic
-- Never hardcode hex values in components. Use theme-aware utilities backed by `--background`, `--surface`, `--text`, `--card`, and related variables.
-- Soft Studio light mode is scoped to `.light` and `[data-theme='light']` in `app/globals.css`. Do not modify `:root` or dark defaults when tuning light mode.
-- The runtime theme switch in `components/dashboard-layout.tsx` sets both the `light` / `dark` class and `data-theme`.
+Longer playbooks in **`.cursor/rules/local-runtime-recovery.mdc`** may name scripts that are not wired in this repo; fall back to this section + **`FlightPro.md` §2.
 
-## Tenant Isolation
-- Runtime vault server actions must assert the current Payload user owns a project before project/task writes. Use the ownership helpers in `lib/msc_vault_server_actions.ts` as the pattern.
-- Browser-only vault data must use `msc_getScopedKey()` from `lib/msc_scoped_storage.ts`; do not add global snippet, credential, or project-cache localStorage keys.
-- Do not re-enable legacy global project migration from `msc-projectz-storage`; it is disabled to prevent one user's browser cache from being imported into another tenant.
+## Current local routes
 
-## Profile Avatars
-- Profile image selection uploads to Payload `media` first, then `Save Profile` writes the returned media ID to the current `users.avatar` relationship.
-- Client save logging should show `avatar` as a media ID, not a `blob:` URL, local path, or raw data URL.
-- After a successful profile save, update Zustand from the server-returned user object instead of assuming local form state is the source of truth.
+- `/dashboard` — project dashboard.  
+- `/profile` — authenticated user profile and security.  
+- `/settings` — admin system settings and user management.  
+- `/help` — help.  
+- `/tasks` — global task view.  
+- `/vault` — Code Manager / vault workspace.  
+
+Shared shell: `app/(command-center)/layout.tsx`, `components/MSC-Projectz-CommandCenterShell.tsx`, `components/dashboard-layout.tsx`, `components/dashboard-sidebar.tsx`.
+
+## Coding style
+
+* Use **`msc_`** prefix for new project-specific logic.  
+* Prefer clear locations under `components/` (existing conventions over deep one-off trees).  
+* **Lucide** for icons.
+
+## Theme logic
+
+* Do not hardcode raw hex; use theme tokens (`--background`, `--surface`, `--text`, etc.).  
+* Soft Studio light: `.light` and `[data-theme='light']` in `app/globals.css` — do not clobber default `:root` dark values when tuning light.  
+* `components/dashboard-layout.tsx` should keep `class` + `data-theme` in sync on the root.
+
+## Tenant isolation
+
+* Vault server actions: assert Payload user context and ownership; follow patterns in `lib/msc_vault_server_actions.ts`.  
+* Browser-only data: use **`msc_getScopedKey()`** from `lib/msc_scoped_storage.ts` — no global project/snippet/credential keys.  
+* Legacy global project migration from `msc-projectz-storage` stays **disabled** for tenant safety.
+
+## Profile avatars
+
+* Upload to Payload `media` first; persist **`users.avatar`** as a media id from the server response — not a `blob:` URL.  
+* After save, prefer Zustand (or client state) updates from the **server-returned** user object.
