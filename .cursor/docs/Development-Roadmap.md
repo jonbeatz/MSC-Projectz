@@ -64,7 +64,7 @@
 - [x] **Mobile responsiveness (Command Center shell):** Below **`lg` (max-width 1023px)**, the sidebar is a **drawer** (`-translate-x-full` when closed, `z-40` backdrop, `z-50` panel, body scroll lock, resize to desktop closes menu, Escape closes). At **`lg+`**, the **collapsible rail** (`w-16` / `w-64`) and left margin on main (`lg:ml-16` / `lg:ml-64`) remain. **`useIsMobile()`** in **`lib/msc_hooks.ts`** uses `useSyncExternalStore` + `matchMedia('(max-width: 1023px)')` with **SSR default `false`**. Project search in the header is **`hidden lg:block`**. Main content **`p-4 md:p-6`**; dashboard/project **`gap-4` → `md:` wider** where needed; footer **in-flow** below `lg`, **fixed** bottom-right at **`lg`**. *(Apr 2026)*
   - [x] Sidebar is off-canvas on small viewports (hamburger opens); no rail margin on mobile.
   - [x] Container padding and responsive gaps applied on dashboard and project grid stats row.
-- [ ] **Drag and drop:** Implement card reordering.
+- [x] **Project sort + manual order (replaces DnD backlog item):** Persisted **`manualRank`** on `msc-vault-projects`, client **`projectSortMode`** (manual / name / updated / status) with **`msc_sortProjectsForDashboard`**, dashboard header **Sort** control, and **Move up / down** on grid cards and list rows when sort is **manual** and the row is a **full owner** of the project (neighbor must also be your project — shared rows in the way are skipped server-side). *(Apr 2026)*
 
 ## Sprint 5: Feature expansion (priority: backlog)
 

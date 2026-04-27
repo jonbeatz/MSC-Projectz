@@ -70,6 +70,15 @@ export const MSC_Projectz_VaultProjects: CollectionConfig = {
   fields: [
     { name: 'name', type: 'text', required: true },
     {
+      name: 'manualRank',
+      type: 'number',
+      required: true,
+      defaultValue: 0,
+      admin: {
+        description: 'Display order in Manual sort (lower = earlier).',
+      },
+    },
+    {
       name: 'user',
       type: 'relationship',
       relationTo: 'users',

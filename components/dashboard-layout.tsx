@@ -22,6 +22,13 @@ import { msc_hasAdminAccess } from '@/lib/msc_roles'
 import { UserAvatar } from '@/components/shared/user-avatar'
 import { useIsMobile } from '@/lib/msc_hooks'
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
@@ -30,6 +37,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { useAppStore } from '@/lib/store'
+import type { ProjectSortMode } from '@/lib/types'
 
 interface DashboardLayoutProps {
   children: React.ReactNode
@@ -58,6 +66,7 @@ export function DashboardLayout({ children, onAddProject, searchQuery, onSearchC
   const logout = useAppStore((s) => s.logout)
   const toggleTheme = useAppStore((s) => s.toggleTheme)
   const setProjectViewMode = useAppStore((s) => s.setProjectViewMode)
+  const setProjectSortMode = useAppStore((s) => s.setProjectSortMode)
 
   const isDark = appSettings.theme === 'dark'
   const isAdmin = msc_hasAdminAccess(user?.role)
@@ -254,6 +263,30 @@ export function DashboardLayout({ children, onAddProject, searchQuery, onSearchC
                 >
                   <List className="h-4 w-4" />
                 </button>
+              </div>
+            )}
+
+            {isDashboardRoute && (
+              <div className="flex min-w-0 max-w-[min(200px,45vw)] items-center gap-1.5 sm:max-w-[220px]">
+                <span className="hidden text-xs text-muted-foreground sm:inline">Sort</span>
+                <Select
+                  value={appSettings.projectSortMode}
+                  onValueChange={(v) => setProjectSortMode(v as ProjectSortMode)}
+                >
+                  <SelectTrigger
+                    size="sm"
+                    className="h-9 w-full min-w-0 border-border bg-card text-xs sm:text-sm"
+                    aria-label="Project sort"
+                  >
+                    <SelectValue placeholder="Sort" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="manual">Manual order</SelectItem>
+                    <SelectItem value="name">Name (A–Z)</SelectItem>
+                    <SelectItem value="updated">Last updated</SelectItem>
+                    <SelectItem value="status">Status (local first)</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
             )}
 

@@ -21,6 +21,7 @@ import { msc_getVaultLocalApiContext, msc_vaultLocalApiOptions } from '@/lib/msc
 import { msc_vaultIsPayloadAdmin } from '@/lib/msc_vault_payload_access'
 import type { AppSettings, Credential, EmailSettings, MscSmtpEncryption, Project, Task, TaskStatus } from '@/lib/types'
 import { msc_mergeProjectsAndTasks, msc_mapProjectDoc, msc_mapTaskDoc, msc_normalizeProjectEmailSettings } from '@/lib/msc_map_vault'
+import { msc_sortProjectsForDashboard } from '@/lib/msc_project_sort'
 import { msc_sendSendNotificationTaskEmail, msc_testSettingsFromForm } from '@/lib/msc_smtp_nodemailer'
 import { msc_stringifyReferencesJson } from '@/lib/msc_project_references'
 import { getSafePath } from '@/lib/env-utils'
@@ -511,7 +512,7 @@ export async function msc_loadVaultProjects(): Promise<Project[]> {
 }
 
 export async function msc_createVaultProject(
-  input: Omit<Project, 'id' | 'createdAt' | 'updatedAt' | 'progress'>,
+  input: Omit<Project, 'id' | 'createdAt' | 'updatedAt' | 'progress' | 'manualRank'>,
 ): Promise<Project> {
   const ctx = await msc_getVaultLocalApiContext()
   const o = msc_vaultLocalApiOptions(ctx)
@@ -520,11 +521,26 @@ export async function msc_createVaultProject(
   const u = msc_requireVaultSessionUser(ctx, 'create a project')
   console.log('SERVER: create project currentUserId', { currentUserId: u.id })
   const ownerId = msc_coercePayloadRelationId(payload, 'users', String(u.id))
+  const maxRow = await payload.find({
+    collection: 'msc-vault-projects',
+    where: { user: { equals: ownerId } },
+    sort: '-manualRank',
+    limit: 1,
+    depth: 0,
+    user: o.user,
+    overrideAccess: o.overrideAccess,
+  })
+  const topDoc = maxRow.docs[0] as { manualRank?: number } | undefined
+  const topRank =
+    topDoc && typeof topDoc.manualRank === 'number' && !Number.isNaN(topDoc.manualRank) ? topDoc.manualRank : -1
+  const createManualRank = topRank + 1
+
   const created = await payload.create({
     collection: 'msc-vault-projects',
     data: {
       name: input.name,
       user: ownerId,
+      manualRank: createManualRank,
       ...msc_thumbnailPayload(input.thumbnail),
       localPath: getSafePath(input.localPath || ''),
       liveUrl: input.liveUrl?.trim() || '',
@@ -561,6 +577,7 @@ export async function msc_updateVaultProject(
         | 'liveUrl'
         | 'status'
         | 'progress'
+        | 'manualRank'
         | 'credentials'
         | 'localNotes'
         | 'liveNotes'
@@ -585,6 +602,10 @@ export async function msc_updateVaultProject(
   if (updates.liveUrl !== undefined) data.liveUrl = updates.liveUrl
   if (updates.status !== undefined) data.status = updates.status
   if (updates.progress !== undefined) data.progress = updates.progress
+  if (updates.manualRank !== undefined) {
+    const r = Math.round(updates.manualRank)
+    if (!Number.isNaN(r)) data.manualRank = r
+  }
   if (updates.localNotes !== undefined) data.localNotes = updates.localNotes?.trim() ?? ''
   if (updates.liveNotes !== undefined) data.liveNotes = updates.liveNotes?.trim() ?? ''
   if (updates.references !== undefined) {
@@ -633,6 +654,77 @@ export async function msc_updateVaultProject(
   const p = updated as Parameters<typeof msc_mapProjectDoc>[0]
   const tasks = tasksRes.docs.map((d) => msc_mapTaskDoc(d as Parameters<typeof msc_mapTaskDoc>[0]))
   return msc_mapProjectDoc(p, tasks)
+}
+
+/**
+ * Swaps `manualRank` with the visual neighbor in Manual order (with tie-breakers
+ * matching `msc_sortProjectsForDashboard`). Only projects **owned** by the session
+ * user; shared projects in between block the move.
+ */
+export async function msc_moveProjectManual(
+  projectId: string,
+  direction: 'up' | 'down',
+): Promise<void> {
+  const ctx = await msc_getVaultLocalApiContext()
+  const o = msc_vaultLocalApiOptions(ctx)
+  const { payload } = ctx
+  const u = msc_requireVaultSessionUser(ctx, 'reorder project')
+  await msc_assertOwnedVaultProject(ctx, projectId, 'reorder project')
+
+  const projects = await msc_loadVaultProjects()
+  const sorted = msc_sortProjectsForDashboard(projects, 'manual')
+  const idx = sorted.findIndex((p) => String(p.id) === String(projectId))
+  if (idx < 0) {
+    throw new Error('Project not found in your vault list.')
+  }
+  const neighborIdx = direction === 'up' ? idx - 1 : idx + 1
+  if (neighborIdx < 0 || neighborIdx >= sorted.length) {
+    throw new Error(direction === 'up' ? 'Already at the top.' : 'Already at the bottom.')
+  }
+  const a = sorted[idx]
+  const b = sorted[neighborIdx]
+  if (a.ownerUserId == null || b.ownerUserId == null) {
+    throw new Error('Project ownership data missing.')
+  }
+  if (String(a.ownerUserId) !== String(u.id) || String(b.ownerUserId) !== String(u.id)) {
+    throw new Error(
+      'You can only reorder your own projects next to each other. A shared project is in the way.',
+    )
+  }
+
+  const rA = a.manualRank
+  const rB = b.manualRank
+  const idA = msc_coercePayloadRelationId(payload, 'msc-vault-projects', a.id)
+  const idB = msc_coercePayloadRelationId(payload, 'msc-vault-projects', b.id)
+  let newA = rB
+  let newB = rA
+  if (newA === newB) {
+    if (direction === 'up') {
+      newA = 0
+      newB = 1
+    } else {
+      newA = 1
+      newB = 0
+    }
+  }
+
+  await payload.update({
+    collection: 'msc-vault-projects',
+    id: idA,
+    data: { manualRank: newA },
+    depth: 0,
+    user: o.user,
+    overrideAccess: o.overrideAccess,
+  })
+  await payload.update({
+    collection: 'msc-vault-projects',
+    id: idB,
+    data: { manualRank: newB },
+    depth: 0,
+    user: o.user,
+    overrideAccess: o.overrideAccess,
+  })
+  msc_revalidateVaultUi()
 }
 
 export async function msc_deleteVaultProject(id: string): Promise<void> {

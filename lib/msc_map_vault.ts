@@ -23,6 +23,7 @@ type MscVaultProjectDoc = {
   status: 'local' | 'live'
   localNotes?: string | null
   liveNotes?: string | null
+  manualRank?: number | null
   referencesJson?: string | null
   progress?: number | null
   credentials?: Array<{
@@ -201,6 +202,7 @@ export function msc_mapProjectDoc(doc: MscVaultProjectDoc, tasks: Task[]): Proje
     emailSettings: emailSettings ? msc_normalizeProjectEmailSettings(emailSettings) : undefined,
     tasks,
     progress: typeof doc.progress === 'number' ? doc.progress : 0,
+    manualRank: typeof doc.manualRank === 'number' && !Number.isNaN(doc.manualRank) ? doc.manualRank : 0,
     createdAt: new Date(doc.createdAt),
     updatedAt: new Date(doc.updatedAt),
   }

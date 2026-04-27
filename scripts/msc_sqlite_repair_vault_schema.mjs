@@ -4,6 +4,7 @@
  * - `users.is_verified`, `users.verification_token`, `users.verification_token_expires` for Sprint 3 verification
  * - `users.last_verification_sent_at` for resend cooldown throttling
  * - `msc_vault_projects.user_id` for the required relationship `user` (VaultProjects)
+ * - `msc_vault_projects.manual_rank` for persisted manual sort order
  * - `msc_vault_projects_rels` for optional project `members` collaborators
  * - `msc_vault_tasks.assigned_to_id` for optional task assignment
  * - `media.sizes_thumbnail_*` for Payload thumbnail image size metadata
@@ -147,6 +148,15 @@ async function msc_main() {
     } else {
       console.log('[msc_sqlite_repair] msc_vault_projects.user_id already present, skip.')
     }
+
+    const projectColsForRank = await msc_tableColumnNames(client, 'msc_vault_projects')
+    await msc_addColumnIfMissing(
+      client,
+      'msc_vault_projects',
+      projectColsForRank,
+      'manual_rank',
+      'INTEGER NOT NULL DEFAULT 0',
+    )
 
     await client.execute(`
       CREATE TABLE IF NOT EXISTS msc_vault_projects_rels (

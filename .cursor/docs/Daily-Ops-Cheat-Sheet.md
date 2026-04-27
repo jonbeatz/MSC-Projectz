@@ -27,6 +27,8 @@ Startup response format required from assistant:
    - `http://127.0.0.1:3000/admin`
 4. Continue iterating.
 
+**Schema pull (SQLite):** if after `git pull` the app errors with **no such column** (e.g. `manual_rank` on `msc_vault_projects`), run from repo root: **`npm run repair:sqlite`** (creates a timestamped `payload.sqlite` backup, idempotent). Then restart dev.
+
 ## 3) Prepare live deploy
 
 1. `npm run deploy:preflight`

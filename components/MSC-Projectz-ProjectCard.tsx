@@ -32,6 +32,7 @@ import { useAppStore } from '@/lib/store'
 import { getSafePath } from '@/lib/env-utils'
 import { msc_open_project_folder } from '@/lib/msc_native_system_bridge'
 import { msc_getScopedKey } from '@/lib/msc_scoped_storage'
+import { MscManualProjectMoveControls, type MscManualProjectMove } from '@/components/msc_ManualProjectMoveControls'
 
 export interface MSC_Projectz_ProjectCardProps {
   project: Project
@@ -40,6 +41,8 @@ export interface MSC_Projectz_ProjectCardProps {
   onOpenVault: () => void
   onEdit: () => void
   onOpenTaskDrawer?: () => void
+  /** Manual reorder (dashboard): only when sort mode is manual and user may swap with neighbor. */
+  manualMove?: MscManualProjectMove
 }
 
 function msc_taskCounts(project: Project) {
@@ -77,6 +80,7 @@ export function MSC_Projectz_ProjectCard({
   onOpenVault,
   onEdit,
   onOpenTaskDrawer,
+  manualMove,
 }: MSC_Projectz_ProjectCardProps) {
   const appSettings = useAppStore((s) => s.appSettings)
   const userId = useAppStore((s) => s.user?.payloadUserId)
@@ -307,6 +311,14 @@ export function MSC_Projectz_ProjectCard({
             </Button>
           )}
         </div>
+
+        {manualMove && (
+          <MscManualProjectMoveControls
+            layout="card"
+            isDark={isDark}
+            manualMove={manualMove}
+          />
+        )}
       </div>
 
       <div className="p-4">

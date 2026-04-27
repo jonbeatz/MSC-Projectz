@@ -1,10 +1,13 @@
 'use client'
 
-import { useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { Plus, Search, ExternalLink, FolderOpen, MonitorPlay, Settings, Key, Trash2, Check } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { MscManualProjectMoveControls, type MscManualProjectMove } from '@/components/msc_ManualProjectMoveControls'
 import { ProjectCard } from './project-card'
 import { useAppStore } from '@/lib/store'
+import { msc_isVaultProjectOwner } from '@/lib/msc_vault_project_owner'
+import { msc_sortProjectsForDashboard } from '@/lib/msc_project_sort'
 import { cn } from '@/lib/utils'
 import type { Project } from '@/lib/types'
 import { getSafePath } from '@/lib/env-utils'
@@ -20,20 +23,22 @@ interface ProjectGridProps {
   onOpenTaskDrawer?: (id: string) => void
 }
 
-function ProjectListItem({ 
-  project, 
-  onSelect, 
-  onDelete, 
+function ProjectListItem({
+  project,
+  onSelect,
+  onDelete,
   onOpenVault,
   onEdit,
-  onOpenTaskDrawer
-}: { 
+  onOpenTaskDrawer,
+  manualMove,
+}: {
   project: Project
   onSelect: () => void
   onDelete: () => void
   onOpenVault: () => void
   onEdit: () => void
   onOpenTaskDrawer?: () => void
+  manualMove?: MscManualProjectMove
 }) {
   const appSettings = useAppStore((s) => s.appSettings)
   const isDark = appSettings.theme === 'dark'
@@ -126,6 +131,7 @@ function ProjectListItem({
 
       {/* Actions */}
       <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
+        {manualMove && <MscManualProjectMoveControls layout="row" isDark={isDark} manualMove={manualMove} />}
         <Button
           size="sm"
           variant="ghost"
@@ -190,10 +196,55 @@ export function ProjectGrid({
 }: ProjectGridProps) {
   const allProjects = useAppStore((s) => s.projects)
   const deleteProject = useAppStore((s) => s.deleteProject)
+  const user = useAppStore((s) => s.user)
+  const moveProjectManual = useAppStore((s) => s.moveProjectManual)
   const appSettings = useAppStore((s) => s.appSettings)
+  const projectSortMode = appSettings.projectSortMode
   const viewMode = appSettings.projectViewMode
-  
+  const [moveBusyId, setMoveBusyId] = useState<string | null>(null)
+
   const isDark = appSettings.theme === 'dark'
+
+  const manualOrdered = useMemo(
+    () => msc_sortProjectsForDashboard(allProjects, 'manual'),
+    [allProjects],
+  )
+
+  const getManualMoveFor = useCallback(
+    (project: Project): MscManualProjectMove | undefined => {
+      if (projectSortMode !== 'manual' || !msc_isVaultProjectOwner(project, user)) {
+        return undefined
+      }
+      const idx = manualOrdered.findIndex((p) => p.id === project.id)
+      if (idx < 0) return undefined
+      const prev = idx > 0 ? manualOrdered[idx - 1] : null
+      const next = idx < manualOrdered.length - 1 ? manualOrdered[idx + 1] : null
+      const canUp = prev != null && msc_isVaultProjectOwner(prev, user)
+      const canDown = next != null && msc_isVaultProjectOwner(next, user)
+
+      const run = (direction: 'up' | 'down') => {
+        setMoveBusyId(project.id)
+        void moveProjectManual(project.id, direction)
+          .catch((e) => {
+            console.error('[MSC] moveProjectManual', e)
+            const message = e instanceof Error ? e.message : String(e)
+            window.alert(message)
+          })
+          .finally(() => {
+            setMoveBusyId((id) => (id === project.id ? null : id))
+          })
+      }
+
+      return {
+        canUp,
+        canDown,
+        busy: moveBusyId === project.id,
+        onUp: () => run('up'),
+        onDown: () => run('down'),
+      }
+    },
+    [manualOrdered, moveProjectManual, moveBusyId, projectSortMode, user],
+  )
 
   if (allProjects.length === 0) {
     return null
@@ -265,6 +316,7 @@ export function ProjectGrid({
             <ProjectCard
               key={project.id}
               project={project}
+              manualMove={getManualMoveFor(project)}
               onSelect={() => onSelectProject(project.id)}
               onDelete={() => {
                 void deleteProject(project.id)
@@ -281,6 +333,7 @@ export function ProjectGrid({
             <ProjectListItem
               key={project.id}
               project={project}
+              manualMove={getManualMoveFor(project)}
               onSelect={() => onSelectProject(project.id)}
               onDelete={() => {
                 void deleteProject(project.id)

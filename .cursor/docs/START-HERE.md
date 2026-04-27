@@ -93,7 +93,7 @@ Ship a production-ready **Payload 3** + **Next.js 16** command center (with opti
 
 ## Core Features
 
-* **Project Dashboard:** Bento-style view of studio projects.  
+* **Project Dashboard:** Bento-style view of studio projects. **Sort** (app header on `/dashboard`): **manual** (persisted per-row **`manualRank`**) or **name** / **updated** / **status** via `msc_sortProjectsForDashboard`. **Move up / down** (grid + list) appears only for **Sort: manual** and when you **own** the project; swap requires the **adjacent** row in manual order to also be yours (shared projects in the way are skipped—matches server `msc_moveProjectManual`).  
 * **Command Center (responsive):** &lt;1024px: **drawer** nav + backdrop (`components/dashboard-sidebar.tsx`, `dashboard-layout.tsx`); **lg+:** collapsible **rail**; **`useIsMobile`** in `lib/msc_hooks.ts` matches the same breakpoint; project **search** in the app header is **lg+** only.  
 * **Task Drawer / pulse:** Task workflows and indicators (see `components/MSC-Projectz-TaskPulse.tsx`, `components/task-drawer.tsx`).  
 * **Code Manager (`/vault`):** split-pane workspace with Markdown and vault utilities.  

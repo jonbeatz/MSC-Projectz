@@ -13,6 +13,27 @@ Keep newest snapshot at the top.
 
 ---
 
+## 2026-04-27 — Project sort + manual order (`manualRank`)
+
+### Session state
+- **Branch:** `MSC-Projectz-FullDev-v4` (confirm with `git branch --show-current`)
+- **Commit:** set after this commit with `git log -1 --oneline`
+- **What shipped:** Persisted **`manualRank`** on vault projects; client **`projectSortMode`**; **`msc_sortProjectsForDashboard`**; server **`msc_moveProjectManual`** (owner-only neighbor swap); dashboard **Sort** control; **Move up/down** on grid + list (manual + owner); UI component **`components/msc_ManualProjectMoveControls.tsx`**. SQLite repair script adds **`manual_rank`** for existing DBs. Sprint 4 “drag and drop” backlog item superseded in **`Development-Roadmap.md`**.
+
+### Files to remember
+- `collections/MSC-Projectz-VaultProjects.ts`, `lib/types.ts`, `lib/msc_map_vault.ts`, `lib/msc_project_sort.ts`, `lib/msc_vault_project_owner.ts`, `lib/msc_vault_server_actions.ts`, `lib/store.ts`, `components/dashboard-layout.tsx`, `components/MSC-Projectz-DashboardRouteView.tsx`, `components/project-grid.tsx`, `components/MSC-Projectz-ProjectCard.tsx`, `components/msc_ManualProjectMoveControls.tsx`, `scripts/msc_sqlite_repair_vault_schema.mjs`
+- Docs: `Development-Roadmap.md`, `START-HERE.md`, `Project-Truth.md`, `Daily-Ops-Cheat-Sheet.md`, this file
+
+### Start-next checklist
+1. `git pull` on `MSC-Projectz-FullDev-v4`
+2. Existing local DB: if you skipped repair, run **`npm run repair:sqlite`** once if needed
+3. Runtime gate: `npm run verify:next` after further app changes; `npm run dev` + smoke `/` and `/admin`
+
+### Open risks / blockers
+- None for this feature set. If live host uses file SQLite and a column is missing, add the same column on host or run Payload-appropriate migration.
+
+---
+
 ## 2026-04-27 — Favicon rewrite + `MSC-Projectz-FullDev-v4` branch
 
 ### Session state

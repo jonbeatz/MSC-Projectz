@@ -6,7 +6,7 @@ Use this file first, then follow its linked source-of-truth order.
 
 ## Versioning
 
-- **Version:** `v1.2.2`
+- **Version:** `v1.2.3`
 - **Updated:** `2026-04-27`
 - **Owner:** `Jon Beatz / MSC-Projectz`
 
@@ -70,6 +70,7 @@ After rotation:
 
 Core product areas:
 - Route-based Command Center UI under `app/(main)/(command-center)/` (with `app/(main)/layout.tsx` as the app document shell; Payload admin stays in `app/(payload)/` with a separate document root)
+- Dashboard (project list **sort modes** in client app settings: **manual** / **name** / **updated** / **status**; **manual** uses stored **`manualRank`** on `msc-vault-projects`; use **`npm run repair:sqlite`** on an existing local DB if SQLite errors reference missing `manual_rank`)
 - Dashboard, tasks, profile/settings/help, and vault/code manager paths
 - Payload-backed data and media handling
 - Local-first development and deploy packaging via zip artifact

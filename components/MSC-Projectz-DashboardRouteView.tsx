@@ -1,12 +1,13 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 
 import { EditProjectModal } from '@/components/edit-project-modal'
 import { MSC_Projectz_Dashboard } from '@/components/MSC-Projectz-Dashboard'
 import { useMSCProjectzCommandCenter } from '@/components/MSC-Projectz-CommandCenterContext'
 import { ProjectVault } from '@/components/project-vault'
 import { TaskDrawer } from '@/components/task-drawer'
+import { msc_sortProjectsForDashboard } from '@/lib/msc_project_sort'
 import { useAppStore } from '@/lib/store'
 import { useTaskPulseSignal } from '@/lib/useTaskPulseSignal'
 
@@ -18,6 +19,7 @@ export function MSC_Projectz_DashboardRouteView() {
 
   const { searchQuery, onAddProject } = useMSCProjectzCommandCenter()
   const projects = useAppStore((s) => s.projects)
+  const projectSortMode = useAppStore((s) => s.appSettings.projectSortMode)
   const isAuthenticated = useAppStore((s) => s.isAuthenticated)
   const user = useAppStore((s) => s.user)
   const vaultHydrated = useAppStore((s) => s.vaultHydrated)
@@ -28,9 +30,11 @@ export function MSC_Projectz_DashboardRouteView() {
   const editProject = projects.find((p) => p.id === editProjectId)
   const taskDrawerProject = projects.find((p) => p.id === taskDrawerProjectId)
 
-  const filteredProjects = projects.filter((project) =>
-    project.name.toLowerCase().includes(searchQuery.toLowerCase()),
-  )
+  const filteredProjects = useMemo(() => {
+    const q = searchQuery.toLowerCase()
+    const f = projects.filter((project) => project.name.toLowerCase().includes(q))
+    return msc_sortProjectsForDashboard(f, projectSortMode)
+  }, [projects, projectSortMode, searchQuery])
   const needsAttention = useTaskPulseSignal((s) => s.needsAttention)
   const targetProjectId = useTaskPulseSignal((s) => s.targetProjectId)
 

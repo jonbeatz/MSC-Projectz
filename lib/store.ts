@@ -12,6 +12,7 @@ import {
   msc_deleteVaultProject,
   msc_deleteVaultTask,
   msc_loadVaultProjects,
+  msc_moveProjectManual,
   msc_toggleVaultTask,
   msc_updateVaultProject,
   msc_updateVaultTaskTitle,
@@ -23,6 +24,7 @@ import type {
   Credential,
   EmailSettings,
   Project,
+  ProjectSortMode,
   ProjectViewMode,
   RegisteredUser,
   Task,
@@ -62,6 +64,8 @@ interface AppState {
   updateAppSettings: (settings: Partial<AppSettings>) => void
   toggleTheme: () => void
   setProjectViewMode: (mode: ProjectViewMode) => void
+  setProjectSortMode: (mode: ProjectSortMode) => void
+  moveProjectManual: (projectId: string, direction: 'up' | 'down') => Promise<void>
 
   hydrateVaultFromPayload: () => Promise<void>
   /** Atomic vault purge before loading a new tenant's projects. */
@@ -71,7 +75,7 @@ interface AppState {
   /** Sign out, clear persisted client storage, reset in-memory state (invalid / broken session). */
   msc_purgeClientSession: () => void
 
-  addProject: (project: Omit<Project, 'id' | 'createdAt' | 'updatedAt' | 'progress'>) => Promise<void>
+  addProject: (project: Omit<Project, 'id' | 'createdAt' | 'updatedAt' | 'progress' | 'manualRank'>) => Promise<void>
   updateProject: (id: string, updates: Partial<Project> & { emailSettings?: Partial<EmailSettings> }) => Promise<void>
   deleteProject: (id: string) => Promise<void>
   selectProject: (id: string | null) => void
@@ -115,6 +119,7 @@ const defaultAppSettings: AppSettings = {
   pathFormat: 'windows',
   theme: 'dark',
   projectViewMode: 'grid',
+  projectSortMode: 'manual',
   smtp: {
     incomingHost: 'mail.spacemail.com',
     incomingPort: '993',
@@ -325,6 +330,17 @@ export const useAppStore = create<AppState>()(
         set((state) => ({
           appSettings: { ...state.appSettings, projectViewMode: mode },
         }))
+      },
+
+      setProjectSortMode: (mode) => {
+        set((state) => ({
+          appSettings: { ...state.appSettings, projectSortMode: mode },
+        }))
+      },
+
+      moveProjectManual: async (projectId, direction) => {
+        await msc_moveProjectManual(projectId, direction)
+        await get().hydrateVaultFromPayload()
       },
 
       hydrateVaultFromPayload: async () => {
@@ -619,7 +635,12 @@ export const useAppStore = create<AppState>()(
         if ((p.authView as string | undefined) === 'signup') {
           authView = 'login'
         }
-        return { ...current, ...p, authView }
+        const appSettings: AppSettings = {
+          ...defaultAppSettings,
+          ...current.appSettings,
+          ...(p.appSettings as Partial<AppSettings> | undefined),
+        }
+        return { ...current, ...p, authView, appSettings }
       },
       partialize: (state) => ({
         isAuthenticated: state.isAuthenticated,

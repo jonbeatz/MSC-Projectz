@@ -76,6 +76,10 @@ export interface Project {
   emailSettings?: EmailSettings
   tasks: Task[]
   progress: number
+  /**
+   * Manual sort order in dashboard (Payload `manualRank`); lower = earlier. Tie-broken by `createdAt` in UI.
+   */
+  manualRank: number
   createdAt: Date
   updatedAt: Date
 }
@@ -89,6 +93,8 @@ export type PathFormat = 'windows' | 'mac'
 export type AuthView = 'login' | 'forgot-password'
 
 export type ProjectViewMode = 'grid' | 'list'
+
+export type ProjectSortMode = 'manual' | 'name' | 'updated' | 'status'
 
 export interface User {
   username: string
@@ -125,5 +131,7 @@ export interface AppSettings {
   pathFormat: PathFormat
   theme: 'dark' | 'light'
   projectViewMode: ProjectViewMode
+  /** Dashboard vault project list ordering (not persisted on project rows for non-manual). */
+  projectSortMode: ProjectSortMode
   smtp: SpacemailSMTP
 }
