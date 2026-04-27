@@ -4,6 +4,12 @@ Single-file onboarding truth for any AI agent working in this repository.
 
 Use this file first, then follow its linked source-of-truth order.
 
+## Versioning
+
+- **Version:** `v1.1.0`
+- **Updated:** `2026-04-26`
+- **Owner:** `Jon Beatz / MSC-Projectz`
+
 ---
 
 ## 1) Project Identity
@@ -20,7 +26,33 @@ Primary goal:
 
 ---
 
-## 2) What This Project Is
+## 2) Known Fragilities (Read Before Running Commands)
+
+These are recurring failure points where agents must be extra careful:
+
+1. **Script drift vs docs**
+   - Some legacy rules/docs may mention scripts that are not in `package.json`.
+   - Always verify script existence before running anything.
+
+2. **`payload.sqlite` lock contention**
+   - SQLite can lock if multiple processes write at once.
+   - Keep one clear writer process and avoid concurrent DB-touching actions.
+
+3. **`sharp` Linux binary mismatch**
+   - Windows-built `node_modules` can fail on Linux (`Failed to load external module sharp`).
+   - Prefer host/WSL-native installs; rebuild on Linux when needed.
+
+4. **`.next` state corruption during active dev**
+   - Running clean/build steps that delete `.next` while dev is active can break localhost.
+   - Stop dev or use a safe sequence before cache/build cleanup.
+
+5. **Ownership vs permission confusion on cPanel**
+   - `chmod` may not fix EACCES if file owner differs from Node app user.
+   - Validate ownership when permission fixes do not resolve writes to `.next` or DB paths.
+
+---
+
+## 3) What This Project Is
 
 Core product areas:
 - Route-based Command Center UI under `app/(command-center)/`
@@ -35,7 +67,7 @@ Core quality expectations:
 
 ---
 
-## 3) Canonical Source-of-Truth Order
+## 4) Canonical Source-of-Truth Order
 
 Read in this exact order when onboarding:
 
@@ -54,7 +86,7 @@ Use only when needed:
 
 ---
 
-## 4) Command Truth (Do Not Guess)
+## 5) Command Truth (Do Not Guess)
 
 Before suggesting/running any command:
 - Verify script exists in `package.json`
@@ -69,7 +101,7 @@ Current key commands:
 
 ---
 
-## 5) Deploy Truth (High Level)
+## 6) Deploy Truth (High Level)
 
 Primary deploy flow:
 1. Local build/package using `npm run pushitlive`
@@ -90,7 +122,7 @@ Important:
 
 ---
 
-## 6) Local Recovery Truth
+## 7) Local Recovery Truth
 
 If localhost breaks (port 3000, white screen, stale chunks):
 - Use the manual recover pattern in `FlightPro.md` / `Agent-Runbook.md`
@@ -102,7 +134,7 @@ If a script is missing from `package.json`, use documented manual fallback.
 
 ---
 
-## 7) Session Continuity Truth
+## 8) Session Continuity Truth
 
 This repo uses explicit session memory:
 - `Session-Snapshots.md` must be updated at closeout
@@ -121,7 +153,7 @@ Closeout pattern:
 
 ---
 
-## 8) Rules and Conventions (Critical)
+## 9) Rules and Conventions (Critical)
 
 - Use `package.json` as command authority
 - Keep Local vs Live command locality explicit
@@ -136,7 +168,7 @@ Policy locations:
 
 ---
 
-## 9) What an AI Should Do First (Checklist)
+## 10) What an AI Should Do First (Checklist)
 
 1. Read this file completely.
 2. Read canonical docs in the order from Section 3.
@@ -149,7 +181,7 @@ Policy locations:
 
 ---
 
-## 10) AI Handoff Prompt (Copy/Paste)
+## 11) AI Handoff Prompt (Copy/Paste)
 
 ```text
 You are onboarding to MSC-Projectz.
@@ -174,12 +206,15 @@ Rules:
 
 ---
 
-## 11) Maintenance Rule for This File
+## 12) Maintenance Rule for This File
 
 Update `Project-Truth.md` when any of these change:
 - Source-of-truth file order
 - Core scripts or deploy mechanics
 - Session continuity process
 - Branching/release workflow model
+
+When `Versioning` is changed in this file:
+- Add a matching note in `Session-Snapshots.md` (what changed, why, and any new startup/closeout behavior).
 
 Keep it short, current, and operational.
