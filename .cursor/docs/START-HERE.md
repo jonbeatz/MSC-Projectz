@@ -6,19 +6,21 @@ Use this quick flow at the beginning of every session:
 
 1. Confirm branch and working tree: `git branch --show-current` and `git status -sb`.
 2. Re-read docs in order (below), starting with this file and `MasterSetUp.md`.
-3. Confirm script truth in `package.json` before using any command alias.
-4. For runtime edits (`app/`, `components/`, `lib/`, `collections/`, config), run build gate before closeout:
+3. Load deploy profile context from `.cursor/docs/Deploy-Profile.template.json` (+ local override if present).
+4. Confirm script truth in `package.json` before using any command alias.
+5. For runtime edits (`app/`, `components/`, `lib/`, `collections/`, config), run build gate before closeout:
    - `npm run verify:next`
-5. Ensure local dev is healthy on port `3000`:
+6. Ensure local dev is healthy on port `3000`:
    - `npm run dev`
    - smoke test `/` and `/admin` on `http://127.0.0.1:3000`
-6. Read latest handoff in `Session-Snapshots.md` and continue from its "Start-next checklist".
+7. Read latest handoff in `Session-Snapshots.md` and continue from its "Start-next checklist".
 
 If localhost is broken, follow recovery in `FlightPro.md` and `Agent-Runbook.md`.
 
 ### Daily quick commands
 
 - Context: `git branch --show-current && git status -sb`
+- Deploy profile preflight: `npm run deploy:preflight`
 - Build gate (runtime edits): `npm run verify:next`
 - Dev server: `npm run dev`
 - Smoke: `http://127.0.0.1:3000/` and `http://127.0.0.1:3000/admin`
@@ -97,8 +99,10 @@ Ship a production-ready **Payload 3** + **Next.js 16** command center (with opti
 8. **`Jedi-List.md`** — roadmap checkboxes  
 9. **`DeployUpdate.md`**, **`Flight.md`** — short deploy/env checklists  
 10. **`FlightPro-Alt.md`** — advanced troubleshooting appendix (use when standard `FlightPro` flow fails)  
-11. **`ReCall.md`** — session notes  
-12. **`Restore-Points.md`** — git restore one-liners  
+11. **`Deploy-Profile.template.json`**, **`Deploy-Profile.local.example.json`** — non-secret host/path profile contract  
+12. **`Deploy-Secrets-Workflow.md`** — encrypted secret handling and rotation workflow  
+13. **`ReCall.md`** — session notes  
+14. **`Restore-Points.md`** — git restore one-liners  
 
 ```
 MSC-Projectz
@@ -112,6 +116,9 @@ MSC-Projectz
 │   │   ├── FlightPro-Alt.md
 │   │   ├── Flight.md
 │   │   ├── DeployUpdate.md
+│   │   ├── Deploy-Profile.template.json
+│   │   ├── Deploy-Profile.local.example.json
+│   │   ├── Deploy-Secrets-Workflow.md
 │   │   ├── Spaceship.md
 │   │   ├── Jedi-List.md
 │   │   ├── Agent-Runbook.md

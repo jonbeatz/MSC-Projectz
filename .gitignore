@@ -39,3 +39,8 @@ media/
 deploy-package.zip
 deploy_package/
 final_deploy.zip
+
+# deploy profile local overrides / encrypted secrets artifacts
+.cursor/docs/Deploy-Profile.local.json
+.cursor/docs/Deploy-Secrets.enc
+.cursor/docs/Deploy-Secrets.key

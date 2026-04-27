@@ -9,6 +9,7 @@
     "lint": "eslint .",
     "clean:next": "npx rimraf .next",
     "verify:next": "npm run clean:next && next build",
+    "deploy:preflight": "node scripts/deploy_profile_check.mjs",
     "package:production": "node scripts/msc_package_for_production.mjs",
     "package:deploy": "node msc_package_deploy.mjs",
     "repair:sqlite": "node scripts/msc_sqlite_repair_vault_schema.mjs",
@@ -20,7 +21,7 @@
     "tauri": "tauri",
     "tauri:dev": "tauri dev",
     "tauri:build": "tauri build",
-    "build:prod": "node msc_package_deploy.mjs",
+    "build:prod": "npm run deploy:preflight && node msc_package_deploy.mjs",
     "pushitlive": "npm run build:prod",
     "test:local": "npm run build && node server.js"
   },

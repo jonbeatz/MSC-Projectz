@@ -1,0 +1,56 @@
+{
+  "profileVersion": "1.0.0",
+  "project": {
+    "name": "MSC-Projectz",
+    "domain": "https://jon-beatz.com",
+    "environmentMode": "production"
+  },
+  "deployment": {
+    "workflow": "local-build-then-ftp-upload",
+    "artifactFile": "final_deploy.zip",
+    "localBuildCommand": "npm run pushitlive",
+    "buildGateCommand": "npm run verify:next",
+    "restartMethod": "cPanel Node.js Application Manager Restart"
+  },
+  "host": {
+    "provider": "Spaceship",
+    "ftpProtocol": "explicit-ftps",
+    "ftpHost": "server9.shared.spaceship.host",
+    "ftpPort": 21,
+    "ftpUsername": "<set-in-local-override>",
+    "remoteAppRoot": "/home/<cpanel-user>/jon-beatz.com",
+    "nodevenvActivatePath": "/home/<cpanel-user>/nodevenv/jon-beatz.com/20/bin/activate",
+    "cpanelLoginUrl": "https://server9.shared.spaceship.host:2083/"
+  },
+  "pathsPolicy": {
+    "mediaMustBeRelative": true,
+    "allowedMediaRoot": "media",
+    "forbidAbsoluteMediaPaths": true,
+    "defaultDirMode": "755",
+    "defaultFileMode": "644",
+    "ownershipMustMatchNodeUser": true
+  },
+  "runtimeGuards": {
+    "requiresLinuxNativeModules": true,
+    "requiresSharpGuard": true,
+    "requiresLibsqlGuard": true,
+    "sqliteFilePolicy": "file:./payload.sqlite"
+  },
+  "checks": {
+    "requiredPackageScripts": [
+      "dev",
+      "verify:next",
+      "pushitlive"
+    ],
+    "requiredDeployFiles": [
+      "msc_package_deploy.mjs",
+      "server.js",
+      "payload.config.ts",
+      ".env.example"
+    ]
+  },
+  "notes": {
+    "secretsPolicy": "No plaintext secrets in repo docs. Use encrypted secrets file + local key.",
+    "localOverrideFile": ".cursor/docs/Deploy-Profile.local.json"
+  }
+}

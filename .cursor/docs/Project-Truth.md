@@ -6,7 +6,7 @@ Use this file first, then follow its linked source-of-truth order.
 
 ## Versioning
 
-- **Version:** `v1.1.0`
+- **Version:** `v1.2.0`
 - **Updated:** `2026-04-26`
 - **Owner:** `Jon Beatz / MSC-Projectz`
 
@@ -50,6 +50,20 @@ These are recurring failure points where agents must be extra careful:
    - `chmod` may not fix EACCES if file owner differs from Node app user.
    - Validate ownership when permission fixes do not resolve writes to `.next` or DB paths.
 
+## 2.1) Immediate Security Rotation Required
+
+If credentials were exposed outside encrypted storage, rotate provider-side values immediately:
+
+1. FTP/FTPS password
+2. `PAYLOAD_SECRET`
+3. `RESEND_API_KEY`
+
+After rotation:
+- update local `.env` values
+- update encrypted secret payload (see `Deploy-Secrets-Workflow.md`)
+- do not commit plaintext secrets
+- log rotation metadata (not values) in `Session-Snapshots.md`
+
 ---
 
 ## 3) What This Project Is
@@ -77,12 +91,40 @@ Read in this exact order when onboarding:
 4. `Agent-Runbook.md` (execution behavior + closeout rules)
 5. `MasterSetUp.md` (portable schemas/checklists)
 6. `Restore-Points.md` (rollback checkpoints)
-7. `package.json` (script truth)
-8. `msc_package_deploy.mjs` (deploy artifact truth)
+7. `.cursor/docs/Deploy-Profile.template.json` (non-secret deploy contract)
+8. `package.json` (script truth)
+9. `msc_package_deploy.mjs` (deploy artifact truth)
 
 Use only when needed:
 - `FlightPro-Alt.md` for advanced failures (OOM, sharp/native modules, ownership/permissions edge cases)
 - `ReCall.md` for historical deep context
+- `.cursor/docs/Deploy-Secrets-Workflow.md` for encrypted credential handling
+
+## 4.1) Connection Profile Truth (Non-Secret)
+
+Use `.cursor/docs/Deploy-Profile.template.json` as the canonical non-secret profile for:
+
+- provider + protocol (`ftp/ftps`, host, port)
+- remote app root and nodevenv activation path template
+- deploy/build commands and artifact file name
+- path + permission policy defaults (`755` dirs, `644` files)
+- runtime guards (`sharp`, sqlite, Linux module expectations)
+
+Local account overrides belong in:
+- `.cursor/docs/Deploy-Profile.local.json` (gitignored)
+- reference format: `.cursor/docs/Deploy-Profile.local.example.json`
+
+Never hardcode account-specific host usernames or absolute paths in app runtime code.
+
+## 4.2) Encrypted Secrets Workflow
+
+Secrets are handled through `.cursor/docs/Deploy-Secrets-Workflow.md`.
+
+Rules:
+- no plaintext secrets in tracked docs
+- no secrets in chat output
+- local `.env` stays source of truth for runtime values
+- encrypted payload + local key workflow for deploy credentials
 
 ---
 
@@ -95,6 +137,7 @@ Before suggesting/running any command:
 Current key commands:
 - `npm run dev` -> local dev server
 - `npm run verify:next` -> build gate (`clean:next` + build)
+- `npm run deploy:preflight` -> validate deploy profile + script/path guardrails
 - `npm run pushitlive` -> release package flow
 - `npm run build:prod` -> runs `msc_package_deploy.mjs`
 - `npm run test:local` -> production-style local smoke via `server.js`
@@ -104,12 +147,13 @@ Current key commands:
 ## 6) Deploy Truth (High Level)
 
 Primary deploy flow:
-1. Local build/package using `npm run pushitlive`
-2. Artifact output: `final_deploy.zip`
-3. Upload zip to server
-4. Unzip on host
-5. Restart Node app in cPanel
-6. Validate routes and logs
+1. Local preflight using `npm run deploy:preflight`
+2. Local build/package using `npm run pushitlive`
+3. Artifact output: `final_deploy.zip`
+4. Upload zip to server
+5. Unzip on host
+6. Restart Node app in cPanel
+7. Validate routes and logs
 
 Deployment source files:
 - `FlightPro.md` (canonical SOP)

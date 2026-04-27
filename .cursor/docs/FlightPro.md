@@ -31,6 +31,7 @@
 | `npm run start` | `next start` (not used for daily local dev; cPanel can use `node server.js` — see `server.js`). |
 | `npm run clean:next` | Deletes `.next/`. |
 | `npm run verify:next` | `clean:next` + `next build` — **build gate** after code changes. **Do not run while `npm run dev` is holding port 3000** (it deletes `.next` under a live dev server and breaks HMR). Stop dev first, or use a flow that never deletes `.next` while dev is up. |
+| `npm run deploy:preflight` | Validates deploy profile, required scripts/files, and relative media path guardrails before packaging. |
 | `npm run package:production` | `node scripts/msc_package_for_production.mjs` — alternate packaging path (if used). |
 | `npm run package:deploy` | `node msc_package_deploy.mjs` — same entry as `build:prod` (see below). |
 | `npm run build:prod` / **`npm run pushitlive`** | Runs **`msc_package_deploy.mjs`**: validates `server.js`, `.env`, `payload.sqlite` → `npm run build` → stages **`deploy_package/`** from **COPY_PLAN** → writes **`final_deploy.zip`** at repo root. |
@@ -62,11 +63,13 @@
 
 **A. On the PC (before zip)**
 
-1. Ensure **`.env`**, **`payload.sqlite`**, and **`server.js`** exist (deploy script validates these).  
-2. Run **`npm run pushitlive`** (alias for `build:prod` → `msc_package_deploy.mjs`).  
-3. Confirm **`final_deploy.zip`** in the project root.  
-4. **COPY_PLAN** (see `msc_package_deploy.mjs`) includes among others: `.next/`, `public/`, `media/`, `app/`, `collections/`, `components/`, `lib/`, `types/`, `server.js`, `payload.config.ts`, `next.config.mjs`, `tsconfig.json`, `.env`, `package.json`, `payload.sqlite`, `unzip.php`. It does **not** bundle `node_modules` — the server must run **`npm install`** in cPanel when dependencies change.  
-5. If the script logs `skip (missing)` for an optional path, only fix it when that path is required for your release.
+1. Ensure profile context is loaded from `.cursor/docs/Deploy-Profile.template.json` (+ `.cursor/docs/Deploy-Profile.local.json` if present).  
+2. Run **`npm run deploy:preflight`** and resolve any hard failures.  
+3. Ensure **`.env`**, **`payload.sqlite`**, and **`server.js`** exist (deploy script validates these).  
+4. Run **`npm run pushitlive`** (alias for `build:prod` → `msc_package_deploy.mjs`).  
+5. Confirm **`final_deploy.zip`** in the project root.  
+6. **COPY_PLAN** (see `msc_package_deploy.mjs`) includes among others: `.next/`, `public/`, `media/`, `app/`, `collections/`, `components/`, `lib/`, `types/`, `server.js`, `payload.config.ts`, `next.config.mjs`, `tsconfig.json`, `.env`, `package.json`, `payload.sqlite`, `unzip.php`. It does **not** bundle `node_modules` — the server must run **`npm install`** in cPanel when dependencies change.  
+7. If the script logs `skip (missing)` for an optional path, only fix it when that path is required for your release.
 
 **B. On the server (cPanel)**
 
@@ -103,12 +106,14 @@ In **cPanel File Manager** (or SSH), typical fixes:
 
 - **Directories** (e.g. `.next`, `public`, `media`): **755** recursive where the app must traverse.  
 - **Files** (e.g. `server.js`, `payload.sqlite`, `.env`): **644** (adjust if your host requires a stricter private mode for the DB or env).
+- If errors persist after chmod, verify **ownership** matches the Node app user (owner mismatch can still trigger EACCES).
 
 ---
 
 ## 6. Common production failures
 
 - **Native binary / module mismatch on Linux vs Windows** — on the server, remove server `node_modules` and run **`npm install`** (or `npm install --legacy-peer-deps` if documented for this host) from the app path, then restart.  
+- **`sharp` / native addon crash** — if logs show module load errors, run `npm rebuild sharp --platform=linux --arch=x64` on the Linux host and restart.  
 - **Missing build** — `server.js` with `NODE_ENV=production` expects `.next` from a prior **`npm run build`**. The deploy script runs build before staging.  
 - **Incomplete upload** — mixed old/new `.next` can cause `vendor-chunks` or missing chunk errors; upload a full **`final_deploy.zip` extract or clean `.next` on the server and redeploy.  
 - **DB not in package** — `payload.sqlite` is part of **COPY_PLAN** when the file exists; do not deploy without a migration plan if you change schema.

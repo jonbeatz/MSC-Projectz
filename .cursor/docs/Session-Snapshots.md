@@ -50,7 +50,65 @@ Keep newest snapshot at the top.
 
 ### Open risks / blockers
 - <none or list>
+
+### Deploy truth checks (required on closeout)
+- Profile changed? `<yes/no>`
+- Secrets rotated/updated? `<yes/no/not-needed>`
+- Windows/Linux native-module guard passed? `<yes/no/not-run>`
 ```
+
+---
+
+## 2026-04-26 19:36 (local) - Deployment truth hardening rollout
+
+### Session state
+- Branch: `MSC-Projectz-Pro-Live-v1`
+- Commit at snapshot: `e6e7522` (working tree currently has new hardening changes)
+- Working tree: `dirty`
+- Local dev URL: `http://127.0.0.1:3000` status `not re-tested in this docs/scripts pass`
+
+### What was done
+- Added machine-readable deploy profile template and local example override.
+- Added encrypted secrets workflow doc and gitignore protection for local encrypted artifacts/keys.
+- Added deploy preflight script (`deploy_profile_check.mjs`) and wired it into `build:prod`/`pushitlive`.
+- Hardened `Project-Truth.md`, `FlightPro.md`, and `START-HERE.md` with profile-first and Linux/ownership guards.
+- Updated snapshot template with required deploy-truth checks.
+- Bumped `Project-Truth.md` version to `v1.2.0`.
+
+### Files touched (high value)
+- `.cursor/docs/Deploy-Profile.template.json`
+- `.cursor/docs/Deploy-Profile.local.example.json`
+- `.cursor/docs/Deploy-Secrets-Workflow.md`
+- `.cursor/docs/Project-Truth.md`
+- `.cursor/docs/FlightPro.md`
+- `.cursor/docs/START-HERE.md`
+- `.cursor/docs/Session-Snapshots.md`
+- `scripts/deploy_profile_check.mjs`
+- `package.json`
+- `.gitignore`
+
+### Commands run (important)
+- `git branch --show-current && git log -1 --oneline && git status -sb`
+- read-only path audits and docs inspection
+
+### Validation / outcomes
+- Build gate: `not run` (docs/script hardening pass).
+- Smoke checks: `not run` in this pass.
+- Deploy status: `not started`.
+
+### Start-next checklist
+1. Run: `git branch --show-current && git status -sb`
+2. Run deploy profile check: `npm run deploy:preflight`
+3. If runtime changes are made, run `npm run verify:next` before closeout.
+4. If release packaging is needed, run `npm run pushitlive` after preflight is green.
+
+### Open risks / blockers
+- Secrets discussed in chat context must still be rotated at provider level (`FTP`, `PAYLOAD_SECRET`, `RESEND_API_KEY`).
+
+### Deploy truth checks (required on closeout)
+- Profile changed? `yes`
+- Secrets rotated/updated? `not-needed for docs, but provider-side rotation still pending`
+- Windows/Linux native-module guard passed? `not-run this pass`
 
 ---
 

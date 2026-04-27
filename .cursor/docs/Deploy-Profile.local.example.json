@@ -1,0 +1,10 @@
+{
+  "host": {
+    "ftpUsername": "jonbeatz@jon-beatz.com",
+    "remoteAppRoot": "/home/<cpanel-user>/jon-beatz.com",
+    "nodevenvActivatePath": "/home/<cpanel-user>/nodevenv/jon-beatz.com/20/bin/activate"
+  },
+  "project": {
+    "domain": "https://jon-beatz.com"
+  }
+}
