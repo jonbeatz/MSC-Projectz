@@ -11,6 +11,32 @@ Keep newest snapshot at the top.
 
 ---
 
+## 2026-04-27 (local) — gate-user test accounts removed + docs aligned
+
+### Session state
+- **Branch:** (trust `git branch --show-current`)
+- **Working tree:** expect doc-only + `package.json` script + `scripts/msc_delete_gate_test_users.mjs` when committed
+- **Local dev URL:** `http://127.0.0.1:3000` — no app runtime change for this work item
+
+### What was done
+- Removed local SQLite users `gate-user-a@msc.local` and `gate-user-b@msc.local` (audit/trust-gate test fixtures, **not** the dev trust-bypass system). Deletion is ordered (vault tasks/projects rels, media, sessions, `users` row) and creates a **timestamped** `payload.sqlite.bak.gate-user-delete.*` first.
+- Added **`npm run db:prune-gate-users`** → `node scripts/msc_delete_gate_test_users.mjs` (idempotent: no backup if nothing matches).
+- Updated operator docs: `Agent-Runbook.md`, `FlightPro.md`, `START-HERE.md`, `Development-Roadmap.md` (changelog), `MSC-Users.md` (role clarity + test-user note).
+
+### Files touched (high value)
+- `package.json` — `db:prune-gate-users` script
+- `scripts/msc_delete_gate_test_users.mjs` — libsql delete helper (avoids Payload `jiti` `@/` import issues)
+- `.cursor/docs/Agent-Runbook.md`, `FlightPro.md`, `START-HERE.md`, `Session-Snapshots.md`, `Development-Roadmap.md`, `MSC-Users.md`
+
+### Start-next checklist
+1. `git status -sb` — commit if you want the script + docs on the branch
+2. Settings → Users should no longer list `gate-user-*.@msc.local` (re-run `npm run db:prune-gate-users` if you recreate fixtures)
+
+### Open risks / blockers
+- None for this item. Old backups `payload.sqlite.bak.gate-user-delete.*` can be deleted manually when no longer needed.
+
+---
+
 ## 2026-04-27 08:55 (local) - v1.03 finalized + config warning cleanup
 
 ### Session state

@@ -142,6 +142,8 @@ Current key commands:
 - `npm run pushitlive` -> release package flow
 - `npm run build:prod` -> runs `msc_package_deploy.mjs`
 - `npm run test:local` -> production-style local smoke via `server.js`
+- `npm run repair:sqlite` -> local Payload SQLite schema assist / repair
+- `npm run db:prune-gate-users` -> local-only: remove `*gate-user*@msc.local` test users and related rows (see `Agent-Runbook.md`)
 
 ---
 

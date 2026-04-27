@@ -1,9 +1,9 @@
-import type { Access, CollectionConfig, Where } from 'payload'
-import { msc_hasAdminAccess } from '@/lib/msc_roles'
+import type { CollectionConfig, Where } from 'payload'
+import { msc_isMasterAdminRole } from '@/lib/msc_roles'
 
 /**
- * Distinguish Payload admins (full vault visibility) from standard users (tenant-scoped data).
- * Sync with Vader `User.role` in the app UI.
+ * User directory: Master Admin sees all accounts; other roles only their own row (user cage).
+ * Vault/project visibility for admins remains in vault collections — do not conflate with this list.
  */
 export const MSC_Projectz_PayloadUsers: CollectionConfig = {
   slug: 'users',
@@ -11,19 +11,36 @@ export const MSC_Projectz_PayloadUsers: CollectionConfig = {
     useAsTitle: 'email',
   },
   auth: true,
+  hooks: {
+    beforeChange: [
+      ({ req, data, originalDoc, operation }) => {
+        if (!req.user) return data
+        if (msc_isMasterAdminRole((req.user as { role?: unknown }).role)) return data
+
+        const next = data as { role?: unknown }
+        if (operation === 'update' && next.role !== undefined) {
+          const prevRole = (originalDoc as { role?: unknown } | null | undefined)?.role
+          if (next.role !== prevRole) {
+            throw new Error('Unauthorized: only a Master Admin can change roles.')
+          }
+        }
+        return data
+      },
+    ],
+  },
   access: {
     read: ({ req: { user } }) => {
       if (!user) return false
-      if (msc_hasAdminAccess(user.role)) return true
+      if (msc_isMasterAdminRole(user.role)) return true
       return { id: { equals: user.id } } as Where
     },
     update: ({ req: { user }, id }) => {
       if (!user) return false
-      if (msc_hasAdminAccess(user.role)) return true
+      if (msc_isMasterAdminRole(user.role)) return true
       return String(user.id) === String(id)
     },
-    create: ({ req: { user } }) => Boolean(user && msc_hasAdminAccess(user.role)),
-    delete: ({ req: { user } }) => Boolean(user && msc_hasAdminAccess(user.role)),
+    create: ({ req: { user } }) => Boolean(user && msc_isMasterAdminRole(user.role)),
+    delete: ({ req: { user } }) => Boolean(user && msc_isMasterAdminRole(user.role)),
   },
   fields: [
     {
@@ -49,7 +66,7 @@ export const MSC_Projectz_PayloadUsers: CollectionConfig = {
       ],
       admin: {
         description:
-          'Master Admin and Admin can see all vault projects; users are scoped to their own.',
+          'Master Admin: full user directory + role control. Other admins: own account only in Settings; vault access follows vault collection rules.',
       },
     },
     {

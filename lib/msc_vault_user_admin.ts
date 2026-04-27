@@ -38,32 +38,55 @@ function msc_validatePayloadRole(role: unknown): role is MscUserAdminRole {
   return role === 'master-admin' || role === 'admin' || role === 'user'
 }
 
+function msc_mapPayloadUserDocToRow(doc: MscPayloadUserDoc, currentUserId: string | number): MscPayloadUserRow {
+  return {
+    id: doc.id,
+    email: doc.email || '',
+    role: msc_normalizePayloadRole(doc.role),
+    username: doc.username ?? null,
+    createdAt: doc.createdAt,
+    isCurrentUser: String(doc.id) === String(currentUserId),
+  }
+}
+
 /**
- * List Payload `users` (for Settings) — admin only, requires active Payload session.
+ * List Payload `users` (for Settings) — admin session required.
+ * Master Admin: full directory (sorted by email). Other admins: current user only (user cage).
  */
 export async function msc_listPayloadUsersForSettings(): Promise<MscUserAdminListResult> {
   const admin = await msc_requirePayloadAdminForSettings()
   if (!admin.ok) return admin
 
-  const res = await admin.ctx.payload.find({
-    collection: 'users',
-    limit: 200,
-    depth: 0,
-    sort: 'email',
-    overrideAccess: true,
-  })
-  const users: MscPayloadUserRow[] = res.docs.map((d) => {
-    const r = d as MscPayloadUserDoc
-    return {
-      id: r.id,
-      email: r.email || '',
-      role: msc_normalizePayloadRole(r.role),
-      username: r.username ?? null,
-      createdAt: r.createdAt,
-      isCurrentUser: String(r.id) === String(admin.currentUserId),
+  const { isMasterAdmin, currentUserId, ctx } = admin
+
+  try {
+    if (isMasterAdmin) {
+      const res = await ctx.payload.find({
+        collection: 'users',
+        limit: 200,
+        depth: 0,
+        sort: 'email',
+        overrideAccess: true,
+      })
+      const users = res.docs.map((d) => msc_mapPayloadUserDocToRow(d as MscPayloadUserDoc, currentUserId))
+      return { ok: true, users, isMasterAdmin: true }
     }
-  })
-  return { ok: true, users }
+
+    const doc = await ctx.payload.findByID({
+      collection: 'users',
+      id: currentUserId,
+      depth: 0,
+      overrideAccess: true,
+    })
+    if (!doc) {
+      return { ok: false, error: 'Unable to load your user profile.' }
+    }
+    const users = [msc_mapPayloadUserDocToRow(doc as MscPayloadUserDoc, currentUserId)]
+    return { ok: true, users, isMasterAdmin: false }
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : 'Unable to list users'
+    return { ok: false, error: msg }
+  }
 }
 
 /**
@@ -74,6 +97,9 @@ export async function msc_createPayloadUserAsAdmin(
 ): Promise<{ ok: true; id: string | number } | { ok: false; error: string }> {
   const admin = await msc_requirePayloadAdminForSettings()
   if (!admin.ok) return admin
+  if (!admin.isMasterAdmin) {
+    return { ok: false, error: 'Unauthorized: only a Master Admin can create users.' }
+  }
 
   const email = input.email.trim().toLowerCase()
   const username = input.username?.trim()
@@ -123,6 +149,9 @@ export async function msc_deletePayloadUserAsAdmin(
 ): Promise<MscUserAdminActionResult> {
   const admin = await msc_requirePayloadAdminForSettings()
   if (!admin.ok) return admin
+  if (!admin.isMasterAdmin) {
+    return { ok: false, error: 'Unauthorized: only a Master Admin can delete users.' }
+  }
 
   if (String(admin.currentUserId) === String(id)) {
     return { ok: false, error: 'You cannot delete your own account' }
@@ -159,6 +188,9 @@ export async function msc_updatePayloadUserRoleAsAdmin(
 ): Promise<MscUserAdminActionResult> {
   const admin = await msc_requirePayloadAdminForSettings()
   if (!admin.ok) return admin
+  if (!admin.isMasterAdmin) {
+    return { ok: false, error: 'Unauthorized: only a Master Admin can change user roles.' }
+  }
 
   if (!msc_validatePayloadRole(input.role)) {
     return { ok: false, error: 'Valid role is required' }
@@ -205,6 +237,12 @@ export async function msc_resetPayloadUserPasswordAsAdmin(
 ): Promise<MscUserAdminActionResult> {
   const admin = await msc_requirePayloadAdminForSettings()
   if (!admin.ok) return admin
+  if (
+    !admin.isMasterAdmin &&
+    String(input.id) !== String(admin.currentUserId)
+  ) {
+    return { ok: false, error: 'Unauthorized: you can only reset your own password.' }
+  }
 
   const msc_pwReset = msc_validateNewPassword(input.password || '')
   if (!msc_pwReset.ok) {

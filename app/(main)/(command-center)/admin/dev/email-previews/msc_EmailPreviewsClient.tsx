@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { Msc_VerificationView } from '@/components/auth/msc_VerificationView'
-import { MSC_Projectz_VerifyReminderClient } from '@/app/auth/verify-reminder/MSC-Projectz-VerifyReminderClient'
+import { MSC_Projectz_VerifyReminderClient } from '@/app/(main)/auth/verify-reminder/MSC-Projectz-VerifyReminderClient'
 
 type MscPreviewTab =
   | 'template'

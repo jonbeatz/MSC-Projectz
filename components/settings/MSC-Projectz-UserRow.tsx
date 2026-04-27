@@ -10,6 +10,7 @@ import type { MscUserAdminRow } from '@/types/user-admin'
 
 type MSC_Projectz_UserRowProps = {
   user: MscUserAdminRow
+  isMasterAdmin: boolean
   onChanged: () => void
   onMessage: (message: { type: 'success' | 'error'; text: string }) => void
 }
@@ -27,7 +28,7 @@ function msc_formatCreatedAt(createdAt?: string) {
   }).format(date)
 }
 
-export function MSC_Projectz_UserRow({ user, onChanged, onMessage }: MSC_Projectz_UserRowProps) {
+export function MSC_Projectz_UserRow({ user, isMasterAdmin, onChanged, onMessage }: MSC_Projectz_UserRowProps) {
   const displayName = user.username?.trim() || user.email
 
   return (
@@ -59,7 +60,7 @@ export function MSC_Projectz_UserRow({ user, onChanged, onMessage }: MSC_Project
         </div>
       </AccordionTrigger>
 
-      <AccordionContent className="border-t border-border bg-[#1c1c1c] px-4 py-4">
+      <AccordionContent className="border-t border-border bg-muted/30 px-4 py-4">
         <div className="mb-4 flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
           <span className="inline-flex items-center gap-1">
             <Mail className="h-3.5 w-3.5" />
@@ -71,7 +72,12 @@ export function MSC_Projectz_UserRow({ user, onChanged, onMessage }: MSC_Project
           </span>
           <span className="truncate">ID: {String(user.id)}</span>
         </div>
-        <MSC_Projectz_UserAdminActions user={user} onChanged={onChanged} onMessage={onMessage} />
+        <MSC_Projectz_UserAdminActions
+          user={user}
+          isMasterAdmin={isMasterAdmin}
+          onChanged={onChanged}
+          onMessage={onMessage}
+        />
       </AccordionContent>
     </AccordionItem>
   )

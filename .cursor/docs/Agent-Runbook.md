@@ -49,6 +49,12 @@ If local admin crashes with errors like `Cannot destructure property 'config' ..
 
 Do not treat dependency pinning/import-map refresh alone as sufficient if the `(payload)` layout provider pattern is missing.
 
+## Local SQLite: `*gate-user*@msc.local` test users
+
+- These are **optional local audit users** (e.g. verified vs unverified, cross-tenant checks). They are **not** the dev trust-bypass path — that is **`DEV_BYPASS_ENABLED` + the dev bypass cookie** (see `middleware.ts`, `app/actions/dev-trust-bypass.ts`).
+- If `gate-user-*.@msc.local` rows appear in **Settings → Users** and you no longer need them, run **`npm run db:prune-gate-users`** from the repo root. The script **backs up** `payload.sqlite` once when it will delete at least one matching user, then removes dependent rows (vault, media, sessions, payload rels) and the user record.
+- For schema repair only, use **`npm run repair:sqlite`** (see `FlightPro.md`).
+
 ## Session closeout checklist (one-command style)
 
 At the end of every session, update `Session-Snapshots.md` (newest entry at top) with:

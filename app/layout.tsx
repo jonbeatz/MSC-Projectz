@@ -1,52 +1,9 @@
-import type { Metadata, Viewport } from 'next'
-import { Geist, Geist_Mono } from 'next/font/google'
-import { Analytics } from '@vercel/analytics/next'
-
-import { MSC_Projectz_SessionGuard } from '@/components/MSC-Projectz-SessionGuard'
-import { Toaster } from '@/components/ui/toaster'
-import './globals.css'
-
-const geistSans = Geist({ 
-  subsets: ["latin"],
-  variable: '--font-geist-sans',
-})
-const geistMono = Geist_Mono({ 
-  subsets: ["latin"],
-  variable: '--font-geist-mono',
-})
-
-export const metadata: Metadata = {
-  title: 'MSC-Projectz | Studio Command Center',
-  description: 'High-performance project management dashboard powered by the MSC Media Engine',
-  generator: 'v0.app',
-  icons: {
-    icon: '/media/msc-icon.png',
-    apple: '/media/msc-icon.png',
-  },
-}
-
-export const viewport: Viewport = {
-  themeColor: '#121212',
-  colorScheme: 'dark',
-}
-
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode
-}>) {
-  return (
-    // suppressHydrationWarning: extensions may inject attrs on <html> (e.g. webcrx) before React hydrates.
-    <html
-      lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} dark`}
-      suppressHydrationWarning
-    >
-      <body className="font-sans antialiased min-h-screen bg-background text-foreground">
-        <MSC_Projectz_SessionGuard>{children}</MSC_Projectz_SessionGuard>
-        <Toaster />
-        {process.env.NODE_ENV === 'production' && <Analytics />}
-      </body>
-    </html>
-  )
+/**
+ * Root layout: pass-through so sibling route groups can each own the document.
+ * - `app/(main)/layout.tsx` — Command Center, login, auth (`<html><body>` + SessionGuard)
+ * - `app/(payload)/layout.tsx` — Payload admin/API (`RootLayout` full document)
+ * Without this split, Payload's `RootLayout` would nest `<html>` inside the main `<body>` (invalid HTML, hydration errors).
+ */
+export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+  return children
 }

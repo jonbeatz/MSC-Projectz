@@ -36,6 +36,7 @@ export function EditProjectModal({ project, isOpen, onClose }: EditProjectModalP
   const [liveNotes, setLiveNotes] = useState('')
   const [references, setReferences] = useState<ProjectReference[]>([])
   const [availableUsers, setAvailableUsers] = useState<MscUserAdminRow[]>([])
+  const [directoryIsMasterAdmin, setDirectoryIsMasterAdmin] = useState(false)
   const [selectedMemberIds, setSelectedMemberIds] = useState<string[]>([])
   const [membersLoading, setMembersLoading] = useState(false)
   const [membersError, setMembersError] = useState<string | null>(null)
@@ -103,8 +104,10 @@ export function EditProjectModal({ project, isOpen, onClose }: EditProjectModalP
 
       if (result.ok) {
         setAvailableUsers(result.users)
+        setDirectoryIsMasterAdmin(result.isMasterAdmin)
       } else {
         setAvailableUsers([])
+        setDirectoryIsMasterAdmin(false)
         setMembersError(result.error)
       }
       setMembersLoading(false)
@@ -125,15 +128,22 @@ export function EditProjectModal({ project, isOpen, onClose }: EditProjectModalP
       thumb = await msc_compressDataUrlImage(thumb)
     }
 
-    const memberLookup = new Map(availableUsers.map((user) => [String(user.id), user]))
+    const memberLookup = new Map<string, MscUserAdminRow | MscProjectMember>()
+    for (const u of availableUsers) {
+      memberLookup.set(String(u.id), u)
+    }
+    for (const m of project.members || []) {
+      const sid = String(m.id)
+      if (!memberLookup.has(sid)) memberLookup.set(sid, m)
+    }
     const members: MscProjectMember[] = selectedMemberIds.map((id) => {
       const user = memberLookup.get(id)
       return {
         id,
         email: user?.email ?? null,
         username: user?.username ?? null,
-        avatar: user?.avatar ?? null,
-        avatarUrl: user?.avatarUrl ?? null,
+        avatar: (user as MscUserAdminRow | undefined)?.avatar ?? null,
+        avatarUrl: (user as MscUserAdminRow | undefined)?.avatarUrl ?? null,
       }
     })
 
@@ -236,8 +246,8 @@ export function EditProjectModal({ project, isOpen, onClose }: EditProjectModalP
     )
   }
 
-  const msc_memberInitials = (user: MscUserAdminRow) => {
-    const label = user.username?.trim() || user.email
+  const msc_memberInitials = (user: { username?: string | null; email?: string | null }) => {
+    const label = user.username?.trim() || user.email || ''
     return label
       .split(/[\s@._-]+/)
       .filter(Boolean)
@@ -247,6 +257,12 @@ export function EditProjectModal({ project, isOpen, onClose }: EditProjectModalP
   }
 
   if (!project || !isOpen) return null
+
+  const msc_resolveMemberForChip = (memberId: string): MscUserAdminRow | MscProjectMember | null => {
+    const fromList = availableUsers.find((c) => String(c.id) === memberId)
+    if (fromList) return fromList
+    return project.members?.find((m) => String(m.id) === memberId) ?? null
+  }
 
   const rawOwner = project.ownerUserId ?? (project as Project & { owner?: string | number | { id: string | number } }).owner
   const ownerId =
@@ -375,12 +391,17 @@ export function EditProjectModal({ project, isOpen, onClose }: EditProjectModalP
                   <p className="mt-1 text-xs text-muted-foreground">
                     Add collaborators who should appear on this project.
                   </p>
+                  {!directoryIsMasterAdmin && (
+                    <p className="mt-2 rounded-md border border-border bg-muted/30 px-3 py-2 text-xs text-muted-foreground">
+                      Only accounts visible to you appear in the add list. Existing members stay attached until you remove them; a Master Admin can add anyone from the full directory.
+                    </p>
+                  )}
                 </div>
 
                 {selectedMemberIds.length > 0 && (
                   <div className="flex flex-wrap gap-2">
                     {selectedMemberIds.map((memberId) => {
-                      const user = availableUsers.find((candidate) => String(candidate.id) === memberId)
+                      const user = msc_resolveMemberForChip(memberId)
                       return (
                         <button
                           key={memberId}
@@ -410,7 +431,9 @@ export function EditProjectModal({ project, isOpen, onClose }: EditProjectModalP
                     </p>
                   ) : addableUsers.length === 0 ? (
                     <p className="rounded-md border border-border bg-card px-3 py-2 text-xs text-muted-foreground">
-                      No users available.
+                      {directoryIsMasterAdmin
+                        ? 'No users available.'
+                        : 'No additional users to add from your visible directory.'}
                     </p>
                   ) : (
                     addableUsers.map((user) => {

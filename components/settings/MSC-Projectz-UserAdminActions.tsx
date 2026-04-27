@@ -24,12 +24,14 @@ import type { MscUserAdminRole, MscUserAdminRow } from '@/types/user-admin'
 
 type MSC_Projectz_UserAdminActionsProps = {
   user: MscUserAdminRow
+  isMasterAdmin: boolean
   onChanged: () => void
   onMessage: (message: { type: 'success' | 'error'; text: string }) => void
 }
 
 export function MSC_Projectz_UserAdminActions({
   user,
+  isMasterAdmin,
   onChanged,
   onMessage,
 }: MSC_Projectz_UserAdminActionsProps) {
@@ -82,33 +84,49 @@ export function MSC_Projectz_UserAdminActions({
     onMessage({ type: 'error', text: result.error })
   }
 
+  if (!isMasterAdmin && !user.isCurrentUser) {
+    return (
+      <p className="rounded-md border border-border bg-secondary/20 px-3 py-2 text-xs text-muted-foreground">
+        Directory actions are available only for your own account, or when signed in as a Master Admin.
+      </p>
+    )
+  }
+
   return (
-    <div className="grid gap-3 rounded-lg border border-border bg-secondary/30 p-3 md:grid-cols-[minmax(150px,0.7fr)_1fr_auto]">
-      <div className="space-y-2">
-        <Label className="text-xs text-muted-foreground">Role</Label>
-        <div className="flex gap-2">
-          <Select value={role} onValueChange={(value) => setRole(value as MscUserAdminRole)}>
-            <SelectTrigger className="w-full bg-input">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="user">User</SelectItem>
-              <SelectItem value="admin">Admin</SelectItem>
-              <SelectItem value="master-admin">Master Admin</SelectItem>
-            </SelectContent>
-          </Select>
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={() => void msc_handleRoleUpdate()}
-            disabled={busyAction === 'role' || role === user.role}
-          >
-            <ShieldCheck className="h-4 w-4" />
-            Save
-          </Button>
+    <div
+      className={
+        isMasterAdmin
+          ? 'grid gap-3 rounded-lg border border-border bg-secondary/30 p-3 md:grid-cols-[minmax(150px,0.7fr)_1fr_auto]'
+          : 'grid gap-3 rounded-lg border border-border bg-secondary/30 p-3 md:max-w-md'
+      }
+    >
+      {isMasterAdmin && (
+        <div className="space-y-2">
+          <Label className="text-xs text-muted-foreground">Role</Label>
+          <div className="flex gap-2">
+            <Select value={role} onValueChange={(value) => setRole(value as MscUserAdminRole)}>
+              <SelectTrigger className="w-full bg-input">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="user">User</SelectItem>
+                <SelectItem value="admin">Admin</SelectItem>
+                <SelectItem value="master-admin">Master Admin</SelectItem>
+              </SelectContent>
+            </Select>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => void msc_handleRoleUpdate()}
+              disabled={busyAction === 'role' || role === user.role}
+            >
+              <ShieldCheck className="h-4 w-4" />
+              Save
+            </Button>
+          </div>
         </div>
-      </div>
+      )}
 
       <div className="space-y-2">
         <Label className="text-xs text-muted-foreground">Reset password</Label>
@@ -135,39 +153,41 @@ export function MSC_Projectz_UserAdminActions({
         </div>
       </div>
 
-      <div className="flex items-end justify-end gap-2">
-        <RoleGate allowedRoles={['admin']}>
-          {confirmDelete ? (
-            <>
+      {isMasterAdmin && (
+        <div className="flex items-end justify-end gap-2">
+          <RoleGate allowedRoles={['admin']}>
+            {confirmDelete ? (
+              <>
+                <Button
+                  type="button"
+                  variant="destructive"
+                  size="sm"
+                  onClick={() => void msc_handleDelete()}
+                  disabled={busyAction === 'delete'}
+                >
+                  Confirm
+                </Button>
+                <Button type="button" variant="outline" size="sm" onClick={() => setConfirmDelete(false)}>
+                  Cancel
+                </Button>
+              </>
+            ) : (
               <Button
                 type="button"
-                variant="destructive"
+                variant="ghost"
                 size="sm"
-                onClick={() => void msc_handleDelete()}
-                disabled={busyAction === 'delete'}
+                className="text-destructive hover:bg-destructive/10 hover:text-destructive"
+                onClick={() => setConfirmDelete(true)}
+                disabled={user.isCurrentUser}
+                title={user.isCurrentUser ? 'You cannot delete your own account' : 'Delete server user'}
               >
-                Confirm
+                <Trash2 className="h-4 w-4" />
+                Delete
               </Button>
-              <Button type="button" variant="outline" size="sm" onClick={() => setConfirmDelete(false)}>
-                Cancel
-              </Button>
-            </>
-          ) : (
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              className="text-destructive hover:bg-destructive/10 hover:text-destructive"
-              onClick={() => setConfirmDelete(true)}
-              disabled={user.isCurrentUser}
-              title={user.isCurrentUser ? 'You cannot delete your own account' : 'Delete server user'}
-            >
-              <Trash2 className="h-4 w-4" />
-              Delete
-            </Button>
-          )}
-        </RoleGate>
-      </div>
+            )}
+          </RoleGate>
+        </div>
+      )}
     </div>
   )
 }

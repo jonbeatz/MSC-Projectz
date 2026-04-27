@@ -20,6 +20,7 @@ import { msc_isNewPasswordCompliant } from '@/lib/msc_password_policy'
  */
 export function MSC_Projectz_PayloadUsersPanel() {
   const [rows, setRows] = useState<MscPayloadUserRow[]>([])
+  const [isMasterAdmin, setIsMasterAdmin] = useState(false)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [email, setEmail] = useState('')
@@ -33,9 +34,11 @@ export function MSC_Projectz_PayloadUsersPanel() {
     const r = await msc_listPayloadUsersForSettings()
     if (r.ok) {
       setRows(r.users)
+      setIsMasterAdmin(r.isMasterAdmin)
     } else {
       setError(r.error)
       setRows([])
+      setIsMasterAdmin(false)
     }
     setLoading(false)
   }, [])
@@ -128,73 +131,76 @@ export function MSC_Projectz_PayloadUsersPanel() {
                 >
                   {u.role === 'master-admin' ? 'Master Admin' : u.role === 'admin' ? 'Admin' : 'User'}
                 </span>
-                <button
-                  type="button"
-                  onClick={() => void onDelete(u.id)}
-                  className="p-1.5 rounded-md text-destructive hover:bg-destructive/10"
-                  title="Delete server user"
-                >
-                  <Trash2 className="w-4 h-4" />
-                </button>
+                {isMasterAdmin && (
+                  <button
+                    type="button"
+                    onClick={() => void onDelete(u.id)}
+                    className="p-1.5 rounded-md text-destructive hover:bg-destructive/10"
+                    title="Delete server user"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                )}
               </div>
             </li>
           ))}
         </ul>
       )}
 
-      <div className="rounded-lg border border-border bg-secondary/30 p-4 space-y-3">
-        <h4 className="text-sm font-medium flex items-center gap-2">
-          <Plus className="w-4 h-4 text-primary" />
-          Create server user
-        </h4>
-        <div className="space-y-2">
-          <Label className="text-xs text-muted-foreground">Email</Label>
-          <div className="relative">
-            <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+      {isMasterAdmin && (
+        <div className="rounded-lg border border-border bg-secondary/30 p-4 space-y-3">
+          <h4 className="text-sm font-medium flex items-center gap-2">
+            <Plus className="w-4 h-4 text-primary" />
+            Create server user
+          </h4>
+          <div className="space-y-2">
+            <Label className="text-xs text-muted-foreground">Email</Label>
+            <div className="relative">
+              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="pl-10 bg-input border-border"
+                placeholder="teammate@example.com"
+              />
+            </div>
+          </div>
+          <div className="space-y-2">
+            <Label className="text-xs text-muted-foreground">Password (min. 6)</Label>
             <Input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="pl-10 bg-input border-border"
-              placeholder="teammate@example.com"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="bg-input border-border"
             />
           </div>
-        </div>
-        <div className="space-y-2">
-          <Label className="text-xs text-muted-foreground">Password (min. 6)</Label>
-          <Input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="bg-input border-border"
-          />
-        </div>
-        <div className="flex items-center gap-2">
-          <Label className="text-xs text-muted-foreground">Role</Label>
-          <select
-            value={role}
-            onChange={(e) => setRole(e.target.value as MscUserAdminRole)}
-            className="h-9 rounded-md border border-border bg-input px-2 text-sm"
+          <div className="flex items-center gap-2">
+            <Label className="text-xs text-muted-foreground">Role</Label>
+            <select
+              value={role}
+              onChange={(e) => setRole(e.target.value as MscUserAdminRole)}
+              className="h-9 rounded-md border border-border bg-input px-2 text-sm"
+            >
+              <option value="user">User</option>
+              <option value="admin">Admin</option>
+              <option value="master-admin">Master Admin</option>
+            </select>
+          </div>
+          <Button
+            type="button"
+            className="w-full sm:w-auto bg-primary text-primary-foreground"
+            onClick={() => void onCreate()}
+            disabled={submitting || !email.trim() || !msc_isNewPasswordCompliant(password)}
           >
-            <option value="user">User</option>
-            <option value="admin">Admin</option>
-            <option value="master-admin">Master Admin</option>
-          </select>
+            {submitting ? 'Creating…' : 'Create user'}
+          </Button>
         </div>
-        <Button
-          type="button"
-          className="w-full sm:w-auto bg-primary text-primary-foreground"
-          onClick={() => void onCreate()}
-          disabled={submitting || !email.trim() || !msc_isNewPasswordCompliant(password)}
-        >
-          {submitting ? 'Creating…' : 'Create user'}
-        </Button>
-        <p className="text-xs text-muted-foreground">
-          Admins on Payload can see all vault projects; Master Admin can additionally assign Master Admin
-          role. Users only see their own. Sign in from the lock screen
-          (same email/password as <span className="text-foreground/90">/admin</span>) so the browser holds the session cookie.
-        </p>
-      </div>
+      )}
+      <p className="text-xs text-muted-foreground">
+        Master Admin manages the full user directory. Other admins see only their own row here. Vault visibility follows vault rules. Sign in from the lock screen (same credentials as{' '}
+        <span className="text-foreground/90">/admin</span>) so the browser holds the Payload session cookie.
+      </p>
     </div>
   )
 }

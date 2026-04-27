@@ -24,6 +24,8 @@ export default buildConfig({
   /** Vault stores base64/data-URLs; keep above Payload default (40_000) for paths & misc text. */
   defaultMaxTextLength: 500_000,
   admin: {
+    /** Stops false-positive React hydration errors when extensions inject attrs on <html> (e.g. web-rx, webcrx). */
+    suppressHydrationWarning: true,
     user: MSC_Projectz_PayloadUsers.slug,
     importMap: {
       baseDir: path.resolve(dirname),

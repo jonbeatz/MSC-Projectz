@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation'
-import { MSC_Projectz_VerifyReminderClient } from '@/app/auth/verify-reminder/MSC-Projectz-VerifyReminderClient'
+import { MSC_Projectz_VerifyReminderClient } from '@/app/(main)/auth/verify-reminder/MSC-Projectz-VerifyReminderClient'
 import { msc_getVaultLocalApiContext } from '@/lib/msc_vault_auth_context'
 
 type MscReminderUser = {

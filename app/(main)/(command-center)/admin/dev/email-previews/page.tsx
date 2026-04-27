@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation'
-import { Msc_EmailPreviewsClient } from '@/app/(command-center)/admin/dev/email-previews/msc_EmailPreviewsClient'
+import { Msc_EmailPreviewsClient } from '@/app/(main)/(command-center)/admin/dev/email-previews/msc_EmailPreviewsClient'
 import { msc_getVaultLocalApiContext } from '@/lib/msc_vault_auth_context'
 import { msc_vaultIsPayloadAdmin } from '@/lib/msc_vault_payload_access'
 

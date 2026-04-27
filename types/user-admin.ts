@@ -26,7 +26,7 @@ export type MscUserAdminActionResult =
   | { ok: false; error: string }
 
 export type MscUserAdminListResult =
-  | { ok: true; users: MscUserAdminRow[] }
+  | { ok: true; users: MscUserAdminRow[]; isMasterAdmin: boolean }
   | { ok: false; error: string }
 
 export type MscCreateUserAdminInput = {

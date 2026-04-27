@@ -23,6 +23,7 @@ type MscSettingsUserMessage = {
 
 export function MSC_Projectz_SettingsUsersSection({ enabled = true }: MSC_Projectz_SettingsUsersSectionProps) {
   const [users, setUsers] = useState<MscUserAdminRow[]>([])
+  const [isMasterAdmin, setIsMasterAdmin] = useState(false)
   const [loading, setLoading] = useState(true)
   const [message, setMessage] = useState<MscSettingsUserMessage | null>(null)
   const projects = useAppStore((s) => s.projects)
@@ -33,9 +34,11 @@ export function MSC_Projectz_SettingsUsersSection({ enabled = true }: MSC_Projec
 
     if (result.ok) {
       setUsers(result.users)
+      setIsMasterAdmin(result.isMasterAdmin)
       setMessage(null)
     } else {
       setUsers([])
+      setIsMasterAdmin(false)
       setMessage({ type: 'error', text: result.error })
     }
 
@@ -83,6 +86,11 @@ export function MSC_Projectz_SettingsUsersSection({ enabled = true }: MSC_Projec
             <p className="mt-1 text-sm text-muted-foreground">
               Manage server-backed Payload accounts, roles, and administrative access.
             </p>
+            {!loading && !isMasterAdmin && (
+              <p className="mt-2 rounded-md border border-border bg-muted/40 px-3 py-2 text-xs text-muted-foreground">
+                User directory is limited to your account unless you are signed in as a Master Admin.
+              </p>
+            )}
           </div>
           <div className="grid grid-cols-2 gap-2 text-center md:grid-cols-4">
             <div className="col-span-2 rounded-lg border border-border bg-secondary/40 px-3 py-2 md:col-span-1">
@@ -123,20 +131,23 @@ export function MSC_Projectz_SettingsUsersSection({ enabled = true }: MSC_Projec
 
         <MSC_Projectz_UsersDirectory
           users={users}
+          isMasterAdmin={isMasterAdmin}
           loading={loading}
           onRefresh={() => void msc_loadUsers()}
           onChanged={() => void msc_loadUsers()}
           onMessage={msc_setMessage}
         />
 
-        <MSC_Projectz_CreateUserForm
-          onCreated={() => {
-            void msc_loadUsers()
-            const fallbackProjectId = projects[0]?.id ?? null
-            useTaskPulseSignal.getState().setSignal(true, fallbackProjectId)
-          }}
-          onMessage={msc_setMessage}
-        />
+        {isMasterAdmin && (
+          <MSC_Projectz_CreateUserForm
+            onCreated={() => {
+              void msc_loadUsers()
+              const fallbackProjectId = projects[0]?.id ?? null
+              useTaskPulseSignal.getState().setSignal(true, fallbackProjectId)
+            }}
+            onMessage={msc_setMessage}
+          />
+        )}
       </div>
       </section>
     </RoleGate>

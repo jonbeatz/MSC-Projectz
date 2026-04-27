@@ -11,6 +11,7 @@ import type { MscUserAdminRow } from '@/types/user-admin'
 
 type MSC_Projectz_UsersDirectoryProps = {
   users: MscUserAdminRow[]
+  isMasterAdmin: boolean
   loading: boolean
   onRefresh: () => void
   onChanged: () => void
@@ -19,6 +20,7 @@ type MSC_Projectz_UsersDirectoryProps = {
 
 export function MSC_Projectz_UsersDirectory({
   users,
+  isMasterAdmin,
   loading,
   onRefresh,
   onChanged,
@@ -49,7 +51,11 @@ export function MSC_Projectz_UsersDirectory({
         <div className="rounded-lg border border-dashed border-border bg-secondary/20 p-6 text-center">
           <ShieldAlert className="mx-auto h-8 w-8 text-muted-foreground" />
           <p className="mt-3 text-sm font-medium text-foreground">No Payload users found</p>
-          <p className="mt-1 text-xs text-muted-foreground">Create the first server user below, or refresh the directory.</p>
+          <p className="mt-1 text-xs text-muted-foreground">
+            {isMasterAdmin
+              ? 'Create the first server user below, or refresh the directory.'
+              : 'If you expect accounts here, sign in as a Master Admin or refresh.'}
+          </p>
         </div>
       ) : (
         <Accordion type="multiple" className="space-y-3">
@@ -57,6 +63,7 @@ export function MSC_Projectz_UsersDirectory({
             <MSC_Projectz_UserRow
               key={String(user.id)}
               user={user}
+              isMasterAdmin={isMasterAdmin}
               onChanged={onChanged}
               onMessage={onMessage}
             />

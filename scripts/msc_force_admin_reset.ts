@@ -1,3 +1,8 @@
+/**
+ * Legacy: loads full Payload (breaks under `jiti` without TS path aliases).
+ * Prefer `npm run db:fix-admin` → `msc_promote_user_to_master.mjs` for local role promotion.
+ * To also reset password to match this file, use Payload admin or run via a path-alias-capable runner.
+ */
 import { config as msc_loadEnv } from 'dotenv'
 import { dirname, resolve } from 'path'
 import { fileURLToPath } from 'url'

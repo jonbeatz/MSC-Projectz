@@ -38,6 +38,7 @@
 | `npm run test:local` | `npm run build` then `node server.js` — smoke production-style local run (not hot reload). |
 | `npm run repair:sqlite` | Vault DB repair / schema assist (`scripts/msc_sqlite_repair_vault_schema.mjs`). |
 | `npm run db:rescue-admin` | Admin recovery (`jiti scripts/msc_rescue_admin.ts`). |
+| `npm run db:prune-gate-users` | Deletes local audit users `*gate-user*@msc.local` and related rows (`scripts/msc_delete_gate_test_users.mjs`); **not** for production DBs — local SQLite hygiene only. |
 
 > **Note:** Some older **Cursor rules** (e.g. `local-runtime-recovery.mdc`) mention `dev:recover`, `verify:next:safe`, or `pushit:live`. **This repo’s `package.json` may not define those names.** If a script is missing, use **§2 Local recovery (manual)** and the table above — do not assume deleted helpers exist.
 
