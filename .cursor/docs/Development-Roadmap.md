@@ -58,6 +58,7 @@
 
 *Goal: Reduce clutter and improve mobile usage.*
 
+- [x] **Admin runtime blocker resolved:** Local `/admin/login` Payload crash (`CodeEditor` config undefined) fixed by restoring required Payload route-group layout wiring (`app/(payload)/layout.tsx` -> `RootLayout` + `handleServerFunctions` with `config` + `importMap`). Added regression guardrail to run import-map regeneration + build/smoke auth checks after admin-layout edits. *(Apr 2026)*
 - [ ] **Cleanup:** Remove "Configure Local Path" (green button).
 - [x] **Tasks surface declutter pass:** Removed top project-card progress strip on dashboard, made Project Info collapsed by default on Tasks page, switched in-progress rows to neutral backgrounds, and slimmed progress bars for cleaner density. *(Apr 2026)*
 - [ ] **Mobile responsiveness:**
@@ -97,3 +98,6 @@
 - **2026-04** — Sprint 3 polish: verification/playground components standardized with `msc_` filenames and Studio Dark active-state treatment.
 - **2026-04** — Sprint 3 polish: Identity Playground now includes Auth Flows previews, and dev bypass status moved to a compact header indicator with tooltip.
 - **2026-04** — Sprint 4 polish: tasks/dashboard declutter pass shipped (neutral in-progress rows, thinner progress bars, default-collapsed Project Info, and dashboard project-card top progress strip removed).
+- **2026-04** — Sprint 4 stability: `/admin/login` Payload runtime blocker documented after deep isolation attempts (layouts, custom admin component, dependency unification, import-map regen) with follow-up focused on admin-shell context/module path.
+- **2026-04** — Sprint 4 stability: final nightly attempt (remove direct `@payloadcms/ui`, keep unified `3.84.1` pins/overrides) still reproduced `/admin/login` 500; proceeded to admin-shell/layout recovery.
+- **2026-04** — Sprint 4 stability: blocker resolved by restoring canonical Payload `(payload)` `RootLayout` wiring (`config` + `importMap` + `handleServerFunctions`) and re-validating login flow (`/admin` healthy, auth submit path clean).

@@ -2,6 +2,7 @@ import { withPayload } from '@payloadcms/next/withPayload'
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  devBundleServerPackages: true,
   images: {
     unoptimized: true,
   },
@@ -15,4 +16,4 @@ const nextConfig = {
   },
 }
 
-export default withPayload(nextConfig, { devBundleServerPackages: false })
+export default withPayload(nextConfig)

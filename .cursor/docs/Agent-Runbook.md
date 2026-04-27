@@ -34,6 +34,21 @@ This repository’s **`package.json`** may **not** define `dev:recover` / `dev:f
 
 Longer playbooks in **`.cursor/rules/local-runtime-recovery.mdc`** may name scripts that are not wired in this repo; fall back to this section + **`FlightPro.md` §2. Use **`FlightPro-Alt.md`** only for advanced edge cases (`sharp`, ownership, WSL/OOM escalation).
 
+## Payload admin guardrail (`/admin` / `/admin/login`)
+
+If local admin crashes with errors like `Cannot destructure property 'config' ... undefined` (often surfaced from `@payloadcms/ui` / `CodeEditor`), check route-group wiring **first**:
+
+1. `app/(payload)/layout.tsx` must use `RootLayout` from `@payloadcms/next/layouts`.
+2. Layout must pass `config` and `importMap` to `RootLayout`.
+3. Layout must provide `serverFunction` via `handleServerFunctions({ ...args, config, importMap })`.
+4. After admin config/component changes, run `npm run generate:importmap`.
+5. Verify with `npm run verify:next`, then `npm run dev`, then smoke:
+   - `http://127.0.0.1:3000/`
+   - `http://127.0.0.1:3000/admin`
+   - optional auth check: invalid `POST /api/users/login` should return `401`, not `500`.
+
+Do not treat dependency pinning/import-map refresh alone as sufficient if the `(payload)` layout provider pattern is missing.
+
 ## Session closeout checklist (one-command style)
 
 At the end of every session, update `Session-Snapshots.md` (newest entry at top) with:

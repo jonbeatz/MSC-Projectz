@@ -11,6 +11,238 @@ Keep newest snapshot at the top.
 
 ---
 
+## 2026-04-27 08:43 (local) - v1.03 release gate paused on Windows file lock
+
+### Session state
+- Branch: `MSC-Projectz-FullDev-v2`
+- Commit at snapshot: `e216dfb` (working tree has uncommitted runtime/doc updates)
+- Working tree: `dirty`
+- Local dev URL: `http://127.0.0.1:3000` status `stopped for clean-room reinstall`
+
+### What was done
+- Executed final release-gate audit and runtime security proofs.
+- Proof A (verified): login `200`, `/admin` resolved `200` (no trust-gate redirect).
+- Proof A (unverified): login `200`, `/admin` redirected `307` -> `/auth/verify-reminder`.
+- Proof B (cross-tenant): User A requesting User B project by id returned `404 Not Found` (no data leak, no `500`).
+- Added `devBundleServerPackages: true` to `next.config.mjs` per requested gate; build still passes but Next.js warns key is unrecognized in current version.
+- Began conditional finalize sequence, but blocked by persistent Windows lock on Tailwind native binary under `node_modules`.
+
+### Files touched (high value)
+- `next.config.mjs`
+- `.cursor/docs/Session-Snapshots.md`
+- `.cursor/docs/Development-Roadmap.md`
+- `.cursor/docs/Agent-Runbook.md`
+- `.cursor/docs/START-HERE.md`
+- `app/(payload)/layout.tsx`
+- `payload.config.ts`
+- `app/(payload)/admin/importMap.js`
+
+### Commands run (important)
+- `npm run verify:next` (pass)
+- runtime auth/access proof requests for `/admin`, `/api/users/login`, and `/api/msc-vault-projects/:id`
+- `taskkill /IM node.exe /F`
+- `npx rimraf .next node_modules` (blocked by lock)
+- `npm ci` (blocked by lock)
+
+### Validation / outcomes
+- Build gate: `pass` (`verify:next` exits `0`).
+- Runtime gate proofs: `pass` for requested auth and cross-tenant denial checks.
+- Finalize sequence: `blocked` by OS-level file lock:
+  - `EPERM unlink D:\Cursor_Projectz\MSC-Projectz\node_modules\@tailwindcss\oxide-win32-x64-msvc\tailwindcss-oxide.win32-x64-msvc.node`
+- Deploy/tag status: `not started` (intentionally halted until clean-room install succeeds).
+
+### Start-next checklist
+1. Reboot Windows (to clear external file handle lock).
+2. Open **Administrator PowerShell** and run:
+   - `cd D:\Cursor_Projectz\MSC-Projectz`
+   - `taskkill /IM node.exe /F`
+   - `cmd /c "rmdir /s /q node_modules"`
+   - `npx rimraf .next`
+   - `npm ci`
+3. In Cursor chat, type: **`Ready to begin`** and include whether `npm ci` passed.
+4. Resume immediately with:
+   - `npm run generate:importmap`
+   - check `generate:types` script existence; run only if present
+   - `npm run verify:next`
+   - `npm run dev` + smoke (`/`, `/admin`)
+   - `git add -A`
+   - `git commit -m "chore(release): finalize Vader Protocol v1.03 gate"`
+   - `git tag -a v1.03 -m "Vader Protocol v1.03"`
+
+### Open risks / blockers
+- Single active blocker is OS lock/permission on Tailwind native binary in `node_modules`; release/tagging halted until clean-room install succeeds.
+
+### Deploy truth checks (required on closeout)
+- Profile changed? `no`
+- Secrets rotated/updated? `not-needed`
+- Windows/Linux native-module guard passed? `no` (currently blocked by Windows lock)
+
+---
+
+## 2026-04-27 08:11 (local) - Admin login crash resolved + auth flow verified
+
+### Session state
+- Branch: `MSC-Projectz-FullDev-v2`
+- Commit at snapshot: `e216dfb` (working tree has uncommitted runtime + docs updates)
+- Working tree: `dirty`
+- Local dev URL: `http://127.0.0.1:3000` status `up`
+
+### What was done
+- Fixed local Payload admin crash (`/admin/login` 500, `CodeEditor` config undefined) by restoring required Payload context wiring in route-group layout.
+- Updated `app/(payload)/layout.tsx` to use `RootLayout` + `handleServerFunctions` from `@payloadcms/next/layouts`, passing `config` and `importMap`.
+- Kept custom admin dashboard footer customization intact (`afterDashboard` in `payload.config.ts`) and regenerated Payload import map.
+- Removed `transpilePackages` overrides from `next.config.mjs` to reduce risk of duplicated Payload UI/context module loading.
+- Verified invalid login path returns proper auth error (`401`) instead of runtime crash.
+- Verified valid login path creates session and redirects to `/auth/verify-reminder` (expected trust gate), confirming clean end-to-end auth behavior.
+
+### Files touched (high value)
+- `app/(payload)/layout.tsx`
+- `next.config.mjs`
+- `payload.config.ts`
+- `app/(payload)/admin/importMap.js`
+- `app/(payload)/admin/[[...segments]]/page.tsx` (temporary type test, reverted)
+- `.cursor/docs/Session-Snapshots.md`
+- `.cursor/docs/Development-Roadmap.md`
+- `.cursor/docs/Agent-Runbook.md`
+
+### Commands run (important)
+- `npm run generate:importmap`
+- `npm run verify:next`
+- `npm run dev`
+- `curl -L http://127.0.0.1:3000/`
+- `curl -L http://127.0.0.1:3000/admin`
+- `Invoke-RestMethod POST http://127.0.0.1:3000/api/users/login` (invalid + valid checks)
+
+### Validation / outcomes
+- Build gate: `pass` (`npm run verify:next`).
+- Smoke checks: `/ 200`, `/admin 200`, `/admin/login 200`.
+- Auth checks:
+  - invalid credentials -> `401` with expected message.
+  - valid credentials -> login success (`200`) + `/admin` redirect to `/auth/verify-reminder` (`307`), reminder page `200`.
+- Deploy status: `not started`.
+
+### Start-next checklist
+1. Run: `git branch --show-current && git status -sb`
+2. Confirm local server: `npm run dev`, then smoke `/` + `/admin`.
+3. If touching Payload admin layout/routes, keep `app/(payload)/layout.tsx` on `RootLayout` pattern (`config` + `importMap` + `serverFunction`).
+4. Re-run `npm run generate:importmap` after admin component map/config changes.
+5. Before closeout on runtime edits: `npm run verify:next`, then restart `npm run dev`.
+
+### Open risks / blockers
+- Admin crash blocker is resolved locally; primary remaining auth behavior is the expected verify-reminder redirect for unverified accounts.
+
+### Deploy truth checks (required on closeout)
+- Profile changed? `no`
+- Secrets rotated/updated? `not-needed`
+- Windows/Linux native-module guard passed? `not-run this pass`
+
+---
+
+## 2026-04-27 04:03 (local) - Final nightly pass (admin 500 persists)
+
+### Session state
+- Branch: `MSC-Projectz-FullDev-v2`
+- Commit at snapshot: `e216dfb` (working tree has uncommitted admin-runtime diagnostics)
+- Working tree: `dirty`
+- Local dev URL: `http://127.0.0.1:3000` status `up`
+
+### What was done
+- Ran final dependency-isolation attempt: removed direct top-level `@payloadcms/ui` dependency while keeping Payload family pinned/overridden to `3.84.1`.
+- Re-installed dependencies, regenerated Payload import map, and re-ran build verification.
+- Re-tested `/admin/login`; failure remains unchanged (`CodeEditor` config undefined).
+- Confirmed the issue is not resolved by version pinning + direct UI dependency removal.
+
+### Files touched (high value)
+- `package.json`
+- `package-lock.json`
+- `next.config.mjs`
+- `app/(payload)/admin/importMap.js`
+- `.cursor/docs/Session-Snapshots.md`
+- `.cursor/docs/Development-Roadmap.md`
+
+### Commands run (important)
+- `npm install`
+- `npm run generate:importmap`
+- `npm run verify:next`
+- `npm run dev`
+- `Invoke-WebRequest http://127.0.0.1:3000/admin/login`
+
+### Validation / outcomes
+- Build gate: `pass`.
+- Smoke checks: `/ 200`, `/admin/login 500` (still failing).
+- Deploy status: `not started`.
+
+### Start-next checklist
+1. Run: `git branch --show-current && git status -sb`
+2. Trigger startup protocol and read-order handshake (`Ready to begin` -> final line `Ready to start Jedi Master`).
+3. Reconfirm current failure quickly: `npm run dev` then `http://127.0.0.1:3000/admin/login`.
+4. Begin focused admin-shell bisect (minimal Payload admin setup branch or temporary stripped admin config) to isolate where `ConfigContext` is lost.
+5. Keep dependency pins/overrides in place during bisect so package drift does not re-enter the signal.
+
+### Open risks / blockers
+- Primary blocker remains unresolved: Payload admin route fails despite clean builds and unified Payload versions.
+- Windows native file locking can still interfere with deep-clean attempts; use lock-safe sequence when required.
+
+### Deploy truth checks (required on closeout)
+- Profile changed? `no`
+- Secrets rotated/updated? `not-needed`
+- Windows/Linux native-module guard passed? `not-run this pass`
+
+---
+
+## 2026-04-27 03:48 (local) - Admin 500 deep isolation + dependency unification pass
+
+### Session state
+- Branch: `MSC-Projectz-FullDev-v2`
+- Commit at snapshot: `e216dfb` (working tree has additional uncommitted dependency/config diagnostics)
+- Working tree: `dirty`
+- Local dev URL: `http://127.0.0.1:3000` status `up`
+
+### What was done
+- Reproduced `/admin/login` 500 consistently and captured stack (`@payloadcms/ui` -> `CodeEditor` config undefined).
+- Ran deep dependency reset flow: fresh install, Payload-family upgrade, import-map regenerate, full verify builds.
+- Audited route/layout and collection context safety; ruled out `VaultProjects`/`VaultTasks` custom field component/context issues.
+- Ran targeted isolation on `payload.config.ts` admin component injection; confirmed it is **not** the trigger and restored config.
+- Added strict Payload package pinning and npm overrides to force one Payload-family version (`3.84.1`) across tree.
+
+### Files touched (high value)
+- `package.json`
+- `package-lock.json`
+- `next.config.mjs`
+- `app/(payload)/admin/importMap.js`
+
+### Commands run (important)
+- `npm install`
+- `npm install payload@latest @payloadcms/next@latest @payloadcms/ui@latest @payloadcms/db-sqlite@latest @payloadcms/richtext-lexical@latest --legacy-peer-deps`
+- `npm run generate:importmap`
+- `npx next build`
+- `npm run verify:next`
+- `npm run dev`
+- `Invoke-WebRequest http://127.0.0.1:3000/`
+- `Invoke-WebRequest http://127.0.0.1:3000/admin/login`
+
+### Validation / outcomes
+- Build gate: `pass` (both `next build` and `verify:next` passed after dependency/config updates).
+- Smoke checks: `/ 200`, `/admin/login 500` (issue persists).
+- Deploy status: `not started`.
+
+### Start-next checklist
+1. Run: `git branch --show-current && git status -sb`
+2. Re-test current state quickly: `npm run dev` then `/` and `/admin/login`.
+3. Continue with Payload admin shell isolation (module/context path), starting from `app/(payload)/admin/[[...segments]]/page.tsx`, `app/(payload)/layout.tsx`, and current `next.config.mjs`.
+4. If needed, create temporary minimal Payload config branch to bisect admin runtime behavior without command-center wrappers.
+
+### Open risks / blockers
+- Primary blocker remains: local Payload admin login route (`/admin/login`) returns `500` with `CodeEditor` context error despite aligned versions/import map and clean builds.
+- Windows file-locking (`EPERM` on Tailwind native binary) can interrupt full `node_modules` wipes; use lock-safe cleanup sequence.
+
+### Deploy truth checks (required on closeout)
+- Profile changed? `no`
+- Secrets rotated/updated? `not-needed`
+- Windows/Linux native-module guard passed? `not-run this pass`
+
+---
+
 ## 2026-04-27 02:52 (local) - Tasks UI declutter + roadmap sync
 
 ### Session state

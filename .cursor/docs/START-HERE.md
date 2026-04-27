@@ -37,6 +37,12 @@ If localhost is broken, follow recovery in `FlightPro.md` and `Agent-Runbook.md`
 - Smoke: `http://127.0.0.1:3000/` and `http://127.0.0.1:3000/admin`
 - Release package: `npm run pushitlive`
 
+### Known fixes (do this first)
+
+- **Payload admin crash (`/admin/login` 500, `CodeEditor` config undefined):** ensure `app/(payload)/layout.tsx` uses Payload `RootLayout` wiring with `config` + `importMap` + `handleServerFunctions` serverFunction.
+- **After any admin layout/component wiring change:** run `npm run generate:importmap`, then `npm run verify:next`, then `npm run dev`, then smoke `/` + `/admin`.
+- **Reference records:** see latest resolved incident in `Session-Snapshots.md` (`2026-04-27 08:11`) and permanent guardrail in `Agent-Runbook.md` (`Payload admin guardrail` section).
+
 ### Operator handshake triggers ("Ok Jon")
 
 At recognized workflow starts, first status line should be:
