@@ -11,6 +11,31 @@ Keep newest snapshot at the top.
 
 ---
 
+## 2026-04-26 19:52 (local) - Daily Ops cheat sheet + doc map link
+
+### Session state
+- Branch: `feature/deploy-truth-hardening` (or current working branch — verify with `git status`)
+- Commit at snapshot: uncommitted
+- Working tree: `dirty`
+- Local dev URL: n/a (docs-only)
+
+### What was done
+- Linked `Daily-Ops-Cheat-Sheet.md` into `START-HERE.md` (read order, tree, start flow).
+- Updated `Project-Truth.md` to v1.2.1: canonical order + handoff prompt include Daily Ops.
+
+### Files touched (high value)
+- `.cursor/docs/START-HERE.md`
+- `.cursor/docs/Project-Truth.md`
+
+### Validation / outcomes
+- Build gate: not run
+- Deploy: not run
+
+### Open risks / blockers
+- None
+
+---
+
 ## Snapshot Template (copy/paste)
 
 ```md

@@ -5,20 +5,22 @@
 Use this quick flow at the beginning of every session:
 
 1. Confirm branch and working tree: `git branch --show-current` and `git status -sb`.
-2. Re-read docs in order (below), starting with this file and `MasterSetUp.md`.
-3. Load deploy profile context from `.cursor/docs/Deploy-Profile.template.json` (+ local override if present).
-4. Confirm script truth in `package.json` before using any command alias.
-5. For runtime edits (`app/`, `components/`, `lib/`, `collections/`, config), run build gate before closeout:
+2. Skim **`Daily-Ops-Cheat-Sheet.md`** for the day’s rhythm (start → build → closeout).
+3. Re-read docs in order (below), starting with this file and `MasterSetUp.md`.
+4. Load deploy profile context from `.cursor/docs/Deploy-Profile.template.json` (+ local override if present).
+5. Confirm script truth in `package.json` before using any command alias.
+6. For runtime edits (`app/`, `components/`, `lib/`, `collections/`, config), run build gate before closeout:
    - `npm run verify:next`
-6. Ensure local dev is healthy on port `3000`:
+7. Ensure local dev is healthy on port `3000`:
    - `npm run dev`
    - smoke test `/` and `/admin` on `http://127.0.0.1:3000`
-7. Read latest handoff in `Session-Snapshots.md` and continue from its "Start-next checklist".
+8. Read latest handoff in `Session-Snapshots.md` and continue from its "Start-next checklist".
 
 If localhost is broken, follow recovery in `FlightPro.md` and `Agent-Runbook.md`.
 
 ### Daily quick commands
 
+- Day rhythm: see `Daily-Ops-Cheat-Sheet.md`
 - Context: `git branch --show-current && git status -sb`
 - Deploy profile preflight: `npm run deploy:preflight`
 - Build gate (runtime edits): `npm run verify:next`
@@ -91,18 +93,19 @@ Ship a production-ready **Payload 3** + **Next.js 16** command center (with opti
 
 1. **`Project-Truth.md`** — one-file AI onboarding truth (mission, stack, workflow, command/deploy context)  
 2. **`START-HERE.md`** (this file)  
-3. **`MasterSetUp.md`** — master setup/deploy/context schema for any project  
-4. **`Session-Snapshots.md`** — latest handoff snapshot and start-next checklist  
-5. **`FlightPro.md`** — deploy zip pipeline, `pushitlive`, local recovery, env principles  
-6. **`Agent-Runbook.md`** — coding and isolation rules  
-7. **`Spaceship.md`** — hosting context  
-8. **`Jedi-List.md`** — roadmap checkboxes  
-9. **`DeployUpdate.md`**, **`Flight.md`** — short deploy/env checklists  
-10. **`FlightPro-Alt.md`** — advanced troubleshooting appendix (use when standard `FlightPro` flow fails)  
-11. **`Deploy-Profile.template.json`**, **`Deploy-Profile.local.example.json`** — non-secret host/path profile contract  
-12. **`Deploy-Secrets-Workflow.md`** — encrypted secret handling and rotation workflow  
-13. **`ReCall.md`** — session notes  
-14. **`Restore-Points.md`** — git restore one-liners  
+3. **`Daily-Ops-Cheat-Sheet.md`** — fast daily start / dev / deploy / closeout rhythm  
+4. **`MasterSetUp.md`** — master setup/deploy/context schema for any project  
+5. **`Session-Snapshots.md`** — latest handoff snapshot and start-next checklist  
+6. **`FlightPro.md`** — deploy zip pipeline, `pushitlive`, local recovery, env principles  
+7. **`Agent-Runbook.md`** — coding and isolation rules  
+8. **`Spaceship.md`** — hosting context  
+9. **`Jedi-List.md`** — roadmap checkboxes  
+10. **`DeployUpdate.md`**, **`Flight.md`** — short deploy/env checklists  
+11. **`FlightPro-Alt.md`** — advanced troubleshooting appendix (use when standard `FlightPro` flow fails)  
+12. **`Deploy-Profile.template.json`**, **`Deploy-Profile.local.example.json`** — non-secret host/path profile contract  
+13. **`Deploy-Secrets-Workflow.md`** — encrypted secret handling and rotation workflow  
+14. **`ReCall.md`** — session notes  
+15. **`Restore-Points.md`** — git restore one-liners  
 
 ```
 MSC-Projectz
@@ -110,6 +113,7 @@ MSC-Projectz
 │   ├── docs/
 │   │   ├── Project-Truth.md
 │   │   ├── START-HERE.md
+│   │   ├── Daily-Ops-Cheat-Sheet.md
 │   │   ├── MasterSetUp.md
 │   │   ├── Session-Snapshots.md
 │   │   ├── FlightPro.md

@@ -6,7 +6,7 @@ Use this file first, then follow its linked source-of-truth order.
 
 ## Versioning
 
-- **Version:** `v1.2.0`
+- **Version:** `v1.2.1`
 - **Updated:** `2026-04-26`
 - **Owner:** `Jon Beatz / MSC-Projectz`
 
@@ -86,14 +86,15 @@ Core quality expectations:
 Read in this exact order when onboarding:
 
 1. `START-HERE.md` (workflow + current restart point)
-2. `Session-Snapshots.md` (latest operational context)
-3. `FlightPro.md` (primary deploy/recovery SOP)
-4. `Agent-Runbook.md` (execution behavior + closeout rules)
-5. `MasterSetUp.md` (portable schemas/checklists)
-6. `Restore-Points.md` (rollback checkpoints)
-7. `.cursor/docs/Deploy-Profile.template.json` (non-secret deploy contract)
-8. `package.json` (script truth)
-9. `msc_package_deploy.mjs` (deploy artifact truth)
+2. `Daily-Ops-Cheat-Sheet.md` (fast daily rhythm: start, dev, deploy, closeout)
+3. `Session-Snapshots.md` (latest operational context)
+4. `FlightPro.md` (primary deploy/recovery SOP)
+5. `Agent-Runbook.md` (execution behavior + closeout rules)
+6. `MasterSetUp.md` (portable schemas/checklists)
+7. `Restore-Points.md` (rollback checkpoints)
+8. `.cursor/docs/Deploy-Profile.template.json` (non-secret deploy contract)
+9. `package.json` (script truth)
+10. `msc_package_deploy.mjs` (deploy artifact truth)
 
 Use only when needed:
 - `FlightPro-Alt.md` for advanced failures (OOM, sharp/native modules, ownership/permissions edge cases)
@@ -215,7 +216,7 @@ Policy locations:
 ## 10) What an AI Should Do First (Checklist)
 
 1. Read this file completely.
-2. Read canonical docs in the order from Section 3.
+2. Read canonical docs in the order from Section 4.
 3. Run context commands:
    - `git branch --show-current`
    - `git status -sb`
@@ -232,13 +233,14 @@ You are onboarding to MSC-Projectz.
 Read these files in order and treat them as truth:
 1) .cursor/docs/Project-Truth.md
 2) .cursor/docs/START-HERE.md
-3) .cursor/docs/Session-Snapshots.md (latest entry first)
-4) .cursor/docs/FlightPro.md
-5) .cursor/docs/Agent-Runbook.md
-6) .cursor/docs/MasterSetUp.md
-7) .cursor/docs/Restore-Points.md
-8) package.json
-9) msc_package_deploy.mjs
+3) .cursor/docs/Daily-Ops-Cheat-Sheet.md
+4) .cursor/docs/Session-Snapshots.md (latest entry first)
+5) .cursor/docs/FlightPro.md
+6) .cursor/docs/Agent-Runbook.md
+7) .cursor/docs/MasterSetUp.md
+8) .cursor/docs/Restore-Points.md
+9) package.json
+10) msc_package_deploy.mjs
 
 Rules:
 - package.json is command truth
