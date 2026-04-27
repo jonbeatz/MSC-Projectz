@@ -78,7 +78,7 @@ Ship a production-ready **Payload 3** + **Next.js 16** command center (with opti
 * **Project Dashboard:** Bento-style view of studio projects.  
 * **Task Drawer / pulse:** Task workflows and indicators (see `components/MSC-Projectz-TaskPulse.tsx`, `components/task-drawer.tsx`).  
 * **Code Manager (`/vault`):** split-pane workspace with Markdown and vault utilities.  
-* **Audit Logs (`/settings/audit`):** admin-only audit trail for sensitive user-management actions with filterable history/details.  
+* **Audit Logs (embedded in Settings):** admin-only audit trail section with filterable history/details for sensitive user-management actions.  
 * **Credentials & Explorer:** project cards with key popovers; native folder open via Tauri when available.  
 * **Persistence:** Local **SQLite** via Payload; uploads under **`./media`**.  
 * **Theming:** Soft Studio light mode scoped with `.light` / `[data-theme='light']` (see `app/globals.css`, `components/dashboard-layout.tsx`).  

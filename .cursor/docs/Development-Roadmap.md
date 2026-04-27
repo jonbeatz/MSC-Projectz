@@ -27,7 +27,7 @@
 - [ ] **Global vault:** Implement "Master Admin" role-based access control (RBAC).
 - [ ] **Member cards:** Fix "Add Member" so it successfully opens Task Pulse.
 - [x] **Vault projects — write-strict (Payload):** **`msc_vaultReadOwnProjects`** unchanged (owner or `members` can read). **`msc_vaultWriteOwnProjects`** for `update`/`delete` on **`msc-vault-projects`**: admins full; non-admins only when `user` = self (members no longer edit/delete project rows). *(Apr 2026)*
-- [x] **Audit logs (admin actions):** Added `msc-audit-logs` collection, non-blocking audit writes for user admin actions, and admin-only viewer at `/settings/audit` with filters + details modal. *(Apr 2026)*
+- [x] **Audit logs (admin actions):** Added `msc-audit-logs` collection, non-blocking audit writes for user admin actions, and admin-only audit viewer embedded in Settings with filters + details modal. *(Apr 2026)*
 - [ ] **Credential scoping (remaining):** Keep auditing Local API / app routes so non-owners cannot mutate others’ data; collection read already scopes non-admins to visible projects; write on projects is now owner-only.
 
 ## Sprint 3: Interface polish (priority: low)
@@ -60,4 +60,4 @@
 - **2026-04** — Sprint 1: single auth/register path, password policy module, dashboard username preference; help doc updated for `/auth/register`; welcome email trigger added in `msc_auth_actions` via `msc_sendWelcomeEmail`.
 - **2026-04** — Sprint 2: Vault collection `update`/`delete` use `msc_vaultWriteOwnProjects` (read still `msc_vaultReadOwnProjects`).
 - **2026-04** — Sprint 2: Role-based UI gating unified on `RoleGate`; deprecated `AdminGate` removed and docs updated (`START-HERE`, `Project-Truth`).
-- **2026-04** — Sprint 2: Admin audit trail shipped (`msc-audit-logs`), shared admin guard extracted, and `/settings/audit` UI added with filter + JSON details viewer.
+- **2026-04** — Sprint 2: Admin audit trail shipped (`msc-audit-logs`), shared admin guard extracted, and Settings-embedded audit viewer added with filter + JSON details viewer.

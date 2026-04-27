@@ -2,13 +2,12 @@
 
 import { useState } from 'react'
 import { Apple, CheckCircle, DatabaseBackup, Mail, Monitor, Save, Server } from 'lucide-react'
-import Link from 'next/link'
 
 import { MSC_Projectz_PayloadUsersPanel } from '@/components/MSC-Projectz-PayloadUsersPanel'
+import { MSC_Projectz_AuditLogViewer } from '@/components/settings/MSC-Projectz-AuditLogViewer'
 import { RoleGate } from '@/components/shared/RoleGate'
 import { MSC_Projectz_SettingsUsersSection } from '@/components/settings/MSC-Projectz-SettingsUsersSection'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Switch } from '@/components/ui/switch'
 import { toast } from '@/hooks/use-toast'
 import { msc_backupDatabase } from '@/lib/msc_server_actions'
@@ -101,22 +100,6 @@ export function MSC_Projectz_AdminSettingsRouteView() {
         </section>
       )}
 
-      <RoleGate allowedRoles={['admin']}>
-        <Card className="border-border bg-card">
-          <CardHeader>
-            <CardTitle className="text-lg font-medium text-foreground">Audit Logs</CardTitle>
-            <CardDescription>
-              View the history of administrative actions, role changes, and system access.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Button asChild variant="outline">
-              <Link href="/settings/audit">View Audit History</Link>
-            </Button>
-          </CardContent>
-        </Card>
-      </RoleGate>
-
       <section id="system" className="overflow-hidden rounded-lg border border-border bg-card">
         <div className="border-b border-border px-6 py-4">
           <h2 className="text-lg font-semibold text-foreground">System</h2>
@@ -194,6 +177,18 @@ export function MSC_Projectz_AdminSettingsRouteView() {
 
         </div>
       </section>
+
+      <RoleGate allowedRoles={['admin']}>
+        <div className="mt-8 border-t border-border pt-8">
+          <h2 className="text-xl font-semibold text-foreground">System Audit Logs</h2>
+          <p className="mt-2 text-sm text-muted-foreground">
+            Review administrative actions, role changes, and sensitive account operations from the settings dashboard.
+          </p>
+          <div className="mt-4">
+            <MSC_Projectz_AuditLogViewer />
+          </div>
+        </div>
+      </RoleGate>
 
       </div>
 

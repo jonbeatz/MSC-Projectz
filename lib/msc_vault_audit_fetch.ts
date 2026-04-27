@@ -37,18 +37,23 @@ export async function msc_getAuditLogs(
   if (actorId) and.push({ actor: { equals: actorId } })
   if (and.length > 0) where.and = and
 
-  const result = await admin.ctx.payload.find({
-    collection: 'msc-audit-logs',
-    where,
-    sort: '-createdAt',
-    limit,
-    page: currentPage,
-    depth: 1,
-    overrideAccess: true,
-  })
+  try {
+    const result = await admin.ctx.payload.find({
+      collection: 'msc-audit-logs',
+      where,
+      sort: '-createdAt',
+      limit,
+      page: currentPage,
+      depth: 1,
+      overrideAccess: true,
+    })
 
-  return {
-    logs: result.docs as MscAuditLogDoc[],
-    totalPages: result.totalPages || 1,
+    return {
+      logs: result.docs as MscAuditLogDoc[],
+      totalPages: result.totalPages || 1,
+    }
+  } catch (err) {
+    console.error('[msc] audit fetch failed:', err)
+    return { logs: [], totalPages: 1 }
   }
 }
