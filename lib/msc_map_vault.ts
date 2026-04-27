@@ -11,6 +11,7 @@ import type {
 } from '@/lib/types'
 import { getSafePath } from '@/lib/env-utils'
 import { msc_parseReferencesJson } from '@/lib/msc_project_references'
+import { msc_resolveAvatarUrl, type MscAvatarSource } from '@/lib/msc_avatar_url'
 import type { MscProjectMember } from '@/types/user-admin'
 
 type MscVaultProjectDoc = {
@@ -110,12 +111,14 @@ export function msc_mapCredentialRow(row: NonNullable<MscVaultProjectDoc['creden
 
 function msc_mapProjectMember(member: string | number | MscProjectMember): MscProjectMember {
   if (typeof member === 'object' && member !== null && 'id' in member) {
+    /** Runtime Payload shapes may include populated media on `avatar`; narrowed via `MscAvatarSource`. */
+    const avatarUrl = msc_resolveAvatarUrl(member as MscAvatarSource)
     return {
       id: member.id,
       email: member.email ?? null,
       username: member.username ?? null,
-      avatar: member.avatar ?? null,
-      avatarUrl: member.avatarUrl ?? null,
+      avatar: null,
+      avatarUrl,
     }
   }
 

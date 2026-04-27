@@ -1,28 +1,17 @@
 'use client'
 
 import { format, isValid } from 'date-fns'
-import { Pencil } from 'lucide-react'
+import { Pencil, User } from 'lucide-react'
 import { memo, useCallback, useEffect, useRef } from 'react'
 
 import { msc_resolveTaskAssignee } from '@/components/MSC-Projectz-TaskAssignee'
 import { Button } from '@/components/ui/button'
+import { msc_resolveAvatarUrl } from '@/lib/msc_avatar_url'
 import { msc_getTaskStatusLabel } from '@/lib/msc_task_status_labels'
 import { useIsMaxMd } from '@/lib/msc_hooks'
 import type { MscProjectMember } from '@/types/user-admin'
 import type { Project, Task, TaskStatus } from '@/lib/types'
 import { cn } from '@/lib/utils'
-
-function msc_memberInitials(member: MscProjectMember) {
-  const label = member.username?.trim() || member.email?.trim() || `U${String(member.id)}`
-  return (
-    label
-      .split(/[\s@._-]+/)
-      .filter(Boolean)
-      .slice(0, 2)
-      .map((part) => part[0]?.toUpperCase())
-      .join('') || 'U'
-  )
-}
 
 const CalendarTaskChipImpl = function CalendarTaskChip({
   task,
@@ -56,7 +45,7 @@ const CalendarTaskChipImpl = function CalendarTaskChip({
   const label = assignee
     ? assignee.username?.trim() || assignee.email?.trim() || `User ${String(assignee.id)}`
     : null
-  const av = assignee ? assignee.avatarUrl || assignee.avatar : null
+  const av = assignee ? msc_resolveAvatarUrl(assignee) : null
 
   const due = task.dueDate
   const dateLine =
@@ -190,7 +179,17 @@ const CalendarTaskChipImpl = function CalendarTaskChip({
           className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center overflow-hidden rounded-full bg-primary/15 text-[8px] font-semibold text-primary"
           title={label || 'Unassigned'}
         >
-          {assignee ? av ? <img src={av} alt="" className="h-full w-full object-cover" /> : msc_memberInitials(assignee) : '·'}
+          {assignee ? (
+            av ? (
+              <img src={av} alt="" className="h-full w-full object-cover" />
+            ) : (
+              <span className="flex h-full w-full items-center justify-center p-0.5">
+                <User className="h-2.5 w-2.5 text-primary" strokeWidth={1.5} aria-hidden />
+              </span>
+            )
+          ) : (
+            '·'
+          )}
         </span>
         <div className="min-w-0 flex-1">
           <span className="line-clamp-2" title={task.title}>

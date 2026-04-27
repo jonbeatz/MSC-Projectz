@@ -1,5 +1,10 @@
 # ReCall
 
+## 2026-04-27 — Sprint 8 (avatar resolution)
+
+- **Shipped:** **`msc_resolveAvatarUrl`** (**`lib/msc_avatar_url.ts`**); **`msc_mapProjectMember`** sets **`avatarUrl`** only; **`MemberClusterTrigger`** + **`fallbackType`** (**`'icon'`** default); **`MSC-Projectz-ProjectCard`**, **`CalendarTaskChip`**, **`MSC-Projectz-TaskAssignee`** badge; profile **`msc_avatarUrlFromDoc`** DRY.  
+- **Docs:** **`Development-Roadmap.md`** (Sprint 8), **`Agent-Runbook.md`** (*Profile avatars & member clusters*), **`Session-Snapshots.md`**, **`START-HERE.md`** (Core Features).
+
 ## 2026-04-27 — Current operator pointer
 
 - **Active branch:** `MSC-Projectz-FullDev-v5` (always confirm with `git branch --show-current`). Prior lines: `MSC-Projectz-FullDev-v4`, `MSC-Projectz-FullDev-v3` on `origin` for history.

@@ -81,6 +81,16 @@
 | No nested buttons (day cell vs chip / pencil) | Done |
 | Selection/today border (no ring corner artifacts) | Done |
 
+## Sprint 8: Avatar resolution and UI standardization (priority: medium)
+
+*Goal: One resolver for Payload `users.avatar` shapes (string URL, populated media `{ url }`, `avatarUrl`) and a calm, uniform no-photo treatment on dashboard surfaces.*
+
+- [x] **`msc_resolveAvatarUrl`** in **`lib/msc_avatar_url.ts`** — single resolution path; no client-side media fetch by id. *(Apr 2026)*
+- [x] **`msc_mapProjectMember`** (**`lib/msc_map_vault.ts`**) resolves **`avatarUrl`** before client mapping; raw media objects are not passed through for display. *(Apr 2026)*
+- [x] **Profile DRY:** **`msc_avatarUrlFromDoc`** in **`lib/msc_profile_server_actions.ts`** delegates to **`msc_resolveAvatarUrl`**. *(Apr 2026)*
+- [x] **`MemberClusterTrigger`** (**`components/MemberClusterTrigger.tsx`**): uses resolver; **`fallbackType`**: **`'initials'`** | **`'icon'`** (default **`'icon'`**); Lucide **`User`** with **`strokeWidth={1.5}`**, padded circle (**Soft Studio**). *(Apr 2026)*
+- [x] **Call sites:** **`MSC-Projectz-ProjectCard`** (`fallbackType="icon"`), **`CalendarTaskChip`**, **`MSC-Projectz-TaskAssignee`** badge aligned with resolver + icon fallback. *(Apr 2026)*
+
 ---
 
 ### How to use this
@@ -121,3 +131,4 @@
 - **2026-04-27** — **Git:** primary integration line continues on branch **`MSC-Projectz-FullDev-v4`** (created from `FullDev-v3` at the same commit as this doc pass); `FullDev-v3` remains on remote for history.
 - **2026-04-27** — **Calendar (Sprint 5 / mobile):** `/calendar` mobile layout (horizontal scroll matrix, `CalendarAgendaPanel` + bottom `Sheet`, `useIsMaxMd`), touch edit affordances on **`CalendarTaskChip`**, day cells as focusable **divs** to avoid invalid nested **`<button>`** hydration, border-only selection/today (no `ring` corner glitches). See **`Session-Snapshots`**, **`Restore-Points`**, **`START-HERE`** (Core Features).
 - **2026-04-27** — **Git:** primary integration line advances to **`MSC-Projectz-FullDev-v5`** (cut from the **`MSC-Projectz-FullDev-v4`** tip at calendar closeout; **`FullDev-v4`** remains for history). Operator pointers updated in **`START-HERE`**, **`Project-Truth`**, **`ReCall`**, **`Session-Snapshots`**, **`Restore-Points`**.
+- **2026-04-27** — **Sprint 8:** Avatar URL resolution (**`lib/msc_avatar_url.ts`**), mapper normalization (**`msc_mapProjectMember`**), **`MemberClusterTrigger`** **`fallbackType`** (**`'icon'`** default = Lucide **`User`**), project card + **`CalendarTaskChip`** + task assignee badge; profile **`msc_avatarUrlFromDoc`** DRY. See **`Agent-Runbook.md`** → *Profile avatars & member clusters*.

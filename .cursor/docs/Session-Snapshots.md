@@ -13,6 +13,24 @@ Keep newest snapshot at the top.
 
 ---
 
+## 2026-04-27 — Sprint 8: Avatar resolution & standardized fallbacks
+
+### Session state
+
+- **What shipped:** **`lib/msc_avatar_url.ts`** (`msc_resolveAvatarUrl`); **`msc_mapProjectMember`** resolves **`avatarUrl`** for client; **`msc_avatarUrlFromDoc`** → resolver (**DRY**); **`MemberClusterTrigger`** **`fallbackType`** (**`'icon'`** default = Lucide **`User`**, **`strokeWidth` 1.5**, padded circle); **`MSC-Projectz-ProjectCard`**, **`CalendarTaskChip`**, **`MSC-Projectz-TaskAssignee`** badge updated.
+- **Why:** Payload **`users.avatar`** can be string, id, or populated **`{ url }`** — UI must not treat **`avatar`** as a raw **`src`** without resolution.
+
+### Validation
+
+- **`npm run verify:next:safe`** expected green before commit; local **`/`** + **`/admin`** smoke on **3000** when dev is up.
+
+### Start-next checklist
+
+1. Confirm branch (**`MSC-Projectz-FullDev-v5`** or current primary per **`START-HERE`**).
+2. See **`Agent-Runbook.md`** → *Profile avatars & member clusters* for resolver rules.
+
+---
+
 ## 2026-04-27 — Local dev recovery scripts (`verify:next:safe`, `dev:recover`, `verify:local`)
 
 - **Shipped:** `package.json` scripts — **`verify:next:safe`** (free **3000** then build), **`dev:fresh` / `dev:recover`** (kill + `rimraf .next` + `next dev`), **`verify:local` / `smoke:local`** (HTTP checks on **`127.0.0.1:3000`**). **`scripts/local-http-smoke.mjs`**. Docs: **`Daily-Ops-Cheat-Sheet`**, **`Project-Truth`** (fragility #4), **`START-HERE`** (daily commands).

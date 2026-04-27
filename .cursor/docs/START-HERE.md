@@ -101,6 +101,7 @@ Ship a production-ready **Payload 3** + **Next.js 16** command center (with opti
 * **Calendar (`/calendar`):** month/week grid of tasks by due date; on **small screens** the grid scrolls horizontally and the day agenda opens in a **bottom sheet**; use **`useIsMaxMd`** (not **`useIsMobile`**) for **`md`-aligned** breakpoint logic. Day cells avoid nested **`<button>`** elements (see `CalendarGrid` / `CalendarTaskChip`).  
 * **Audit Logs (embedded in Settings):** admin-only audit trail section with filterable history/details for sensitive user-management actions.  
 * **Credentials & Explorer:** project cards with key popovers; native folder open via Tauri when available.  
+* **Member avatars (dashboard):** project-card **`MemberClusterTrigger`** and related surfaces use **`msc_resolveAvatarUrl`** (**`lib/msc_avatar_url.ts`**) and default **`fallbackType="icon"`** (Lucide **`User`** when no photo). Mapper **`msc_mapProjectMember`** normalizes **`avatarUrl`** for vault payloads.  
 * **Persistence:** Local **SQLite** via Payload; uploads under **`./media`**.  
 * **Theming:** Soft Studio light mode scoped with `.light` / `[data-theme='light']` (see `app/globals.css`, `components/dashboard-layout.tsx`).  
 * **Tenancy:** Server actions should assert current-user ownership; browser storage must stay user-scoped (see `Agent-Runbook.md`).

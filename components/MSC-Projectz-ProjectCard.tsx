@@ -33,6 +33,7 @@ import { getSafePath } from '@/lib/env-utils'
 import { msc_open_project_folder } from '@/lib/msc_native_system_bridge'
 import { msc_getScopedKey } from '@/lib/msc_scoped_storage'
 import { MscManualProjectMoveControls, type MscManualProjectMove } from '@/components/msc_ManualProjectMoveControls'
+import { MemberClusterTrigger } from '@/components/MemberClusterTrigger'
 
 export interface MSC_Projectz_ProjectCardProps {
   project: Project
@@ -58,19 +59,6 @@ function msc_taskCounts(project: Project) {
   }
   const total = tasks.length
   return { todo, inProgress, done, total }
-}
-
-function msc_projectMemberLabel(member: NonNullable<Project['members']>[number]) {
-  return member.username?.trim() || member.email?.trim() || `User ${String(member.id)}`
-}
-
-function msc_projectMemberInitials(member: NonNullable<Project['members']>[number]) {
-  return msc_projectMemberLabel(member)
-    .split(/[\s@._-]+/)
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((part) => part[0]?.toUpperCase())
-    .join('') || 'U'
 }
 
 export function MSC_Projectz_ProjectCard({
@@ -582,55 +570,27 @@ export function MSC_Projectz_ProjectCard({
         </div>
 
         <div className="mt-3">
-          <div className="mt-2 flex items-center justify-between gap-2">
-            <div className="flex min-w-0 items-center gap-1.5">
-              {projectMembers.length > 0 ? (
-                <>
-                  <div className="flex -space-x-2">
-                    {projectMembers.slice(0, 4).map((member) => {
-                      const label = msc_projectMemberLabel(member)
-                      return (
-                        <span
-                          key={String(member.id)}
-                          className="flex h-7 w-7 items-center justify-center overflow-hidden rounded-full border border-card bg-secondary text-[10px] font-semibold text-foreground ring-1 ring-border"
-                          title={label}
-                        >
-                          {member.avatarUrl || member.avatar ? (
-                            <img
-                              src={member.avatarUrl || member.avatar || ''}
-                              alt={label}
-                              className="h-full w-full object-cover"
-                            />
-                          ) : (
-                            msc_projectMemberInitials(member)
-                          )}
-                        </span>
-                      )
-                    })}
-                  </div>
-                  <span className="truncate text-xs text-muted-foreground">
-                    {projectMembers.length} member{projectMembers.length === 1 ? '' : 's'}
-                  </span>
-                </>
-              ) : (
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    onSelect()
-                  }}
-                  className="inline-flex h-7 items-center gap-1.5 rounded-full border border-dashed border-border bg-secondary/50 px-2.5 text-xs text-muted-foreground transition-colors hover:border-primary hover:text-primary"
-                  title="Quick-add a project member"
-                >
-                  <Plus className="h-3.5 w-3.5" />
-                  Add member
-                </button>
-              )}
-            </div>
-            {projectMembers.length > 4 && (
-              <span className="rounded-full border border-border bg-secondary px-2 py-1 text-[10px] text-muted-foreground">
-                +{projectMembers.length - 4}
-              </span>
+          <div className="mt-2 flex min-w-0 items-center">
+            {projectMembers.length > 0 ? (
+              <MemberClusterTrigger
+                members={projectMembers}
+                stackLimit={3}
+                fallbackType="icon"
+                className="min-w-0"
+              />
+            ) : (
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  onSelect()
+                }}
+                className="inline-flex h-7 items-center gap-1.5 rounded-full border border-dashed border-border bg-secondary/50 px-2.5 text-xs text-muted-foreground transition-colors hover:border-primary hover:text-primary"
+                title="Quick-add a project member"
+              >
+                <Plus className="h-3.5 w-3.5" />
+                Add member
+              </button>
             )}
           </div>
         </div>

@@ -1,6 +1,8 @@
 'use client'
 
-import { UserRound } from 'lucide-react'
+import { User, UserRound } from 'lucide-react'
+
+import { msc_resolveAvatarUrl } from '@/lib/msc_avatar_url'
 
 import {
   Select,
@@ -16,17 +18,6 @@ const MSC_UNASSIGNED_VALUE = '__unassigned__'
 
 function msc_projectMemberLabel(member: MscProjectMember) {
   return member.username?.trim() || member.email?.trim() || `User ${String(member.id)}`
-}
-
-function msc_projectMemberInitials(member: MscProjectMember) {
-  return (
-    msc_projectMemberLabel(member)
-      .split(/[\s@._-]+/)
-      .filter(Boolean)
-      .slice(0, 2)
-      .map((part) => part[0]?.toUpperCase())
-      .join('') || 'U'
-  )
 }
 
 export function msc_getAssignableTaskMembers(project: Project): MscProjectMember[] {
@@ -65,7 +56,7 @@ export function MSC_Projectz_TaskAssigneeBadge({ project, task }: { project: Pro
   if (!assignee) return null
 
   const label = msc_projectMemberLabel(assignee)
-  const avatar = assignee.avatarUrl || assignee.avatar
+  const avatar = msc_resolveAvatarUrl(assignee)
 
   return (
     <span
@@ -73,7 +64,13 @@ export function MSC_Projectz_TaskAssigneeBadge({ project, task }: { project: Pro
       title={`Assignee: ${label}`}
     >
       <span className="flex h-4 w-4 shrink-0 items-center justify-center overflow-hidden rounded-full bg-primary/15 text-[8px] font-semibold text-primary">
-        {avatar ? <img src={avatar} alt={label} className="h-full w-full object-cover" /> : msc_projectMemberInitials(assignee)}
+        {avatar ? (
+          <img src={avatar} alt={label} className="h-full w-full object-cover" />
+        ) : (
+          <span className="flex h-full w-full items-center justify-center p-0.5">
+            <User className="h-2.5 w-2.5 text-primary" strokeWidth={1.5} aria-hidden />
+          </span>
+        )}
       </span>
       <span className="truncate">{label}</span>
     </span>

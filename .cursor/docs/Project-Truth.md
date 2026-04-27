@@ -7,7 +7,7 @@ Use this file first, then follow its linked source-of-truth order.
 ## Versioning
 
 - **Version:** `v1.2.3`
-- **Updated:** `2026-04-27`
+- **Updated:** `2026-04-27` (Sprint 8 avatar docs: `msc_resolveAvatarUrl`, `MemberClusterTrigger` `fallbackType`)
 - **Owner:** `Jon Beatz / MSC-Projectz`
 
 ---
@@ -74,7 +74,7 @@ Core product areas:
 - Dashboard (project list **sort modes** in client app settings: **manual** / **name** / **updated** / **status**; **manual** uses stored **`manualRank`** on `msc-vault-projects`; use **`npm run repair:sqlite`** on an existing local DB if SQLite errors reference missing `manual_rank`)
 - **Calendar** (`/calendar`): month/week task grid from vault **due** dates; on viewports **below `md`**, the matrix scrolls horizontally (fixed min inner width) and the agenda is a **bottom sheet**; logic uses **`useIsMaxMd`** in `lib/msc_hooks.ts` (matches **`max-width: 767px`**, not **`useIsMobile()`** at `lg`). Day cells are interactive **divs** with **`role="button"`** so chips and the mobile pencil control are not nested inside a native **`<button>`** (valid HTML / hydration). Selection and “today” use **border** styling; avoid stacking **`ring`** on rounded cells to prevent corner stroke glitches
 - Dashboard, tasks, profile/settings/help, and vault/code manager paths
-- Payload-backed data and media handling
+- Payload-backed data and media handling; **user/member avatars** resolve through **`msc_resolveAvatarUrl`** (`lib/msc_avatar_url.ts`) — do not pass raw Payload **`avatar`** objects to `<img src>`; dashboard member clusters use **`MemberClusterTrigger`** with **`fallbackType`** (**`'icon'`** default = Lucide **`User`** when no URL)
 - Local-first development and deploy packaging via zip artifact
 
 Core quality expectations:

@@ -105,7 +105,19 @@ Shared shell: `app/(main)/(command-center)/layout.tsx`, `components/MSC-Projectz
 * Browser-only data: use **`msc_getScopedKey()`** from `lib/msc_scoped_storage.ts` — no global project/snippet/credential keys.  
 * Legacy global project migration from `msc-projectz-storage` stays **disabled** for tenant safety.
 
-## Profile avatars
+## Profile avatars & member clusters
 
 * Upload to Payload `media` first; persist **`users.avatar`** as a media id from the server response — not a `blob:` URL.  
 * After save, prefer Zustand (or client state) updates from the **server-returned** user object.
+
+### Avatar URL resolution (Sprint 8)
+
+* Use **`msc_resolveAvatarUrl`** from **`lib/msc_avatar_url.ts`** anywhere you need a display URL from Payload-shaped data (`avatar` string URL, populated media **`{ url }`**, or **`avatarUrl`**). Do **not** assume **`member.avatarUrl || member.avatar`** in UI — raw **`avatar`** may be a media object.  
+* **`msc_mapProjectMember`** (**`lib/msc_map_vault.ts`**) resolves once for vault projects/tasks; mapped **`MscProjectMember`** ships **`avatarUrl`** for photos and does **not** pass raw media blobs for `<img>`.  
+* **No client-side fetch** for media by numeric id only — if no URL is available, the resolver returns **`null`** and components show the fallback.  
+* Profile mapping reuses the same resolver via **`msc_avatarUrlFromDoc`** in **`lib/msc_profile_server_actions.ts`**.
+
+### Member cluster UI (`MemberClusterTrigger`)
+
+* **`fallbackType`**: **`'icon'`** (default, Soft Studio) shows Lucide **`User`** inside the same circular shell as initials would use; **`'initials'`** opt-in per instance. Do **not** mix fallback styles within one cluster.  
+* **`strokeWidth`** matches dashboard icons (**1.5**); inner **`p-1`** keeps the glyph off the ring.

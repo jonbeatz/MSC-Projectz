@@ -5,6 +5,7 @@ import { getPayload } from 'payload'
 import config from '@payload-config'
 import { msc_getVaultLocalApiContext } from '@/lib/msc_vault_auth_context'
 import { msc_hasAdminAccess, msc_normalizeRole } from '@/lib/msc_roles'
+import { msc_resolveAvatarUrl } from '@/lib/msc_avatar_url'
 import type { User } from '@/lib/types'
 
 type MscMediaDoc = {
@@ -27,11 +28,7 @@ export type MscProfileAvatarUploadResult = {
 }
 
 function msc_avatarUrlFromDoc(doc: MscMediaDoc | string | number | null | undefined): string | null {
-  if (doc && typeof doc === 'object' && 'url' in doc && typeof doc.url === 'string') {
-    return doc.url
-  }
-
-  return null
+  return msc_resolveAvatarUrl({ avatar: doc ?? null, avatarUrl: null })
 }
 
 function msc_avatarIdFromDoc(doc: MscMediaDoc | string | number | null | undefined): string | number | null {
