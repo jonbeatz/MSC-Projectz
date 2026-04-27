@@ -61,9 +61,9 @@
 - [x] **Admin runtime blocker resolved:** Local `/admin/login` Payload crash (`CodeEditor` config undefined) fixed by restoring required Payload route-group layout wiring (`app/(payload)/layout.tsx` -> `RootLayout` + `handleServerFunctions` with `config` + `importMap`). Added regression guardrail to run import-map regeneration + build/smoke auth checks after admin-layout edits. *(Apr 2026)*
 - [x] **Cleanup:** Removed duplicate **Configure Local Path** CTA; path is set only via **Edit project** (same field). *(Apr 2026)*
 - [x] **Tasks surface declutter pass:** Removed top project-card progress strip on dashboard, made Project Info collapsed by default on Tasks page, switched in-progress rows to neutral backgrounds, and slimmed progress bars for cleaner density. *(Apr 2026)*
-- [ ] **Mobile responsiveness:**
-  - [ ] Force sidebar/menu to minimize by default on mobile.
-  - [ ] Adjust container padding/spacing for mobile interactions.
+- [x] **Mobile responsiveness (Command Center shell):** Below **`lg` (max-width 1023px)**, the sidebar is a **drawer** (`-translate-x-full` when closed, `z-40` backdrop, `z-50` panel, body scroll lock, resize to desktop closes menu, Escape closes). At **`lg+`**, the **collapsible rail** (`w-16` / `w-64`) and left margin on main (`lg:ml-16` / `lg:ml-64`) remain. **`useIsMobile()`** in **`lib/msc_hooks.ts`** uses `useSyncExternalStore` + `matchMedia('(max-width: 1023px)')` with **SSR default `false`**. Project search in the header is **`hidden lg:block`**. Main content **`p-4 md:p-6`**; dashboard/project **`gap-4` → `md:` wider** where needed; footer **in-flow** below `lg`, **fixed** bottom-right at **`lg`**. *(Apr 2026)*
+  - [x] Sidebar is off-canvas on small viewports (hamburger opens); no rail margin on mobile.
+  - [x] Container padding and responsive gaps applied on dashboard and project grid stats row.
 - [ ] **Drag and drop:** Implement card reordering.
 
 ## Sprint 5: Feature expansion (priority: backlog)
@@ -107,3 +107,4 @@
 - **2026-04-27** — **Next route groups:** moved Command Center, auth, and login under `app/(main)/` with a dedicated document layout; root `app/layout.tsx` is pass-through so Payload `RootLayout` in `app/(payload)/` is not nested under the main `<body>`. Fixes `/admin` duplicate `<html>`/`<body>` and related hydration errors. Operator docs (`START-HERE`, `Project-Truth`, `ReCall`, `Agent-Runbook`, `Restore-Points`, `Session-Snapshots`, roadmap changelog) updated for `MSC-Projectz-FullDev-v3` and the new paths.
 - **2026-04-27** — **Sprint 3 final:** IP-aware throttling (resend + per-submit registration) and `[msc:verification]` JSON funnel telemetry; see `lib/msc_verification_ip_rate_limit.ts`, `lib/msc_verification_telemetry.ts`, `app/actions/resend-verification.ts`, `lib/msc_auth_actions.ts`, `app/actions/verify-email.ts`. Disable with `MSC_VERIFICATION_DISABLE_IP_RATE_LIMIT=true` (local only).
 - **2026-04-27** — **Sprint 4 cleanup:** Removed **Configure Local Path** green CTA and `ConfigurePathModal`; users set `localPath` in **Edit project** only.
+- **2026-04-27** — **Sprint 4 (mobile shell):** Responsive Command Center: `lib/msc_hooks.ts` (`useIsMobile`), drawer sidebar + `dashboard-layout` (hamburger, scroll lock, resize/ Escape), `MSC-Projectz-Dashboard` + `project-grid` spacing. **Do not** run `clean:next` / `verify:next` while `next dev` uses the same `.next` (see `Agent-Runbook`).

@@ -1,14 +1,15 @@
 'use client'
 
-import { 
-  LayoutDashboard, 
+import {
+  LayoutDashboard,
   BookOpen,
   HelpCircle,
   LogOut,
   Plus,
   ChevronLeft,
   ClipboardList,
-  Settings
+  Settings,
+  X,
 } from 'lucide-react'
 import Image from 'next/image'
 import { usePathname, useRouter } from 'next/navigation'
@@ -17,10 +18,13 @@ import { Button } from '@/components/ui/button'
 import { useAppStore } from '@/lib/store'
 import { msc_hasAdminAccess } from '@/lib/msc_roles'
 
-interface SidebarProps {
+export interface DashboardSidebarProps {
   collapsed: boolean
   onToggle: () => void
   onAddProject: () => void
+  isMobile: boolean
+  mobileMenuOpen: boolean
+  onMobileMenuClose: () => void
 }
 
 type NavItem = {
@@ -38,138 +42,194 @@ const navItems: NavItem[] = [
   { path: '/help', label: 'Engine', icon: HelpCircle },
 ]
 
-export function DashboardSidebar({ collapsed, onToggle, onAddProject }: SidebarProps) {
+export function DashboardSidebar({
+  collapsed,
+  onToggle,
+  onAddProject,
+  isMobile,
+  mobileMenuOpen,
+  onMobileMenuClose,
+}: DashboardSidebarProps) {
   const router = useRouter()
   const pathname = usePathname()
   const logout = useAppStore((s) => s.logout)
   const projects = useAppStore((s) => s.projects)
   const user = useAppStore((s) => s.user)
   const appSettings = useAppStore((s) => s.appSettings)
-  
+
   const isDark = appSettings.theme === 'dark'
   const isAdmin = msc_hasAdminAccess(user?.role)
+  const showLabels = isMobile || !collapsed
+
+  const go = (path: string) => {
+    router.push(path)
+    if (isMobile) onMobileMenuClose()
+  }
 
   return (
-    <aside
-      className={cn(
-        'fixed left-0 top-0 h-screen flex flex-col transition-all duration-300 z-40',
-        'bg-sidebar border-r border-sidebar-border',
-        collapsed ? 'w-16' : 'w-64',
-        !isDark && 'card-shadow-lg'
+    <>
+      {isMobile && mobileMenuOpen && (
+        <div
+          className="fixed inset-0 z-40 bg-black/50"
+          onClick={onMobileMenuClose}
+          aria-hidden
+        />
       )}
-    >
-      {/* Header */}
-      <div className="flex items-center justify-between h-16 px-4 border-b border-sidebar-border">
-        <div className={cn('flex items-center gap-3', collapsed && 'justify-center w-full')}>
-          <div className="w-10 h-10 rounded-lg overflow-hidden shrink-0">
-            <Image 
-              src="/media/msc-icon.png" 
-              alt="MSC" 
-              width={40} 
-              height={40}
-              className="object-contain"
-            />
-          </div>
-          {!collapsed && (
-            <div className="flex flex-col">
-              <span className="font-semibold text-sm text-sidebar-foreground">MSC-Projectz</span>
-              <span className="text-[10px] uppercase tracking-wider text-muted-foreground">
-                Command Center
-              </span>
+
+      <aside
+        className={cn(
+          'flex h-screen flex-col border-r border-sidebar-border bg-sidebar',
+          isMobile
+            ? [
+                'fixed inset-y-0 left-0 z-50 w-64 transform transition-transform duration-300',
+                mobileMenuOpen ? 'translate-x-0' : '-translate-x-full',
+                !mobileMenuOpen && 'pointer-events-none',
+                !isDark && 'card-shadow-lg',
+              ]
+            : [
+                'fixed left-0 top-0 z-40 transition-all duration-300',
+                collapsed ? 'w-16' : 'w-64',
+                !isDark && 'card-shadow-lg',
+              ],
+        )}
+      >
+        <div className="flex h-16 shrink-0 items-center justify-between border-b border-sidebar-border px-4">
+          <div className={cn('flex items-center gap-3', !showLabels && 'w-full justify-center')}>
+            <div className="h-10 w-10 shrink-0 overflow-hidden rounded-lg">
+              <Image
+                src="/media/msc-icon.png"
+                alt="MSC"
+                width={40}
+                height={40}
+                className="object-contain"
+              />
             </div>
+            {showLabels && (
+              <div className="flex flex-col min-w-0">
+                <span className="truncate text-sm font-semibold text-sidebar-foreground">MSC-Projectz</span>
+                <span className="text-[10px] uppercase tracking-wider text-muted-foreground">
+                  Command Center
+                </span>
+              </div>
+            )}
+          </div>
+          {isMobile ? (
+            <button
+              type="button"
+              onClick={onMobileMenuClose}
+              className="shrink-0 rounded-md p-1.5 text-muted-foreground transition-colors hover:text-sidebar-foreground"
+              aria-label="Close menu"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          ) : (
+            !collapsed && (
+              <button
+                type="button"
+                onClick={onToggle}
+                className="shrink-0 rounded-md p-1.5 text-muted-foreground transition-colors hover:text-sidebar-foreground"
+                aria-label="Collapse sidebar"
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </button>
+            )
           )}
         </div>
-        {!collapsed && (
-          <button
-            onClick={onToggle}
-            className="p-1.5 rounded-md transition-colors text-muted-foreground hover:text-sidebar-foreground"
+
+        <div className={cn('p-3', !showLabels && 'px-2')}>
+          <Button
+            onClick={() => {
+              onAddProject()
+              if (isMobile) onMobileMenuClose()
+            }}
+            className={cn(
+              'w-full bg-primary text-primary-foreground hover:bg-primary/90',
+              showLabels ? 'justify-start gap-2' : 'px-0',
+            )}
+            size={showLabels ? 'default' : 'icon'}
           >
-            <ChevronLeft className="w-4 h-4" />
+            <Plus className="h-4 w-4" />
+            {showLabels && <span>Add Project</span>}
+          </Button>
+        </div>
+
+        <nav className="flex-1 overflow-y-auto px-3 py-2">
+          <ul className="space-y-1">
+            {navItems
+              .filter((item) => !item.adminOnly || isAdmin)
+              .map((item) => {
+                const Icon = item.icon
+                const isActive = pathname === item.path
+                return (
+                  <li key={item.path}>
+                    <button
+                      type="button"
+                      onClick={() => go(item.path)}
+                      className={cn(
+                        'flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-colors',
+                        !showLabels && 'justify-center px-0',
+                        isActive
+                          ? 'bg-sidebar-accent text-sidebar-foreground'
+                          : 'text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-foreground',
+                      )}
+                    >
+                      <Icon className="h-4 w-4 shrink-0" />
+                      {showLabels && <span>{item.label}</span>}
+                      {showLabels && item.path === '/dashboard' && (
+                        <span className="ml-auto rounded bg-primary/20 px-1.5 py-0.5 text-xs text-primary">
+                          {projects.length}
+                        </span>
+                      )}
+                      {showLabels &&
+                        item.path === '/tasks' &&
+                        projects.reduce(
+                          (sum, p) => sum + p.tasks.filter((t) => !t.completed && !t.archived).length,
+                          0,
+                        ) > 0 && (
+                          <span className="ml-auto rounded bg-primary/20 px-1.5 py-0.5 text-xs text-primary">
+                            {projects.reduce(
+                              (sum, p) => sum + p.tasks.filter((t) => !t.completed && !t.archived).length,
+                              0,
+                            )}
+                          </span>
+                        )}
+                    </button>
+                  </li>
+                )
+              })}
+          </ul>
+        </nav>
+
+        <div className="border-t border-sidebar-border p-3">
+          <button
+            type="button"
+            onClick={() => {
+              logout()
+              if (isMobile) onMobileMenuClose()
+              window.location.reload()
+            }}
+            className={cn(
+              'flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-colors',
+              'text-muted-foreground hover:bg-destructive/10 hover:text-destructive',
+              !showLabels && 'justify-center px-0',
+            )}
+          >
+            <LogOut className="h-4 w-4 shrink-0" />
+            {showLabels && <span>Sign Out</span>}
+          </button>
+        </div>
+
+        {!isMobile && collapsed && (
+          <button
+            type="button"
+            onClick={onToggle}
+            className="absolute -right-3 top-20 flex h-6 w-6 items-center justify-center rounded-full border border-sidebar-border bg-sidebar text-muted-foreground transition-colors"
+            aria-label="Expand sidebar"
+          >
+            <ChevronLeft className="h-3 w-3 rotate-180" />
           </button>
         )}
-      </div>
-
-      {/* Add Project Button */}
-      <div className={cn('p-3', collapsed && 'px-2')}>
-        <Button
-          onClick={onAddProject}
-          className={cn(
-            'w-full bg-primary text-primary-foreground hover:bg-primary/90',
-            collapsed ? 'px-0' : 'justify-start gap-2'
-          )}
-          size={collapsed ? 'icon' : 'default'}
-        >
-          <Plus className="w-4 h-4" />
-          {!collapsed && <span>Add Project</span>}
-        </Button>
-      </div>
-
-      {/* Navigation */}
-      <nav className="flex-1 px-3 py-2">
-        <ul className="space-y-1">
-          {navItems
-            .filter((item) => !item.adminOnly || isAdmin)
-            .map((item) => {
-            const Icon = item.icon
-            const isActive = pathname === item.path
-            return (
-              <li key={item.path}>
-                <button
-                  onClick={() => router.push(item.path)}
-                  className={cn(
-                    'w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors text-sm',
-                    collapsed && 'justify-center px-0',
-                    isActive 
-                      ? 'bg-sidebar-accent text-sidebar-foreground' 
-                      : 'text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-foreground'
-                  )}
-                >
-                  <Icon className="w-4 h-4 shrink-0" />
-                  {!collapsed && <span>{item.label}</span>}
-                  {!collapsed && item.path === '/dashboard' && (
-                    <span className="ml-auto text-xs px-1.5 py-0.5 rounded bg-primary/20 text-primary">
-                      {projects.length}
-                    </span>
-                  )}
-                  {!collapsed && item.path === '/tasks' && projects.reduce((sum, p) => sum + p.tasks.filter(t => !t.completed && !t.archived).length, 0) > 0 && (
-                    <span className="ml-auto text-xs px-1.5 py-0.5 rounded bg-primary/20 text-primary">
-                      {projects.reduce((sum, p) => sum + p.tasks.filter(t => !t.completed && !t.archived).length, 0)}
-                    </span>
-                  )}
-                </button>
-              </li>
-            )
-          })}
-        </ul>
-      </nav>
-
-      {/* Footer */}
-      <div className="p-3 border-t border-sidebar-border">
-        <button
-          onClick={() => {
-            logout()
-            window.location.reload()
-          }}
-          className={cn(
-            'w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors text-sm',
-            'text-muted-foreground hover:bg-destructive/10 hover:text-destructive',
-            collapsed && 'justify-center px-0'
-          )}
-        >
-          <LogOut className="w-4 h-4 shrink-0" />
-          {!collapsed && <span>Sign Out</span>}
-        </button>
-      </div>
-
-      {/* Collapse Toggle (when collapsed) */}
-      {collapsed && (
-        <button
-          onClick={onToggle}
-          className="absolute -right-3 top-20 w-6 h-6 rounded-full flex items-center justify-center transition-colors bg-sidebar border border-sidebar-border text-muted-foreground"
-        >
-          <ChevronLeft className="w-3 h-3 rotate-180" />
-        </button>
-      )}
-    </aside>
+      </aside>
+    </>
   )
 }

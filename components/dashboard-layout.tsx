@@ -1,7 +1,18 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { ChevronDown, LayoutGrid, List, LogOut, Moon, Search, Shield, Sun, UserCircle } from 'lucide-react'
+import {
+  ChevronDown,
+  LayoutGrid,
+  List,
+  LogOut,
+  Menu,
+  Moon,
+  Search,
+  Shield,
+  Sun,
+  UserCircle,
+} from 'lucide-react'
 import { usePathname, useRouter } from 'next/navigation'
 import { cn } from '@/lib/utils'
 import { DashboardSidebar } from './dashboard-sidebar'
@@ -9,6 +20,7 @@ import { SystemStatus } from '@/components/SystemStatus'
 import { Msc_DevStatusIndicator } from '@/components/dev/msc_DevStatusIndicator'
 import { msc_hasAdminAccess } from '@/lib/msc_roles'
 import { UserAvatar } from '@/components/shared/user-avatar'
+import { useIsMobile } from '@/lib/msc_hooks'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -37,6 +49,8 @@ function getSessionHeaderLabel(user: { username?: string; email?: string } | nul
 
 export function DashboardLayout({ children, onAddProject, searchQuery, onSearchChange }: DashboardLayoutProps) {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const isMobile = useIsMobile()
   const router = useRouter()
   const pathname = usePathname()
   const user = useAppStore((s) => s.user)
@@ -47,7 +61,7 @@ export function DashboardLayout({ children, onAddProject, searchQuery, onSearchC
 
   const isDark = appSettings.theme === 'dark'
   const isAdmin = msc_hasAdminAccess(user?.role)
-  
+
   // Apply theme class to document
   useEffect(() => {
     if (isDark) {
@@ -61,16 +75,54 @@ export function DashboardLayout({ children, onAddProject, searchQuery, onSearchC
     }
   }, [isDark])
 
+  useEffect(() => {
+    if (mobileMenuOpen) {
+      const prev = document.body.style.overflow
+      document.body.style.overflow = 'hidden'
+      return () => {
+        document.body.style.overflow = prev
+      }
+    }
+    return
+  }, [mobileMenuOpen])
+
+  useEffect(() => {
+    if (!mobileMenuOpen) return
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setMobileMenuOpen(false)
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [mobileMenuOpen])
+
+  useEffect(() => {
+    const onResize = () => {
+      if (window.innerWidth >= 1024) {
+        setMobileMenuOpen(false)
+      }
+    }
+    window.addEventListener('resize', onResize)
+    onResize()
+    return () => window.removeEventListener('resize', onResize)
+  }, [])
+
   const isDashboardRoute = pathname === '/dashboard'
   const getViewTitle = () => {
     switch (pathname) {
-      case '/dashboard': return 'Dashboard'
-      case '/tasks': return 'Tasks'
-      case '/profile': return 'My Profile'
-      case '/settings': return 'System Admin'
-      case '/vault': return 'Code Manager'
-      case '/help': return 'Help & Documentation'
-      default: return 'Dashboard'
+      case '/dashboard':
+        return 'Dashboard'
+      case '/tasks':
+        return 'Tasks'
+      case '/profile':
+        return 'My Profile'
+      case '/settings':
+        return 'System Admin'
+      case '/vault':
+        return 'Code Manager'
+      case '/help':
+        return 'Help & Documentation'
+      default:
+        return 'Dashboard'
     }
   }
 
@@ -89,39 +141,46 @@ export function DashboardLayout({ children, onAddProject, searchQuery, onSearchC
         collapsed={sidebarCollapsed}
         onToggle={() => setSidebarCollapsed(!sidebarCollapsed)}
         onAddProject={onAddProject}
+        isMobile={isMobile}
+        mobileMenuOpen={mobileMenuOpen}
+        onMobileMenuClose={() => setMobileMenuOpen(false)}
       />
-      
-      {/* Main Content */}
+
       <main
         className={cn(
-          'transition-all duration-300 min-h-screen',
-          sidebarCollapsed ? 'ml-16' : 'ml-64'
+          'ml-0 flex min-h-screen flex-1 flex-col transition-all duration-300',
+          sidebarCollapsed ? 'lg:ml-16' : 'lg:ml-64',
         )}
       >
-        {/* Header Bar */}
-        <header 
+        <header
           className={cn(
-            "h-16 sticky top-0 z-30 flex items-center justify-between px-6 border-b border-border",
-            isDark
-              ? 'bg-background/80 backdrop-blur-md'
-              : 'bg-background/90 backdrop-blur-md'
+            'sticky top-0 z-30 flex h-16 shrink-0 items-center justify-between gap-2 border-b border-border px-3 py-2 sm:px-6',
+            isDark ? 'bg-background/80 backdrop-blur-md' : 'bg-background/90 backdrop-blur-md',
           )}
         >
-          <div className="flex items-center gap-4">
-            {/* MSC Icon and User Info */}
-            <div className="flex items-center gap-2.5">
+          <div className="flex min-w-0 flex-1 items-center gap-2 sm:gap-4">
+            <button
+              type="button"
+              className="shrink-0 rounded-lg p-2 text-foreground outline-none ring-offset-background transition-colors hover:bg-card focus-visible:ring-2 focus-visible:ring-primary lg:hidden"
+              onClick={() => setMobileMenuOpen(true)}
+              aria-label="Open menu"
+            >
+              <Menu className="h-5 w-5" />
+            </button>
+
+            <div className="flex min-w-0 items-center gap-2.5">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <button
                     type="button"
                     className={cn(
-                      'inline-flex items-center gap-2 rounded-lg px-2 py-1 text-sm font-semibold leading-none transition-colors',
+                      'inline-flex max-w-[40vw] items-center gap-2 rounded-lg px-2 py-1 text-sm font-semibold leading-none transition-colors sm:max-w-none',
                       user ? 'text-foreground hover:bg-card' : 'text-muted-foreground',
                     )}
                   >
                     <UserAvatar src={sessionAvatar} fallback={sessionUserLabel} />
-                    {sessionUserLabel}
-                    <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />
+                    <span className="truncate sm:inline">{sessionUserLabel}</span>
+                    <ChevronDown className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
                   </button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="start" className="w-64">
@@ -143,100 +202,101 @@ export function DashboardLayout({ children, onAddProject, searchQuery, onSearchC
                     </DropdownMenuItem>
                   )}
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={handleSignOut} className="cursor-pointer text-destructive focus:text-destructive">
+                  <DropdownMenuItem
+                    onClick={handleSignOut}
+                    className="cursor-pointer text-destructive focus:text-destructive"
+                  >
                     <LogOut className="h-4 w-4" />
                     Sign Out
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>
-            
-            <div className="h-6 w-px bg-border" />
-            
-            <h1 className="text-lg font-semibold text-foreground">{getViewTitle()}</h1>
+
+            <div className="hidden h-6 w-px bg-border sm:block" />
+
+            <h1 className="truncate text-base font-semibold text-foreground sm:text-lg">
+              {getViewTitle()}
+            </h1>
           </div>
-          
-          <div className="flex items-center gap-4">
+
+          <div className="flex max-w-full shrink-0 flex-wrap items-center justify-end gap-1.5 sm:gap-2 md:gap-3 lg:gap-4">
             <SystemStatus />
             <Msc_DevStatusIndicator />
 
-            {/* View Toggle (Bento Grid / List) */}
             {isDashboardRoute && (
-              <div className={cn(
-                'flex items-center p-1 rounded-lg border border-border bg-card',
-                !isDark && 'card-shadow'
-              )}>
+              <div
+                className={cn('flex items-center rounded-lg border border-border bg-card p-1', !isDark && 'card-shadow')}
+              >
                 <button
                   onClick={() => setProjectViewMode('grid')}
                   className={cn(
-                    "p-2 rounded-md transition-colors",
-                    appSettings.projectViewMode === 'grid' 
-                      ? "bg-primary text-primary-foreground" 
-                      : "text-muted-foreground hover:text-foreground"
+                    'rounded-md p-2 transition-colors',
+                    appSettings.projectViewMode === 'grid'
+                      ? 'bg-primary text-primary-foreground'
+                      : 'text-muted-foreground hover:text-foreground',
                   )}
                   title="Grid View"
+                  type="button"
                 >
-                  <LayoutGrid className="w-4 h-4" />
+                  <LayoutGrid className="h-4 w-4" />
                 </button>
                 <button
                   onClick={() => setProjectViewMode('list')}
                   className={cn(
-                    "p-2 rounded-md transition-colors",
-                    appSettings.projectViewMode === 'list' 
-                      ? "bg-primary text-primary-foreground" 
-                      : "text-muted-foreground hover:text-foreground"
+                    'rounded-md p-2 transition-colors',
+                    appSettings.projectViewMode === 'list'
+                      ? 'bg-primary text-primary-foreground'
+                      : 'text-muted-foreground hover:text-foreground',
                   )}
                   title="List View"
+                  type="button"
                 >
-                  <List className="w-4 h-4" />
+                  <List className="h-4 w-4" />
                 </button>
               </div>
             )}
 
-            {/* Search Field */}
             {isDashboardRoute && (
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <div className="relative hidden lg:block">
+                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                 <input
-                  type="text"
+                  type="search"
                   placeholder="Search projects..."
                   value={searchQuery}
                   onChange={(e) => onSearchChange(e.target.value)}
                   className={cn(
-                    'pl-10 pr-4 py-2 rounded-lg text-sm w-64 focus:outline-none focus:ring-2 focus:ring-primary',
-                    'bg-card border border-border text-foreground placeholder:text-muted-foreground',
-                    !isDark && 'card-shadow'
+                    'w-64 rounded-lg border border-border bg-card py-2 pl-10 pr-4 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary',
+                    !isDark && 'card-shadow',
                   )}
                 />
               </div>
             )}
 
-            {/* Theme Toggle */}
             <button
               onClick={toggleTheme}
               className={cn(
-                'p-2 rounded-lg transition-colors bg-card border border-border text-muted-foreground hover:text-foreground',
-                !isDark && 'card-shadow'
+                'rounded-lg border border-border bg-card p-2 text-muted-foreground transition-colors hover:text-foreground',
+                !isDark && 'card-shadow',
               )}
               title={isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+              type="button"
             >
-              {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+              {isDark ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
             </button>
-            
-            <div className="flex items-center gap-3 text-xs text-muted-foreground">
-              <span>{new Date().toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}</span>
+
+            <div className="hidden min-w-0 text-xs text-muted-foreground sm:flex sm:flex-col sm:items-end sm:leading-tight">
+              <span>
+                {new Date().toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}
+              </span>
               <span>{new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}</span>
             </div>
           </div>
         </header>
 
-        {/* Page Content */}
-        <div className="p-6">
-          {children}
-        </div>
+        <div className="min-h-0 flex-1 p-4 md:p-6 lg:pb-10">{children}</div>
 
-        {/* Footer */}
-        <footer className="fixed bottom-0 right-0 p-4 text-xs text-muted-foreground">
+        <footer className="z-0 mt-auto w-full p-4 text-right text-xs text-muted-foreground sm:p-4 lg:fixed lg:bottom-0 lg:right-0 lg:mt-0">
           Powered by the MSC Media Engine
         </footer>
       </main>

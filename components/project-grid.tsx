@@ -218,10 +218,10 @@ export function ProjectGrid({
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 md:space-y-6">
       {/* Stats Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-6">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-0">
+        <div className="flex flex-wrap items-center gap-4 md:gap-6">
           <div>
             <p className="text-2xl font-semibold text-foreground">{allProjects.length}</p>
             <p className="text-xs uppercase tracking-wider text-muted-foreground">Total Projects</p>

@@ -108,7 +108,7 @@ export function MSC_Projectz_Dashboard({
   }
 
   return (
-    <div className="msc-projectz-dashboard flex w-full min-w-0 flex-1 flex-col gap-6 xl:flex-row">
+    <div className="msc-projectz-dashboard flex w-full min-w-0 flex-1 flex-col gap-4 md:gap-6 xl:flex-row">
       <div className="min-w-0 flex-1">
         <ProjectGrid
           projects={filteredProjects}
