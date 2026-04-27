@@ -58,3 +58,4 @@
 
 - **2026-04** — Sprint 1: single auth/register path, password policy module, dashboard username preference; help doc updated for `/auth/register`; welcome email trigger added in `msc_auth_actions` via `msc_sendWelcomeEmail`.
 - **2026-04** — Sprint 2: Vault collection `update`/`delete` use `msc_vaultWriteOwnProjects` (read still `msc_vaultReadOwnProjects`).
+- **2026-04** — Sprint 2: Role-based UI gating unified on `RoleGate`; deprecated `AdminGate` removed and docs updated (`START-HERE`, `Project-Truth`).

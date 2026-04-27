@@ -205,6 +205,7 @@ Closeout pattern:
 - Store uploaded/generated media under `media/`
 - Avoid secret leakage in docs/commits
 - Follow `msc_` naming convention where relevant
+- Use `RoleGate` for role-based UI visibility in React components (replace old `AdminGate` pattern)
 - Prefer concise, reversible changes; avoid broad speculative rewrites
 
 Policy locations:

@@ -82,6 +82,7 @@ Ship a production-ready **Payload 3** + **Next.js 16** command center (with opti
 * **Persistence:** Local **SQLite** via Payload; uploads under **`./media`**.  
 * **Theming:** Soft Studio light mode scoped with `.light` / `[data-theme='light']` (see `app/globals.css`, `components/dashboard-layout.tsx`).  
 * **Tenancy:** Server actions should assert current-user ownership; browser storage must stay user-scoped (see `Agent-Runbook.md`).
+* **RBAC UI gate:** Use `RoleGate` (`components/shared/RoleGate.tsx`) for role-scoped rendering. `AdminGate` is deprecated/removed.
 
 ## Identity
 
