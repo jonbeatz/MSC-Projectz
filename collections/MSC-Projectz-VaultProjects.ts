@@ -3,9 +3,8 @@ import type { CollectionConfig, PayloadRequest, TypeWithID } from 'payload'
 import { adminRowsStartCollapsed } from '../lib/payload-admin-defaults.ts'
 import {
   msc_vaultCreateProject,
-  msc_vaultDeleteOwnProject,
   msc_vaultReadOwnProjects,
-  msc_vaultUpdateOwnProject,
+  msc_vaultWriteOwnProjects,
 } from '../lib/msc_vault_payload_access.ts'
 
 function msc_coerceUsersRelId(
@@ -56,11 +55,14 @@ export const MSC_Projectz_VaultProjects: CollectionConfig = {
     defaultColumns: ['name', 'status', 'user', 'progress', 'updatedAt'],
   },
   access: {
-    /** See `lib/msc_vault_payload_access.ts` — admin: all rows; else `user` = `req.user.id` only. */
+    /**
+     * Read: `lib/msc_vault_payload_access.ts` — admin: all; else owner or member of `members`.
+     * Update/delete: admin or project owner only (members are read-only on the project row).
+     */
     read: msc_vaultReadOwnProjects,
     create: msc_vaultCreateProject,
-    update: msc_vaultUpdateOwnProject,
-    delete: msc_vaultDeleteOwnProject,
+    update: msc_vaultWriteOwnProjects,
+    delete: msc_vaultWriteOwnProjects,
   },
   hooks: {
     beforeChange: [msc_assignProjectUserBeforeChange],

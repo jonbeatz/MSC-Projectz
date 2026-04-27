@@ -14,6 +14,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { msc_createPayloadUserAsAdmin } from '@/lib/msc_vault_user_admin'
+import { msc_isNewPasswordCompliant, msc_newPasswordPolicyHint } from '@/lib/msc_password_policy'
 import type { MscCreateUserAdminInput, MscUserAdminRole } from '@/types/user-admin'
 
 type MSC_Projectz_CreateUserFormProps = {
@@ -104,8 +105,9 @@ export function MSC_Projectz_CreateUserForm({ onCreated, onMessage }: MSC_Projec
             value={password}
             onChange={(event) => setPassword(event.target.value)}
             className="bg-input"
-            placeholder="Minimum 6 characters"
+            placeholder="Uppercase, number, special, 8+ chars"
           />
+          <p className="text-xs text-muted-foreground">{msc_newPasswordPolicyHint()}</p>
         </div>
 
         <div className="space-y-2">
@@ -129,7 +131,7 @@ export function MSC_Projectz_CreateUserForm({ onCreated, onMessage }: MSC_Projec
         <Button
           type="button"
           onClick={() => void msc_handleCreate()}
-          disabled={submitting || !email.trim() || password.length < 6}
+          disabled={submitting || !email.trim() || !msc_isNewPasswordCompliant(password)}
           className="bg-primary text-primary-foreground"
         >
           <Plus className="h-4 w-4" />

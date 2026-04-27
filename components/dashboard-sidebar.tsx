@@ -22,10 +22,17 @@ interface SidebarProps {
   onAddProject: () => void
 }
 
-const navItems: { path: string; label: string; icon: React.ElementType }[] = [
+type NavItem = {
+  path: string
+  label: string
+  icon: React.ElementType
+  adminOnly?: boolean
+}
+
+const navItems: NavItem[] = [
   { path: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { path: '/tasks', label: 'Tasks', icon: ClipboardList },
-  { path: '/settings', label: 'Settings', icon: Settings },
+  { path: '/settings', label: 'Settings', icon: Settings, adminOnly: true },
   { path: '/vault', label: 'Code Manager', icon: BookOpen },
   { path: '/help', label: 'Help', icon: HelpCircle },
 ]
@@ -35,9 +42,11 @@ export function DashboardSidebar({ collapsed, onToggle, onAddProject }: SidebarP
   const pathname = usePathname()
   const logout = useAppStore((s) => s.logout)
   const projects = useAppStore((s) => s.projects)
+  const user = useAppStore((s) => s.user)
   const appSettings = useAppStore((s) => s.appSettings)
   
   const isDark = appSettings.theme === 'dark'
+  const isAdmin = user?.role === 'admin'
 
   return (
     <aside
@@ -97,7 +106,9 @@ export function DashboardSidebar({ collapsed, onToggle, onAddProject }: SidebarP
       {/* Navigation */}
       <nav className="flex-1 px-3 py-2">
         <ul className="space-y-1">
-          {navItems.map((item) => {
+          {navItems
+            .filter((item) => !item.adminOnly || isAdmin)
+            .map((item) => {
             const Icon = item.icon
             const isActive = pathname === item.path
             return (

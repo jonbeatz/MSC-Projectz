@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { KeyRound, ShieldCheck, Trash2 } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
+import { RoleGate } from '@/components/shared/RoleGate'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import {
@@ -18,6 +19,7 @@ import {
   msc_resetPayloadUserPasswordAsAdmin,
   msc_updatePayloadUserRoleAsAdmin,
 } from '@/lib/msc_vault_user_admin'
+import { msc_isNewPasswordCompliant } from '@/lib/msc_password_policy'
 import type { MscUserAdminRole, MscUserAdminRow } from '@/types/user-admin'
 
 type MSC_Projectz_UserAdminActionsProps = {
@@ -117,49 +119,53 @@ export function MSC_Projectz_UserAdminActions({
             className="bg-input"
             placeholder="New password"
           />
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={() => void msc_handlePasswordReset()}
-            disabled={busyAction === 'password' || password.length < 6}
-          >
-            <KeyRound className="h-4 w-4" />
-            Reset
-          </Button>
+          <RoleGate allowedRoles={['admin']}>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => void msc_handlePasswordReset()}
+              disabled={busyAction === 'password' || !msc_isNewPasswordCompliant(password)}
+            >
+              <KeyRound className="h-4 w-4" />
+              Reset
+            </Button>
+          </RoleGate>
         </div>
       </div>
 
       <div className="flex items-end justify-end gap-2">
-        {confirmDelete ? (
-          <>
+        <RoleGate allowedRoles={['admin']}>
+          {confirmDelete ? (
+            <>
+              <Button
+                type="button"
+                variant="destructive"
+                size="sm"
+                onClick={() => void msc_handleDelete()}
+                disabled={busyAction === 'delete'}
+              >
+                Confirm
+              </Button>
+              <Button type="button" variant="outline" size="sm" onClick={() => setConfirmDelete(false)}>
+                Cancel
+              </Button>
+            </>
+          ) : (
             <Button
               type="button"
-              variant="destructive"
+              variant="ghost"
               size="sm"
-              onClick={() => void msc_handleDelete()}
-              disabled={busyAction === 'delete'}
+              className="text-destructive hover:bg-destructive/10 hover:text-destructive"
+              onClick={() => setConfirmDelete(true)}
+              disabled={user.isCurrentUser}
+              title={user.isCurrentUser ? 'You cannot delete your own account' : 'Delete server user'}
             >
-              Confirm
+              <Trash2 className="h-4 w-4" />
+              Delete
             </Button>
-            <Button type="button" variant="outline" size="sm" onClick={() => setConfirmDelete(false)}>
-              Cancel
-            </Button>
-          </>
-        ) : (
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            className="text-destructive hover:bg-destructive/10 hover:text-destructive"
-            onClick={() => setConfirmDelete(true)}
-            disabled={user.isCurrentUser}
-            title={user.isCurrentUser ? 'You cannot delete your own account' : 'Delete server user'}
-          >
-            <Trash2 className="h-4 w-4" />
-            Delete
-          </Button>
-        )}
+          )}
+        </RoleGate>
       </div>
     </div>
   )

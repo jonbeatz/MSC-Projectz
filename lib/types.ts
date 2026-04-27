@@ -85,7 +85,7 @@ export type ViewType = 'dashboard' | 'global-tasks' | 'settings' | 'help'
 
 export type PathFormat = 'windows' | 'mac'
 
-export type AuthView = 'login' | 'signup' | 'forgot-password'
+export type AuthView = 'login' | 'forgot-password'
 
 export type ProjectViewMode = 'grid' | 'list'
 

@@ -1,6 +1,7 @@
 'use server'
 
 import { msc_getVaultLocalApiContext } from '@/lib/msc_vault_auth_context'
+import { msc_validateNewPassword } from '@/lib/msc_password_policy'
 import { msc_vaultIsPayloadAdmin } from '@/lib/msc_vault_payload_access'
 import type {
   MscCreateUserAdminInput,
@@ -96,8 +97,12 @@ export async function msc_createPayloadUserAsAdmin(
 
   const email = input.email.trim().toLowerCase()
   const username = input.username?.trim()
-  if (!email || !input.password || input.password.length < 6) {
-    return { ok: false, error: 'Valid email and password (6+ chars) are required' }
+  if (!email || !input.password) {
+    return { ok: false, error: 'Valid email and password are required' }
+  }
+  const msc_pwCreate = msc_validateNewPassword(input.password)
+  if (!msc_pwCreate.ok) {
+    return { ok: false, error: msc_pwCreate.message }
   }
   if (!msc_validatePayloadRole(input.role)) {
     return { ok: false, error: 'Valid role is required' }
@@ -168,8 +173,9 @@ export async function msc_resetPayloadUserPasswordAsAdmin(
   const admin = await msc_requirePayloadAdminForSettings()
   if (!admin.ok) return admin
 
-  if (!input.password || input.password.length < 6) {
-    return { ok: false, error: 'Password must be at least 6 characters' }
+  const msc_pwReset = msc_validateNewPassword(input.password || '')
+  if (!msc_pwReset.ok) {
+    return { ok: false, error: msc_pwReset.message }
   }
 
   try {

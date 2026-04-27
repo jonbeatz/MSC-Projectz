@@ -24,10 +24,13 @@ interface DashboardLayoutProps {
   onSearchChange: (query: string) => void
 }
 
-function getDisplayName(email?: string): string {
-  const value = email?.trim()
-  if (!value) return 'Loading...'
-  return value.split('@')[0] || value
+function getSessionHeaderLabel(user: { username?: string; email?: string } | null): string {
+  if (!user) return 'Loading...'
+  const name = user.username?.trim()
+  if (name) return name
+  const email = user.email?.trim()
+  if (!email) return 'Loading...'
+  return email.split('@')[0] || email
 }
 
 export function DashboardLayout({ children, onAddProject, searchQuery, onSearchChange }: DashboardLayoutProps) {
@@ -69,7 +72,7 @@ export function DashboardLayout({ children, onAddProject, searchQuery, onSearchC
     }
   }
 
-  const sessionUserLabel = user ? getDisplayName(user.email || user.username) : 'Loading...'
+  const sessionUserLabel = getSessionHeaderLabel(user)
   const sessionAvatar = user
     ? ((user as typeof user & { avatarUrl?: string | null }).avatarUrl || user.avatar)
     : null

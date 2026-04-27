@@ -28,8 +28,16 @@ export const msc_vaultReadOwnProjects: Access = ({ req: { user } }) => {
   return msc_vaultProjectVisibilityWhere(u.id)
 }
 
-export const msc_vaultUpdateOwnProject: Access = msc_vaultReadOwnProjects
-export const msc_vaultDeleteOwnProject: Access = msc_vaultReadOwnProjects
+/**
+ * Write-strict: admins may update/delete any project. Non-admins may only change rows they own
+ * (`user` = session), not projects where they are only a member (compare to read, which includes members).
+ */
+export const msc_vaultWriteOwnProjects: Access = ({ req: { user } }) => {
+  const u = user as MscUserWithRole | undefined
+  if (!u) return false
+  if (u.role === 'admin') return true
+  return { user: { equals: u.id } } as Where
+}
 
 export const msc_vaultCreateProject: Access = ({ req }) => Boolean(req.user)
 

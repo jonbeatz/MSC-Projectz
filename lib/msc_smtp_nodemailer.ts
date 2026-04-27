@@ -108,6 +108,28 @@ export async function msc_sendSendNotificationTaskEmail(opts: {
 }
 
 /**
+ * Registration welcome: uses studio/env outgoing SMTP (no per-project `EmailSettings`).
+ * `sendMail` errors propagate so callers can fire-and-forget with `.catch`.
+ * Returns early (no throw) if SMTP is not send-ready; same `msc_outgoingSmtpIsSendReady` as task mail.
+ */
+export async function msc_sendWelcomeEmail(email: string, name: string): Promise<void> {
+  const { transporter, fromAddress, layered } = msc_createSmtpTransporter(null)
+  if (!msc_outgoingSmtpIsSendReady(layered)) {
+    console.warn(
+      '[msc] Welcome email skipped: outgoing SMTP is not fully configured. Set `MSC_STUDIO_OUTGOING_*` or project/System SMTP.',
+    )
+    return
+  }
+  const greeting = name.trim() ? `Hello ${name.trim()},` : 'Hello,'
+  await transporter.sendMail({
+    from: fromAddress,
+    to: email,
+    subject: 'Welcome to MSC-Projectz',
+    text: `${greeting}\n\nYour MSC-Projectz account is ready. You can sign in with this email address.\n`,
+  })
+}
+
+/**
  * For server actions that have no `EmailSettings` but can pass global `SpacemailSMTP` from the app store shape.
  */
 export function msc_verifyFromSpacemail(smtp: SpacemailSMTP) {

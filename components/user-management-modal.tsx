@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { useAppStore } from '@/lib/store'
+import { msc_validateNewPassword } from '@/lib/msc_password_policy'
 
 interface UserManagementModalProps {
   isOpen: boolean
@@ -35,8 +36,9 @@ export function UserManagementModal({ isOpen, onClose }: UserManagementModalProp
       return
     }
 
-    if (tempPassword.length < 6) {
-      setMessage({ type: 'error', text: 'Temporary password must be at least 6 characters' })
+    const mscPwInvite = msc_validateNewPassword(tempPassword)
+    if (!mscPwInvite.ok) {
+      setMessage({ type: 'error', text: mscPwInvite.message })
       return
     }
 

@@ -4,7 +4,8 @@ import Link from 'next/link'
 import { useState } from 'react'
 import { ArrowLeft, CheckCircle2, Lock, Mail, User } from 'lucide-react'
 
-import { msc_registerUser } from '@/lib/msc_vault_server_actions'
+import { msc_registerUser } from '@/lib/msc_auth_actions'
+import { msc_isNewPasswordCompliant, msc_newPasswordPolicyHint, msc_validateNewPassword } from '@/lib/msc_password_policy'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 
@@ -21,6 +22,12 @@ export function MSC_Projectz_RegisterForm() {
     e.preventDefault()
     setMscSubmitting(true)
     setMscStatus(null)
+    const mscPw = msc_validateNewPassword(msc_password)
+    if (!mscPw.ok) {
+      setMscStatus({ success: false, message: mscPw.message })
+      setMscSubmitting(false)
+      return
+    }
     const result = await msc_registerUser(msc_email, msc_password, msc_name)
     setMscStatus(result)
     setMscSubmitting(false)
@@ -89,14 +96,14 @@ export function MSC_Projectz_RegisterForm() {
           <Lock className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
             required
-            minLength={8}
             type="password"
             value={msc_password}
             onChange={(e) => setMscPassword(e.target.value)}
-            placeholder="Minimum 8 characters"
+            placeholder="Strong password"
             className="pl-10"
           />
         </div>
+        <p className="mt-1 text-xs text-muted-foreground">{msc_newPasswordPolicyHint()}</p>
       </label>
 
       {msc_status?.message && !msc_status.success ? (
@@ -105,7 +112,16 @@ export function MSC_Projectz_RegisterForm() {
         </p>
       ) : null}
 
-      <Button type="submit" className="w-full" disabled={msc_submitting}>
+      <Button
+        type="submit"
+        className="w-full"
+        disabled={
+          msc_submitting ||
+          !msc_name.trim() ||
+          !msc_email.trim() ||
+          !msc_isNewPasswordCompliant(msc_password)
+        }
+      >
         {msc_submitting ? 'Submitting…' : 'Request Access'}
       </Button>
 

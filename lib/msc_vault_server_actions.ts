@@ -24,8 +24,6 @@ import { msc_sendSendNotificationTaskEmail, msc_testSettingsFromForm } from '@/l
 import { msc_stringifyReferencesJson } from '@/lib/msc_project_references'
 import { getSafePath } from '@/lib/env-utils'
 import type { MscVaultLocalApiContext } from '@/lib/msc_vault_auth_context'
-
-type MscRegisterUserResult = { success: boolean; message: string }
 type MscLoginResult = {
   success: boolean
   message: string
@@ -362,56 +360,6 @@ async function msc_maybeSendNotificationTaskEmail(
     })
   } catch (e) {
     console.warn('[msc] send notification task email failed', e)
-  }
-}
-
-export async function msc_registerUser(
-  email: string,
-  password: string,
-  name: string,
-): Promise<MscRegisterUserResult> {
-  const payload = await getPayload({ config })
-  const msc_email = email.trim().toLowerCase()
-  const msc_password = password
-  const msc_name = name.trim()
-
-  if (!msc_email) return { success: false, message: 'Email is required.' }
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(msc_email)) {
-    return { success: false, message: 'Enter a valid email address.' }
-  }
-  if (!msc_password || msc_password.length < 8) {
-    return { success: false, message: 'Password must be at least 8 characters.' }
-  }
-  if (!msc_name) return { success: false, message: 'Name is required.' }
-
-  try {
-    const existing = await payload.find({
-      collection: 'users',
-      where: { email: { equals: msc_email } },
-      limit: 1,
-      depth: 0,
-    })
-    if (existing.docs.length > 0) {
-      return { success: false, message: 'An account with this email already exists.' }
-    }
-  } catch {
-    return { success: false, message: 'Unable to validate this request right now.' }
-  }
-
-  try {
-    await payload.create({
-      collection: 'users',
-      data: {
-        email: msc_email,
-        password: msc_password,
-        role: 'user',
-      },
-      overrideAccess: true,
-    })
-    void msc_name
-    return { success: true, message: 'Request sent. Return to login to continue.' }
-  } catch {
-    return { success: false, message: 'Registration failed. Please try again.' }
   }
 }
 

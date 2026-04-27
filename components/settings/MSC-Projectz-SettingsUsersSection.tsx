@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { AlertCircle, CheckCircle, Users } from 'lucide-react'
 
+import { RoleGate } from '@/components/shared/RoleGate'
 import { MSC_Projectz_CreateUserForm } from '@/components/settings/MSC-Projectz-CreateUserForm'
 import { MSC_Projectz_UsersDirectory } from '@/components/settings/MSC-Projectz-UsersDirectory'
 import { msc_listPayloadUsersForSettings } from '@/lib/msc_vault_user_admin'
@@ -62,7 +63,8 @@ export function MSC_Projectz_SettingsUsersSection({ enabled = true }: MSC_Projec
   }
 
   return (
-    <section id="users" className="overflow-hidden rounded-lg border border-border bg-card">
+    <RoleGate allowedRoles={['admin']}>
+      <section id="users" className="overflow-hidden rounded-lg border border-border bg-card">
       <div className="border-b border-border px-6 py-4">
         <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
           <div>
@@ -120,6 +122,7 @@ export function MSC_Projectz_SettingsUsersSection({ enabled = true }: MSC_Projec
 
         <MSC_Projectz_CreateUserForm onCreated={() => void msc_loadUsers()} onMessage={msc_setMessage} />
       </div>
-    </section>
+      </section>
+    </RoleGate>
   )
 }

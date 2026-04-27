@@ -48,12 +48,6 @@ interface AppState {
   setMasterPassword: (password: string) => void
   changeMasterPassword: (oldPassword: string, newPassword: string) => boolean
   login: (username: string, password: string) => boolean
-  signup: (
-    username: string,
-    email: string,
-    password: string,
-    inviteCode?: string,
-  ) => { success: boolean; status: 'pending' | 'active' }
   logout: () => void
   setAuthView: (view: AuthView) => void
 
@@ -202,34 +196,6 @@ export const useAppStore = create<AppState>()(
           },
         })
         return true
-      },
-
-      signup: (username, email, password, inviteCode?: string) => {
-        const ADMIN_INVITE_CODE = 'VADER-2026'
-        const isInstantAccess = inviteCode === ADMIN_INVITE_CODE
-
-        if (isInstantAccess) {
-          set({
-            isAuthenticated: true,
-            masterPassword: password,
-            user: { username, email, role: 'user' },
-            authView: 'login',
-          })
-          return { success: true, status: 'active' as const }
-        }
-        const newUser: RegisteredUser = {
-          id: generateId(),
-          username,
-          email,
-          role: 'user',
-          status: 'pending',
-          createdAt: new Date(),
-        }
-        set((state) => ({
-          users: [...state.users, newUser],
-          authView: 'login',
-        }))
-        return { success: true, status: 'pending' as const }
       },
 
       logout: () => {
@@ -647,6 +613,14 @@ export const useAppStore = create<AppState>()(
     }),
     {
       name: 'msc-projectz-storage',
+      merge: (persisted, current) => {
+        const p = (persisted ?? {}) as Partial<AppState>
+        let authView: AuthView = (p.authView ?? current.authView) as AuthView
+        if ((p.authView as string | undefined) === 'signup') {
+          authView = 'login'
+        }
+        return { ...current, ...p, authView }
+      },
       partialize: (state) => ({
         isAuthenticated: state.isAuthenticated,
         masterPassword: state.masterPassword,

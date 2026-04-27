@@ -12,6 +12,7 @@ import {
   type MscPayloadUserRow,
 } from '@/lib/msc_vault_user_admin'
 import { cn } from '@/lib/utils'
+import { msc_isNewPasswordCompliant } from '@/lib/msc_password_policy'
 
 /**
  * Server-backed directory (Payload `users`) for tenant isolation. Requires `msc_vaultSignInToPayload` first.
@@ -178,7 +179,7 @@ export function MSC_Projectz_PayloadUsersPanel() {
           type="button"
           className="w-full sm:w-auto bg-primary text-primary-foreground"
           onClick={() => void onCreate()}
-          disabled={submitting || !email.trim() || password.length < 6}
+          disabled={submitting || !email.trim() || !msc_isNewPasswordCompliant(password)}
         >
           {submitting ? 'Creating…' : 'Create user'}
         </Button>
