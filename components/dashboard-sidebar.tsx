@@ -8,7 +8,8 @@ import {
   Plus,
   ChevronLeft,
   ClipboardList,
-  Settings
+  Settings,
+  ShieldAlert
 } from 'lucide-react'
 import Image from 'next/image'
 import { usePathname, useRouter } from 'next/navigation'
@@ -33,6 +34,7 @@ const navItems: NavItem[] = [
   { path: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { path: '/tasks', label: 'Tasks', icon: ClipboardList },
   { path: '/settings', label: 'Settings', icon: Settings, adminOnly: true },
+  { path: '/settings/audit', label: 'Audit Logs', icon: ShieldAlert, adminOnly: true },
   { path: '/vault', label: 'Code Manager', icon: BookOpen },
   { path: '/help', label: 'Help', icon: HelpCircle },
 ]

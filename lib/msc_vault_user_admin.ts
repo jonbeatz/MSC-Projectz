@@ -1,8 +1,8 @@
 'use server'
 
-import { msc_getVaultLocalApiContext } from '@/lib/msc_vault_auth_context'
 import { msc_validateNewPassword } from '@/lib/msc_password_policy'
-import { msc_vaultIsPayloadAdmin } from '@/lib/msc_vault_payload_access'
+import { msc_logAdminAction } from '@/lib/msc_vault_audit'
+import { msc_requirePayloadAdminForSettings } from '@/lib/msc_vault_admin_guard'
 import type {
   MscCreateUserAdminInput,
   MscResetUserAdminPasswordInput,
@@ -15,39 +15,17 @@ import type {
 
 export type MscPayloadUserRow = MscUserAdminRow
 
+const MSC_AUDIT_USER_CREATE = 'USER_CREATE'
+const MSC_AUDIT_USER_DELETE = 'USER_DELETE'
+const MSC_AUDIT_USER_ROLE_UPDATE = 'USER_ROLE_UPDATE'
+const MSC_AUDIT_PASSWORD_RESET = 'PASSWORD_RESET'
+
 type MscPayloadUserDoc = {
   id: string | number
   email?: string
   role?: MscUserAdminRole | null
   username?: string | null
   createdAt?: string
-}
-
-type MscPayloadAdminContext = Awaited<ReturnType<typeof msc_getVaultLocalApiContext>> & {
-  user: { id: string | number }
-}
-
-async function msc_requirePayloadAdminForSettings(): Promise<
-  { ok: true; ctx: MscPayloadAdminContext; currentUserId: string | number } | { ok: false; error: string }
-> {
-  const ctx = await msc_getVaultLocalApiContext()
-  if (!ctx.user) {
-    return { ok: false, error: 'Sign in (Payload) required' }
-  }
-
-  const currentUserId = (ctx.user as { id: string | number }).id
-  const full = await ctx.payload.findByID({
-    collection: 'users',
-    id: currentUserId,
-    depth: 0,
-    overrideAccess: true,
-  })
-
-  if (!full || !msc_vaultIsPayloadAdmin(full as Parameters<typeof msc_vaultIsPayloadAdmin>[0])) {
-    return { ok: false, error: 'Admin session required' }
-  }
-
-  return { ok: true, ctx: ctx as MscPayloadAdminContext, currentUserId }
 }
 
 function msc_normalizePayloadRole(role: unknown): MscUserAdminRole {
@@ -118,6 +96,16 @@ export async function msc_createPayloadUserAsAdmin(
       },
       overrideAccess: true,
     })
+    void msc_logAdminAction(admin.ctx.payload, {
+      actorId: admin.currentUserId,
+      targetId: created.id,
+      action: MSC_AUDIT_USER_CREATE,
+      details: {
+        email,
+        role: input.role,
+        username: username || null,
+      },
+    })
     return { ok: true, id: created.id }
   } catch (e) {
     const msg = e instanceof Error ? e.message : 'Unable to create user'
@@ -135,7 +123,22 @@ export async function msc_deletePayloadUserAsAdmin(
     return { ok: false, error: 'You cannot delete your own account' }
   }
   try {
+    const before = (await admin.ctx.payload.findByID({
+      collection: 'users',
+      id: String(id),
+      depth: 0,
+      overrideAccess: true,
+    })) as MscPayloadUserDoc
     await admin.ctx.payload.delete({ collection: 'users', id: String(id), overrideAccess: true })
+    void msc_logAdminAction(admin.ctx.payload, {
+      actorId: admin.currentUserId,
+      targetId: id,
+      action: MSC_AUDIT_USER_DELETE,
+      details: {
+        targetEmail: before?.email || null,
+        targetRole: before?.role || null,
+      },
+    })
     return { ok: true }
   } catch (e) {
     const msg = e instanceof Error ? e.message : 'Unable to delete user'
@@ -154,11 +157,27 @@ export async function msc_updatePayloadUserRoleAsAdmin(
   }
 
   try {
+    const before = (await admin.ctx.payload.findByID({
+      collection: 'users',
+      id: String(input.id),
+      depth: 0,
+      overrideAccess: true,
+    })) as MscPayloadUserDoc
     await admin.ctx.payload.update({
       collection: 'users',
       id: String(input.id),
       data: { role: input.role },
       overrideAccess: true,
+    })
+    void msc_logAdminAction(admin.ctx.payload, {
+      actorId: admin.currentUserId,
+      targetId: input.id,
+      action: MSC_AUDIT_USER_ROLE_UPDATE,
+      details: {
+        oldRole: before?.role || null,
+        newRole: input.role,
+        targetEmail: before?.email || null,
+      },
     })
     return { ok: true }
   } catch (e) {
@@ -179,11 +198,25 @@ export async function msc_resetPayloadUserPasswordAsAdmin(
   }
 
   try {
+    const before = (await admin.ctx.payload.findByID({
+      collection: 'users',
+      id: String(input.id),
+      depth: 0,
+      overrideAccess: true,
+    })) as MscPayloadUserDoc
     await admin.ctx.payload.update({
       collection: 'users',
       id: String(input.id),
       data: { password: input.password },
       overrideAccess: true,
+    })
+    void msc_logAdminAction(admin.ctx.payload, {
+      actorId: admin.currentUserId,
+      targetId: input.id,
+      action: MSC_AUDIT_PASSWORD_RESET,
+      details: {
+        targetEmail: before?.email || null,
+      },
     })
     return { ok: true }
   } catch (e) {

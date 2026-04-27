@@ -6,6 +6,7 @@ import { lexicalEditor } from '@payloadcms/richtext-lexical'
 import sharp from 'sharp'
 
 import { MSC_Projectz_Media } from './collections/MSC-Projectz-Media.ts'
+import { MSC_Projectz_AuditLogs } from './collections/MSC-Projectz-AuditLogs.ts'
 import { MSC_Projectz_PayloadUsers } from './collections/MSC-Projectz-PayloadUsers.ts'
 import { MSC_Projectz_VaultProjects } from './collections/MSC-Projectz-VaultProjects.ts'
 import { MSC_Projectz_VaultTasks } from './collections/MSC-Projectz-VaultTasks.ts'
@@ -43,6 +44,7 @@ export default buildConfig({
     MSC_Projectz_Media,
     MSC_Projectz_VaultProjects,
     MSC_Projectz_VaultTasks,
+    MSC_Projectz_AuditLogs,
   ],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || 'dev-secret-change-me',
