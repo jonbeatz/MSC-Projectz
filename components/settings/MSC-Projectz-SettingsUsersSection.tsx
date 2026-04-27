@@ -6,6 +6,8 @@ import { AlertCircle, CheckCircle, Users } from 'lucide-react'
 import { RoleGate } from '@/components/shared/RoleGate'
 import { MSC_Projectz_CreateUserForm } from '@/components/settings/MSC-Projectz-CreateUserForm'
 import { MSC_Projectz_UsersDirectory } from '@/components/settings/MSC-Projectz-UsersDirectory'
+import { useAppStore } from '@/lib/store'
+import { useTaskPulseSignal } from '@/lib/useTaskPulseSignal'
 import { msc_listPayloadUsersForSettings } from '@/lib/msc_vault_user_admin'
 import { cn } from '@/lib/utils'
 import type { MscUserAdminRow } from '@/types/user-admin'
@@ -23,6 +25,7 @@ export function MSC_Projectz_SettingsUsersSection({ enabled = true }: MSC_Projec
   const [users, setUsers] = useState<MscUserAdminRow[]>([])
   const [loading, setLoading] = useState(true)
   const [message, setMessage] = useState<MscSettingsUserMessage | null>(null)
+  const projects = useAppStore((s) => s.projects)
 
   const msc_loadUsers = useCallback(async () => {
     setLoading(true)
@@ -120,7 +123,14 @@ export function MSC_Projectz_SettingsUsersSection({ enabled = true }: MSC_Projec
           onMessage={msc_setMessage}
         />
 
-        <MSC_Projectz_CreateUserForm onCreated={() => void msc_loadUsers()} onMessage={msc_setMessage} />
+        <MSC_Projectz_CreateUserForm
+          onCreated={() => {
+            void msc_loadUsers()
+            const fallbackProjectId = projects[0]?.id ?? null
+            useTaskPulseSignal.getState().setSignal(true, fallbackProjectId)
+          }}
+          onMessage={msc_setMessage}
+        />
       </div>
       </section>
     </RoleGate>

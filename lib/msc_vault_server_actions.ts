@@ -15,6 +15,7 @@ import { createPayloadRequest, generatePayloadCookie } from 'payload'
 import config from '@payload-config'
 import { cookies, headers } from 'next/headers'
 import { revalidatePath } from 'next/cache'
+import { MSC_TRUST_GATE_COOKIE } from '@/lib/msc_trust_gate_cookie'
 
 import { msc_getVaultLocalApiContext, msc_vaultLocalApiOptions } from '@/lib/msc_vault_auth_context'
 import { msc_vaultIsPayloadAdmin } from '@/lib/msc_vault_payload_access'
@@ -32,6 +33,7 @@ type MscLoginResult = {
     email: string
     username?: string
     role: 'admin' | 'user'
+    isVerified: boolean
     avatarId?: string | number | null
     avatarUrl?: string | null
   }
@@ -428,6 +430,15 @@ export async function msc_login(email: string, password: string): Promise<MscLog
     sameSite: (cookie.sameSite as 'lax' | 'strict' | 'none' | undefined) || 'lax',
     secure: Boolean(cookie.secure),
   })
+  const isVerified = Boolean((fullUser as { isVerified?: boolean | null } | null)?.isVerified)
+  c.set({
+    name: MSC_TRUST_GATE_COOKIE,
+    value: isVerified ? '1' : '0',
+    path: '/',
+    httpOnly: true,
+    sameSite: 'lax',
+    secure: Boolean(cookie.secure),
+  })
 
   const msc_role = result.user?.role === 'admin' ? 'admin' : 'user'
   const username =
@@ -441,6 +452,7 @@ export async function msc_login(email: string, password: string): Promise<MscLog
       email: msc_email,
       username,
       role: msc_role,
+      isVerified,
       avatarId,
       avatarUrl,
     },

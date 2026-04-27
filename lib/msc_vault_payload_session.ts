@@ -5,6 +5,7 @@ import { cookies, headers } from 'next/headers'
 import { revalidatePath } from 'next/cache'
 
 import config from '@payload-config'
+import { MSC_TRUST_GATE_COOKIE } from '@/lib/msc_trust_gate_cookie'
 
 function msc_revalidateVaultUi() {
   revalidatePath('/')
@@ -107,5 +108,6 @@ export async function msc_vaultSignOutPayload(): Promise<void> {
   const prefix = payload.config.cookiePrefix
   const c = await cookies()
   c.delete({ name: `${prefix}-token`, path: '/' })
+  c.delete({ name: MSC_TRUST_GATE_COOKIE, path: '/' })
   msc_revalidateVaultUi()
 }

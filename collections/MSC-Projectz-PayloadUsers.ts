@@ -47,5 +47,30 @@ export const MSC_Projectz_PayloadUsers: CollectionConfig = {
       ],
       admin: { description: 'Admins can see all vault projects; users are scoped to their own.' },
     },
+    {
+      name: 'isVerified',
+      type: 'checkbox',
+      defaultValue: false,
+      admin: { description: 'Whether this account has completed email verification.' },
+    },
+    {
+      name: 'verificationToken',
+      type: 'text',
+      index: true,
+      required: false,
+      admin: { description: 'SHA-256 hash of active email verification token.' },
+    },
+    {
+      name: 'verificationTokenExpires',
+      type: 'date',
+      required: false,
+      admin: { description: 'Verification token expiry timestamp (UTC).' },
+    },
+    {
+      name: 'lastVerificationSentAt',
+      type: 'date',
+      required: false,
+      admin: { description: 'Most recent verification email send timestamp (for resend throttling).' },
+    },
   ],
 }

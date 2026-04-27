@@ -83,6 +83,7 @@ export function AuthScreen() {
         username: r.user?.username || (r.user?.email || msc_email).split('@')[0],
         email: r.user?.email || msc_email,
         role: r.user?.role || 'user',
+        isVerified: Boolean(r.user?.isVerified),
         payloadUserId: r.user?.id,
         avatar: r.user?.avatarUrl || undefined,
         avatarId: r.user?.avatarId ?? null,

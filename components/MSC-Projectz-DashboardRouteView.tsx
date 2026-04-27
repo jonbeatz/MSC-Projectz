@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 import { ConfigurePathModal } from '@/components/ConfigurePathModal'
 import { EditProjectModal } from '@/components/edit-project-modal'
@@ -9,6 +9,7 @@ import { useMSCProjectzCommandCenter } from '@/components/MSC-Projectz-CommandCe
 import { ProjectVault } from '@/components/project-vault'
 import { TaskDrawer } from '@/components/task-drawer'
 import { useAppStore } from '@/lib/store'
+import { useTaskPulseSignal } from '@/lib/useTaskPulseSignal'
 
 export function MSC_Projectz_DashboardRouteView() {
   const [editProjectId, setEditProjectId] = useState<string | null>(null)
@@ -34,6 +35,23 @@ export function MSC_Projectz_DashboardRouteView() {
   const filteredProjects = projects.filter((project) =>
     project.name.toLowerCase().includes(searchQuery.toLowerCase()),
   )
+  const needsAttention = useTaskPulseSignal((s) => s.needsAttention)
+  const targetProjectId = useTaskPulseSignal((s) => s.targetProjectId)
+
+  useEffect(() => {
+    if (!needsAttention) return
+
+    const target = targetProjectId && projects.some((project) => project.id === targetProjectId)
+      ? targetProjectId
+      : projects[0]?.id ?? null
+
+    if (target) {
+      setSelectedProjectId(target)
+      setTaskDrawerProjectId(target)
+    }
+
+    useTaskPulseSignal.getState().setSignal(false, null)
+  }, [needsAttention, targetProjectId, projects])
 
   const msc_vaultSyncPending =
     isAuthenticated &&

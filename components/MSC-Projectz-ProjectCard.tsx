@@ -628,7 +628,7 @@ export function MSC_Projectz_ProjectCard({
                   type="button"
                   onClick={(e) => {
                     e.stopPropagation()
-                    onEdit()
+                    onSelect()
                   }}
                   className="inline-flex h-7 items-center gap-1.5 rounded-full border border-dashed border-border bg-secondary/50 px-2.5 text-xs text-muted-foreground transition-colors hover:border-primary hover:text-primary"
                   title="Quick-add a project member"

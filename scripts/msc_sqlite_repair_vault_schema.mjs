@@ -1,10 +1,13 @@
 /**
  * Non-interactive repair when Drizzle `push` would block on TTY (Windows / CI):
  * - `users.role` (select: user | admin) required by collections/MSC-Projectz-PayloadUsers.ts
+ * - `users.is_verified`, `users.verification_token`, `users.verification_token_expires` for Sprint 3 verification
+ * - `users.last_verification_sent_at` for resend cooldown throttling
  * - `msc_vault_projects.user_id` for the required relationship `user` (VaultProjects)
  * - `msc_vault_projects_rels` for optional project `members` collaborators
  * - `msc_vault_tasks.assigned_to_id` for optional task assignment
  * - `media.sizes_thumbnail_*` for Payload thumbnail image size metadata
+ * - `payload_locked_documents_rels.msc_audit_logs_id` to match current relationship schema
  *
  * Backs up the DB file before changes. No row deletions.
  */
@@ -79,6 +82,37 @@ async function msc_main() {
     } else {
       console.log('[msc_sqlite_repair] users.role already present, skip.')
     }
+    if (!usersCols.includes('is_verified')) {
+      await client.execute(
+        'ALTER TABLE users ADD COLUMN is_verified INTEGER NOT NULL DEFAULT 0',
+      )
+      console.log('[msc_sqlite_repair] Added users.is_verified (default false).')
+    } else {
+      console.log('[msc_sqlite_repair] users.is_verified already present, skip.')
+    }
+    if (!usersCols.includes('verification_token')) {
+      await client.execute('ALTER TABLE users ADD COLUMN verification_token TEXT')
+      console.log('[msc_sqlite_repair] Added users.verification_token.')
+    } else {
+      console.log('[msc_sqlite_repair] users.verification_token already present, skip.')
+    }
+    if (!usersCols.includes('verification_token_expires')) {
+      await client.execute('ALTER TABLE users ADD COLUMN verification_token_expires TEXT')
+      console.log('[msc_sqlite_repair] Added users.verification_token_expires.')
+    } else {
+      console.log('[msc_sqlite_repair] users.verification_token_expires already present, skip.')
+    }
+    if (!usersCols.includes('last_verification_sent_at')) {
+      await client.execute('ALTER TABLE users ADD COLUMN last_verification_sent_at TEXT')
+      console.log('[msc_sqlite_repair] Added users.last_verification_sent_at.')
+    } else {
+      console.log('[msc_sqlite_repair] users.last_verification_sent_at already present, skip.')
+    }
+    await msc_createIndexIfMissing(
+      client,
+      'users_verification_token_idx',
+      'CREATE INDEX users_verification_token_idx ON users (verification_token)',
+    )
 
     const mediaCols = await msc_tableColumnNames(client, 'media')
     await msc_addColumnIfMissing(client, 'media', mediaCols, 'sizes_thumbnail_url', 'TEXT')
@@ -145,6 +179,20 @@ async function msc_main() {
       client,
       'msc_vault_projects_rels_users_id_idx',
       'CREATE INDEX msc_vault_projects_rels_users_id_idx ON msc_vault_projects_rels (users_id)',
+    )
+
+    const lockRelsCols = await msc_tableColumnNames(client, 'payload_locked_documents_rels')
+    await msc_addColumnIfMissing(
+      client,
+      'payload_locked_documents_rels',
+      lockRelsCols,
+      'msc_audit_logs_id',
+      'INTEGER',
+    )
+    await msc_createIndexIfMissing(
+      client,
+      'payload_locked_documents_rels_msc_audit_logs_id_idx',
+      'CREATE INDEX payload_locked_documents_rels_msc_audit_logs_id_idx ON payload_locked_documents_rels (msc_audit_logs_id)',
     )
 
     const taskCols = await msc_tableColumnNames(client, 'msc_vault_tasks')

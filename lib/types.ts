@@ -96,6 +96,7 @@ export interface User {
   avatarId?: string | number | null
   avatarUrl?: string | null
   role?: 'admin' | 'user'
+  isVerified?: boolean
   /** Payload `users` document id when signed in via `msc_vaultSignInToPayload` */
   payloadUserId?: string | number
 }

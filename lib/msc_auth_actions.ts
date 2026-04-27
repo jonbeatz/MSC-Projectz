@@ -7,6 +7,7 @@
 
 import { getPayload } from 'payload'
 import config from '@payload-config'
+import { msc_generateVerificationToken, msc_sendVerificationEmail } from '@/lib/msc_auth_verification'
 import { msc_validateNewPassword } from '@/lib/msc_password_policy'
 import { msc_sendWelcomeEmail } from '@/lib/msc_smtp_nodemailer'
 
@@ -47,6 +48,7 @@ export async function msc_registerUser(
   }
 
   try {
+    const verification = msc_generateVerificationToken()
     await payload.create({
       collection: 'users',
       data: {
@@ -54,13 +56,22 @@ export async function msc_registerUser(
         email: msc_email,
         password: msc_password,
         role: 'user',
+        isVerified: false,
+        verificationToken: verification.tokenHash,
+        verificationTokenExpires: verification.expiresAt.toISOString(),
+        lastVerificationSentAt: new Date().toISOString(),
       },
       overrideAccess: true,
     })
+    void msc_sendVerificationEmail({
+      email: msc_email,
+      name: msc_name,
+      token: verification.rawToken,
+    }).catch((err) => console.error('[msc] Verification email failed:', err))
     void msc_sendWelcomeEmail(msc_email, msc_name).catch((err) =>
       console.error('[msc] Welcome email failed:', err),
     )
-    return { success: true, message: 'Request sent. Return to login to continue.' }
+    return { success: true, message: 'Request sent. Check your email to verify your account.' }
   } catch {
     return { success: false, message: 'Registration failed. Please try again.' }
   }
