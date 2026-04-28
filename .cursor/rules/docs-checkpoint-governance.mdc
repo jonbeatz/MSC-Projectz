@@ -12,12 +12,15 @@ When user asks for docs updates/checkpoints:
 
 1. Sync command docs to `package.json` scripts (no guessing).
 2. Prefer minimal edits in canonical docs:
+   - `Docs-Architecture.md` (canonical map)
    - `START-HERE.md`
    - `Session-Snapshots.md`
    - `Development-Roadmap.md`
    - `Agent-Runbook.md`
    - `FlightPro.md`
    - `Spaceship.md`
+   - `Deploy-Profile.template.json` / `Deploy-Profile.local.example.json`
+   - `Deploy-Secrets-Workflow.md`
    - `Restore-Points.md` (only for meaningful milestones/incidents)
 3. Capture operational incidents as:
    - symptom

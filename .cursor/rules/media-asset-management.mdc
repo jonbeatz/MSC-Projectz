@@ -6,7 +6,8 @@ alwaysApply: true
 # Media Asset Management
 
 - Store uploaded media and generated binary assets under project-root `./media`.
-- This includes thumbnails, avatars, PDFs, archives, and deployment zips.
+- This includes thumbnails, avatars, PDFs, and generated media artifacts.
+- Deploy release zips follow the deploy pipeline location (`final_deploy.zip` at repo root) unless explicitly changed in deploy tooling/docs.
 - For Payload upload collections, always set:
 
 ```ts
