@@ -1,22 +1,31 @@
 ---
 name: workflow-ops
-description: Portable trigger-command workflow for daily start, continue, deploy, and finish routines with confirmation gates and operator handshake.
+description: Trigger-command router for startup, continue, deploy, checkpoint, and finish flows with handshake and authority checks.
 ---
 
-# Workflow Ops (Portable)
+# Workflow Ops (Portable, Canonical)
 
-Use this skill to run a repeatable daily operator workflow in any project.
+Use this skill as the single trigger router for operator phrases and day-flow orchestration.
+
+## Non-negotiable authority
+
+Before executing any flow:
+
+1. Trust `package.json` for command names.
+2. Trust `.cursor/docs/Docs-Architecture.md` for docs order.
+3. If either is missing, fall back to project `START-HERE.md`.
 
 ## Operator handshake
 
-Start each recognized trigger flow with:
+At recognized flow start, send once:
 
 - `Ok <OperatorName> - <recognized command>. <one-line action plan>.`
 
-Only do this once at flow start (not every follow-up).
+Do not repeat the handshake on every follow-up message.
 
 ## Recognized trigger commands
 
+- `Ready to begin`
 - `Lets Start`
 - `Lets Continue`
 - `Lets Push It Live`
@@ -28,21 +37,15 @@ Only do this once at flow start (not every follow-up).
 - `Lets Finish`
 - `Lets Finish + Deploy`
 
+## Routing map
+
+- **Start/Continue triggers** -> run startup checks and context load from canonical docs.
+- **Deploy triggers** -> route to `Deploy-Profile-Package`.
+- **Checkpoint/Finish triggers** -> route to `Session-Handoff-Restore`.
+
 ## Required behavior
 
-1. Confirm workspace root before running commands.
-2. Use source-of-truth docs in project-defined order.
-3. Use confirmation gates before:
-   - commit
-   - deploy
-   - branch deletion/rename
-4. Prefer short status updates during long-running steps.
-
-## Suggested docs order (if project does not override)
-
-1. `START-HERE.md`
-2. `Agent-Runbook.md`
-3. `Spaceship.md` (or host/deploy equivalent)
-4. `Jedi-List.md` (or commands equivalent)
-5. `Restore-Points.md`
+1. Confirm workspace root before any command.
+2. Show short progress updates during long-running steps.
+3. Use explicit confirmation before destructive/high-impact operations (commit, push, deploy, branch surgery).
 
