@@ -13,6 +13,25 @@ Keep newest snapshot at the top.
 
 ---
 
+## 2026-04-28 — SQLite `payload_locked_documents_rels` repair + manual reorder docs
+
+### Session state
+
+- **What shipped:** Extended **`scripts/msc_sqlite_repair_vault_schema.mjs`** so **`payload_locked_documents_rels`** gets polymorphic FK columns Payload expects (**`msc_audit_logs_id`**, **`msc_clients_id`**, **`msc_vault_snippets_id`**, each with an index). Fixes **`SQLITE_ERROR: no such column …`** during **`payload.update`** (e.g. dashboard **Move up/down**). Docs updated for schema drift vs **`msc_vault_projects`**.
+- **Behavior (already in code):** **admin / master-admin** see manual reorder controls for all projects; server **`msc_moveProjectManual`** allows admins to swap adjacent rows; standard users still swap only own-owned neighbors.
+- **Operator:** After **`git pull`** or new collections relating to document locks, run **`npm run repair:sqlite`** (idempotent; backs up **`payload.sqlite`**). If drift is extreme: delete **`payload.sqlite`** (and **`-journal`**), then **`PAYLOAD_SQLITE_PUSH=true npm run dev`** once, then **`/api/seed`** if needed.
+
+### Files
+
+- `scripts/msc_sqlite_repair_vault_schema.mjs`; `.cursor/docs/` — `Development-Roadmap.md`, `START-HERE.md`, `Project-Truth.md`, `Daily-Ops-Cheat-Sheet.md`, `Session-Snapshots.md`, `FlightPro.md`, `Agent-Runbook.md`
+
+### Start-next checklist
+
+1. **`npm run repair:sqlite`** on any machine whose console shows missing **`payload_locked_documents_rels.*_id`** columns.
+2. Restart **`npm run dev`** and retry **Sort: Manual** reorder on **`/dashboard`**.
+
+---
+
 ## 2026-04-27 — Sprint 8: Avatar resolution & standardized fallbacks
 
 ### Session state
@@ -90,7 +109,7 @@ Keep newest snapshot at the top.
 3. Runtime gate: `npm run verify:next` after further app changes; `npm run dev` + smoke `/` and `/admin`
 
 ### Open risks / blockers
-- None for this feature set. If live host uses file SQLite and a column is missing, add the same column on host or run Payload-appropriate migration.
+- None for this feature set. If live host uses file SQLite and a column is missing, add the same column on host or run Payload-appropriate migration. For **`payload_locked_documents_rels`** drift, align host with **`npm run repair:sqlite`** logic or migrate.
 
 ---
 

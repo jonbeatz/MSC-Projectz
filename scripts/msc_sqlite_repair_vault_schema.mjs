@@ -9,7 +9,10 @@
  * - `msc_vault_tasks.assigned_to_id` for optional task assignment
  * - `msc_vault_tasks.description`, `due_date`, `priority` (Sprint 5 — calendar / task detail)
  * - `media.sizes_thumbnail_*` for Payload thumbnail image size metadata
- * - `payload_locked_documents_rels.msc_audit_logs_id` to match current relationship schema
+ * - `payload_locked_documents_rels` optional FK columns (`msc_audit_logs_id`, `msc_clients_id`,
+ *   `msc_vault_snippets_id`, …) — Payload adds one per locked collection; old SQLite files drift.
+ * - `msc_vault_projects.client_id` (optional CRM link to `msc-clients`)
+ * - `msc_clients` + `msc_clients_rels` (Phase 4 — MSC Clients)
  *
  * Backs up the DB file before changes. No row deletions.
  */
@@ -192,19 +195,18 @@ async function msc_main() {
       'CREATE INDEX msc_vault_projects_rels_users_id_idx ON msc_vault_projects_rels (users_id)',
     )
 
-    const lockRelsCols = await msc_tableColumnNames(client, 'payload_locked_documents_rels')
-    await msc_addColumnIfMissing(
-      client,
-      'payload_locked_documents_rels',
-      lockRelsCols,
-      'msc_audit_logs_id',
-      'INTEGER',
-    )
-    await msc_createIndexIfMissing(
-      client,
-      'payload_locked_documents_rels_msc_audit_logs_id_idx',
-      'CREATE INDEX payload_locked_documents_rels_msc_audit_logs_id_idx ON payload_locked_documents_rels (msc_audit_logs_id)',
-    )
+    /** Must match Payload/Drizzle `payload_locked_documents_rels` polymorphic rel columns (see collection graph). */
+    let lockRelsCols = await msc_tableColumnNames(client, 'payload_locked_documents_rels')
+    const lockedDocumentsRelsPatches = [
+      ['msc_audit_logs_id', 'payload_locked_documents_rels_msc_audit_logs_id_idx', 'CREATE INDEX payload_locked_documents_rels_msc_audit_logs_id_idx ON payload_locked_documents_rels (msc_audit_logs_id)'],
+      ['msc_clients_id', 'payload_locked_documents_rels_msc_clients_id_idx', 'CREATE INDEX payload_locked_documents_rels_msc_clients_id_idx ON payload_locked_documents_rels (msc_clients_id)'],
+      ['msc_vault_snippets_id', 'payload_locked_documents_rels_msc_vault_snippets_id_idx', 'CREATE INDEX payload_locked_documents_rels_msc_vault_snippets_id_idx ON payload_locked_documents_rels (msc_vault_snippets_id)'],
+    ]
+    for (const [col, indexName, indexSql] of lockedDocumentsRelsPatches) {
+      await msc_addColumnIfMissing(client, 'payload_locked_documents_rels', lockRelsCols, col, 'INTEGER')
+      await msc_createIndexIfMissing(client, indexName, indexSql)
+      lockRelsCols = await msc_tableColumnNames(client, 'payload_locked_documents_rels')
+    }
 
     const taskCols = await msc_tableColumnNames(client, 'msc_vault_tasks')
     if (!taskCols.includes('assigned_to_id')) {
@@ -276,6 +278,89 @@ async function msc_main() {
       await msc_addProjectCol(c[0], c[1])
     }
     const allCols = await msc_tableColumnNames(client, 'msc_vault_projects')
+    await msc_addColumnIfMissing(client, 'msc_vault_projects', allCols, 'client_id', 'INTEGER')
+    await msc_createIndexIfMissing(
+      client,
+      'msc_vault_projects_client_id_idx',
+      'CREATE INDEX msc_vault_projects_client_id_idx ON msc_vault_projects (client_id)',
+    )
+
+    const rMscClients = await client.execute({
+      sql: "SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'msc_clients'",
+      args: [],
+    })
+    if (rMscClients.rows.length === 0) {
+      await client.execute(`
+        CREATE TABLE msc_clients (
+          id integer PRIMARY KEY NOT NULL,
+          name text NOT NULL,
+          status text NOT NULL DEFAULT 'lead',
+          primary_contact_name text,
+          primary_contact_email text,
+          primary_contact_phone text,
+          primary_contact_user_id integer,
+          client_vault text,
+          updated_at text,
+          created_at text,
+          FOREIGN KEY (primary_contact_user_id) REFERENCES users(id) ON UPDATE no action ON DELETE set null
+        )
+      `)
+      await msc_createIndexIfMissing(
+        client,
+        'msc_clients_created_at_idx',
+        'CREATE INDEX msc_clients_created_at_idx ON msc_clients (created_at)',
+      )
+      await msc_createIndexIfMissing(
+        client,
+        'msc_clients_updated_at_idx',
+        'CREATE INDEX msc_clients_updated_at_idx ON msc_clients (updated_at)',
+      )
+      console.log('[msc_sqlite_repair] Created msc_clients (MSC CRM).')
+    } else {
+      console.log('[msc_sqlite_repair] msc_clients already present, skip create.')
+    }
+
+    const rMscClientsRels = await client.execute({
+      sql: "SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'msc_clients_rels'",
+      args: [],
+    })
+    if (rMscClientsRels.rows.length === 0) {
+      await client.execute(`
+        CREATE TABLE msc_clients_rels (
+          id integer PRIMARY KEY NOT NULL,
+          "order" integer,
+          parent_id integer NOT NULL,
+          path text NOT NULL,
+          msc_vault_projects_id integer,
+          FOREIGN KEY (parent_id) REFERENCES msc_clients(id) ON UPDATE no action ON DELETE cascade,
+          FOREIGN KEY (msc_vault_projects_id) REFERENCES msc_vault_projects(id) ON UPDATE no action ON DELETE cascade
+        )
+      `)
+      await msc_createIndexIfMissing(
+        client,
+        'msc_clients_rels_order_idx',
+        'CREATE INDEX msc_clients_rels_order_idx ON msc_clients_rels ("order")',
+      )
+      await msc_createIndexIfMissing(
+        client,
+        'msc_clients_rels_parent_idx',
+        'CREATE INDEX msc_clients_rels_parent_idx ON msc_clients_rels (parent_id)',
+      )
+      await msc_createIndexIfMissing(
+        client,
+        'msc_clients_rels_path_idx',
+        'CREATE INDEX msc_clients_rels_path_idx ON msc_clients_rels (path)',
+      )
+      await msc_createIndexIfMissing(
+        client,
+        'msc_clients_rels_msc_vault_projects_id_idx',
+        'CREATE INDEX msc_clients_rels_msc_vault_projects_id_idx ON msc_clients_rels (msc_vault_projects_id)',
+      )
+      console.log('[msc_sqlite_repair] Created msc_clients_rels (client ↔ vault projects).')
+    } else {
+      console.log('[msc_sqlite_repair] msc_clients_rels already present, skip create.')
+    }
+
     if (allCols.includes('email_settings_host') && allCols.includes('email_settings_outgoing_host')) {
       await client.execute(
         "UPDATE msc_vault_projects SET email_settings_outgoing_host = email_settings_host WHERE (email_settings_outgoing_host IS NULL OR email_settings_outgoing_host = '') AND email_settings_host IS NOT NULL AND email_settings_host != ''",

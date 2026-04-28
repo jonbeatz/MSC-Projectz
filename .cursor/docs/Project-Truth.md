@@ -71,7 +71,7 @@ After rotation:
 
 Core product areas:
 - Route-based Command Center UI under `app/(main)/(command-center)/` (with `app/(main)/layout.tsx` as the app document shell; Payload admin stays in `app/(payload)/` with a separate document root)
-- Dashboard (project list **sort modes** in client app settings: **manual** / **name** / **updated** / **status**; **manual** uses stored **`manualRank`** on `msc-vault-projects`; use **`npm run repair:sqlite`** on an existing local DB if SQLite errors reference missing `manual_rank`)
+- Dashboard (project list **sort modes** in client app settings: **manual** / **name** / **updated** / **status**; **manual** uses stored **`manualRank`** on `msc-vault-projects`). **SQLite schema drift:** run **`npm run repair:sqlite`** when errors mention missing columns—common cases include **`manual_rank`** on **`msc_vault_projects`**, and polymorphic **`*_id`** columns on **`payload_locked_documents_rels`** (**e.g. `msc_clients_id`, `msc_vault_snippets_id`**) required after new collections or Payload upgrades; those affect **`payload.update`** (manual reorder, saves), not only reads.
 - **Calendar** (`/calendar`): month/week task grid from vault **due** dates; on viewports **below `md`**, the matrix scrolls horizontally (fixed min inner width) and the agenda is a **bottom sheet**; logic uses **`useIsMaxMd`** in `lib/msc_hooks.ts` (matches **`max-width: 767px`**, not **`useIsMobile()`** at `lg`). Day cells are interactive **divs** with **`role="button"`** so chips and the mobile pencil control are not nested inside a native **`<button>`** (valid HTML / hydration). Selection and “today” use **border** styling; avoid stacking **`ring`** on rounded cells to prevent corner stroke glitches
 - Dashboard, tasks, profile/settings/help, and vault/code manager paths
 - Payload-backed data and media handling; **user/member avatars** resolve through **`msc_resolveAvatarUrl`** (`lib/msc_avatar_url.ts`) — do not pass raw Payload **`avatar`** objects to `<img src>`; dashboard member clusters use **`MemberClusterTrigger`** with **`fallbackType`** (**`'icon'`** default = Lucide **`User`** when no URL)
@@ -145,7 +145,7 @@ Current key commands:
 - `npm run pushitlive` -> release package flow
 - `npm run build:prod` -> runs `msc_package_deploy.mjs`
 - `npm run test:local` -> production-style local smoke via `server.js`
-- `npm run repair:sqlite` -> local Payload SQLite schema assist / repair
+- `npm run repair:sqlite` -> local Payload SQLite schema assist / repair (`scripts/msc_sqlite_repair_vault_schema.mjs`; backs up **`payload.sqlite`**; extends **`payload_locked_documents_rels`** and other vault tables as the codebase evolves)
 - `npm run db:prune-gate-users` -> local-only: remove `*gate-user*@msc.local` test users and related rows (see `Agent-Runbook.md`)
 
 ---

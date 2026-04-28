@@ -28,7 +28,7 @@ Startup response format required from assistant:
 4. Smoke (with dev up): **`npm run verify:local`** or open `http://127.0.0.1:3000/` and `/admin`.
 5. Continue iterating.
 
-**Schema pull (SQLite):** if after `git pull` the app errors with **no such column** (e.g. `manual_rank` on `msc_vault_projects`), run from repo root: **`npm run repair:sqlite`** (creates a timestamped `payload.sqlite` backup, idempotent). Then restart dev.
+**Schema pull (SQLite):** if after `git pull` the app errors with **`no such column`**, run from repo root: **`npm run repair:sqlite`** (timestamped **`payload.sqlite`** backup, idempotent). Examples: **`manual_rank`** on **`msc_vault_projects`**; **`msc_clients_id`**, **`msc_vault_snippets_id`**, etc. on **`payload_locked_documents_rels`** (Payload document-lock joins—often surfaces as **500** on **`/dashboard`** when using **Move up/down**). Then restart **`npm run dev`**. Last resort: delete **`payload.sqlite`** (+ **`-journal`**), **`PAYLOAD_SQLITE_PUSH=true npm run dev`** once to recreate schema, then **`/api/seed`** if you need demo data.
 
 ## 3) Prepare live deploy
 
