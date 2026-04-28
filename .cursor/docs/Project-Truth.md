@@ -6,8 +6,8 @@ Use this file first, then follow its linked source-of-truth order.
 
 ## Versioning
 
-- **Version:** `v1.2.3`
-- **Updated:** `2026-04-27` (Sprint 8 avatar docs: `msc_resolveAvatarUrl`, `MemberClusterTrigger` `fallbackType`)
+- **Version:** `v1.2.4`
+- **Updated:** `2026-04-28` (Phase 9 calendar ergonomics + `FullDev-v6` branch pointer; snippets/clients recap)
 - **Owner:** `Jon Beatz / MSC-Projectz`
 
 ---
@@ -19,7 +19,7 @@ Use this file first, then follow its linked source-of-truth order.
 - **System name:** Vader
 - **Primary stack:** Next.js + React + Payload CMS + SQLite
 - **Optional shell:** Tauri
-- **Current workflow branch (at last docs update):** `MSC-Projectz-FullDev-v5`
+- **Current workflow branch (at last docs update):** `MSC-Projectz-FullDev-v6`
 
 Primary goal:
 - Ship and maintain a production-ready command center with stable local workflow, reliable deploy packaging, and strong continuity between sessions.
@@ -72,7 +72,7 @@ After rotation:
 Core product areas:
 - Route-based Command Center UI under `app/(main)/(command-center)/` (with `app/(main)/layout.tsx` as the app document shell; Payload admin stays in `app/(payload)/` with a separate document root)
 - Dashboard (project list **sort modes** in client app settings: **manual** / **name** / **updated** / **status**; **manual** uses stored **`manualRank`** on `msc-vault-projects`). **SQLite schema drift:** run **`npm run repair:sqlite`** when errors mention missing columns—common cases include **`manual_rank`** on **`msc_vault_projects`**, and polymorphic **`*_id`** columns on **`payload_locked_documents_rels`** (**e.g. `msc_clients_id`, `msc_vault_snippets_id`**) required after new collections or Payload upgrades; those affect **`payload.update`** (manual reorder, saves), not only reads.
-- **Calendar** (`/calendar`): month/week task grid from vault **due** dates; on viewports **below `md`**, the matrix scrolls horizontally (fixed min inner width) and the agenda is a **bottom sheet**; logic uses **`useIsMaxMd`** in `lib/msc_hooks.ts` (matches **`max-width: 767px`**, not **`useIsMobile()`** at `lg`). Day cells are interactive **divs** with **`role="button"`** so chips and the mobile pencil control are not nested inside a native **`<button>`** (valid HTML / hydration). Selection and “today” use **border** styling; avoid stacking **`ring`** on rounded cells to prevent corner stroke glitches
+- **Calendar** (`/calendar`): month/week task grid from vault **due** dates. **Phase 9:** responsive **`grid-cols-1 md:grid-cols-7`**, **`gap-px`**/`zinc-800` frame, **`min-h-[150px]`** cells (**`h-auto`**, no **`1fr`** row stretch); **below `md`** stacked days include **weekday+date**; **from `md`** **Mon–Sun** header row; inner matrix can use **`md:min-w-2xl`** + horizontal **`overflow-x-auto`** on narrow desktops. **Day detail** opens a **`Dialog`** (**surface `#121212`**) with all tasks; **cell preview** shows **3** tasks + **`+ N more`**. **`Agenda`** button on narrow viewports opens the bottom **sheet** (day tap does not auto-open it). **`useIsMaxMd`** where applicable. Day cells remain **`<div role="button">`** (no nested **`<button>`** with chips). **Studio focus:** **`app/globals.css`** uses **neutral zinc** focus on **`[data-slot='input']` / `textarea`** in **`.dark`**, not brand green **`--msc-accent`** (**`select`** / select triggers keep accent ring)
 - Dashboard, tasks, profile/settings/help, and vault/code manager paths
 - Payload-backed data and media handling; **user/member avatars** resolve through **`msc_resolveAvatarUrl`** (`lib/msc_avatar_url.ts`) — do not pass raw Payload **`avatar`** objects to `<img src>`; dashboard member clusters use **`MemberClusterTrigger`** with **`fallbackType`** (**`'icon'`** default = Lucide **`User`** when no URL)
 - Local-first development and deploy packaging via zip artifact

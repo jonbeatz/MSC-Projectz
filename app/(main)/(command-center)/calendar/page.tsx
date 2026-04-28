@@ -88,12 +88,10 @@ export default function Msc_CalendarPage() {
 
   const handleDayPick = (ymd: string) => {
     setSelectedDate(ymd)
-    if (isMaxMd) setAgendaOpen(true)
   }
 
   const goToToday = () => {
     setSelectedDate(format(new Date(), 'yyyy-MM-dd'))
-    if (isMaxMd) setAgendaOpen(true)
   }
 
   return (
@@ -149,6 +147,16 @@ export default function Msc_CalendarPage() {
             >
               Today
             </Button>
+            {isMaxMd ? (
+              <Button
+                type="button"
+                variant="outline"
+                className="h-8 shrink-0 px-2 text-xs"
+                onClick={() => setAgendaOpen(true)}
+              >
+                Agenda
+              </Button>
+            ) : null}
             <Button type="button" variant="ghost" size="icon" className="h-8 w-8 shrink-0" onClick={onNext} aria-label="Next period">
               <ChevronRight className="h-4 w-4" />
             </Button>
@@ -162,6 +170,7 @@ export default function Msc_CalendarPage() {
           selectedYmd={selectedYmd}
           onSelectYmd={handleDayPick}
           onEditTask={(projectId, taskId, cellYmd) => setEditing({ projectId, taskId, cellYmd })}
+          onAddTask={() => setAddOpen(true)}
           byDay={byDay}
           projects={projects}
         />

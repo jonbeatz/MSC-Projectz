@@ -9,7 +9,31 @@ Purpose:
 
 Keep newest snapshot at the top.
 
-**Historical entries:** keep the **branch and SHA as recorded** for that session. Rows that show `MSC-Projectz-FullDev-v2` or **`FullDev-v3`** describe work **on that day**; **current primary branch** is **`MSC-Projectz-FullDev-v5`** (see `START-HERE.md` → *Current Restart Point*).
+**Historical entries:** keep the **branch and SHA as recorded** for that session. Rows that show `MSC-Projectz-FullDev-v2` or **`FullDev-v3`** describe work **on that day**; **current primary branch** is **`MSC-Projectz-FullDev-v6`** (see `START-HERE.md` → *Current Restart Point*).
+
+---
+
+## 2026-04-28 — Phase 9 calendar ergonomics (`FullDev-v6` line) + docs sync
+
+### Session state
+
+- **Branch:** `MSC-Projectz-FullDev-v6` — confirm **`git branch --show-current`** after pull.
+- **What shipped (calendar):** **`CalendarGrid`** — responsive **`grid-cols-1` / `md:grid-cols-7`**, zinc **`gap-px`** calendar frame, **`min-h-[150px]`** + **`h-auto`** (removed **`gridTemplateRows`** **`1fr`** stretch). **`hidden md:contents`** weekday header row; mobile shows **`EEE, MMM d`** per cell. **Day detail `Dialog`** (`#121212`) for all tasks when a day is activated; preview **three** chips + **`+ N more`** (**`text-zinc-500`**). **`Agenda`** button on **`max-md`** opens bottom sheet (day tap no longer opens sheet-only flow). **`components/MSC-Projectz-Calendar.tsx`** re-exports **`CalendarGrid`**. Related **`/calendar`** page wiring.
+- **Also on the line:** clients route/snippets/vault-snippet Payload + neutral focus (see **`011b3aa`** history on branch) — **Project-Truth** / **START-HERE** bullets refreshed.
+
+### Validation
+
+- **`npm run verify:next:safe`** expected green before pushing calendar changes.
+
+### Files
+
+- `components/CalendarGrid.tsx`, `components/MSC-Projectz-Calendar.tsx`, `app/(main)/(command-center)/calendar/page.tsx`; `.cursor/docs/` — **`START-HERE.md`**, **`Project-Truth.md`**, **`Session-Snapshots.md`**, **`Development-Roadmap.md`**
+
+### Start-next checklist
+
+1. `git pull` on **`MSC-Projectz-FullDev-v6`**
+2. Smoke **`/calendar`** (narrow + **`md`**): stacked vs 7-column, day dialog, **Agenda** sheet on mobile.
+3. After runtime edits: **`npm run verify:next`** (or **`verify:next:safe`** if dev may hold port **3000**).
 
 ---
 

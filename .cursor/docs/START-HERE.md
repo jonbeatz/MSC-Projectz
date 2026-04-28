@@ -80,13 +80,13 @@ Use the template in `Session-Snapshots.md` and keep newest entry at the top.
 
 ## Current Objective
 
-Ship a production-ready **Payload 3** + **Next.js 16** command center (with optional **Tauri 2**), including vault/collab features (e.g. per-project mail settings and admin configuration). **Primary integration branch:** `MSC-Projectz-FullDev-v5` (use `MSC-Projectz-FullDev-v4` / `FullDev-v3` for prior checkpoints). Longer-horizon collab work may still track `feature/collaborative-workspace` in parallel when revived.
+Ship a production-ready **Payload 3** + **Next.js 16** command center (with optional **Tauri 2**), including vault/collab features (e.g. per-project mail settings and admin configuration). **Primary integration branch:** `MSC-Projectz-FullDev-v6` (use `MSC-Projectz-FullDev-v5` / `v4` / `v3` for prior checkpoints). Longer-horizon collab work may still track `feature/collaborative-workspace` in parallel when revived.
 
 ## Current Restart Point
 
-* **Branch:** `MSC-Projectz-FullDev-v5` (primary line; `MSC-Projectz-FullDev-v4` and `MSC-Projectz-FullDev-v3` remain on the remote for history)
+* **Branch:** `MSC-Projectz-FullDev-v6` (primary line; `MSC-Projectz-FullDev-v5`, `v4`, and `v3` remain on the remote for history)
 * **Remote:** `origin` → `https://github.com/jonbeatz/MSC-Projectz.git`
-* **Latest recorded commit (this doc refresh):** calendar + `FullDev-v5` line — confirm SHA with `git log -1 --oneline` on `MSC-Projectz-FullDev-v5`.
+* **Latest recorded commit (this doc refresh):** confirm SHA with `git log -1 --oneline` on `MSC-Projectz-FullDev-v6`.
 * **Layout / admin shell baseline:** `d5422dd` — *fix(admin): split app shell from Payload and harden local dev*
 * **Working-state note:** docs were expanded for start/continue workflow, snapshots, and closeout. Always trust `git status -sb` as the live state.
 * **Architecture:** Command Center routes live under `app/(main)/(command-center)/` (group `(main)` owns the app `<html>`/`<body>`); login and auth live under `app/(main)/`. Payload admin/API use `app/(payload)/` with its own document via `RootLayout`. Root `app/layout.tsx` only returns `children` so those shells are siblings, not nested documents.
@@ -98,7 +98,9 @@ Ship a production-ready **Payload 3** + **Next.js 16** command center (with opti
 * **Command Center (responsive):** &lt;1024px: **drawer** nav + backdrop (`components/dashboard-sidebar.tsx`, `dashboard-layout.tsx`); **lg+:** collapsible **rail**; **`useIsMobile`** in `lib/msc_hooks.ts` matches the same breakpoint; project **search** in the app header is **lg+** only.  
 * **Task Drawer / pulse:** Task workflows and indicators (see `components/MSC-Projectz-TaskPulse.tsx`, `components/task-drawer.tsx`).  
 * **Code Manager (`/vault`):** split-pane workspace with Markdown and vault utilities.  
-* **Calendar (`/calendar`):** month/week grid of tasks by due date; on **small screens** the grid scrolls horizontally and the day agenda opens in a **bottom sheet**; use **`useIsMaxMd`** (not **`useIsMobile`**) for **`md`-aligned** breakpoint logic. Day cells avoid nested **`<button>`** elements (see `CalendarGrid` / `CalendarTaskChip`).  
+* **Calendar (`/calendar`):** month/week grid of tasks by due date. **Layout (Phase 9.1):** **`grid-cols-1 md:grid-cols-7`**, **`gap-px`** zinc frame; **below `md`** days stack with a **weekday+date** line per row; **from `md`** a **Mon–Sun** header row uses **`hidden md:contents`**. Rows use **`min-h-[150px]`** and **`h-auto`** (no **`1fr`** row stretch). **Day detail:** **`Dialog`** (**`#121212`**) lists all tasks for the tapped day; **cell preview** shows up to **3** tasks plus **`+ N more`** (**`text-zinc-500`**). **Mobile agenda:** an **Agenda** control opens the existing **bottom sheet** (selecting a day no longer auto-opens the sheet). Use **`useIsMaxMd`** where needed. Day cells avoid nested **`<button>`** (see **`CalendarGrid`** / **`MSC-Projectz-Calendar.tsx`** re-export, **`CalendarTaskChip`**).  
+* **Clients (`/clients`):** clients collection + route (see `MSC-Projectz-ClientsRouteView`, `MSC-Projectz-ClientDrawer`).  
+* **Vault snippets (dashboard):** snippet drawer/viewer, **`MSC-Projectz-VaultSnippets`** Payload collection; snippet form uses **neutral zinc focus** on inputs (see `app/globals.css` + `components/ui/input.tsx` / `textarea.tsx`).
 * **Audit Logs (embedded in Settings):** admin-only audit trail section with filterable history/details for sensitive user-management actions.  
 * **Credentials & Explorer:** project cards with key popovers; native folder open via Tauri when available.  
 * **Member avatars (dashboard):** project-card **`MemberClusterTrigger`** and related surfaces use **`msc_resolveAvatarUrl`** (**`lib/msc_avatar_url.ts`**) and default **`fallbackType="icon"`** (Lucide **`User`** when no photo). Mapper **`msc_mapProjectMember`** normalizes **`avatarUrl`** for vault payloads.  
