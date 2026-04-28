@@ -1,10 +1,9 @@
 'use client'
 
 import { useEffect, useRef } from 'react'
-import { X, Plus, Vault } from 'lucide-react'
+import { Plus, Vault } from 'lucide-react'
 import { ProjectGrid } from './project-grid'
-import { MSC_Projectz_TaskPulse } from '@/components/MSC-Projectz-TaskPulse'
-import { MSC_Projectz_ProjectReferencePanel } from '@/components/MSC-Projectz-ProjectReferencePanel'
+import { MSC_Projectz_TaskPulseFocusDrawer } from '@/components/MSC-Projectz-TaskPulseFocusDrawer'
 import { cn } from '@/lib/utils'
 import { useAppStore } from '@/lib/store'
 import type { Project } from '@/lib/types'
@@ -20,9 +19,11 @@ export interface MSC_Projectz_DashboardProps {
   onOpenVault: (id: string) => void
   onEditProject: (id: string) => void
   onOpenTaskDrawer: (id: string) => void
-  selectedProjectId: string | null
-  onClearSelectedProject: () => void
-  selectedProject: Project | null
+  focusProject: Project | null
+  focusOpen: boolean
+  onFocusOpenChange: (open: boolean) => void
+  focusTab: 'tasks' | 'code-vault'
+  onFocusTabChange: (tab: 'tasks' | 'code-vault') => void
 }
 
 /**
@@ -39,9 +40,11 @@ export function MSC_Projectz_Dashboard({
   onOpenVault,
   onEditProject,
   onOpenTaskDrawer,
-  selectedProjectId,
-  onClearSelectedProject,
-  selectedProject,
+  focusProject,
+  focusOpen,
+  onFocusOpenChange,
+  focusTab,
+  onFocusTabChange,
 }: MSC_Projectz_DashboardProps) {
   const msc_hardResetVaultState = useAppStore((s) => s.msc_hardResetVaultState)
   const sessionUser = useAppStore((s) => s.user)
@@ -108,7 +111,7 @@ export function MSC_Projectz_Dashboard({
   }
 
   return (
-    <div className="msc-projectz-dashboard flex w-full min-w-0 flex-1 flex-col gap-4 md:gap-6 xl:flex-row">
+    <div className="msc-projectz-dashboard flex w-full min-w-0 flex-1 flex-col gap-4 md:gap-6">
       <div className="min-w-0 flex-1">
         <ProjectGrid
           projects={filteredProjects}
@@ -120,29 +123,13 @@ export function MSC_Projectz_Dashboard({
           onOpenTaskDrawer={onOpenTaskDrawer}
         />
       </div>
-
-      {selectedProjectId && selectedProject && (
-        <div className="w-full min-w-0 shrink-0 xl:max-w-3xl">
-          <div className="sticky top-20">
-            <div className="mb-3 flex items-center justify-between">
-              <h2 className="text-sm font-medium text-foreground">{selectedProject.name}</h2>
-              <button
-                type="button"
-                onClick={onClearSelectedProject}
-                className="p-1 text-muted-foreground transition-colors hover:text-foreground"
-                aria-label="Close project panel"
-              >
-                <X className="h-4 w-4" />
-              </button>
-            </div>
-            <MSC_Projectz_TaskPulse project={selectedProject} />
-            <MSC_Projectz_ProjectReferencePanel
-              project={selectedProject}
-              onOpenRefsInEditor={() => onEditProject(selectedProject.id)}
-            />
-          </div>
-        </div>
-      )}
+      <MSC_Projectz_TaskPulseFocusDrawer
+        open={focusOpen}
+        onOpenChange={onFocusOpenChange}
+        project={focusProject}
+        activeTab={focusTab}
+        onActiveTabChange={onFocusTabChange}
+      />
     </div>
   )
 }

@@ -14,7 +14,9 @@ import { useTaskPulseSignal } from '@/lib/useTaskPulseSignal'
 export function MSC_Projectz_DashboardRouteView() {
   const [editProjectId, setEditProjectId] = useState<string | null>(null)
   const [vaultProjectId, setVaultProjectId] = useState<string | null>(null)
-  const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null)
+  const [focusProjectId, setFocusProjectId] = useState<string | null>(null)
+  const [focusOpen, setFocusOpen] = useState(false)
+  const [focusTab, setFocusTab] = useState<'tasks' | 'code-vault'>('tasks')
   const [taskDrawerProjectId, setTaskDrawerProjectId] = useState<string | null>(null)
 
   const { searchQuery, onAddProject } = useMSCProjectzCommandCenter()
@@ -26,7 +28,7 @@ export function MSC_Projectz_DashboardRouteView() {
   const vaultUserId = useAppStore((s) => s.vaultUserId)
 
   const vaultProject = projects.find((p) => p.id === vaultProjectId)
-  const selectedProject = projects.find((p) => p.id === selectedProjectId)
+  const focusProject = projects.find((p) => p.id === focusProjectId) ?? null
   const editProject = projects.find((p) => p.id === editProjectId)
   const taskDrawerProject = projects.find((p) => p.id === taskDrawerProjectId)
 
@@ -46,12 +48,24 @@ export function MSC_Projectz_DashboardRouteView() {
       : projects[0]?.id ?? null
 
     if (target) {
-      setSelectedProjectId(target)
+      setFocusProjectId(target)
       setTaskDrawerProjectId(target)
     }
 
     useTaskPulseSignal.getState().setSignal(false, null)
   }, [needsAttention, targetProjectId, projects])
+
+  useEffect(() => {
+    if (!focusProjectId) {
+      setFocusOpen(false)
+      return
+    }
+    const exists = projects.some((project) => project.id === focusProjectId)
+    if (!exists) {
+      setFocusOpen(false)
+      setFocusProjectId(null)
+    }
+  }, [focusProjectId, projects])
 
   const msc_vaultSyncPending =
     isAuthenticated &&
@@ -82,13 +96,18 @@ export function MSC_Projectz_DashboardRouteView() {
         searchQuery={searchQuery}
         onInitializeNewVault={onAddProject}
         onAddProject={onAddProject}
-        onSelectProject={(id) => setSelectedProjectId(id)}
+        onSelectProject={(id) => {
+          setFocusProjectId(id)
+          setFocusOpen(true)
+        }}
         onOpenVault={(id) => setVaultProjectId(id)}
         onEditProject={(id) => setEditProjectId(id)}
         onOpenTaskDrawer={(id) => setTaskDrawerProjectId(id)}
-        selectedProjectId={selectedProjectId}
-        onClearSelectedProject={() => setSelectedProjectId(null)}
-        selectedProject={selectedProject ?? null}
+        focusProject={focusProject}
+        focusOpen={focusOpen}
+        onFocusOpenChange={setFocusOpen}
+        focusTab={focusTab}
+        onFocusTabChange={setFocusTab}
       />
 
       <EditProjectModal

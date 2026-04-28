@@ -52,6 +52,13 @@ If localhost is broken, follow recovery in `FlightPro.md` and `Agent-Runbook.md`
 - `run media cleanup apply` -> owner-scoped apply (`npm run media:cleanup:run`) only after explicit yes/confirm.
 - Keep media cleanup owner-scoped by default; use global scope only when explicitly requested.
 
+### Plan artifact note
+
+- Default requirement: planning artifacts should always be autosaved to `D:\Cursor_Projectz\MSC-Projectz\.cursor\plans`.
+- Treat `D:\Cursor_Projectz\MSC-Projectz\.cursor\plans` as the single source of truth for project plans.
+- If a plan is created outside this folder, immediately copy/move it into `D:\Cursor_Projectz\MSC-Projectz\.cursor\plans`.
+- Agent operating rule: when a plan file is generated in the global Cursor plans location, copy it into `D:\Cursor_Projectz\MSC-Projectz\.cursor\plans` in the same session before closeout.
+
 ### Known fixes (do this first)
 
 - **Payload admin crash (`/admin/login` 500, `CodeEditor` config undefined):** ensure `app/(payload)/layout.tsx` uses Payload `RootLayout` wiring with `config` + `importMap` + `handleServerFunctions` serverFunction.

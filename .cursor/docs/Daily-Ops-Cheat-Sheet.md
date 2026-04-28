@@ -44,6 +44,10 @@ Operator phrase shortcuts:
 - `run media cleanup apply` -> only run after explicit confirmation; execute owner-scoped apply (`npm run media:cleanup:run`).
 - Best practice: keep cleanup owner-scoped; avoid global cleanup unless explicitly requested and reviewed.
 
+Plan file location rule:
+- Save project plans in `D:\Cursor_Projectz\MSC-Projectz\.cursor\plans` by default.
+- If a plan is generated in `C:\Users\JONBEATZ\.cursor\plans`, copy/move it into `D:\Cursor_Projectz\MSC-Projectz\.cursor\plans` in the same session.
+
 **Schema pull (SQLite):** if after `git pull` the app errors with **`no such column`**, run from repo root: **`npm run repair:sqlite`** (timestamped **`payload.sqlite`** backup, idempotent). Examples: **`manual_rank`** on **`msc_vault_projects`**; **`msc_clients_id`**, **`msc_vault_snippets_id`**, etc. on **`payload_locked_documents_rels`** (Payload document-lock joins—often surfaces as **500** on **`/dashboard`** when using **Move up/down**). Then restart **`npm run dev`**. Last resort: delete **`payload.sqlite`** (+ **`-journal`**), **`PAYLOAD_SQLITE_PUSH=true npm run dev`** once to recreate schema, then **`/api/seed`** if you need demo data.
 
 ## 3) Prepare live deploy

@@ -50,13 +50,19 @@ function msc_taskPulseHealth(tasks: Task[]): string {
 
 interface MSC_Projectz_TaskPulseProps {
   project: Project
+  activeTab?: 'tasks' | 'code-vault'
+  onActiveTabChange?: (tab: 'tasks' | 'code-vault') => void
 }
 
 /**
  * High-fidelity Task Pulse: Kanban (Queue / Active / Stabilized) + Vader Telemetry.
  * Status changes flow through the store → `msc_updateTaskStatus` (see `lib/msc_vault_server_actions.ts`).
  */
-export function MSC_Projectz_TaskPulse({ project }: MSC_Projectz_TaskPulseProps) {
+export function MSC_Projectz_TaskPulse({
+  project,
+  activeTab = 'tasks',
+  onActiveTabChange,
+}: MSC_Projectz_TaskPulseProps) {
   const { addTask, updateTaskStatus, deleteTask } = useAppStore()
   const [newTitle, setNewTitle] = useState('')
   const [isAdding, setIsAdding] = useState(false)
@@ -380,12 +386,16 @@ export function MSC_Projectz_TaskPulse({ project }: MSC_Projectz_TaskPulseProps)
         ) : null}
       </div>
 
-      <Tabs defaultValue="tasks" className="w-full gap-4">
-        <TabsList className="mb-1 h-auto w-full flex-wrap justify-start gap-1 rounded-xl border border-border bg-secondary/30 p-1 sm:w-auto">
-          <TabsTrigger value="tasks" className="rounded-lg px-4 py-2 text-xs font-semibold uppercase tracking-wide">
+      <Tabs
+        value={activeTab}
+        onValueChange={(value) => onActiveTabChange?.(value as 'tasks' | 'code-vault')}
+        className="w-full gap-4"
+      >
+        <TabsList className="mb-1 h-auto w-auto flex-wrap justify-start gap-2 rounded-none border-0 bg-transparent p-0">
+          <TabsTrigger value="tasks" className="rounded-lg border border-border bg-secondary/25 px-4 py-2 text-xs font-semibold uppercase tracking-wide hover:bg-secondary/45">
             Tasks
           </TabsTrigger>
-          <TabsTrigger value="code-vault" className="rounded-lg px-4 py-2 text-xs font-semibold uppercase tracking-wide">
+          <TabsTrigger value="code-vault" className="rounded-lg border border-border bg-secondary/25 px-4 py-2 text-xs font-semibold uppercase tracking-wide hover:bg-secondary/45">
             Code Vault
           </TabsTrigger>
         </TabsList>
@@ -412,6 +422,7 @@ export function MSC_Projectz_TaskPulse({ project }: MSC_Projectz_TaskPulseProps)
         open={clientDrawerOpen && Boolean(clientId)}
         onOpenChange={setClientDrawerOpen}
         initialTab={clientDrawerTab}
+        presentation="dialog"
       />
     </div>
   )

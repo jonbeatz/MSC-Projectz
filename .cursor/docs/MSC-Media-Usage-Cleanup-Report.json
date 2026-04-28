@@ -1,18 +1,24 @@
 {
-  "generatedAt": "2026-04-28T16:40:15.233Z",
+  "generatedAt": "2026-04-28T16:48:32.766Z",
   "scope": "owner",
-  "mode": "dry-run",
+  "mode": "apply",
   "ownerId": 1,
-  "mediaCount": 7,
+  "mediaCount": 8,
   "usedIds": [
     4,
     5,
     7,
     8,
     9,
-    15
+    16
   ],
-  "candidateDeleteCount": 0,
-  "deletedCount": 0,
-  "deleted": []
+  "candidateDeleteCount": 1,
+  "deletedCount": 1,
+  "deleted": [
+    {
+      "id": 15,
+      "filename": "the_second_by_g1nkasu_ddo8mys.png",
+      "url": "/api/media/file/the_second_by_g1nkasu_ddo8mys.png"
+    }
+  ]
 }

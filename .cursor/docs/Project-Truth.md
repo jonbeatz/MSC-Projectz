@@ -231,6 +231,7 @@ Closeout pattern:
 - Follow `msc_` naming convention where relevant
 - Use `RoleGate` for role-based UI visibility in React components (replace old `AdminGate` pattern)
 - Prefer concise, reversible changes; avoid broad speculative rewrites
+- Keep project plans in `D:\Cursor_Projectz\MSC-Projectz\.cursor\plans` as default/source-of-truth location; if generated in global Cursor plans, copy into the project folder in the same session.
 
 Policy locations:
 - `.cursorrules`
