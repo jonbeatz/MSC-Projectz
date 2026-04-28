@@ -23,7 +23,7 @@ import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { useAppStore } from '@/lib/store'
 import type { Credential, WizardStep } from '@/lib/types'
-import { msc_compressDataUrlImage } from '@/lib/msc_compress_thumbnail'
+import { msc_uploadVaultProjectThumbnail } from '@/lib/msc_vault_server_actions'
 
 interface AddProjectModalProps {
   isOpen: boolean
@@ -49,6 +49,7 @@ export function AddProjectModal({ isOpen, onClose }: AddProjectModalProps) {
   const [name, setName] = useState('')
   const [thumbnail, setThumbnail] = useState('')
   const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(null)
+  const [thumbnailMediaId, setThumbnailMediaId] = useState<string | number | null>(null)
   const [localPath, setLocalPath] = useState('')
   const [liveUrl, setLiveUrl] = useState('')
   const [credentials, setCredentials] = useState<Omit<Credential, 'id'>[]>([])
@@ -66,17 +67,22 @@ export function AddProjectModal({ isOpen, onClose }: AddProjectModalProps) {
     return `cred-${Date.now()}-${Math.random().toString(16).slice(2)}`
   }
 
-  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
-    if (file) {
-      const reader = new FileReader()
-      reader.onload = (event) => {
-        const dataUrl = event.target?.result as string
-        setSubmitError(null)
-        setThumbnail(dataUrl)
-        setThumbnailPreview(dataUrl)
-      }
-      reader.readAsDataURL(file)
+    if (!file) return
+    setSubmitError(null)
+    try {
+      const formData = new FormData()
+      formData.append('thumbnail', file)
+      const uploaded = await msc_uploadVaultProjectThumbnail(formData)
+      setThumbnailMediaId(uploaded.id)
+      setThumbnail(uploaded.url)
+      setThumbnailPreview(uploaded.url || null)
+    } catch (error) {
+      console.error('[MSC] upload project thumbnail', error)
+      setSubmitError('Thumbnail upload failed. Please try again.')
+    } finally {
+      e.target.value = ''
     }
   }
 
@@ -162,13 +168,11 @@ export function AddProjectModal({ isOpen, onClose }: AddProjectModalProps) {
         email: user?.email ?? null,
         headerFormat: 'server-action httpOnly Payload cookie; no client Authorization header',
       })
-      let thumbOut = (thumbnailPreview || thumbnail).trim()
-      if (thumbOut.startsWith('data:image/')) {
-        thumbOut = await msc_compressDataUrlImage(thumbOut)
-      }
+      const thumbOut = (thumbnailPreview || thumbnail).trim()
       await addProject({
         name: trimmedName,
         thumbnail: thumbOut || undefined,
+        thumbnailMediaId,
         localPath: trimmedLocalPath,
         liveUrl: trimmedLiveUrl || undefined,
         status,
@@ -193,6 +197,7 @@ export function AddProjectModal({ isOpen, onClose }: AddProjectModalProps) {
     setName('')
     setThumbnail('')
     setThumbnailPreview(null)
+    setThumbnailMediaId(null)
     setLocalPath('')
     setLiveUrl('')
     setCredentials([])
@@ -315,6 +320,7 @@ export function AddProjectModal({ isOpen, onClose }: AddProjectModalProps) {
                     onChange={(e) => {
                       setThumbnail(e.target.value)
                       setThumbnailPreview(null)
+                      setThumbnailMediaId(null)
                     }}
                     disabled={!!thumbnailPreview}
                     className="bg-input border-border text-foreground disabled:opacity-50"
@@ -357,6 +363,7 @@ export function AddProjectModal({ isOpen, onClose }: AddProjectModalProps) {
                       onClick={() => {
                         setThumbnail('')
                         setThumbnailPreview(null)
+                        setThumbnailMediaId(null)
                         if (fileInputRef.current) fileInputRef.current.value = ''
                       }}
                     >

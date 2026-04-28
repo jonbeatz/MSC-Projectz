@@ -10,10 +10,9 @@ import { Switch } from '@/components/ui/switch'
 import { useAppStore } from '@/lib/store'
 import type { Project, ProjectReference } from '@/lib/types'
 import { cn } from '@/lib/utils'
-import { msc_compressDataUrlImage } from '@/lib/msc_compress_thumbnail'
 import { msc_createEmptyReference } from '@/lib/msc_project_references'
 import { msc_listPayloadUsersForSettings } from '@/lib/msc_vault_user_admin'
-import { msc_testProjectSmtpConnection } from '@/lib/msc_vault_server_actions'
+import { msc_testProjectSmtpConnection, msc_uploadVaultProjectThumbnail } from '@/lib/msc_vault_server_actions'
 import type { MscSmtpEncryption } from '@/lib/types'
 import type { MscProjectMember, MscUserAdminRow } from '@/types/user-admin'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
@@ -29,6 +28,7 @@ export function EditProjectModal({ project, isOpen, onClose }: EditProjectModalP
   
   const [name, setName] = useState('')
   const [thumbnail, setThumbnail] = useState('')
+  const [thumbnailMediaId, setThumbnailMediaId] = useState<string | number | null>(null)
   const [localPath, setLocalPath] = useState('')
   const [liveUrl, setLiveUrl] = useState('')
   const [status, setStatus] = useState<'local' | 'live'>('local')
@@ -60,6 +60,7 @@ export function EditProjectModal({ project, isOpen, onClose }: EditProjectModalP
     if (project) {
       setName(project.name)
       setThumbnail(project.thumbnail || '')
+      setThumbnailMediaId(project.thumbnailMediaId ?? null)
       setLocalPath(project.localPath)
       setLiveUrl(project.liveUrl || '')
       setStatus(project.status)
@@ -123,10 +124,7 @@ export function EditProjectModal({ project, isOpen, onClose }: EditProjectModalP
   const handleSave = async () => {
     if (!project) return
 
-    let thumb = thumbnail.trim()
-    if (thumb.startsWith('data:image/')) {
-      thumb = await msc_compressDataUrlImage(thumb)
-    }
+    const thumb = thumbnail.trim()
 
     const memberLookup = new Map<string, MscUserAdminRow | MscProjectMember>()
     for (const u of availableUsers) {
@@ -150,6 +148,7 @@ export function EditProjectModal({ project, isOpen, onClose }: EditProjectModalP
     await updateProject(project.id, {
       name,
       thumbnail: thumb || undefined,
+      thumbnailMediaId,
       localPath,
       liveUrl: liveUrl || undefined,
       status,
@@ -195,14 +194,19 @@ export function EditProjectModal({ project, isOpen, onClose }: EditProjectModalP
     }
   }
 
-  const handleThumbnailUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleThumbnailUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
-    if (file) {
-      const reader = new FileReader()
-      reader.onloadend = () => {
-        setThumbnail(reader.result as string)
-      }
-      reader.readAsDataURL(file)
+    if (!file) return
+    try {
+      const formData = new FormData()
+      formData.append('thumbnail', file)
+      const uploaded = await msc_uploadVaultProjectThumbnail(formData)
+      setThumbnail(uploaded.url || '')
+      setThumbnailMediaId(uploaded.id)
+    } catch (error) {
+      console.error('[MSC] upload project thumbnail', error)
+    } finally {
+      e.target.value = ''
     }
   }
 
@@ -372,7 +376,10 @@ export function EditProjectModal({ project, isOpen, onClose }: EditProjectModalP
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => setThumbnail('')}
+                        onClick={() => {
+                          setThumbnail('')
+                          setThumbnailMediaId(null)
+                        }}
                         className="text-xs text-muted-foreground"
                       >
                         Remove

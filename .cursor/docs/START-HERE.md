@@ -36,6 +36,7 @@ If localhost is broken, follow recovery in `FlightPro.md` and `Agent-Runbook.md`
 - Broken localhost: **`npm run dev:recover`** (kill **3000** → clean **`.next`** → `next dev`); then **`npm run verify:local`**
 - Dev server: `npm run dev`
 - Smoke: `npm run verify:local` or `http://127.0.0.1:3000/` and `http://127.0.0.1:3000/admin`
+- Media cleanup dry-run (owner-safe): `$env:MSC_OWNER_ID='<id>'; npm run media:cleanup:dry`
 - Release package: `npm run pushitlive`
 
 ### Known fixes (do this first)
@@ -45,6 +46,8 @@ If localhost is broken, follow recovery in `FlightPro.md` and `Agent-Runbook.md`
 - **Reference records:** see latest resolved incident in `Session-Snapshots.md` (`2026-04-27 08:11`) and permanent guardrail in `Agent-Runbook.md` (`Payload admin guardrail` section).
 - **Local `gate-user-*.@msc.local` in Settings → Users:** optional audit test accounts, not the dev trust bypass. To remove them from SQLite, **`npm run db:prune-gate-users`** (see `Agent-Runbook.md` → *Local SQLite: gate-user*).
 - **Paused retry streams (2026-04-28):** before resuming media thumbnail migration or Clients glassmorphism, read:
+- **Media migration now completed (2026-04-28):** project thumbnails are linked via `thumbnailMedia`; legacy text thumbnail values were cleaned for migrated rows; media usage cleanup is now owner-safe and dry-run by default.
+- **Paused retry stream (remaining):** Clients glassmorphism continues to use debug note history; read before revisiting:
   - `.cursor/docs/MSC-Media-Migration-Retrospective.md`
   - `.cursor/docs/Clients-Glassmorphism-Debug-Note.md`
 

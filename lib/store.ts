@@ -419,6 +419,7 @@ export const useAppStore = create<AppState>()(
         const payload = {
           name: updates.name,
           thumbnail: updates.thumbnail,
+          thumbnailMediaId: updates.thumbnailMediaId,
           localPath: updates.localPath,
           liveUrl: updates.liveUrl,
           status: updates.status,

@@ -105,6 +105,14 @@ export const MSC_Projectz_VaultProjects: CollectionConfig = {
      * Data-URL thumbnails exceed Payload default `defaultMaxTextLength` (40k) unless raised per-field.
      */
     { name: 'thumbnail', type: 'text', maxLength: 15_000_000 },
+    {
+      name: 'thumbnailMedia',
+      type: 'relationship',
+      relationTo: 'media',
+      admin: {
+        description: 'Preferred thumbnail source (Payload media). Legacy text thumbnail remains fallback during migration.',
+      },
+    },
     { name: 'localPath', type: 'text' },
     { name: 'liveUrl', type: 'text' },
     {

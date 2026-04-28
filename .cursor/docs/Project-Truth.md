@@ -6,8 +6,8 @@ Use this file first, then follow its linked source-of-truth order.
 
 ## Versioning
 
-- **Version:** `v1.2.6`
-- **Updated:** `2026-04-28` (documented paused attempts: media migration + Clients glassmorphism)
+- **Version:** `v1.2.7`
+- **Updated:** `2026-04-28` (media cutover completed: backfill + cleanup + owner-safe media policy)
 - **Owner:** `Jon Beatz / MSC-Projectz`
 
 ---
@@ -78,6 +78,8 @@ Core product areas:
 - Route-based Command Center UI under `app/(main)/(command-center)/` (with `app/(main)/layout.tsx` as the app document shell; Payload admin stays in `app/(payload)/` with a separate document root)
 - CRM Command Center on `/clients` now supports in-app **create** and **archive** flows plus inline profile edit; archived clients are hidden from active list by default (record retained in DB via status).
 - Clients glassmorphism styling experiment attempted twice on 2026-04-28 and paused (not shipped to desired quality); resume from `.cursor/docs/Clients-Glassmorphism-Debug-Note.md`.
+- Media model standardized: project thumbnails now use Payload `media` relationship (`thumbnailMedia`) with legacy text thumbnail cleaned for migrated rows; navbar/favicon icon remains protected at `/media/msc-icon.png`.
+- Media cleanup policy hardened: default owner-scoped dry-run cleanup with explicit opt-in for apply/global scope to avoid cross-user asset deletion.
 - Dashboard (project list **sort modes** in client app settings: **manual** / **name** / **updated** / **status**; **manual** uses stored **`manualRank`** on `msc-vault-projects`). **SQLite schema drift:** run **`npm run repair:sqlite`** when errors mention missing columns—common cases include **`manual_rank`** on **`msc_vault_projects`**, and polymorphic **`*_id`** columns on **`payload_locked_documents_rels`** (**e.g. `msc_clients_id`, `msc_vault_snippets_id`**) required after new collections or Payload upgrades; those affect **`payload.update`** (manual reorder, saves), not only reads.
 - **Calendar** (`/calendar`): month/week task grid from vault **due** dates. **Phase 9:** responsive **`grid-cols-1 md:grid-cols-7`**, **`gap-px`**/`zinc-800` frame, **`min-h-[150px]`** cells (**`h-auto`**, no **`1fr`** row stretch); **below `md`** stacked days include **weekday+date**; **from `md`** **Mon–Sun** header row; inner matrix can use **`md:min-w-2xl`** + horizontal **`overflow-x-auto`** on narrow desktops. **Day detail** opens a **`Dialog`** (**surface `#121212`**) with all tasks; **cell preview** shows **3** tasks + **`+ N more`**. **`Agenda`** button on narrow viewports opens the bottom **sheet** (day tap does not auto-open it). **`useIsMaxMd`** where applicable. Day cells remain **`<div role="button">`** (no nested **`<button>`** with chips). **Studio focus:** **`app/globals.css`** uses **neutral zinc** focus on **`[data-slot='input']` / `textarea`** in **`.dark`**, not brand green **`--msc-accent`** (**`select`** / select triggers keep accent ring)
 - Dashboard, tasks, profile/settings/help, and vault/code manager paths
@@ -154,6 +156,8 @@ Current key commands:
 - `npm run test:local` -> production-style local smoke via `server.js`
 - `npm run repair:sqlite` -> local Payload SQLite schema assist / repair (`scripts/msc_sqlite_repair_vault_schema.mjs`; backs up **`payload.sqlite`**; extends **`payload_locked_documents_rels`** and other vault tables as the codebase evolves)
 - `npm run db:prune-gate-users` -> local-only: remove `*gate-user*@msc.local` test users and related rows (see `Agent-Runbook.md`)
+- `npm run media:cleanup:dry` -> owner-scoped dry-run media cleanup report (requires `MSC_OWNER_ID`)
+- `npm run media:cleanup:apply` -> owner-scoped apply mode media cleanup (requires `MSC_OWNER_ID`)
 
 ---
 

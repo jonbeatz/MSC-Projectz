@@ -76,6 +76,8 @@ export interface Project {
   members?: MscProjectMember[]
   name: string
   thumbnail?: string
+  /** Payload `media` relationship id for project thumbnail. */
+  thumbnailMediaId?: string | number | null
   localPath: string
   liveUrl?: string
   status: 'local' | 'live'

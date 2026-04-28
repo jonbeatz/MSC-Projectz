@@ -2,7 +2,7 @@
 
 Date: 2026-04-28
 Scope: `/clients` only
-Status: Paused (visual effect not reaching desired result)
+Status: Resolved (working baseline shipped)
 
 ## Goal
 Ship a premium "Studio Glass" look on the Clients cards and route background.
@@ -26,19 +26,31 @@ Ship a premium "Studio Glass" look on the Clients cards and route background.
 - CSS classes appeared in the live DOM.
 - Visual output still read as mostly flat/dark instead of pronounced glass depth.
 
-## Why We Paused
-The effect did not meet expected quality despite multiple style variants and force overrides.
+## Root Cause (final)
+- `globals.css` was imported correctly in the active `/clients` layout chain.
+- The practical break was in the rendered state:
+  1. scoped clients glass class definitions were missing/out-of-sync at one point, and
+  2. the route/card class usage was also not aligned with those definitions.
+- Because of this mismatch, the intended glass styles were not producing visible output.
 
-## Next Session Plan
-1. Run a strict parent-chain audit on `/clients` for backdrop blockers:
-   - `transform`
-   - `filter`
-   - `perspective`
-   - `isolation`
-   - clipping/stacking interactions
-2. Do a controlled inline sanity test on the route wrapper to confirm final paint path.
-3. If needed, move glass render layer to a dedicated card component with explicit pseudo-element layering (`z-index` strategy).
-4. Re-test with one controlled visual baseline before further style experiments.
+## Working Fix That Landed
+1. Restored scoped classes in `styles/globals.css`:
+   - `.msc-clients-route-bg`
+   - `.msc-clients-glass-card`
+   - `.msc-clients-glass-card::before`
+2. Re-applied scoped classes in `components/MSC-Projectz-ClientsRouteView.tsx`:
+   - route wrapper: `msc-clients-route-bg`
+   - cards: `msc-clients-glass-card`
+3. Added explicit on-element glass baseline on the client cards (inline style + glare overlay) to guarantee visible effect while tuning:
+   - translucent background + border + shadow
+   - `backdropFilter` / `WebkitBackdropFilter`
+   - diagonal glare layer in-card
+
+## Verification
+- `npm run verify:next:safe` passed after fix.
+- Dev server healthy.
+- `/clients` and `/admin` returned `200`.
+- Operator confirmed: "I see it now."
 
 ## Important
-Do not continue random style tuning first. Start with structural/stacking diagnostics, then re-apply a single glass recipe.
+Keep this as the baseline. Future tuning should be incremental (one dial at a time: opacity, border intensity, glare strength), not full rewrites.

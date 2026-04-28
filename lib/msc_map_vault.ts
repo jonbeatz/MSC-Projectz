@@ -22,6 +22,7 @@ type MscVaultProjectDoc = {
   user?: string | number | { id: string | number } | null
   members?: Array<string | number | MscProjectMember> | null
   thumbnail?: string | null
+  thumbnailMedia?: string | number | { id: string | number; url?: string | null } | null
   localPath?: string | null
   liveUrl?: string | null
   status: 'local' | 'live'
@@ -227,13 +228,27 @@ export function msc_mapProjectDoc(doc: MscVaultProjectDoc, tasks: Task[]): Proje
         ? (owner as { id: string | number }).id
         : owner
   const clientId = msc_resolveClientRelationId(doc.client)
+  const thumbnailMedia = doc.thumbnailMedia
+  const thumbnailMediaId =
+    thumbnailMedia == null
+      ? null
+      : typeof thumbnailMedia === 'object' && 'id' in thumbnailMedia
+        ? thumbnailMedia.id
+        : thumbnailMedia
+  const thumbnailFromMedia =
+    thumbnailMedia && typeof thumbnailMedia === 'object' && 'url' in thumbnailMedia
+      ? String(thumbnailMedia.url || '').trim()
+      : ''
+  const thumbnailLegacy = String(doc.thumbnail || '').trim()
+  const thumbnailResolved = thumbnailFromMedia || thumbnailLegacy
   return {
     id: String(doc.id),
     ...(clientId !== undefined ? { clientId } : {}),
     ownerUserId: ownerUserId as string | number | undefined,
     members: (doc.members || []).map(msc_mapProjectMember),
     name: doc.name,
-    thumbnail: doc.thumbnail || undefined,
+    thumbnail: thumbnailResolved || undefined,
+    thumbnailMediaId,
     localPath: getSafePath(doc.localPath || ''),
     liveUrl: doc.liveUrl || undefined,
     status: doc.status,

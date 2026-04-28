@@ -54,6 +54,11 @@ type MscLoginResult = {
 }
 
 type MscSystemConfigInput = Pick<AppSettings, 'pathFormat' | 'smtp'>
+type MscMediaDoc = {
+  id: string | number
+  url?: string | null
+  owner?: string | number | { id?: string | number } | null
+}
 
 function msc_revalidateVaultUi() {
   revalidatePath('/')
@@ -218,6 +223,40 @@ function msc_thumbnailPayload(value: string | undefined | null): { thumbnail?: s
   const t = typeof value === 'string' ? value.trim() : ''
   if (!t) return {}
   return { thumbnail: t }
+}
+
+export async function msc_uploadVaultProjectThumbnail(formData: FormData): Promise<{ id: string | number; url: string }> {
+  const ctx = await msc_getVaultLocalApiContext()
+  if (!ctx.user) {
+    throw new Error('Authentication required to upload project thumbnail.')
+  }
+  const file = formData.get('thumbnail')
+  if (!(file instanceof File)) {
+    throw new Error('Thumbnail file is required.')
+  }
+
+  const payload = await getPayload({ config })
+  const buffer = Buffer.from(await file.arrayBuffer())
+  const created = await payload.create({
+    collection: 'media',
+    data: {
+      owner: ctx.user.id,
+    },
+    file: {
+      data: buffer,
+      mimetype: file.type || 'application/octet-stream',
+      name: file.name || `project-thumbnail-${ctx.user.id}`,
+      size: file.size,
+    },
+    user: ctx.user,
+    overrideAccess: false,
+  } as Parameters<typeof payload.create>[0])
+
+  const media = created as MscMediaDoc
+  return {
+    id: media.id,
+    url: String(media.url || ''),
+  }
 }
 
 function msc_mergeMailEndpoint(
@@ -520,6 +559,22 @@ export async function msc_createVaultProject(
   const topRank =
     topDoc && typeof topDoc.manualRank === 'number' && !Number.isNaN(topDoc.manualRank) ? topDoc.manualRank : -1
   const createManualRank = topRank + 1
+  let thumbnailMediaId =
+    input.thumbnailMediaId === undefined || input.thumbnailMediaId === null || String(input.thumbnailMediaId).trim() === ''
+      ? null
+      : msc_coercePayloadRelationId(payload, 'media', String(input.thumbnailMediaId))
+  if (thumbnailMediaId !== null) {
+    const media = (await payload.findByID({
+      collection: 'media',
+      id: thumbnailMediaId,
+      depth: 0,
+      user: o.user,
+      overrideAccess: o.overrideAccess,
+    })) as MscMediaDoc | null
+    if (!media) {
+      thumbnailMediaId = null
+    }
+  }
 
   const created = await payload.create({
     collection: 'msc-vault-projects',
@@ -527,6 +582,7 @@ export async function msc_createVaultProject(
       name: input.name,
       user: ownerId,
       manualRank: createManualRank,
+      ...(thumbnailMediaId !== null ? { thumbnailMedia: thumbnailMediaId } : {}),
       ...msc_thumbnailPayload(input.thumbnail),
       localPath: getSafePath(input.localPath || ''),
       liveUrl: input.liveUrl?.trim() || '',
@@ -559,6 +615,7 @@ export async function msc_updateVaultProject(
         Project,
         | 'name'
         | 'thumbnail'
+        | 'thumbnailMediaId'
         | 'localPath'
         | 'liveUrl'
         | 'status'
@@ -583,6 +640,25 @@ export async function msc_updateVaultProject(
   if (updates.thumbnail !== undefined) {
     const t = updates.thumbnail?.trim() ?? ''
     data.thumbnail = t
+  }
+  if (updates.thumbnailMediaId !== undefined) {
+    const mediaIdRaw = updates.thumbnailMediaId
+    if (mediaIdRaw === null || String(mediaIdRaw).trim() === '') {
+      data.thumbnailMedia = null
+    } else {
+      const mediaId = msc_coercePayloadRelationId(payload, 'media', String(mediaIdRaw))
+      const media = (await payload.findByID({
+        collection: 'media',
+        id: mediaId,
+        depth: 0,
+        user: o.user,
+        overrideAccess: o.overrideAccess,
+      })) as MscMediaDoc | null
+      if (!media) {
+        throw new Error('Selected thumbnail media was not found.')
+      }
+      data.thumbnailMedia = mediaId
+    }
   }
   if (updates.localPath !== undefined) data.localPath = getSafePath(updates.localPath)
   if (updates.liveUrl !== undefined) data.liveUrl = updates.liveUrl

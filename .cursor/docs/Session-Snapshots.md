@@ -13,6 +13,61 @@ Keep newest snapshot at the top.
 
 ---
 
+## 2026-04-28 — Media relationship cutover complete + owner-safe cleanup policy
+
+### Session state
+
+- **Branch:** `MSC-Projectz-FullDev-v8`
+- **Outcome:** Project thumbnail media migration completed and stabilized for current dataset.
+- **What shipped:**
+  - Added project `thumbnailMedia` relationship path with safe runtime fallback.
+  - Backfilled legacy project thumbnail strings/data URLs into media rows and linked `thumbnailMedia`.
+  - Cleaned legacy `thumbnail` text values for migrated projects.
+  - Synced disk media assets (including `msc-icon.png`) into admin media inventory.
+  - Removed unreferenced media clutter and introduced owner-safe cleanup guardrails (`dry-run` default, owner scope required).
+
+### Validation
+
+- `npm run verify:next:safe` passed.
+- Dev server healthy on `:3000`; `/` and `/admin` returned `200`.
+- Backfill report: `.cursor/docs/MSC-Projectz-ThumbnailMedia-Backfill-Report.json`
+- Cleanup report: `.cursor/docs/MSC-Projectz-ThumbnailMedia-Cleanup-Report.json`
+- Usage cleanup report: `.cursor/docs/MSC-Media-Usage-Cleanup-Report.json`
+
+### Start-next checklist
+
+1. For media hygiene, always run owner-scoped dry-run first:
+   - `$env:MSC_OWNER_ID='<id>'; npm run media:cleanup:dry`
+2. Only run apply mode after reviewing report output.
+3. Keep `msc-icon.png` protected in media inventory and do not remove it during cleanup passes.
+
+---
+
+## 2026-04-28 — Clients glassmorphism baseline restored (visible)
+
+### Session state
+
+- **Branch:** `MSC-Projectz-FullDev-v8`
+- **Outcome:** Glass effect became visible on `/clients` after restoring scoped class definitions + class usage alignment, then adding a direct on-element glass baseline for reliability.
+- **Key fix summary:**
+  - Restored in `styles/globals.css`: `.msc-clients-route-bg`, `.msc-clients-glass-card`, `.msc-clients-glass-card::before`
+  - Re-applied in `components/MSC-Projectz-ClientsRouteView.tsx`: wrapper + card classes
+  - Added inline card glass style and glare overlay for guaranteed render while tuning
+
+### Validation
+
+- `npm run verify:next:safe` passed
+- Dev restarted and healthy
+- `/clients` and `/admin` both returned `200`
+
+### Start-next checklist
+
+1. Keep current visible baseline as source of truth.
+2. Tune one parameter at a time (opacity/border/glare), then validate visually.
+3. Avoid broad CSS rewrites unless baseline breaks again.
+
+---
+
 ## 2026-04-28 — Failed attempts log (media + clients glass) / retry deferred
 
 ### Session state

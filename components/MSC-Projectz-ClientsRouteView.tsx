@@ -124,7 +124,10 @@ export function MSC_Projectz_ClientsRouteView() {
   ])
 
   return (
-    <div className="msc-clients-route flex min-h-[calc(100vh-8rem)] flex-col gap-6 p-6" data-msc-component="clients-route">
+    <div
+      className="msc-clients-route msc-clients-route-bg flex min-h-screen flex-col gap-6 p-6"
+      data-msc-component="clients-route"
+    >
       <header className="flex flex-wrap items-start justify-between gap-3 border-b border-border pb-4">
         <div className="flex flex-col gap-1">
           <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-muted-foreground">CRM</p>
@@ -185,17 +188,28 @@ export function MSC_Projectz_ClientsRouteView() {
                 type="button"
                 onClick={() => openClient(c.id)}
                 className={cn(
-                  'flex w-full flex-col gap-3 rounded-xl border border-border bg-card/80 p-4 text-left shadow-sm backdrop-blur-sm transition-colors',
-                  'hover:border-primary/35 hover:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-msc-gold/40',
+                  'msc-clients-glass-card relative flex w-full flex-col gap-3 overflow-hidden rounded-2xl p-4 text-left transition-colors',
+                  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-msc-gold/40',
                 )}
+                style={{
+                  background: 'rgba(255, 255, 255, 0.1)',
+                  border: '1px solid rgba(255, 255, 255, 0.2)',
+                  boxShadow: '0 8px 32px rgba(0, 0, 0, 0.75)',
+                  backdropFilter: 'blur(18px)',
+                  WebkitBackdropFilter: 'blur(18px)',
+                }}
               >
-                <div className="flex items-start justify-between gap-2">
+                <span
+                  aria-hidden
+                  className="pointer-events-none absolute inset-0 bg-[linear-gradient(135deg,rgba(255,255,255,0.12)_0%,rgba(255,255,255,0)_50%)]"
+                />
+                <div className="relative z-10 flex items-start justify-between gap-2">
                   <span className="line-clamp-2 font-medium text-foreground">{c.name}</span>
                   <Badge variant={msc_statusBadgeVariant(c.status)} className="shrink-0 capitalize">
                     {c.status}
                   </Badge>
                 </div>
-                <p className="text-[11px] text-muted-foreground">
+                <p className="relative z-10 text-[11px] text-muted-foreground">
                   Updated {c.updatedAt ? new Date(c.updatedAt).toLocaleString() : '—'}
                 </p>
               </button>

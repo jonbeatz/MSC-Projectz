@@ -1,0 +1,39 @@
+{
+  "generatedAt": "2026-04-28T12:23:27.011Z",
+  "scanned": 5,
+  "eligible": 5,
+  "cleaned": 5,
+  "skipped": 0,
+  "details": [
+    {
+      "projectId": "1",
+      "projectName": "Vader - Test Integration",
+      "action": "cleaned",
+      "reason": "Removed legacy thumbnail text; thumbnailMedia is linked."
+    },
+    {
+      "projectId": "2",
+      "projectName": "Talk Show Land",
+      "action": "cleaned",
+      "reason": "Removed legacy thumbnail text; thumbnailMedia is linked."
+    },
+    {
+      "projectId": "3",
+      "projectName": "Nebula — Marketing Site",
+      "action": "cleaned",
+      "reason": "Removed legacy thumbnail text; thumbnailMedia is linked."
+    },
+    {
+      "projectId": "4",
+      "projectName": "Echo — Podcast Platform",
+      "action": "cleaned",
+      "reason": "Removed legacy thumbnail text; thumbnailMedia is linked."
+    },
+    {
+      "projectId": "5",
+      "projectName": "Solstice — Client Portal",
+      "action": "cleaned",
+      "reason": "Removed legacy thumbnail text; thumbnailMedia is linked."
+    }
+  ]
+}

@@ -2,6 +2,16 @@
 
 Internal notes from the **2026-04** push to move vault project thumbnails onto Payload **`media`**, optional flat **`./media`** layout, and **`repair:sqlite`** alignment. Use this before retrying so we avoid repeating the same traps.
 
+## Status update (2026-04-28)
+
+- The migration stream was resumed and completed for the current local dataset:
+  - `thumbnailMedia` relationship path is active.
+  - Legacy project thumbnails were backfilled into `media` and linked.
+  - Legacy text thumbnail values were cleaned for migrated rows.
+  - Media inventory sync included `msc-icon.png` and current disk assets.
+  - Cleanup flow now defaults to owner-scoped dry-run to protect other users.
+- Keep this retrospective as historical context for **why** guardrails exist.
+
 ---
 
 ## What we were trying to do
