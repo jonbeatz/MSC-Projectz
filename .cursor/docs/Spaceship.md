@@ -2,7 +2,7 @@
 
 ## Deploy SOP (Next / Payload on cPanel)
 
-Use **`FlightPro.md`** for zip contents, `pushitlive`, unzip/restart, permissions, and troubleshooting. **`DeployUpdate.md`** is the ultra-short version.
+Use **`FlightPro.md`** for zip contents, `pushitlive`, unzip/restart, permissions, and troubleshooting.
 
 ## Hosting Details
 - **Provider:** Spaceship

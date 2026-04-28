@@ -13,6 +13,42 @@ Keep newest snapshot at the top.
 
 ---
 
+## 2026-04-28 — Docs workflow audit + consolidation
+
+### Session state
+
+- **Branch:** `MSC-Projectz-FullDev-v10`
+- **Outcome:** Documentation system consolidated into a canonical set with archived redundancies and cleaner governance.
+
+### What was done
+
+- Archived redundant docs into `.cursor/docs/archive/2026-04-28-docs-audit/` (`Daily-Ops-Cheat-Sheet`, `Project-Truth`, `Jedi-List`, `ReCall`, `MasterSetUp`, `Flight`, `DeployUpdate`).
+- Added canonical architecture file: `.cursor/docs/Docs-Architecture.md`.
+- Updated canonical read order + startup contract in `.cursor/docs/START-HERE.md`.
+- Synced governance and core rules to the new canonical set (`.cursorrules`, `.cursor/rules/docs-checkpoint-governance.mdc`, `.cursor/rules/deploy-safety-spaceship.mdc`).
+- Reorganized non-core documentation:
+  - Incident docs moved to `.cursor/docs/incidents/`
+  - JSON reports moved to `.cursor/docs/reports/`
+- Updated references in active docs to new paths and removed stale script-drift warnings where scripts now exist.
+- Redacted plaintext passwords in `.cursor/docs/MSC-Users.md`.
+
+### Validation
+
+- Structure check complete: active docs now point to canonical files and archived docs are isolated.
+- Runtime code untouched in this pass (docs-only operation).
+
+### Start-next checklist
+
+1. Read `.cursor/docs/START-HERE.md` and `.cursor/docs/Docs-Architecture.md`.
+2. Continue normal startup flow from `Session-Snapshots.md` latest entry.
+3. If any workflow wording feels too strict/verbose, trim in `START-HERE.md` only (single-source editing rule).
+
+### Open risks / blockers
+
+- Historical snapshots still mention archived docs as part of past context; this is expected and preserved for timeline integrity.
+
+---
+
 ## 2026-04-28 — Layered workspace complete (overlay-first + modal pattern)
 
 ### Session state

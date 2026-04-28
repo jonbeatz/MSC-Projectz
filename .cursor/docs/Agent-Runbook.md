@@ -32,7 +32,7 @@ Apply this even if the assistant already read docs earlier that day, unless oper
 
 ## Error recovery (local — port 3000)
 
-This repository’s **`package.json`** may **not** define `dev:recover` / `dev:fresh` / `verify:next:safe`. If a one-liner is missing, use the **manual** sequence (Windows):
+Primary recovery one-liners are available in this repository (`dev:recover`, `dev:fresh`, `verify:next:safe`). Use them first; if they fail, use the manual sequence (Windows):
 
 1. Find PID: `netstat -ano | findstr ":3000"` (note **LISTENING** PID on **3000**).  
 2. Stop it: `taskkill /PID <pid> /F`  
@@ -42,7 +42,7 @@ This repository’s **`package.json`** may **not** define `dev:recover` / `dev:f
 
 **Build gate (after code edits):** `npm run verify:next` from repo root until it exits with code **0**. **Do not** run `verify:next` or `clean:next` while `next dev` is still running on 3000 — it will delete **`.next`** and break the dev server; stop dev first.
 
-Longer playbooks in **`.cursor/rules/local-runtime-recovery.mdc`** may name scripts that are not wired in this repo; fall back to this section + **`FlightPro.md` §2. Use **`FlightPro-Alt.md`** only for advanced edge cases (`sharp`, ownership, WSL/OOM escalation).
+Longer playbooks live in **`.cursor/rules/local-runtime-recovery.mdc`**. Fall back to this section + **`FlightPro.md` section 2** if a helper script fails in practice. Use **`FlightPro-Alt.md`** only for advanced edge cases (`sharp`, ownership, WSL/OOM escalation).
 
 ## Payload admin guardrail (`/admin` / `/admin/login`)
 

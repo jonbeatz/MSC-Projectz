@@ -5,7 +5,7 @@ globs:
   - scripts/**/*.ps1
   - package.json
   - .cursor/docs/Spaceship.md
-  - .cursor/docs/Jedi-List.md
+  - .cursor/docs/Development-Roadmap.md
 ---
 
 # Deploy safety (Spaceship)
@@ -31,5 +31,5 @@ When discussing or running deploy operations:
 - **Tier 2:** `npm run pushit:live` (build → `pushitup:admin-ui` → `pushitup -- .next` → `pushitup -- payload.sqlite` → `pushitup -- public/media`; local `dev:fresh` only if `PUSHIT_LIVE_RUN_DEV_FRESH=1`) — items **3** / **38**.
 - **Tier 3:** `npm run pushitup:server-config` — item **39**.
 
-Full reference: **Jedi-List.md**, **Spaceship.md**, **`FlightPro.md`**. ( **`Go-Live-Checklist.md`** only if that file exists in the repo. )
+Full reference: **Development-Roadmap.md**, **Spaceship.md**, **`FlightPro.md`**. ( **`Go-Live-Checklist.md`** only if that file exists in the repo. )
 

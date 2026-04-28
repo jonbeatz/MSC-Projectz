@@ -50,6 +50,6 @@ Do not commit plaintext `deploy-secrets.plain.json`.
 
 When an agent needs deploy credentials:
 
-1. Read `Project-Truth.md` + deploy profile docs first.
+1. Read `START-HERE.md` + deploy profile docs first.
 2. Ask for decryption/access step if secret is unavailable.
 3. Never print secret values in chat, commits, or docs.

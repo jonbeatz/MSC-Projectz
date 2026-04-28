@@ -5,8 +5,7 @@
 Use this quick flow at the beginning of every session:
 
 1. Confirm branch and working tree: `git branch --show-current` and `git status -sb`.
-2. Skim **`Daily-Ops-Cheat-Sheet.md`** for the day’s rhythm (start → build → closeout).
-3. Re-read docs in order (below), starting with this file and `MasterSetUp.md`.
+2. Re-read canonical docs in order (below), starting with this file.
 4. Load deploy profile context from `.cursor/docs/Deploy-Profile.template.json` (+ local override if present).
 5. Confirm script truth in `package.json` before using any command alias.
 6. For runtime edits (`app/`, `components/`, `lib/`, `collections/`, config), run build gate before closeout:
@@ -23,7 +22,7 @@ When operator says `Ready to begin`, the startup response must include:
 
 0. A fresh docs-read pass confirmation for this session trigger:
    - Start at `START-HERE.md`
-   - Continue through the full Documentation map read order in this file (items 1-15)
+   - Continue through the full Documentation map read order in this file (items 1-9)
    - Do this even if docs were read earlier the same day, unless operator explicitly says "skip docs read"
 1. A short verified checklist (branch/status, docs-read order, immediate blocker state).
 2. `3-4` prioritized next tasks for the session.
@@ -33,7 +32,6 @@ If localhost is broken, follow recovery in `FlightPro.md` and `Agent-Runbook.md`
 
 ### Daily quick commands
 
-- Day rhythm: see `Daily-Ops-Cheat-Sheet.md`
 - Context: `git branch --show-current && git status -sb`
 - Deploy profile preflight: `npm run deploy:preflight`
 - Build gate (runtime edits): `npm run verify:next` — or **`npm run verify:next:safe`** if `next dev` may be on **3000** (avoids corrupt `.next`)
@@ -68,8 +66,8 @@ If localhost is broken, follow recovery in `FlightPro.md` and `Agent-Runbook.md`
 - **Paused retry streams (2026-04-28):** before resuming media thumbnail migration or Clients glassmorphism, read:
 - **Media migration now completed (2026-04-28):** project thumbnails are linked via `thumbnailMedia`; legacy text thumbnail values were cleaned for migrated rows; media usage cleanup is now owner-safe and dry-run by default.
 - **Paused retry stream (remaining):** Clients glassmorphism continues to use debug note history; read before revisiting:
-  - `.cursor/docs/MSC-Media-Migration-Retrospective.md`
-  - `.cursor/docs/Clients-Glassmorphism-Debug-Note.md`
+  - `.cursor/docs/incidents/MSC-Media-Migration-Retrospective.md`
+  - `.cursor/docs/incidents/Clients-Glassmorphism-Debug-Note.md`
 
 ### Operator handshake triggers ("Ok Jon")
 
@@ -108,13 +106,13 @@ Use the template in `Session-Snapshots.md` and keep newest entry at the top.
 
 ## Current Objective
 
-Ship a production-ready **Payload 3** + **Next.js 16** command center (with optional **Tauri 2**), including vault/collab features (e.g. per-project mail settings and admin configuration). **Primary integration branch:** `MSC-Projectz-FullDev-v7` (use `MSC-Projectz-FullDev-v6` / `v5` / `v4` / `v3` for prior checkpoints). Longer-horizon collab work may still track `feature/collaborative-workspace` in parallel when revived.
+Ship a production-ready **Payload 3** + **Next.js 16** command center (with optional **Tauri 2**), including vault/collab features (e.g. per-project mail settings and admin configuration). **Primary integration branch:** `MSC-Projectz-FullDev-v10` (use `MSC-Projectz-FullDev-v9` / `v8` / `v7` as recent checkpoints).
 
 ## Current Restart Point
 
-* **Branch:** `MSC-Projectz-FullDev-v7` (primary line; `MSC-Projectz-FullDev-v6`, `v5`, `v4`, and `v3` remain on the remote for history)
+* **Branch:** `MSC-Projectz-FullDev-v10` (primary line; keep recent prior branches for checkpoint history)
 * **Remote:** `origin` → `https://github.com/jonbeatz/MSC-Projectz.git`
-* **Latest recorded commit (this doc refresh):** confirm SHA with `git log -1 --oneline` on `MSC-Projectz-FullDev-v7`.
+* **Latest recorded commit (this doc refresh):** confirm SHA with `git log -1 --oneline` on `MSC-Projectz-FullDev-v10`.
 * **Layout / admin shell baseline:** `d5422dd` — *fix(admin): split app shell from Payload and harden local dev*
 * **Working-state note:** docs were expanded for start/continue workflow, snapshots, and closeout. Always trust `git status -sb` as the live state.
 * **Architecture:** Command Center routes live under `app/(main)/(command-center)/` (group `(main)` owns the app `<html>`/`<body>`); login and auth live under `app/(main)/`. Payload admin/API use `app/(payload)/` with its own document via `RootLayout`. Root `app/layout.tsx` only returns `children` so those shells are siblings, not nested documents.
@@ -122,7 +120,7 @@ Ship a production-ready **Payload 3** + **Next.js 16** command center (with opti
 
 ## Core Features
 
-* **Project Dashboard:** Bento-style view of studio projects. **Sort** (app header on `/dashboard`): **manual** (persisted per-row **`manualRank`**) or **name** / **updated** / **status** via `msc_sortProjectsForDashboard`. **Move up / down** (grid + list) when **Sort: manual**: **admin / master-admin** see controls on every card and may swap with any neighbor; **standard users** only when you **own** the project, and the **adjacent** row must also be yours (shared projects in the way are skipped—server **`msc_moveProjectManual`**). If reorder fails with **`no such column`** on **`payload_locked_documents`**, run **`npm run repair:sqlite`** (see **`Daily-Ops-Cheat-Sheet.md`**)—that fixes **`payload_locked_documents_rels`** drift, not **`msc_vault_projects`** alone.  
+* **Project Dashboard:** Bento-style view of studio projects. **Sort** (app header on `/dashboard`): **manual** (persisted per-row **`manualRank`**) or **name** / **updated** / **status** via `msc_sortProjectsForDashboard`. **Move up / down** (grid + list) when **Sort: manual**: **admin / master-admin** see controls on every card and may swap with any neighbor; **standard users** only when you **own** the project, and the **adjacent** row must also be yours (shared projects in the way are skipped—server **`msc_moveProjectManual`**). If reorder fails with **`no such column`** on **`payload_locked_documents`**, run **`npm run repair:sqlite`**—that fixes **`payload_locked_documents_rels`** drift, not **`msc_vault_projects`** alone.  
 * **Command Center (responsive):** &lt;1024px: **drawer** nav + backdrop (`components/dashboard-sidebar.tsx`, `dashboard-layout.tsx`); **lg+:** collapsible **rail**; **`useIsMobile`** in `lib/msc_hooks.ts` matches the same breakpoint; project **search** in the app header is **lg+** only.  
 * **Task Drawer / pulse:** Task workflows and indicators (see `components/MSC-Projectz-TaskPulse.tsx`, `components/task-drawer.tsx`).  
 * **Code Manager (`/vault`):** split-pane workspace with Markdown and vault utilities.  
@@ -145,43 +143,33 @@ Ship a production-ready **Payload 3** + **Next.js 16** command center (with opti
 
 ## Documentation map (read order)
 
-1. **`Project-Truth.md`** — one-file AI onboarding truth (mission, stack, workflow, command/deploy context)  
-2. **`START-HERE.md`** (this file)  
-3. **`Daily-Ops-Cheat-Sheet.md`** — fast daily start / dev / deploy / closeout rhythm  
-4. **`MasterSetUp.md`** — master setup/deploy/context schema for any project  
-5. **`Session-Snapshots.md`** — latest handoff snapshot and start-next checklist  
-6. **`FlightPro.md`** — deploy zip pipeline, `pushitlive`, local recovery, env principles  
-7. **`Agent-Runbook.md`** — coding and isolation rules  
-8. **`Spaceship.md`** — hosting context  
-9. **`Jedi-List.md`** — roadmap checkboxes  
-10. **`DeployUpdate.md`**, **`Flight.md`** — short deploy/env checklists  
-11. **`FlightPro-Alt.md`** — advanced troubleshooting appendix (use when standard `FlightPro` flow fails)  
-12. **`Deploy-Profile.template.json`**, **`Deploy-Profile.local.example.json`** — non-secret host/path profile contract  
-13. **`Deploy-Secrets-Workflow.md`** — encrypted secret handling and rotation workflow  
-14. **`ReCall.md`** — session notes  
-15. **`Restore-Points.md`** — git restore one-liners  
+1. **`START-HERE.md`** (this file) — startup contract and operating baseline  
+2. **`Session-Snapshots.md`** — latest handoff + start-next checklist  
+3. **`Development-Roadmap.md`** — current roadmap and shipped sprint history  
+4. **`Agent-Runbook.md`** — runtime guardrails, recovery, coding rules  
+5. **`FlightPro.md`** — deploy + packaging + local recovery SOP  
+6. **`Spaceship.md`** — host/provider context  
+7. **`Deploy-Profile.template.json`**, **`Deploy-Profile.local.example.json`** — non-secret deploy profile contract  
+8. **`Deploy-Secrets-Workflow.md`** — encrypted secret handling workflow  
+9. **`Restore-Points.md`** — rollback checkpoints  
 
 ```
 MSC-Projectz
 ├── .cursor/
 │   ├── docs/
-│   │   ├── Project-Truth.md
 │   │   ├── START-HERE.md
-│   │   ├── Daily-Ops-Cheat-Sheet.md
-│   │   ├── MasterSetUp.md
 │   │   ├── Session-Snapshots.md
+│   │   ├── Development-Roadmap.md
 │   │   ├── FlightPro.md
 │   │   ├── FlightPro-Alt.md
-│   │   ├── Flight.md
-│   │   ├── DeployUpdate.md
 │   │   ├── Deploy-Profile.template.json
 │   │   ├── Deploy-Profile.local.example.json
 │   │   ├── Deploy-Secrets-Workflow.md
 │   │   ├── Spaceship.md
-│   │   ├── Jedi-List.md
 │   │   ├── Agent-Runbook.md
 │   │   ├── Restore-Points.md
-│   │   └── ReCall.md
+│   │   ├── archive/
+│   │   └── incidents/
 │   └── rules/   (operational + Payload + media + deploy)
 └── .cursorrules
 ```

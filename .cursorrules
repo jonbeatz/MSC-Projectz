@@ -7,13 +7,14 @@ alwaysApply: true
 
 ## 1. Source of Truth Hierarchy
 1. `.cursor/docs/START-HERE.md` (Project Vision & Current Sprint)
-2. `.cursor/docs/Agent-Runbook.md` (Operational procedures)
-3. `.cursor/docs/Spaceship.md` (Hosting, SMTP & Infrastructure)
-4. `.cursor/docs/Jedi-List.md` (Development Roadmap & Feature Log)
-5. `.cursor/docs/ReCall.md` and `.cursor/docs/Restore-Points.md` (Version recovery)
+2. `.cursor/docs/Session-Snapshots.md` (Current handoff + start-next)
+3. `.cursor/docs/Development-Roadmap.md` (Roadmap and delivered sprint history)
+4. `.cursor/docs/Agent-Runbook.md` (Operational procedures)
+5. `.cursor/docs/FlightPro.md` (Deploy + local recovery SOP)
+6. `.cursor/docs/Spaceship.md` and `.cursor/docs/Restore-Points.md` (Host context + rollback)
 
 ## 2. Technical Stack & Architecture
-- **Frontend:** Next.js 15 (App Router), React 19.
+- **Frontend:** Next.js 16 (App Router), React 19.
 - **Desktop Shell:** Tauri 2.0 (Rust backend).
 - **Backend/DB:** Payload 3.0 with local SQLite persistence.
 - **State:** Zustand synced with SQLite; use UUID v4 for all `id` fields.

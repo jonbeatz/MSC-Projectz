@@ -1,16 +1,16 @@
-# MSC-Users (personal dev reference)
+# MSC-Users (redacted local reference)
 
-Working notes for local/test logins and roles while building MSC-Projectz. **Treat as sensitive** — do not use production secrets here, and keep this out of public repos if it holds real credentials.
+Local/test account labels for role mapping only. Passwords are intentionally not stored in docs. Keep real credentials in local secret storage only.
 
 ---
 
 ## JonBeatz (Master Admin)
 
-| Field    | Value              |
-| -------- | ------------------ |
-| Username | `JonBeatz`         |
+| Field    | Value                |
+| -------- | -------------------- |
+| Username | `JonBeatz`           |
 | Email    | `jonbeatz@gmail.com` |
-| Password | `Dracula22!`       |
+| Password | `[REDACTED]`         |
 
 _In Payload the role is a single value; use **master-admin** (includes all admin-level access in this app)._
 
@@ -18,31 +18,31 @@ _In Payload the role is a single value; use **master-admin** (includes all admin
 
 ## JonBeatz822 (User)
 
-| Field    | Value                 |
-| -------- | --------------------- |
-| Username | `JonBeatz822`         |
+| Field    | Value                   |
+| -------- | ----------------------- |
+| Username | `JonBeatz822`           |
 | Email    | `jonbeatz822@gmail.com` |
-| Password | `Penguin22!`          |
+| Password | `[REDACTED]`            |
 
 ---
 
 ## MSC-Admin (Admin)
 
-| Field    | Value                        |
-| -------- | ---------------------------- |
-| Username | `MSC-Admin`                  |
+| Field    | Value                          |
+| -------- | ------------------------------ |
+| Username | `MSC-Admin`                    |
 | Email    | `createmystudiochannel@gmail.com` |
-| Password | `mscProjectz22!`             |
+| Password | `[REDACTED]`                   |
 
 ---
 
 ## TNyse (Admin)
 
-| Field    | Value           |
-| -------- | --------------- |
-| Username | `TNyse`         |
+| Field    | Value             |
+| -------- | ----------------- |
+| Username | `TNyse`           |
 | Email    | `bigtee@gmail.com` |
-| Password | `tNizzle2026!`  |
+| Password | `[REDACTED]`      |
 
 ---
 

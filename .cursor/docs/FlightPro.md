@@ -16,9 +16,9 @@
 
 1. **`START-HERE.md`** — vision, branch, what changed recently  
 2. **`FlightPro.md`** (this file) — deploy + local recovery SOP  
-3. **`Agent-Runbook.md`** — agent coding and tenant rules  
-4. **`Spaceship.md`** — host/DNS context  
-5. **`Jedi-List.md`**, **`ReCall.md`**, **`Restore-Points.md`** — roadmap, session notes, git checkpoints
+3. **`Session-Snapshots.md`** — latest operational handoff  
+4. **`Agent-Runbook.md`** — agent coding and tenant rules  
+5. **`Spaceship.md`** and **`Restore-Points.md`** — host context + git checkpoints
 
 ---
 
@@ -40,7 +40,7 @@
 | `npm run db:rescue-admin` | Admin recovery (`jiti scripts/msc_rescue_admin.ts`). |
 | `npm run db:prune-gate-users` | Deletes local audit users `*gate-user*@msc.local` and related rows (`scripts/msc_delete_gate_test_users.mjs`); **not** for production DBs — local SQLite hygiene only. |
 
-> **Note:** Some older **Cursor rules** (e.g. `local-runtime-recovery.mdc`) mention `dev:recover`, `verify:next:safe`, or `pushit:live`. **This repo’s `package.json` may not define those names.** If a script is missing, use **§2 Local recovery (manual)** and the table above — do not assume deleted helpers exist.
+> **Note:** Script names in this file are synced to `package.json` and should be treated as authoritative for local operations.
 
 ---
 
