@@ -15,10 +15,10 @@ Use this skill when docs or workflow guidance are being edited.
 
 ## Required behavior for docs updates
 
-- Keep edits focused to canonical docs first.
-- Remove/avoid duplicated instructions across multiple docs.
-- Archive redundant docs rather than deleting useful history.
-- If commands or paths changed, update docs in the same session.
+- You **must** keep edits focused to canonical docs first.
+- You **must** remove/avoid duplicated instructions across multiple docs.
+- You **should** archive redundant docs rather than deleting useful history.
+- If commands or paths changed, you **must** update docs in the same session.
 
 ## Minimal update set (when relevant)
 
@@ -31,6 +31,6 @@ Use this skill when docs or workflow guidance are being edited.
 
 ## Closeout expectations
 
-- Add snapshot entries for meaningful workflow milestones.
-- Add restore-point entries for rollback-worthy milestones.
-- Keep commit messages focused on why/operational impact.
+- You **must** add snapshot entries for meaningful workflow milestones.
+- You **must** add restore-point entries for rollback-worthy milestones.
+- You **should** keep commit messages focused on why/operational impact.

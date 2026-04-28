@@ -9,8 +9,8 @@ Use this skill for runtime-impacting work in this repo.
 
 ## Scope
 
-- Applies to changes under `app/`, `components/`, `lib/`, `collections/`, config, and runtime scripts.
-- Does not replace global authority docs/rules; it operationalizes them.
+- This skill **must** be applied to changes under `app/`, `components/`, `lib/`, `collections/`, config, and runtime scripts.
+- This skill does not replace global authority docs/rules; it operationalizes them.
 
 ## Required flow
 
@@ -34,6 +34,8 @@ When localhost is broken (`ERR_CONNECTION_REFUSED`, 500s, missing chunks):
 
 ## Guardrails
 
-- Never invent script names; confirm in `package.json`.
-- Do not run live/server commands for local runtime repair.
-- If behavior and docs conflict, fix docs/rules drift in the same session.
+- You **must** never invent script names; confirm in `package.json`.
+- You **must not** run live/server commands for local runtime repair.
+- If behavior and docs conflict, you **must** fix docs/rules drift in the same session.
+- After runtime verification, you **must** run the relevant UI quality gates from `MSC-Skillz/MSC-Master-UI-UX` when UI is affected.
+- Accessibility regressions or missing loading/error/empty states are **release blockers** until fixed.

@@ -58,7 +58,7 @@ If you changed **any** file that can affect the running app — including `app/`
    (`verify:next` = `clean:next` + `next build`.) On **Windows**, if **`next dev`** might still be on port **3000**, use **`npm run verify:next:safe`** instead (frees **3000** first) so you never delete **`.next`** under a running dev server.  
    **After verify exits 0**, **`next dev` is usually not running** (**.next** was rebuilt). If **port 3000 is free**, **run `npm run dev`** (background is fine — **await Ready** in the log when practical) so **`/`** and **`/admin`** respond again. The Cursor **`stop`** hook also starts **`npm run dev`** when Git shows runtime-path changes and **3000** is free, but **do not rely on the hook alone** — run **`npm run dev` yourself** after verify so localhost is not left empty.
 
-2. **`npm run dev`** starts **`next dev`**. Use **`npm run dev:recover`** (or alias **`npm run dev:fresh`**) when **`vendor-chunks/*`** is missing, **`/admin`** **500s** from stale chunks, or right after **`npm run build`** / **`pushit:live`** left a production **`.next`**.
+2. **`npm run dev`** starts **`next dev`**. Use **`npm run dev:recover`** (or alias **`npm run dev:fresh`**) when **`vendor-chunks/*`** is missing, **`/admin`** **500s** from stale chunks, or right after **`npm run build`** / **`pushitlive`** left a production **`.next`**.
 
 3. **Do not** mark the task complete if `verify:next` fails.
 
@@ -79,8 +79,8 @@ Do not skip the build step in favor of only HTTP checks.
 
 **Agents:** execute in order until **`/`** and **`/admin`** respond (or you hit a real code error). **Jon** only opens the browser if needed; do not leave recovery as “Jon should run …”.
 
-1. Free **port 3000** if multiple listeners (kill stale Node) — **run** **`node scripts/kill-dev-port.mjs`** or the same steps **`restart-dev.ps1`** uses, or **`npm run dev:recover`**.
-2. **`npm run dev:recover`** first — same as **`restart:dev`**: free **3000**, then **`npm run dev:fresh`** (**kill-dev-port** + **`clean:next`** + **`next dev`**). Fastest fix for white screen / **500** / **`/_next/static/chunks/fallback/*`** after a bad overlap.
+1. Free **port 3000** if multiple listeners (kill stale Node) — **run** **`node scripts/kill-dev-port.mjs`** or **`npm run dev:recover`**.
+2. **`npm run dev:recover`** first: free **3000**, then clean **`.next`**, then **`next dev`**. Fastest fix for white screen / **500** / **`/_next/static/chunks/fallback/*`** after a bad overlap.
 3. If still broken: run manual sequence — `node scripts/kill-dev-port.mjs && npx rimraf .next node_modules/.cache .turbo && npm run dev:recover`.
 4. For build gates when dev might be up: **`npm run verify:next:safe`** — never raw **`verify:next`** while **3000** is busy.
 5. Optionally **`npm run verify:local`** once dev is listening on **3000**.

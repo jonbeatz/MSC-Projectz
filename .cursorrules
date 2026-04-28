@@ -7,18 +7,9 @@ alwaysApply: true
 
 ## 1) Canonical documentation order
 
-Always resolve ambiguity using this order:
-
-1. `.cursor/docs/START-HERE.md`
-2. `.cursor/docs/Docs-Architecture.md`
-3. `.cursor/docs/Session-Snapshots.md`
-4. `.cursor/docs/Development-Roadmap.md`
-5. `.cursor/docs/Agent-Runbook.md`
-6. `.cursor/docs/FlightPro.md`
-7. `.cursor/docs/Spaceship.md`
-8. `.cursor/docs/Restore-Points.md`
-
-If docs conflict, follow the highest file in this list and update lower-priority docs in the same session.
+- `.cursor/docs/Docs-Architecture.md` is the canonical docs map and read order.
+- `.cursor/docs/START-HERE.md` is the startup contract and session entry point.
+- If docs conflict, follow `Docs-Architecture.md` and update drifted docs in the same session.
 
 ## 2) Command and script authority
 

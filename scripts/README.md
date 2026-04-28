@@ -32,5 +32,6 @@ These scripts were moved to `scripts/archive/` and are not part of normal workfl
 - `archive/msc_cleanup_legacy_project_thumbnails.ts`
 - `archive/msc_sync_media_files_to_collection.ts`
 - `archive/msc_playwright_manual_clients_glass_check.mjs`
+- `archive/msc_package_for_production.mjs` (deprecated; `package:production` now aliases to `package:deploy`)
 
 If one-time scripts are re-used, promote them to canonical scripts and add an explicit `package.json` command.

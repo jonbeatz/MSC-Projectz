@@ -36,3 +36,5 @@ Archived to `docs/archive/2026-04-28-docs-audit/`:
 ## Update rule
 
 When documentation changes, update canonical docs first. Avoid duplicating SOP steps across multiple files; prefer one authoritative file and cross-reference it.
+
+Authority note: this file owns canonical docs order. Other docs/rules may reference this order but should not redefine a conflicting sequence.

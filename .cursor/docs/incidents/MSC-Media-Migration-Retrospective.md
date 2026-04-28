@@ -11,6 +11,7 @@ Internal notes from the **2026-04** push to move vault project thumbnails onto P
   - Media inventory sync included `msc-icon.png` and current disk assets.
   - Cleanup flow now defaults to owner-scoped dry-run to protect other users.
 - Keep this retrospective as historical context for **why** guardrails exist.
+- Historical command note: commands like `migrate:thumbnails` and `db:list-vault-thumbs` were branch-specific during migration work and are not current command truth unless present in `package.json`.
 
 ---
 
@@ -19,7 +20,7 @@ Internal notes from the **2026-04** push to move vault project thumbnails onto P
 1. **Vault thumbnails as real Media rows** — `thumbnail` as a **relationship** to `media` instead of only a giant TEXT field (URLs / `data:` URLs).
 2. **`legacy_thumbnail_backup`** — keep a copy of old text thumbnails for rollback during migration.
 3. **Optional: flat `./media`** — `upload.staticDir: 'media'` instead of `media/msc_projects/` (organizational only).
-4. **`npm run migrate:thumbnails`** — materialize `data:` URLs to files + create `media` docs + set relation.
+4. **`npm run migrate:thumbnails`** — materialize `data:` URLs to files + create `media` docs + set relation (**historical branch script; run only if present in `package.json` on your current branch**).
 5. **`npm run repair:sqlite`** — non-interactive SQLite fixes when Drizzle **`push`** would block on Windows/CI.
 
 ---
@@ -66,7 +67,7 @@ Internal notes from the **2026-04** push to move vault project thumbnails onto P
 | **`npm run repair:sqlite`** extended with **`legacy_thumbnail_backup`**, **`thumbnail_id`**, backfills from legacy **`thumbnail` TEXT** | Avoids some Drizzle “missing column” prompts; aligns DB without GUI |
 | **`ALTER TABLE … DROP COLUMN thumbnail`** (after backup + **`thumbnail_id`** / **`legacy_thumbnail_backup`**) | Stops Drizzle from prompting to **delete** the legacy column (which blocked stdin) |
 | **`migrate:thumbnails`** with **`PAYLOAD_MIGRATING`**, **`disableOnInit`** where applicable | Safer one-off migration |
-| **`npm run db:list-vault-thumbs`** | Quick sanity check of relation vs legacy fields |
+| **`npm run db:list-vault-thumbs`** | Quick sanity check of relation vs legacy fields (**historical branch script; run only if present**) |
 | **`payload.sqlite.bak.*` backups** (repair script timestamps) | Restore points when schema experiments go wrong |
 | **`patch-package`** for Payload **`loadEnv`** | Makes **`tsx`** CLI scripts usable again after **`npm install`** |
 
@@ -77,7 +78,7 @@ Internal notes from the **2026-04** push to move vault project thumbnails onto P
 1. **Backup DB:** copy **`payload.sqlite`** to something like **`payload.sqlite.before-media-v2`**.
 2. **One dev server on 3000** — avoid overlapping **`next dev`** (duplicate push / duplicate indexes).
 3. **Implement schema + collections** on a branch; run **`npm run repair:sqlite`** until **`PRAGMA table_info(msc_vault_projects)`** matches what Payload expects.
-4. **Run `migrate:thumbnails`** (with **`patch-package`** + CLI hooks if still required).
+4. **Run `migrate:thumbnails`** only if that script exists on the active branch (with **`patch-package`** + CLI hooks if still required).
 5. **`npm run verify:next:safe`** before declaring victory.
 6. **If reverting code via Git:** restore a matching **`payload.sqlite`** from **`.bak`** or re-run **`repair:sqlite`** / migrations — **code and DB must move together**.
 

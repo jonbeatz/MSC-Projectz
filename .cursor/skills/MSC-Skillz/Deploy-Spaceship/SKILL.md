@@ -23,13 +23,13 @@ Use this skill for deploy tasks in this repo.
 
 - Local (Cursor/PC repo root): preflight, build/package, git operations.
 - Live (cPanel): host shell actions, restart, live checks.
-- Do not mix these contexts.
+- You **must not** mix these contexts.
 
 ## Guardrails
 
-- Never use missing script names.
-- Do not skip preflight unless explicitly requested.
-- If deploy docs conflict with scripts, follow `package.json` and patch docs drift immediately.
+- You **must** never use missing script names.
+- You **must not** skip preflight unless explicitly requested.
+- If deploy docs conflict with scripts, you **must** follow `package.json` and patch docs drift immediately.
 
 ## Minimum post-deploy report
 

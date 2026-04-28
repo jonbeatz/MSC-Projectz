@@ -143,6 +143,8 @@ Ship a production-ready **Payload 3** + **Next.js 16** command center (with opti
 
 ## Documentation map (read order)
 
+Source of truth: `Docs-Architecture.md` owns this order.
+
 1. **`START-HERE.md`** (this file) — startup contract and operating baseline  
 2. **`Session-Snapshots.md`** — latest handoff + start-next checklist  
 3. **`Development-Roadmap.md`** — current roadmap and shipped sprint history  

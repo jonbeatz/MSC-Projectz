@@ -8,7 +8,7 @@
 
 1. **After any change to npm scripts or deploy files**, update **§1 Commands** and skim **§3 Deploy** so they still match `package.json`, `msc_package_deploy.mjs`, and `server.js`.
 2. **After a successful milestone or hotfix**, add a one-line row to **`Restore-Points.md`** and bump **§7 Checkpoint template**.
-3. **If `.cursor/docs/Flight.md` or `DeployUpdate.md` diverge**, make **FlightPro** (this file) and **`START-HERE.md`** the narrative source of truth; keep short one-pagers in sync or delete duplicate claims.
+3. Keep **FlightPro** (this file) and **`START-HERE.md`** as the active narrative source of truth for deploy/recovery workflow.
 4. **Secrets:** never commit real `PAYLOAD_SECRET` or mail passwords. Use placeholders in docs; real values live only in local `.env` and cPanel env UI.
 5. **Media rule:** user uploads and generated files belong under project-root **`./media`** (see **`.cursor/rules/media-asset-management.mdc`**). The deploy **COPY_PLAN** includes `media/`.
 
@@ -32,7 +32,7 @@
 | `npm run clean:next` | Deletes `.next/`. |
 | `npm run verify:next` | `clean:next` + `next build` — **build gate** after code changes. **Do not run while `npm run dev` is holding port 3000** (it deletes `.next` under a live dev server and breaks HMR). Stop dev first, or use a flow that never deletes `.next` while dev is up. |
 | `npm run deploy:preflight` | Validates deploy profile, required scripts/files, and relative media path guardrails before packaging. |
-| `npm run package:production` | `node scripts/msc_package_for_production.mjs` — alternate packaging path (if used). |
+| `npm run package:production` | Alias to `npm run package:deploy` (command truth from `package.json`). |
 | `npm run package:deploy` | `node msc_package_deploy.mjs` — same entry as `build:prod` (see below). |
 | `npm run build:prod` / **`npm run pushitlive`** | Runs **`msc_package_deploy.mjs`**: validates `server.js`, `.env`, `payload.sqlite` → `npm run build` → stages **`deploy_package/`** from **COPY_PLAN** → writes **`final_deploy.zip`** at repo root. |
 | `npm run test:local` | `npm run build` then `node server.js` — smoke production-style local run (not hot reload). |
@@ -97,7 +97,7 @@ Copy **`.env.example`** to **`.env`** and set real values locally. For productio
 | **Public site URL** | App code uses **`NEXT_PUBLIC_SITE_URL`** for server actions / auth origin helpers (see `lib/msc_vault_server_actions.ts` and `lib/msc_vault_payload_session.ts`). Set this to your real public origin (e.g. `https://jon-beatz.com`). |
 | **Mail (studio / vault)** | `MSC_STUDIO_OUTGOING_*` in **`.env.example`** — only if those features are enabled. |
 
-Do **not** paste production secrets into **Flight.md** / **FlightPro**; use placeholders in tables there.
+Do **not** paste production secrets into docs; use placeholders in tables.
 
 ---
 
@@ -129,8 +129,8 @@ In **cPanel File Manager** (or SSH), typical fixes:
 
 ---
 
-## 8. Related one-pagers
+## 8. Related docs
 
-- **`DeployUpdate.md`** — short upload/unzip/restart reminder.  
-- **`Flight.md`** — env table skeleton for jon-beatz.com (keep aligned with §4).  
-- **`Spaceship.md`** — provider/DNS context.
+- **`START-HERE.md`** — startup contract and ops context.
+- **`Spaceship.md`** — provider/DNS/cPanel context.
+- **`Deploy-Secrets-Workflow.md`** — encrypted secret handling workflow.

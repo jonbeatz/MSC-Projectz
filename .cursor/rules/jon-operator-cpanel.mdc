@@ -7,9 +7,11 @@ alwaysApply: true
 
 ## When Jon needs Node.js app Start / Stop / Restart
 
-Give this **clickable** link (Spaceship cPanel — Node.js Selector for `mystudiochannel.com`):
+Give this **clickable** link (Spaceship cPanel login):
 
-`https://server9.shared.spaceship.host:2083/cpsess0827945513/frontend/jupiter/lveversion/nodejs-selector.html.tt#/applications/mystudiochannel.com`
+`https://server9.shared.spaceship.host:2083/`
+
+Then open **Node.js Selector** for the active app/domain (current primary target: `jon-beatz.com`).
 
 Say explicitly: **Live (cPanel)** — open this in the browser, not in Cursor.
 
@@ -17,7 +19,9 @@ Say explicitly: **Live (cPanel)** — open this in the browser, not in Cursor.
 
 Give this **clickable** link:
 
-`https://server9.shared.spaceship.host:2083/cpsess0827945513/frontend/jupiter/terminal/index.html`
+`https://server9.shared.spaceship.host:2083/`
+
+Then open **Terminal** from cPanel after login.
 
 Say explicitly: **Live (cPanel → Terminal)** — run host commands here, not in Cursor.
 
