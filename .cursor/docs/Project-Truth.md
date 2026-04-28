@@ -7,7 +7,7 @@ Use this file first, then follow its linked source-of-truth order.
 ## Versioning
 
 - **Version:** `v1.2.4`
-- **Updated:** `2026-04-28` (Phase 9 calendar ergonomics + `FullDev-v6` branch pointer; snippets/clients recap)
+- **Updated:** `2026-04-28` (Phase 9 calendar + primary line **`FullDev-v7`**; snippets/clients recap)
 - **Owner:** `Jon Beatz / MSC-Projectz`
 
 ---
@@ -19,7 +19,7 @@ Use this file first, then follow its linked source-of-truth order.
 - **System name:** Vader
 - **Primary stack:** Next.js + React + Payload CMS + SQLite
 - **Optional shell:** Tauri
-- **Current workflow branch (at last docs update):** `MSC-Projectz-FullDev-v6`
+- **Current workflow branch (at last docs update):** `MSC-Projectz-FullDev-v7`
 
 Primary goal:
 - Ship and maintain a production-ready command center with stable local workflow, reliable deploy packaging, and strong continuity between sessions.

@@ -9,7 +9,21 @@ Purpose:
 
 Keep newest snapshot at the top.
 
-**Historical entries:** keep the **branch and SHA as recorded** for that session. Rows that show `MSC-Projectz-FullDev-v2` or **`FullDev-v3`** describe work **on that day**; **current primary branch** is **`MSC-Projectz-FullDev-v6`** (see `START-HERE.md` → *Current Restart Point*).
+**Historical entries:** keep the **branch and SHA as recorded** for that session. Rows that show `MSC-Projectz-FullDev-v2` or **`FullDev-v3`** describe work **on that day**; **current primary branch** is **`MSC-Projectz-FullDev-v7`** (see `START-HERE.md` → *Current Restart Point*).
+
+---
+
+## 2026-04-28 — Primary line: `MSC-Projectz-FullDev-v7` (cut from `v6` tip)
+
+### Session state
+
+- **Branch:** `MSC-Projectz-FullDev-v7` — same commit tip as **`origin/MSC-Projectz-FullDev-v6`** at creation; **`git switch MSC-Projectz-FullDev-v7 && git pull`** for day-to-day work.
+- **Why:** Operator requested a new clean integration line name (**`v7`**) while preserving current tree.
+
+### Start-next checklist
+
+1. `git fetch origin && git switch MSC-Projectz-FullDev-v7 && git pull`
+2. Update any personal bookmarks / CI that still pointed only at **`v6`** if **`v7`** is now canonical.
 
 ---
 
@@ -17,7 +31,7 @@ Keep newest snapshot at the top.
 
 ### Session state
 
-- **Branch:** `MSC-Projectz-FullDev-v6` — confirm **`git branch --show-current`** after pull.
+- **Branch:** `MSC-Projectz-FullDev-v6` (historical cut; **current primary:** **`MSC-Projectz-FullDev-v7`**) — confirm **`git branch --show-current`** after pull.
 - **What shipped (calendar):** **`CalendarGrid`** — responsive **`grid-cols-1` / `md:grid-cols-7`**, zinc **`gap-px`** calendar frame, **`min-h-[150px]`** + **`h-auto`** (removed **`gridTemplateRows`** **`1fr`** stretch). **`hidden md:contents`** weekday header row; mobile shows **`EEE, MMM d`** per cell. **Day detail `Dialog`** (`#121212`) for all tasks when a day is activated; preview **three** chips + **`+ N more`** (**`text-zinc-500`**). **`Agenda`** button on **`max-md`** opens bottom sheet (day tap no longer opens sheet-only flow). **`components/MSC-Projectz-Calendar.tsx`** re-exports **`CalendarGrid`**. Related **`/calendar`** page wiring.
 - **Also on the line:** clients route/snippets/vault-snippet Payload + neutral focus (see **`011b3aa`** history on branch) — **Project-Truth** / **START-HERE** bullets refreshed.
 
@@ -31,7 +45,7 @@ Keep newest snapshot at the top.
 
 ### Start-next checklist
 
-1. `git pull` on **`MSC-Projectz-FullDev-v6`**
+1. `git pull` on **`MSC-Projectz-FullDev-v7`** (or **`v6`** only when reading this historical snapshot)
 2. Smoke **`/calendar`** (narrow + **`md`**): stacked vs 7-column, day dialog, **Agenda** sheet on mobile.
 3. After runtime edits: **`npm run verify:next`** (or **`verify:next:safe`** if dev may hold port **3000**).
 

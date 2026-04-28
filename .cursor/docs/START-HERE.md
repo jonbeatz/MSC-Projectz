@@ -80,13 +80,13 @@ Use the template in `Session-Snapshots.md` and keep newest entry at the top.
 
 ## Current Objective
 
-Ship a production-ready **Payload 3** + **Next.js 16** command center (with optional **Tauri 2**), including vault/collab features (e.g. per-project mail settings and admin configuration). **Primary integration branch:** `MSC-Projectz-FullDev-v6` (use `MSC-Projectz-FullDev-v5` / `v4` / `v3` for prior checkpoints). Longer-horizon collab work may still track `feature/collaborative-workspace` in parallel when revived.
+Ship a production-ready **Payload 3** + **Next.js 16** command center (with optional **Tauri 2**), including vault/collab features (e.g. per-project mail settings and admin configuration). **Primary integration branch:** `MSC-Projectz-FullDev-v7` (use `MSC-Projectz-FullDev-v6` / `v5` / `v4` / `v3` for prior checkpoints). Longer-horizon collab work may still track `feature/collaborative-workspace` in parallel when revived.
 
 ## Current Restart Point
 
-* **Branch:** `MSC-Projectz-FullDev-v6` (primary line; `MSC-Projectz-FullDev-v5`, `v4`, and `v3` remain on the remote for history)
+* **Branch:** `MSC-Projectz-FullDev-v7` (primary line; `MSC-Projectz-FullDev-v6`, `v5`, `v4`, and `v3` remain on the remote for history)
 * **Remote:** `origin` → `https://github.com/jonbeatz/MSC-Projectz.git`
-* **Latest recorded commit (this doc refresh):** confirm SHA with `git log -1 --oneline` on `MSC-Projectz-FullDev-v6`.
+* **Latest recorded commit (this doc refresh):** confirm SHA with `git log -1 --oneline` on `MSC-Projectz-FullDev-v7`.
 * **Layout / admin shell baseline:** `d5422dd` — *fix(admin): split app shell from Payload and harden local dev*
 * **Working-state note:** docs were expanded for start/continue workflow, snapshots, and closeout. Always trust `git status -sb` as the live state.
 * **Architecture:** Command Center routes live under `app/(main)/(command-center)/` (group `(main)` owns the app `<html>`/`<body>`); login and auth live under `app/(main)/`. Payload admin/API use `app/(payload)/` with its own document via `RootLayout`. Root `app/layout.tsx` only returns `children` so those shells are siblings, not nested documents.
