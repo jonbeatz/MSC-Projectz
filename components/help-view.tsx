@@ -78,7 +78,7 @@ const faqItems: FAQItem[] = [
   {
     id: 'faq-7',
     question: 'Can I export my project data?',
-    answer: 'Project data is stored in Payload/SQLite under your authenticated user ID. Browser-only helper data, like Code Manager snippets and project-card credential popovers, uses user-scoped localStorage keys.',
+    answer: 'Project records and Code Vault snippets live in Payload/SQLite and are scoped to vault projects. Open a project on the Dashboard, use Task Pulse, and choose the Code Vault segment to add or publish snippets. Legacy browser-only snippets from the old Code Manager screen can be imported from there when this browser still has them. Other helper UI (such as project-card credential popovers) may still use small user-scoped localStorage keys.',
     category: 'data',
   },
   {
@@ -190,6 +190,19 @@ const workflowGuides: GuideItem[] = [
       'Click the checkbox to mark tasks as complete',
       'View completion progress at the top of the panel',
       'Tasks are saved automatically per project',
+    ],
+  },
+  {
+    id: 'guide-8',
+    title: 'Code Vault (project snippets)',
+    description: 'Store reusable code and notes in the server-backed Code Vault for each project.',
+    category: 'workflow',
+    steps: [
+      'From the Dashboard, select the project you want',
+      'Open Task Pulse on the right',
+      'Switch to the Code Vault segment',
+      'Add drafts, then project owners can publish snippets to the shared library',
+      'If you previously used the old browser-only Code Manager, use Import when offered to move snippets into this project',
     ],
   },
   {

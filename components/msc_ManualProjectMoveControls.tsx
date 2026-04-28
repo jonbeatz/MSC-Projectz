@@ -110,7 +110,8 @@ export function MscManualProjectMoveControls({ manualMove, layout, isDark }: Pro
       <div
         className={cn(
           'absolute left-2 top-1/2 z-30 -translate-y-1/2 flex-col gap-0.5',
-          'hidden md:flex md:opacity-0 md:transition-opacity md:group-hover:opacity-100',
+          // Always visible on md+ when manual reorder is on (hover-only hid arrows on many cards).
+          'hidden md:flex md:opacity-90 md:transition-opacity md:group-hover:opacity-100',
         )}
         onClick={(e) => e.stopPropagation()}
       >

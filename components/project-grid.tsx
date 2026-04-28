@@ -7,11 +7,14 @@ import { MscManualProjectMoveControls, type MscManualProjectMove } from '@/compo
 import { ProjectCard } from './project-card'
 import { useAppStore } from '@/lib/store'
 import { msc_isVaultProjectOwner } from '@/lib/msc_vault_project_owner'
+import { msc_hasAdminAccess } from '@/lib/msc_roles'
 import { msc_sortProjectsForDashboard } from '@/lib/msc_project_sort'
 import { cn } from '@/lib/utils'
 import type { Project } from '@/lib/types'
 import { getSafePath } from '@/lib/env-utils'
+import { msc_isQuietInfrastructureUiMessage, msc_publicPayloadError } from '@/lib/msc_public_error'
 import { msc_open_project_folder } from '@/lib/msc_native_system_bridge'
+import { toast } from '@/hooks/use-toast'
 
 interface ProjectGridProps {
   projects: Project[]
@@ -212,23 +215,38 @@ export function ProjectGrid({
 
   const getManualMoveFor = useCallback(
     (project: Project): MscManualProjectMove | undefined => {
-      if (projectSortMode !== 'manual' || !msc_isVaultProjectOwner(project, user)) {
+      const admin = msc_hasAdminAccess(user?.role)
+      const mayReorder =
+        projectSortMode === 'manual' &&
+        (admin || msc_isVaultProjectOwner(project, user))
+      if (!mayReorder) {
         return undefined
       }
       const idx = manualOrdered.findIndex((p) => p.id === project.id)
       if (idx < 0) return undefined
       const prev = idx > 0 ? manualOrdered[idx - 1] : null
       const next = idx < manualOrdered.length - 1 ? manualOrdered[idx + 1] : null
-      const canUp = prev != null && msc_isVaultProjectOwner(prev, user)
-      const canDown = next != null && msc_isVaultProjectOwner(next, user)
+      const canUp =
+        prev != null &&
+        (admin ? true : msc_isVaultProjectOwner(prev, user) && msc_isVaultProjectOwner(project, user))
+      const canDown =
+        next != null &&
+        (admin ? true : msc_isVaultProjectOwner(next, user) && msc_isVaultProjectOwner(project, user))
 
       const run = (direction: 'up' | 'down') => {
         setMoveBusyId(project.id)
         void moveProjectManual(project.id, direction)
           .catch((e) => {
             console.error('[MSC] moveProjectManual', e)
-            const message = e instanceof Error ? e.message : String(e)
-            window.alert(message)
+            const raw = e instanceof Error ? e.message : String(e)
+            const quiet = msc_isQuietInfrastructureUiMessage(raw)
+            toast({
+              title: quiet ? 'Could not reorder projects' : 'Move failed',
+              description: quiet
+                ? 'Local database sync blocked this update. Repair Payload/SQLite, then try again.'
+                : msc_publicPayloadError(raw),
+              variant: quiet ? 'default' : 'destructive',
+            })
           })
           .finally(() => {
             setMoveBusyId((id) => (id === project.id ? null : id))

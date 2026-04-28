@@ -1,0 +1,133 @@
+'use client'
+
+import { useCallback, useEffect, useState } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
+import { Building2, Loader2 } from 'lucide-react'
+
+import { MSC_Projectz_ClientDrawer } from '@/components/MSC-Projectz-ClientDrawer'
+import { msc_listClients } from '@/lib/msc_client_actions'
+import type { MscClientListRow } from '@/lib/msc_client_types'
+import { msc_isQuietInfrastructureUiMessage, msc_publicPayloadError } from '@/lib/msc_public_error'
+import { Badge } from '@/components/ui/badge'
+import { cn } from '@/lib/utils'
+
+function msc_statusBadgeVariant(
+  s: string,
+): 'default' | 'secondary' | 'outline' | 'destructive' {
+  if (s === 'active') return 'default'
+  if (s === 'onboarding') return 'secondary'
+  if (s === 'lead') return 'outline'
+  if (s === 'completed') return 'secondary'
+  if (s === 'archived') return 'outline'
+  return 'secondary'
+}
+
+export function MSC_Projectz_ClientsRouteView() {
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  const clientParam = searchParams.get('client')
+
+  const [clients, setClients] = useState<MscClientListRow[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  const load = useCallback(async () => {
+    setLoading(true)
+    setError(null)
+    const res = await msc_listClients()
+    if (!res.ok) {
+      setClients([])
+      setError(res.error)
+      setLoading(false)
+      return
+    }
+    setClients(res.clients)
+    setLoading(false)
+  }, [])
+
+  useEffect(() => {
+    void load()
+  }, [load])
+
+  const drawerOpen = Boolean(clientParam)
+
+  const setDrawerOpen = useCallback(
+    (open: boolean) => {
+      if (!open) {
+        router.push('/clients')
+      }
+    },
+    [router],
+  )
+
+  const openClient = useCallback(
+    (id: string) => {
+      router.push(`/clients?client=${encodeURIComponent(id)}`)
+    },
+    [router],
+  )
+
+  return (
+    <div className="msc-clients-route flex min-h-[calc(100vh-8rem)] flex-col gap-6 p-6" data-msc-component="clients-route">
+      <header className="flex flex-col gap-1 border-b border-border pb-4">
+        <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-muted-foreground">CRM</p>
+        <h1 className="text-2xl font-semibold tracking-tight text-foreground">Clients</h1>
+        <p className="max-w-2xl text-sm text-muted-foreground">
+          Active studio relationships and onboarding pipeline. Select a client to open details.
+        </p>
+      </header>
+
+      {error && !msc_isQuietInfrastructureUiMessage(error) ? (
+        <p className="rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive" role="alert">
+          {msc_publicPayloadError(error)}
+        </p>
+      ) : error && msc_isQuietInfrastructureUiMessage(error) ? (
+        <p className="rounded-md border border-border bg-secondary/20 px-3 py-2 text-xs text-muted-foreground">
+          CRM list couldn&apos;t refresh. Try again shortly.
+        </p>
+      ) : null}
+
+      {loading ? (
+        <div className="flex flex-1 items-center justify-center gap-2 py-24 text-muted-foreground">
+          <Loader2 className="h-6 w-6 animate-spin" aria-hidden />
+          <span className="text-sm">Loading clients…</span>
+        </div>
+      ) : clients.length === 0 ? (
+        <div className="flex flex-1 flex-col items-center justify-center rounded-xl border border-dashed border-border bg-secondary/10 px-8 py-16 text-center">
+          <Building2 className="mb-4 h-12 w-12 text-muted-foreground opacity-60" aria-hidden />
+          <p className="text-sm font-medium text-foreground">No clients yet</p>
+          <p className="mt-2 max-w-md text-xs text-muted-foreground">
+            Create client records in Payload Admin (MSC Clients). They will appear here for Command Center CRM.
+          </p>
+        </div>
+      ) : (
+        <ul className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+          {clients.map((c) => (
+            <li key={c.id}>
+              <button
+                type="button"
+                onClick={() => openClient(c.id)}
+                className={cn(
+                  'flex w-full flex-col gap-3 rounded-xl border border-border bg-card/80 p-4 text-left shadow-sm backdrop-blur-sm transition-colors',
+                  'hover:border-primary/35 hover:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-msc-gold/40',
+                )}
+              >
+                <div className="flex items-start justify-between gap-2">
+                  <span className="line-clamp-2 font-medium text-foreground">{c.name}</span>
+                  <Badge variant={msc_statusBadgeVariant(c.status)} className="shrink-0 capitalize">
+                    {c.status}
+                  </Badge>
+                </div>
+                <p className="text-[11px] text-muted-foreground">
+                  Updated {c.updatedAt ? new Date(c.updatedAt).toLocaleString() : '—'}
+                </p>
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+
+      <MSC_Projectz_ClientDrawer clientId={clientParam} open={drawerOpen} onOpenChange={setDrawerOpen} />
+    </div>
+  )
+}

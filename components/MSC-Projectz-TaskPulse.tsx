@@ -1,9 +1,23 @@
 'use client'
 
 import { useMemo, useState } from 'react'
-import { Activity, Plus, Trash2, ChevronRight, CircleDot, Zap } from 'lucide-react'
+import {
+  Activity,
+  Building2,
+  Plus,
+  Trash2,
+  ChevronRight,
+  CircleDot,
+  Zap,
+} from 'lucide-react'
+import {
+  MSC_Projectz_ClientDrawer,
+  type MSC_Projectz_ClientDrawerTab,
+} from '@/components/MSC-Projectz-ClientDrawer'
+import { MSC_Projectz_TaskPulseCodeVault } from '@/components/MSC-Projectz-TaskPulseCodeVault'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { MSC_Projectz_TaskAssigneeBadge } from '@/components/MSC-Projectz-TaskAssignee'
 import { useAppStore } from '@/lib/store'
 import type { Project, Task, TaskStatus } from '@/lib/types'
@@ -47,6 +61,11 @@ export function MSC_Projectz_TaskPulse({ project }: MSC_Projectz_TaskPulseProps)
   const [newTitle, setNewTitle] = useState('')
   const [isAdding, setIsAdding] = useState(false)
 
+  const [clientDrawerOpen, setClientDrawerOpen] = useState(false)
+  const [clientDrawerTab, setClientDrawerTab] = useState<MSC_Projectz_ClientDrawerTab>('details')
+
+  const clientId = project.clientId?.trim() ? project.clientId.trim() : null
+
   const visibleTasks = useMemo(
     () => project.tasks.filter((t) => !t.archived),
     [project.tasks],
@@ -74,13 +93,10 @@ export function MSC_Projectz_TaskPulse({ project }: MSC_Projectz_TaskPulseProps)
     void updateTaskStatus(project.id, task.id, status)
   }
 
-  if (visibleTasks.length === 0) {
-    if (!isAdding) {
-      return (
-        <div
-          className="msc-task-pulse msc-task-pulse--empty overflow-hidden rounded-xl border border-border bg-card"
-          data-msc-component="task-pulse"
-        >
+  const tasksPanel =
+    visibleTasks.length === 0 ? (
+      !isAdding ? (
+        <div className="msc-task-pulse msc-task-pulse--empty overflow-hidden rounded-xl border border-border bg-card">
           <div className="flex min-h-[320px] flex-col items-center justify-center gap-4 px-6 py-12 text-center">
             <div
               className="flex h-16 w-16 items-center justify-center rounded-2xl border border-border bg-secondary/40"
@@ -105,54 +121,44 @@ export function MSC_Projectz_TaskPulse({ project }: MSC_Projectz_TaskPulseProps)
             <p className="pt-2 text-[10px] text-muted-foreground/80">Powered by the MSC Media Engine</p>
           </div>
         </div>
-      )
-    }
-    return (
-      <div
-        className="msc-task-pulse msc-task-pulse--empty overflow-hidden rounded-xl border border-border bg-card p-6"
-        data-msc-component="task-pulse"
-      >
-        <h3 className="mb-3 text-sm font-semibold text-foreground">Initialize New Task</h3>
-        <div className="flex flex-wrap items-end gap-2">
-          <Input
-            className="max-w-md flex-1 text-sm"
-            placeholder="Task title"
-            value={newTitle}
-            onChange={(e) => setNewTitle(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') void handleAdd()
-              if (e.key === 'Escape') {
+      ) : (
+        <div className="msc-task-pulse msc-task-pulse--empty overflow-hidden rounded-xl border border-border bg-card p-6">
+          <h3 className="mb-3 text-sm font-semibold text-foreground">Initialize New Task</h3>
+          <div className="flex flex-wrap items-end gap-2">
+            <Input
+              className="max-w-md flex-1 text-sm"
+              placeholder="Task title"
+              value={newTitle}
+              onChange={(e) => setNewTitle(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') void handleAdd()
+                if (e.key === 'Escape') {
+                  setIsAdding(false)
+                  setNewTitle('')
+                }
+              }}
+              autoFocus
+            />
+            <Button type="button" size="sm" className="bg-primary text-primary-foreground" onClick={() => void handleAdd()}>
+              Save
+            </Button>
+            <Button
+              type="button"
+              size="sm"
+              variant="ghost"
+              onClick={() => {
                 setIsAdding(false)
                 setNewTitle('')
-              }
-            }}
-            autoFocus
-          />
-          <Button type="button" size="sm" className="bg-primary text-primary-foreground" onClick={() => void handleAdd()}>
-            Save
-          </Button>
-          <Button
-            type="button"
-            size="sm"
-            variant="ghost"
-            onClick={() => {
-              setIsAdding(false)
-              setNewTitle('')
-            }}
-          >
-            Cancel
-          </Button>
+              }}
+            >
+              Cancel
+            </Button>
+          </div>
+          <p className="mt-4 text-center text-[10px] text-muted-foreground">Powered by the MSC Media Engine</p>
         </div>
-        <p className="mt-4 text-center text-[10px] text-muted-foreground">Powered by the MSC Media Engine</p>
-      </div>
-    )
-  }
-
-  return (
-    <div
-      className="msc-task-pulse flex min-h-[420px] w-full max-w-full flex-col gap-4 lg:flex-row lg:items-stretch"
-      data-msc-component="task-pulse"
-    >
+      )
+    ) : (
+      <div className="msc-task-pulse flex min-h-[420px] w-full max-w-full flex-col gap-4 lg:flex-row lg:items-stretch">
       {/* Left: Kanban ~70% */}
       <div className="msc-task-pulse__kanban flex min-w-0 flex-1 flex-col gap-3 lg:min-w-0 lg:flex-[7]">
         <div className="flex items-center justify-between border-b border-border pb-2">
@@ -352,6 +358,61 @@ export function MSC_Projectz_TaskPulse({ project }: MSC_Projectz_TaskPulseProps)
           Powered by the MSC Media Engine
         </div>
       </aside>
+    </div>
+    )
+
+  return (
+    <div className="w-full max-w-full" data-msc-component="task-pulse">
+      <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+        <p className="min-w-0 truncate text-xs font-medium text-muted-foreground">{project.name}</p>
+        {clientId ? (
+          <button
+            type="button"
+            onClick={() => {
+              setClientDrawerTab('details')
+              setClientDrawerOpen(true)
+            }}
+            className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-border bg-secondary/40 px-3 py-1.5 text-xs font-medium text-foreground shadow-sm transition-colors hover:bg-secondary/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+          >
+            <Building2 className="h-3.5 w-3.5 shrink-0 opacity-90" aria-hidden />
+            Client Info
+          </button>
+        ) : null}
+      </div>
+
+      <Tabs defaultValue="tasks" className="w-full gap-4">
+        <TabsList className="mb-1 h-auto w-full flex-wrap justify-start gap-1 rounded-xl border border-border bg-secondary/30 p-1 sm:w-auto">
+          <TabsTrigger value="tasks" className="rounded-lg px-4 py-2 text-xs font-semibold uppercase tracking-wide">
+            Tasks
+          </TabsTrigger>
+          <TabsTrigger value="code-vault" className="rounded-lg px-4 py-2 text-xs font-semibold uppercase tracking-wide">
+            Code Vault
+          </TabsTrigger>
+        </TabsList>
+        <TabsContent value="tasks" className="mt-0 focus-visible:outline-none">
+          {tasksPanel}
+        </TabsContent>
+        <TabsContent value="code-vault" className="mt-0 rounded-xl border border-border bg-card p-4 focus-visible:outline-none">
+          <MSC_Projectz_TaskPulseCodeVault
+            project={project}
+            onOpenClientVault={
+              clientId
+                ? () => {
+                    setClientDrawerTab('vault')
+                    setClientDrawerOpen(true)
+                  }
+                : undefined
+            }
+          />
+        </TabsContent>
+      </Tabs>
+
+      <MSC_Projectz_ClientDrawer
+        clientId={clientId}
+        open={clientDrawerOpen && Boolean(clientId)}
+        onOpenChange={setClientDrawerOpen}
+        initialTab={clientDrawerTab}
+      />
     </div>
   )
 }

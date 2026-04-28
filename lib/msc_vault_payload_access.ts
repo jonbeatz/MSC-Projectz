@@ -136,3 +136,116 @@ export const msc_vaultCreateTask: Access = async ({ req, data }) => {
   const ownerId = typeof owner === 'object' && owner !== null && 'id' in owner ? owner.id : owner
   return String(ownerId) === String(u.id)
 }
+
+type MscSnippetRowLike = {
+  author?: string | number | { id: string | number } | null
+  project?: string | number | { id: string | number } | null
+}
+
+function msc_snippetAuthorId(row: MscSnippetRowLike | null | undefined): string | number | null {
+  const a = row?.author
+  if (a == null) return null
+  if (typeof a === 'object' && 'id' in a) return (a as { id: string | number }).id
+  return a
+}
+
+function msc_snippetProjectId(row: MscSnippetRowLike | null | undefined): string | number | null {
+  const p = row?.project
+  if (p == null) return null
+  if (typeof p === 'object' && 'id' in p) return (p as { id: string | number }).id
+  return p
+}
+
+/**
+ * Snippets: projects the user can read (owner or member), then either authored by them or
+ * published with project visibility (shared library).
+ */
+export const msc_vaultReadOwnSnippets: Access = async ({ req }) => {
+  const u = req.user as MscUserWithRole | undefined
+  if (!u) return false
+  if (msc_hasAdminAccess(u.role)) return true
+  const pl = req.payload
+  const projs = await pl.find({
+    collection: 'msc-vault-projects',
+    where: msc_vaultProjectVisibilityWhere(u.id),
+    limit: 5000,
+    depth: 0,
+    overrideAccess: true,
+  })
+  const ids = projs.docs.map((d) => d.id)
+  if (ids.length === 0) {
+    return false
+  }
+  return {
+    and: [
+      { project: { in: ids } },
+      {
+        or: [
+          { author: { equals: u.id } },
+          {
+            and: [{ status: { equals: 'published' } }, { visibility: { equals: 'project' } }],
+          },
+        ],
+      },
+    ],
+  } as Where
+}
+
+/**
+ * Create: any user who can **read** the target project (owner or member), or admin.
+ */
+export const msc_vaultCreateSnippet: Access = async ({ req, data }) => {
+  const u = req.user as MscUserWithRole | undefined
+  if (!u) return false
+  if (msc_hasAdminAccess(u.role)) return true
+  const projectId = (data as { project?: string | number } | undefined)?.project
+  if (projectId === undefined || projectId === null) return false
+  const doc = (await req.payload.findByID({
+    collection: 'msc-vault-projects',
+    id: projectId,
+    depth: 0,
+    overrideAccess: true,
+  })) as MscProjectRowLike | null
+  if (!doc) return false
+  return msc_vaultUserMayReadProject(u, doc)
+}
+
+/**
+ * Update / delete: snippet author, or project owner (moderation), or admin.
+ * Status transitions to `published` are further gated in `beforeChange` on the collection.
+ */
+async function msc_vaultSnippetAuthorOrOwnerAccess(args: {
+  req: { user?: unknown; payload: import('payload').Payload }
+  id?: string | number | null
+}): Promise<boolean> {
+  const u = args.req.user as MscUserWithRole | undefined
+  if (!u) return false
+  if (msc_hasAdminAccess(u.role)) return true
+  const sid = args.id
+  if (sid === undefined || sid === null) return false
+  const snippet = (await args.req.payload.findByID({
+    collection: 'msc-vault-snippets',
+    id: sid,
+    depth: 0,
+    overrideAccess: true,
+  })) as MscSnippetRowLike | null
+  if (!snippet) return false
+  if (String(msc_snippetAuthorId(snippet)) === String(u.id)) return true
+  const pid = msc_snippetProjectId(snippet)
+  if (pid == null) return false
+  const project = (await args.req.payload.findByID({
+    collection: 'msc-vault-projects',
+    id: pid,
+    depth: 0,
+    overrideAccess: true,
+  })) as MscProjectRowLike | null
+  return msc_vaultUserOwnsProjectForWrite(u, project)
+}
+
+export const msc_vaultUpdateOwnSnippets: Access = async ({ req, id }) => {
+  return msc_vaultSnippetAuthorOrOwnerAccess({ req, id })
+}
+
+export const msc_vaultDeleteOwnSnippets: Access = async ({ req, id }) => {
+  return msc_vaultSnippetAuthorOrOwnerAccess({ req, id })
+}

@@ -8,8 +8,10 @@ import sharp from 'sharp'
 import { MSC_Projectz_Media } from './collections/MSC-Projectz-Media.ts'
 import { MSC_Projectz_AuditLogs } from './collections/MSC-Projectz-AuditLogs.ts'
 import { MSC_Projectz_PayloadUsers } from './collections/MSC-Projectz-PayloadUsers.ts'
+import { MSC_Projectz_Clients } from './collections/MSC-Projectz-Clients.ts'
 import { MSC_Projectz_VaultProjects } from './collections/MSC-Projectz-VaultProjects.ts'
 import { MSC_Projectz_VaultTasks } from './collections/MSC-Projectz-VaultTasks.ts'
+import { MSC_Projectz_VaultSnippets } from './collections/MSC-Projectz-VaultSnippets.ts'
 import { msc_resolveSqlitePush } from './lib/msc_payload_sqlite_push.ts'
 
 const filename = fileURLToPath(import.meta.url)
@@ -44,8 +46,10 @@ export default buildConfig({
   collections: [
     MSC_Projectz_PayloadUsers,
     MSC_Projectz_Media,
+    MSC_Projectz_Clients,
     MSC_Projectz_VaultProjects,
     MSC_Projectz_VaultTasks,
+    MSC_Projectz_VaultSnippets,
     MSC_Projectz_AuditLogs,
   ],
   editor: lexicalEditor(),

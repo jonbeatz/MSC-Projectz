@@ -32,6 +32,7 @@ import { msc_mergeProjectsAndTasks, msc_mapProjectDoc, msc_mapTaskDoc, msc_norma
 import { msc_sortProjectsForDashboard } from '@/lib/msc_project_sort'
 import { msc_sendSendNotificationTaskEmail, msc_testSettingsFromForm } from '@/lib/msc_smtp_nodemailer'
 import { msc_stringifyReferencesJson } from '@/lib/msc_project_references'
+import { msc_hasAdminAccess } from '@/lib/msc_roles'
 import { getSafePath } from '@/lib/env-utils'
 import { msc_normalizeRole } from '@/lib/msc_roles'
 import type { MscVaultLocalApiContext } from '@/lib/msc_vault_auth_context'
@@ -640,8 +641,8 @@ export async function msc_updateVaultProject(
 
 /**
  * Swaps `manualRank` with the visual neighbor in Manual order (with tie-breakers
- * matching `msc_sortProjectsForDashboard`). Only projects **owned** by the session
- * user; shared projects in between block the move.
+ * matching `msc_sortProjectsForDashboard`). Standard users may only swap two rows
+ * they own. **Admin / master-admin** may swap any adjacent pair in their loaded list.
  */
 export async function msc_moveProjectManual(
   projectId: string,
@@ -665,13 +666,16 @@ export async function msc_moveProjectManual(
   }
   const a = sorted[idx]
   const b = sorted[neighborIdx]
-  if (a.ownerUserId == null || b.ownerUserId == null) {
-    throw new Error('Project ownership data missing.')
-  }
-  if (String(a.ownerUserId) !== String(u.id) || String(b.ownerUserId) !== String(u.id)) {
-    throw new Error(
-      'You can only reorder your own projects next to each other. A shared project is in the way.',
-    )
+  const adminReorder = msc_hasAdminAccess(u.role)
+  if (!adminReorder) {
+    if (a.ownerUserId == null || b.ownerUserId == null) {
+      throw new Error('Project ownership data missing.')
+    }
+    if (String(a.ownerUserId) !== String(u.id) || String(b.ownerUserId) !== String(u.id)) {
+      throw new Error(
+        'You can only reorder your own projects next to each other. A shared project is in the way.',
+      )
+    }
   }
 
   const rA = a.manualRank

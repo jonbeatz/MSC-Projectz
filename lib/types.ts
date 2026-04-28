@@ -66,6 +66,10 @@ export interface ProjectReference {
 
 export interface Project {
   id: string
+  /**
+   * CRM link (`msc-vault-projects.client` → `msc-clients`). Present when Payload returns the relationship.
+   */
+  clientId?: string | null
   /** Owner in Payload `users` (set server-side; optional in client types for older builds). */
   ownerUserId?: string | number
   /** Payload `users` collaborators for this project. */

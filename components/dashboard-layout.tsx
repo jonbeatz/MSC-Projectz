@@ -128,8 +128,8 @@ export function DashboardLayout({ children, onAddProject, searchQuery, onSearchC
         return 'My Profile'
       case '/settings':
         return 'System Admin'
-      case '/vault':
-        return 'Code Manager'
+      case '/clients':
+        return 'Clients'
       case '/help':
         return 'Help & Documentation'
       default:

@@ -17,6 +17,8 @@ import type { MscProjectMember } from '@/types/user-admin'
 type MscVaultProjectDoc = {
   id: number | string
   name: string
+  /** Optional CRM client (`msc-clients`). Depth ≥1 may populate `{ id, … }`. */
+  client?: string | number | { id: string | number } | null
   user?: string | number | { id: string | number } | null
   members?: Array<string | number | MscProjectMember> | null
   thumbnail?: string | null
@@ -125,6 +127,16 @@ function msc_mapProjectMember(member: string | number | MscProjectMember): MscPr
   return { id: member }
 }
 
+function msc_resolveClientRelationId(
+  client: MscVaultProjectDoc['client'],
+): string | undefined {
+  if (client == null) return undefined
+  if (typeof client === 'object' && 'id' in client) {
+    return String((client as { id: string | number }).id)
+  }
+  return String(client)
+}
+
 function msc_generateLocalId(): string {
   if (typeof crypto !== 'undefined' && crypto.randomUUID) {
     return crypto.randomUUID()
@@ -214,8 +226,10 @@ export function msc_mapProjectDoc(doc: MscVaultProjectDoc, tasks: Task[]): Proje
       : typeof owner === 'object' && 'id' in owner
         ? (owner as { id: string | number }).id
         : owner
+  const clientId = msc_resolveClientRelationId(doc.client)
   return {
     id: String(doc.id),
+    ...(clientId !== undefined ? { clientId } : {}),
     ownerUserId: ownerUserId as string | number | undefined,
     members: (doc.members || []).map(msc_mapProjectMember),
     name: doc.name,

@@ -2,7 +2,6 @@
 
 import {
   LayoutDashboard,
-  BookOpen,
   HelpCircle,
   LogOut,
   Plus,
@@ -11,6 +10,7 @@ import {
   ClipboardList,
   Settings,
   X,
+  Building2,
 } from 'lucide-react'
 import Image from 'next/image'
 import { usePathname, useRouter } from 'next/navigation'
@@ -40,7 +40,7 @@ const navItems: NavItem[] = [
   { path: '/calendar', label: 'Calendar', icon: Calendar },
   { path: '/tasks', label: 'Tasks', icon: ClipboardList },
   { path: '/settings', label: 'Settings', icon: Settings, adminOnly: true },
-  { path: '/vault', label: 'Code Manager', icon: BookOpen },
+  { path: '/clients', label: 'Clients', icon: Building2, adminOnly: true },
   { path: '/help', label: 'Engine', icon: HelpCircle },
 ]
 

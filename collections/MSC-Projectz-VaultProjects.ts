@@ -52,7 +52,7 @@ export const MSC_Projectz_VaultProjects: CollectionConfig = {
   admin: {
     useAsTitle: 'name',
     /** `updatedAt` is Payload timestamps — no manual DB index here; Drizzle/Payload own the schema. */
-    defaultColumns: ['name', 'status', 'user', 'progress', 'updatedAt'],
+    defaultColumns: ['name', 'status', 'user', 'client', 'progress', 'updatedAt'],
   },
   access: {
     /**
@@ -94,6 +94,12 @@ export const MSC_Projectz_VaultProjects: CollectionConfig = {
         description: 'Workspace collaborators with access to this project.',
         hidden: false,
       },
+    },
+    {
+      name: 'client',
+      type: 'relationship',
+      relationTo: 'msc-clients',
+      admin: { description: 'Optional CRM link (see MSC Clients). Owners can read the client via this join.' },
     },
     /**
      * Data-URL thumbnails exceed Payload default `defaultMaxTextLength` (40k) unless raised per-field.
