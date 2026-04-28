@@ -106,6 +106,23 @@ Shared shell: `app/(main)/(command-center)/layout.tsx`, `components/MSC-Projectz
 - If the Playwright profile is already open, `npm run playwright:test` should attach to the existing CDP session (`Playwright-Tests/session.json`) instead of relaunching/failing.
 - You can stay logged in simultaneously in both profiles (Playwright + normal Brave); session cookies are isolated per profile.
 
+## Plan file location rule
+
+- Default project plan folder: `D:\Cursor_Projectz\MSC-Projectz\.cursor\plans`.
+- Treat that folder as source of truth for this repo’s plans.
+- If a plan is emitted to `C:\Users\JONBEATZ\.cursor\plans`, copy/move it into `D:\Cursor_Projectz\MSC-Projectz\.cursor\plans` before session closeout.
+
+## Overlay / modal pattern (Command Center)
+
+- Prefer **overlay-first workspace** on `/dashboard`: project-card click opens the Focus workspace drawer directly.
+- Keep the project grid as the stable base layer; do not reintroduce inline split-pane workspace panels.
+- For secondary actions inside Focus (for example Add Snippet, Client Info), use **centered dialogs** over the Focus drawer instead of drawer-on-drawer.
+- Maintain a strict layer model:
+  - Layer 1: Dashboard grid
+  - Layer 2: Focus workspace drawer
+  - Layer 3: Centered modal dialogs
+- Keep close behavior predictable: dialog close returns to Focus; Focus close returns to dashboard.
+
 ## Coding style
 
 * Use **`msc_`** prefix for new project-specific logic.  

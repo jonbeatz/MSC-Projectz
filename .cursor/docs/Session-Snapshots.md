@@ -13,6 +13,91 @@ Keep newest snapshot at the top.
 
 ---
 
+## 2026-04-28 — Layered workspace complete (overlay-first + modal pattern)
+
+### Session state
+
+- **Branch:** `MSC-Projectz-FullDev-v9`
+- **Outcome:** Overlay-first command center workflow is fully dialed in; nested drawer conflicts removed.
+
+### What was done
+
+- Switched dashboard interaction to overlay-first: project card click opens Focus workspace directly.
+- Removed legacy inline split pane so the project grid remains full-width and static.
+- Fixed Focus drawer width/shell constraints to prevent squished layout.
+- Replaced nested snippet creation drawer with centered modal over Focus workspace.
+- Removed Environment & References block from Focus workspace for cleaner composition and to eliminate behind-layer edit behavior.
+- Converted Client Info from nested drawer to centered modal over Focus workspace.
+- Added shared modal shell component to standardize layered modal styling/behavior.
+- Updated Focus header controls: Return button hover/readability and tab controls styled as distinct standalone buttons.
+- Restored strict auth behavior for project loading to prevent false-empty vault appearance when session context is stale.
+
+### Validation
+
+- `npm run verify:next:safe` passed after runtime passes.
+- Dev server restarted successfully and reached Ready on port 3000.
+- Smoke checks returned `200` for `/` and `/dashboard`.
+
+### Start-next checklist
+
+1. `git switch MSC-Projectz-FullDev-v9 && git pull`
+2. `npm run dev` if not already running.
+3. Verify layered flow quickly:
+   - click project card -> Focus opens
+   - Add snippet -> centered modal
+   - Client Info -> centered modal
+   - Return to Dashboard closes Focus cleanly.
+
+### Open risks / blockers
+
+- None blocking local workflow; remaining improvements are optional visual polish only.
+
+---
+
+## 2026-04-28 — Workflow hardening: Playwright isolation + media cleanup operator flow
+
+### Session state
+
+- **Branch:** `MSC-Projectz-FullDev-v9`
+- **Commit:** `02cf15e` (`chore(workflow): harden local operator and browser automation flows`)
+- **Outcome:** Local operator workflow is cleaner and safer for browser automation, media cleanup, and dashboard/admin path handling.
+
+### What was done
+
+- Added startup/docs-refresh and `Ok Jon` handshake reinforcement across core docs (`START-HERE`, `Project-Truth`, `Daily-Ops-Cheat-Sheet`, `Agent-Runbook`).
+- Added Playwright workflow guardrails: no global Brave kill by default, attach to existing CDP session when profile is already open, explicit recovery mode via `MSC_KILL_BRAVE_MODE=all`.
+- Added media cleanup convenience scripts in `package.json`:
+  - `media:cleanup` (owner-safe dry-run alias)
+  - `media:cleanup:run` (owner-scoped apply alias)
+- Added operator phrase notes for `run media cleanup` and confirmation-before-apply behavior.
+- Fixed unauthenticated vault read noise by returning empty list from `msc_loadVaultProjects` when session is missing (avoids red overlay on local dashboard reads).
+- Added `/dashboard/admin` route redirect to `/admin` to avoid invalid-path runtime overlay and keep operator navigation forgiving.
+- Duplicated `Vader - Test Integration` into `Jedi Master` for local testing; confirmed it appears as a separate project.
+
+### Validation
+
+- `npm run verify:next:safe` passed after each runtime/script pass.
+- Dev server restarted and healthy on `http://localhost:3000`.
+- Smoke checks returned `200` for `/`, `/admin`, and `/dashboard/admin`.
+- Playwright test confirmed attach mode works and no longer force-closes normal Brave session during standard runs.
+
+### Start-next checklist
+
+1. `git switch MSC-Projectz-FullDev-v9 && git pull`
+2. Start dev if needed: `npm run dev` (expect `Ready` on `:3000`).
+3. For media hygiene command flow:
+   - `run media cleanup` (or `$env:MSC_OWNER_ID='<id>'; npm run media:cleanup`)
+   - review report, then confirm before `media:cleanup:run`.
+4. Continue roadmap from open items:
+   - Tauri local image upload path work, or
+   - broader Light/Dark component audit pass.
+
+### Open risks / blockers
+
+- None blocking local workflow. Keep `MSC_KILL_BRAVE_MODE=all` as recovery-only mode.
+
+---
+
 ## 2026-04-28 — Media relationship cutover complete + owner-safe cleanup policy
 
 ### Session state
