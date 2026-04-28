@@ -84,6 +84,13 @@
 - **Live (cPanel):** use the Node.js UI for the domain; do not run PC-only upload scripts on the server unless you know you need them.  
 - For Spaceship cPanel short links, see **`.cursor/rules/jon-operator-cpanel.mdc`** (bookmarks in **`START-HERE.md`** if refreshed).
 
+**D. Live spot-check (after restart — e.g. `https://jon-beatz.com`)**
+
+1. Open `/` — login or landing behaves as expected (no white screen, no chunk 404s in devtools Network).
+2. Open `/admin` — Payload admin loads; sign-in works if applicable.
+3. Smoke **Command Center** paths you ship (`/dashboard`, `/clients`, etc.) for layout regressions.
+4. Confirm **`NEXT_PUBLIC_SITE_URL`** matches the live origin so server actions and auth helpers resolve correctly (see §4).
+
 ---
 
 ## 4. Environment variables (principles)

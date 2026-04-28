@@ -50,6 +50,11 @@ alwaysApply: true
 - Add rollback rows to `Restore-Points.md` for major milestones.
 - Archive redundant docs instead of deleting historical context.
 
+## 7.1) Planning artefacts
+
+- Canonical folder for tracked plans: **`.cursor/plans/`** (see **`.cursor/plans/README.md`** and **`.cursor/rules/plans-project-folder.mdc`**).
+- Cursor may draft under the user profile (`%USERPROFILE%\.cursor\plans`) first; consolidate into **`.cursor/plans/`** when the plan should live in Git.
+
 ## 8) Operator trigger rule
 
 When operator says `Ready to begin`, execute the startup and local-recovery protocol defined in `.cursor/rules/local-runtime-recovery.mdc` and canonical docs. Do not respond with instructions only; run the required local checks.

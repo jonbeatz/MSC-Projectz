@@ -8,7 +8,7 @@ Status: Resolved (working baseline shipped)
 Ship a premium "Studio Glass" look on the Clients cards and route background.
 
 ## What Was Attempted
-- Added scoped classes in `styles/globals.css`:
+- Scoped classes live in `app/globals.css` (Clients glass `@layer components`; legacy `styles/globals.css` removed):
   - `.msc-clients-route-bg`
   - `.msc-clients-glass-card`
   - `.msc-clients-glass-surface`
@@ -34,7 +34,7 @@ Ship a premium "Studio Glass" look on the Clients cards and route background.
 - Because of this mismatch, the intended glass styles were not producing visible output.
 
 ## Working Fix That Landed
-1. Restored scoped classes in `styles/globals.css`:
+1. Restored scoped classes in `app/globals.css` (`@layer components`):
    - `.msc-clients-route-bg`
    - `.msc-clients-glass-card`
    - `.msc-clients-glass-card::before`

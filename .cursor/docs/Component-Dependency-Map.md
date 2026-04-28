@@ -104,3 +104,18 @@ This is the primary dashboard/focus workspace chain.
 3. Centered dialogs over focus layer (snippet create/detail, client dialog)
 
 This keeps navigation predictable and avoids drawer-on-drawer stacking issues.
+
+## 9) Visual upgrade playbook (Clients-style elsewhere)
+
+**Order of work**
+
+1. Add or extend **shared surface classes** in [`app/globals.css`](../../app/globals.css) under `@layer components` (same pattern as `.msc-clients-route-bg` / `.msc-clients-glass-card`) instead of duplicating long gradients in every TSX file.
+2. Keep **layout and density** in the route component with **Tailwind** (`flex`, `gap`, responsive grids).
+3. Reuse **`MSC_Projectz_WorkspaceModalShell`** for centered modals when adding new flows inside overlays.
+
+**Suggested next routes** (high visibility, similar card density to Clients)
+
+- **`/tasks`** — [`app/(main)/(command-center)/tasks/page.tsx`](../../app/(main)/(command-center)/tasks/page.tsx) + related task list components.
+- **`/vault`** — Code Manager split-pane; prose already uses `.msc-vault-prose`; extend glass/surface tokens only where cards need parity with Clients.
+
+After each route: **`npm run verify:next`** or **`npm run verify:next:safe`**, then smoke **`/`** and **`/admin`** (and the route you touched).

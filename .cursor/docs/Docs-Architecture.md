@@ -33,6 +33,12 @@ Archived to `docs/archive/2026-04-28-docs-audit/`:
 - `Flight.md`
 - `DeployUpdate.md`
 
+## Reference (not part of canonical read order)
+
+- **`Tech.md`** — technology inventory, version snapshot, and prioritized learning map for the stack.
+- **`.cursor/plans/`** ([`../plans/README.md`](../plans/README.md)) — canonical planning artefacts in Git (README describes Cursor profile draft path vs repo rules).
+- **`../../_design_references/README.md`** — design snapshots / v0 reference; not part of the build (see README).
+
 ## Update rule
 
 When documentation changes, update canonical docs first. Avoid duplicating SOP steps across multiple files; prefer one authoritative file and cross-reference it.

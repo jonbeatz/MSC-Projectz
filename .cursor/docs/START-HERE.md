@@ -52,10 +52,10 @@ If localhost is broken, follow recovery in `FlightPro.md` and `Agent-Runbook.md`
 
 ### Plan artifact note
 
-- Default requirement: planning artifacts should always be autosaved to `D:\Cursor_Projectz\MSC-Projectz\.cursor\plans`.
-- Treat `D:\Cursor_Projectz\MSC-Projectz\.cursor\plans` as the single source of truth for project plans.
-- If a plan is created outside this folder, immediately copy/move it into `D:\Cursor_Projectz\MSC-Projectz\.cursor\plans`.
-- Agent operating rule: when a plan file is generated in the global Cursor plans location, copy it into `D:\Cursor_Projectz\MSC-Projectz\.cursor\plans` in the same session before closeout.
+- **Canonical folder (repo):** **`.cursor/plans/`** — source of truth for plans you keep in Git. See **`.cursor/plans/README.md`** for why Cursor sometimes drafts under `%USERPROFILE%\.cursor\plans` first and how to consolidate into this repo folder.
+- Default requirement: final planning artefacts live in **`.cursor/plans/`** (copy from profile drafts when needed).
+- If **Save to workspace** or the agent writes into this repo’s **`.cursor/plans/`**, treat that copy as authoritative. If the only copy is still under **`%USERPROFILE%\.cursor\plans`**, copy it into **`.cursor/plans`** in the workspace before closeout when it should be tracked in Git.
+- Agent operating rule: when authoring plan markdown directly, **`Write`** files under **`.cursor/plans/`**; if a draft exists only under the profile path, copy into **`.cursor/plans/`** in the same session before closeout.
 
 ### Known fixes (do this first)
 

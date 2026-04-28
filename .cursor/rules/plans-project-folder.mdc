@@ -1,0 +1,23 @@
+---
+description: Canonical plan files live under .cursor/plans in this repo; align Cursor defaults when possible
+alwaysApply: true
+---
+
+# Project plans location
+
+## Canonical folder
+
+- **`.cursor/plans/`** at the repository root is the **single source of truth** for planning artefacts that belong in Git (plans, spikes, accepted Plan-mode markdown).
+- Prefer **relative paths**: `.cursor/plans/<filename>.md` — avoid machine-specific absolute paths in docs unless documenting the operator PC.
+
+## Agents
+
+- When **authoring or saving** a plan file (outside Cursor-only UI internals), **write under `.cursor/plans/`** with a descriptive filename (e.g. `YYYY-MM-DD-topic.plan.md`).
+- If Cursor first creates a draft only under **`%USERPROFILE%\.cursor\plans`**, **copy or move** the final content into **this repo’s `.cursor/plans/`** before session closeout when the plan should be tracked in Git.
+- **Save to workspace** in Cursor typically targets **`<repo>\.cursor\plans`** — prefer that outcome; normalize paths under **`.cursor/plans/`** only.
+- Do not treat the user-profile plans folder alone as the long-term home for MSC-Projectz work.
+
+## Operators
+
+- Open **`.cursor/plans`** from the cloned repo (for example `D:\Cursor_Projectz\MSC-Projectz\.cursor\plans`).
+- After any draft lands only under `%USERPROFILE%\.cursor\plans`, copy into **`<repo>\.cursor\plans`** per project conventions.

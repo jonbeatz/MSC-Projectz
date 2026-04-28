@@ -108,9 +108,9 @@ Shared shell: `app/(main)/(command-center)/layout.tsx`, `components/MSC-Projectz
 
 ## Plan file location rule
 
-- Default project plan folder: `D:\Cursor_Projectz\MSC-Projectz\.cursor\plans`.
-- Treat that folder as source of truth for this repo’s plans.
-- If a plan is emitted to `C:\Users\JONBEATZ\.cursor\plans`, copy/move it into `D:\Cursor_Projectz\MSC-Projectz\.cursor\plans` before session closeout.
+- **Canonical folder:** **`.cursor/plans/`** (`.cursor/plans/README.md` explains Cursor’s profile draft path and Save to workspace behavior).
+- Treat **`.cursor/plans/`** as the source of truth for plans that belong in Git.
+- If a plan exists only under `%USERPROFILE%\.cursor\plans`, copy into **`<repo>\.cursor/plans`** before session closeout when it should be tracked.
 
 ## Overlay / modal pattern (Command Center)
 
