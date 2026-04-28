@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useState, type FormEvent } from 'react'
 import {
   Activity,
   FolderKanban,
@@ -9,9 +9,11 @@ import {
 } from 'lucide-react'
 
 import {
+  msc_archiveClient,
   msc_getClient,
   msc_getClientPulse,
   msc_updateClientChecklist,
+  msc_updateClientProfile,
 } from '@/lib/msc_client_actions'
 import type {
   MscClientDetail,
@@ -19,8 +21,21 @@ import type {
   OnboardingChecklist,
 } from '@/lib/msc_client_types'
 import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
+import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog'
 import {
   Sheet,
   SheetContent,
@@ -41,12 +56,39 @@ function msc_statusBadgeVariant(
   return 'secondary'
 }
 
+const MSC_CLIENT_STATUS_OPTIONS = [
+  'lead',
+  'active',
+  'onboarding',
+  'completed',
+  'archived',
+] as const
+
+type MscProfileDraft = {
+  name: string
+  status: string
+  primaryContact: { name: string; email: string; phone: string }
+}
+
+function msc_detailToDraft(d: MscClientDetail): MscProfileDraft {
+  return {
+    name: d.name,
+    status: d.status,
+    primaryContact: {
+      name: d.primaryContact.name,
+      email: d.primaryContact.email,
+      phone: d.primaryContact.phone?.trim() ?? '',
+    },
+  }
+}
+
 export type MSC_Projectz_ClientDrawerTab = 'details' | 'pulse' | 'vault'
 
 export type MSC_Projectz_ClientDrawerProps = {
   clientId: string | null
   open: boolean
   onOpenChange: (open: boolean) => void
+  onClientArchived?: () => void
   /** When the sheet opens, selects this tab (e.g. Vault deep-link from Task Pulse). */
   initialTab?: MSC_Projectz_ClientDrawerTab
 }
@@ -78,6 +120,7 @@ export function MSC_Projectz_ClientDrawer({
   clientId,
   open,
   onOpenChange,
+  onClientArchived,
   initialTab = 'details',
 }: MSC_Projectz_ClientDrawerProps) {
   const [loading, setLoading] = useState(false)
@@ -91,6 +134,14 @@ export function MSC_Projectz_ClientDrawer({
   const [checklist, setChecklist] = useState<OnboardingChecklist>([])
   const [checklistSavingId, setChecklistSavingId] = useState<string | null>(null)
   const [checklistError, setChecklistError] = useState<string | null>(null)
+
+  const [isEditingProfile, setIsEditingProfile] = useState(false)
+  const [draftProfile, setDraftProfile] = useState<MscProfileDraft | null>(null)
+  const [profileSaving, setProfileSaving] = useState(false)
+  const [profileError, setProfileError] = useState<string | null>(null)
+  const [archiveOpen, setArchiveOpen] = useState(false)
+  const [archiveSaving, setArchiveSaving] = useState(false)
+  const [archiveError, setArchiveError] = useState<string | null>(null)
 
   const [activeTab, setActiveTab] = useState<MSC_Projectz_ClientDrawerTab>('details')
 
@@ -108,11 +159,21 @@ export function MSC_Projectz_ClientDrawer({
       setPulseError(null)
       setChecklist([])
       setChecklistError(null)
+      setIsEditingProfile(false)
+      setDraftProfile(null)
+      setProfileError(null)
+      setArchiveError(null)
+      setArchiveOpen(false)
       return
     }
     let cancelled = false
     setLoading(true)
     setError(null)
+    setIsEditingProfile(false)
+    setDraftProfile(null)
+    setProfileError(null)
+    setArchiveError(null)
+    setArchiveOpen(false)
     void msc_getClient(clientId).then((res) => {
       if (cancelled) return
       setLoading(false)
@@ -171,6 +232,72 @@ export function MSC_Projectz_ClientDrawer({
     },
     [clientId, checklist],
   )
+
+  const onCancelProfileEdit = useCallback(() => {
+    if (detail) {
+      setDraftProfile(msc_detailToDraft(detail))
+    }
+    setIsEditingProfile(false)
+    setProfileError(null)
+  }, [detail])
+
+  const onStartProfileEdit = useCallback(() => {
+    if (!detail) return
+    setDraftProfile(msc_detailToDraft(detail))
+    setProfileError(null)
+    setIsEditingProfile(true)
+  }, [detail])
+
+  const onSaveProfile = useCallback(
+    async (e: FormEvent) => {
+      e.preventDefault()
+      if (!clientId || !draftProfile) return
+      setProfileSaving(true)
+      setProfileError(null)
+      const res = await msc_updateClientProfile(clientId, {
+        name: draftProfile.name,
+        status: draftProfile.status,
+        primaryContact: {
+          name: draftProfile.primaryContact.name,
+          email: draftProfile.primaryContact.email,
+          phone:
+            draftProfile.primaryContact.phone.trim() === ''
+              ? null
+              : draftProfile.primaryContact.phone.trim(),
+        },
+      })
+      setProfileSaving(false)
+      if (!res.ok) {
+        setProfileError(res.error)
+        return
+      }
+      const fresh = await msc_getClient(clientId)
+      if (!fresh.ok) {
+        setProfileError(fresh.error)
+        return
+      }
+      setDetail(fresh.client)
+      setChecklist(fresh.client.onboardingChecklist)
+      setDraftProfile(msc_detailToDraft(fresh.client))
+      setIsEditingProfile(false)
+    },
+    [clientId, draftProfile],
+  )
+
+  const onArchiveClient = useCallback(async () => {
+    if (!clientId) return
+    setArchiveSaving(true)
+    setArchiveError(null)
+    const res = await msc_archiveClient(clientId)
+    setArchiveSaving(false)
+    if (!res.ok) {
+      setArchiveError(res.error)
+      return
+    }
+    setArchiveOpen(false)
+    onOpenChange(false)
+    onClientArchived?.()
+  }, [clientId, onClientArchived, onOpenChange])
 
   const title = detail?.name ?? 'Client'
   const status = detail?.status ?? ''
@@ -232,24 +359,220 @@ export function MSC_Projectz_ClientDrawer({
                 value="details"
                 className="mt-0 flex-1 overflow-y-auto px-4 py-4 text-sm text-muted-foreground"
               >
-                <dl className="space-y-3">
-                  <div>
-                    <dt className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Primary contact</dt>
-                    <dd className="mt-1 text-foreground">{detail.primaryContact.name}</dd>
+                <div className="space-y-4">
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <h3 className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+                      Profile
+                    </h3>
+                    {!isEditingProfile ? (
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        className="border-border"
+                        onClick={onStartProfileEdit}
+                      >
+                        Edit
+                      </Button>
+                    ) : null}
                   </div>
-                  <div>
-                    <dt className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Email</dt>
-                    <dd className="mt-1 text-foreground">{detail.primaryContact.email}</dd>
-                  </div>
-                  <div>
-                    <dt className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Phone</dt>
-                    <dd className="mt-1 text-foreground">
-                      {detail.primaryContact.phone?.trim()
-                        ? detail.primaryContact.phone
-                        : <span className="text-muted-foreground">Not on file</span>}
-                    </dd>
-                  </div>
-                </dl>
+
+                  {!isEditingProfile ? (
+                    <dl className="space-y-3">
+                      <div>
+                        <dt className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+                          Client name
+                        </dt>
+                        <dd className="mt-1 text-foreground">{detail.name}</dd>
+                      </div>
+                      <div>
+                        <dt className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+                          Status
+                        </dt>
+                        <dd className="mt-1 capitalize text-foreground">{detail.status}</dd>
+                      </div>
+                      <div>
+                        <dt className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+                          Primary contact
+                        </dt>
+                        <dd className="mt-1 text-foreground">{detail.primaryContact.name}</dd>
+                      </div>
+                      <div>
+                        <dt className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Email</dt>
+                        <dd className="mt-1 text-foreground">{detail.primaryContact.email}</dd>
+                      </div>
+                      <div>
+                        <dt className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Phone</dt>
+                        <dd className="mt-1 text-foreground">
+                          {detail.primaryContact.phone?.trim() ? (
+                            detail.primaryContact.phone
+                          ) : (
+                            <span className="text-muted-foreground">Not on file</span>
+                          )}
+                        </dd>
+                      </div>
+                    </dl>
+                  ) : (
+                    draftProfile && (
+                      <form
+                        onSubmit={(e) => void onSaveProfile(e)}
+                        className="space-y-4"
+                        aria-busy={profileSaving}
+                      >
+                        <div className="space-y-2">
+                          <Label htmlFor="msc-client-name" className="text-[11px] uppercase tracking-wide text-muted-foreground">
+                            Client name
+                          </Label>
+                          <Input
+                            id="msc-client-name"
+                            value={draftProfile.name}
+                            onChange={(e) =>
+                              setDraftProfile((d) =>
+                                d ? { ...d, name: e.target.value } : d,
+                              )
+                            }
+                            disabled={profileSaving}
+                            className="border-border bg-background"
+                            autoComplete="organization"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="msc-client-status" className="text-[11px] uppercase tracking-wide text-muted-foreground">
+                            Status
+                          </Label>
+                          <select
+                            id="msc-client-status"
+                            value={draftProfile.status}
+                            onChange={(e) =>
+                              setDraftProfile((d) =>
+                                d ? { ...d, status: e.target.value } : d,
+                              )
+                            }
+                            disabled={profileSaving}
+                            className={cn(
+                              'flex h-10 w-full rounded-md border border-border bg-background px-3 py-2 text-sm text-foreground shadow-sm',
+                              'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--msc-accent)]/40',
+                            )}
+                          >
+                            {MSC_CLIENT_STATUS_OPTIONS.map((opt) => (
+                              <option key={opt} value={opt}>
+                                {opt.charAt(0).toUpperCase() + opt.slice(1)}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                        <div className="space-y-2">
+                          <Label
+                            htmlFor="msc-primary-name"
+                            className="text-[11px] uppercase tracking-wide text-muted-foreground"
+                          >
+                            Primary contact
+                          </Label>
+                          <Input
+                            id="msc-primary-name"
+                            value={draftProfile.primaryContact.name}
+                            onChange={(e) =>
+                              setDraftProfile((d) =>
+                                d
+                                  ? {
+                                      ...d,
+                                      primaryContact: { ...d.primaryContact, name: e.target.value },
+                                    }
+                                  : d,
+                              )
+                            }
+                            disabled={profileSaving}
+                            className="border-border bg-background"
+                            autoComplete="name"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="msc-primary-email" className="text-[11px] uppercase tracking-wide text-muted-foreground">
+                            Email
+                          </Label>
+                          <Input
+                            id="msc-primary-email"
+                            type="email"
+                            inputMode="email"
+                            value={draftProfile.primaryContact.email}
+                            onChange={(e) =>
+                              setDraftProfile((d) =>
+                                d
+                                  ? {
+                                      ...d,
+                                      primaryContact: {
+                                        ...d.primaryContact,
+                                        email: e.target.value,
+                                      },
+                                    }
+                                  : d,
+                              )
+                            }
+                            disabled={profileSaving}
+                            className="border-border bg-background"
+                            autoComplete="email"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="msc-primary-phone" className="text-[11px] uppercase tracking-wide text-muted-foreground">
+                            Phone
+                          </Label>
+                          <Input
+                            id="msc-primary-phone"
+                            type="tel"
+                            value={draftProfile.primaryContact.phone}
+                            onChange={(e) =>
+                              setDraftProfile((d) =>
+                                d
+                                  ? {
+                                      ...d,
+                                      primaryContact: {
+                                        ...d.primaryContact,
+                                        phone: e.target.value,
+                                      },
+                                    }
+                                  : d,
+                              )
+                            }
+                            disabled={profileSaving}
+                            className="border-border bg-background"
+                            placeholder="Optional"
+                            autoComplete="tel"
+                          />
+                        </div>
+                        {profileError && !msc_isQuietInfrastructureUiMessage(profileError) ? (
+                          <p className="rounded-md border border-destructive/30 bg-destructive/5 px-2.5 py-2 text-xs text-destructive" role="alert">
+                            {msc_publicPayloadError(profileError)}
+                          </p>
+                        ) : null}
+                        {profileError && msc_isQuietInfrastructureUiMessage(profileError) ? (
+                          <p className="text-xs text-muted-foreground">Couldn&apos;t save profile. Try again.</p>
+                        ) : null}
+                        <div className="flex flex-wrap gap-2 pt-1">
+                          <Button
+                            type="button"
+                            variant="outline"
+                            className="border-border"
+                            disabled={profileSaving}
+                            onClick={onCancelProfileEdit}
+                          >
+                            Cancel
+                          </Button>
+                          <Button type="submit" disabled={profileSaving} className="min-w-[5.5rem]">
+                            {profileSaving ? (
+                              <>
+                                <Loader2 className="animate-spin" aria-hidden />
+                                <span>Saving…</span>
+                              </>
+                            ) : (
+                              'Save'
+                            )}
+                          </Button>
+                        </div>
+                      </form>
+                    )
+                  )}
+                </div>
 
                 <div className="mt-8 rounded-xl border border-border/80 bg-secondary/10 px-4 py-4">
                   <div className="flex flex-wrap items-center justify-between gap-2">
@@ -273,7 +596,7 @@ export function MSC_Projectz_ClientDrawer({
                         <Checkbox
                           id={`msc-onboarding-${detail.id}-${item.id}`}
                           checked={item.completed}
-                          disabled={checklistSavingId === item.id}
+                          disabled={profileSaving || checklistSavingId === item.id}
                           onCheckedChange={(v) => void onToggleChecklist(item.id, v === true)}
                           className="mt-0.5"
                           aria-label={item.label}
@@ -293,6 +616,61 @@ export function MSC_Projectz_ClientDrawer({
                       </li>
                     ))}
                   </ul>
+                </div>
+                <div className="mt-6 rounded-xl border border-destructive/35 bg-destructive/5 px-4 py-4">
+                  <h3 className="text-[11px] font-semibold uppercase tracking-wide text-destructive">Danger zone</h3>
+                  <p className="mt-2 text-xs text-muted-foreground">
+                    Archiving hides this client from active workflows without deleting historical CRM data.
+                  </p>
+                  {archiveError && !msc_isQuietInfrastructureUiMessage(archiveError) ? (
+                    <p className="mt-3 rounded-md border border-destructive/35 bg-destructive/10 px-2.5 py-2 text-xs text-destructive" role="alert">
+                      {msc_publicPayloadError(archiveError)}
+                    </p>
+                  ) : archiveError && msc_isQuietInfrastructureUiMessage(archiveError) ? (
+                    <p className="mt-3 text-xs text-muted-foreground">Couldn&apos;t archive this client. Try again.</p>
+                  ) : null}
+                  <div className="mt-4">
+                    <AlertDialog open={archiveOpen} onOpenChange={setArchiveOpen}>
+                      <AlertDialogTrigger asChild>
+                        <Button
+                          type="button"
+                          variant="destructive"
+                          disabled={archiveSaving || profileSaving}
+                        >
+                          Archive Client
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Archive this client?</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            This will mark the client as archived and remove it from active client views.
+                            You can still recover the record later.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel disabled={archiveSaving}>Cancel</AlertDialogCancel>
+                          <AlertDialogAction
+                            className="bg-destructive text-white hover:bg-destructive/90"
+                            onClick={(e) => {
+                              e.preventDefault()
+                              void onArchiveClient()
+                            }}
+                            disabled={archiveSaving}
+                          >
+                            {archiveSaving ? (
+                              <>
+                                <Loader2 className="animate-spin" aria-hidden />
+                                <span>Archiving…</span>
+                              </>
+                            ) : (
+                              'Archive Client'
+                            )}
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  </div>
                 </div>
               </TabsContent>
 

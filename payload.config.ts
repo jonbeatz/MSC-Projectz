@@ -61,8 +61,7 @@ export default buildConfig({
   // Ensure your db configuration looks like this:
 db: sqliteAdapter({
   client: {
-    // Process.env.DATABASE_URL will now be 'file:./payload.sqlite'
-    url: process.env.DATABASE_URL || 'file:./payload.sqlite',
+    url: process.env.DATABASE_URI || 'file:./payload.sqlite',
   },
   push: msc_resolveSqlitePush(),
 }),

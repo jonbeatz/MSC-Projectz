@@ -5,10 +5,21 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { Building2, Loader2 } from 'lucide-react'
 
 import { MSC_Projectz_ClientDrawer } from '@/components/MSC-Projectz-ClientDrawer'
-import { msc_listClients } from '@/lib/msc_client_actions'
+import { msc_createClient, msc_listClients } from '@/lib/msc_client_actions'
 import type { MscClientListRow } from '@/lib/msc_client_types'
 import { msc_isQuietInfrastructureUiMessage, msc_publicPayloadError } from '@/lib/msc_public_error'
 import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 import { cn } from '@/lib/utils'
 
 function msc_statusBadgeVariant(
@@ -30,6 +41,13 @@ export function MSC_Projectz_ClientsRouteView() {
   const [clients, setClients] = useState<MscClientListRow[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [createOpen, setCreateOpen] = useState(false)
+  const [createSaving, setCreateSaving] = useState(false)
+  const [createError, setCreateError] = useState<string | null>(null)
+  const [newClientName, setNewClientName] = useState('')
+  const [newContactName, setNewContactName] = useState('')
+  const [newContactEmail, setNewContactEmail] = useState('')
+  const [newContactPhone, setNewContactPhone] = useState('')
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -41,7 +59,7 @@ export function MSC_Projectz_ClientsRouteView() {
       setLoading(false)
       return
     }
-    setClients(res.clients)
+    setClients(res.clients.filter((c) => c.status !== 'archived'))
     setLoading(false)
   }, [])
 
@@ -67,14 +85,63 @@ export function MSC_Projectz_ClientsRouteView() {
     [router],
   )
 
+  const resetCreateForm = useCallback(() => {
+    setCreateError(null)
+    setNewClientName('')
+    setNewContactName('')
+    setNewContactEmail('')
+    setNewContactPhone('')
+  }, [])
+
+  const onCreateClient = useCallback(async () => {
+    setCreateSaving(true)
+    setCreateError(null)
+    const res = await msc_createClient({
+      name: newClientName,
+      primaryContact: {
+        name: newContactName,
+        email: newContactEmail,
+        phone: newContactPhone.trim() === '' ? null : newContactPhone.trim(),
+      },
+    })
+    setCreateSaving(false)
+    if (!res.ok) {
+      setCreateError(res.error)
+      return
+    }
+    setCreateOpen(false)
+    resetCreateForm()
+    await load()
+    openClient(res.id)
+  }, [
+    load,
+    newClientName,
+    newContactEmail,
+    newContactName,
+    newContactPhone,
+    openClient,
+    resetCreateForm,
+  ])
+
   return (
     <div className="msc-clients-route flex min-h-[calc(100vh-8rem)] flex-col gap-6 p-6" data-msc-component="clients-route">
-      <header className="flex flex-col gap-1 border-b border-border pb-4">
-        <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-muted-foreground">CRM</p>
-        <h1 className="text-2xl font-semibold tracking-tight text-foreground">Clients</h1>
-        <p className="max-w-2xl text-sm text-muted-foreground">
-          Active studio relationships and onboarding pipeline. Select a client to open details.
-        </p>
+      <header className="flex flex-wrap items-start justify-between gap-3 border-b border-border pb-4">
+        <div className="flex flex-col gap-1">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-muted-foreground">CRM</p>
+          <h1 className="text-2xl font-semibold tracking-tight text-foreground">Clients</h1>
+          <p className="max-w-2xl text-sm text-muted-foreground">
+            Active studio relationships and onboarding pipeline. Select a client to open details.
+          </p>
+        </div>
+        <Button
+          type="button"
+          onClick={() => {
+            resetCreateForm()
+            setCreateOpen(true)
+          }}
+        >
+          New Client
+        </Button>
       </header>
 
       {error && !msc_isQuietInfrastructureUiMessage(error) ? (
@@ -97,8 +164,18 @@ export function MSC_Projectz_ClientsRouteView() {
           <Building2 className="mb-4 h-12 w-12 text-muted-foreground opacity-60" aria-hidden />
           <p className="text-sm font-medium text-foreground">No clients yet</p>
           <p className="mt-2 max-w-md text-xs text-muted-foreground">
-            Create client records in Payload Admin (MSC Clients). They will appear here for Command Center CRM.
+            Create your first client here to kick off onboarding directly from Command Center CRM.
           </p>
+          <Button
+            type="button"
+            className="mt-5"
+            onClick={() => {
+              resetCreateForm()
+              setCreateOpen(true)
+            }}
+          >
+            New Client
+          </Button>
         </div>
       ) : (
         <ul className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
@@ -127,7 +204,116 @@ export function MSC_Projectz_ClientsRouteView() {
         </ul>
       )}
 
-      <MSC_Projectz_ClientDrawer clientId={clientParam} open={drawerOpen} onOpenChange={setDrawerOpen} />
+      <Dialog
+        open={createOpen}
+        onOpenChange={(next) => {
+          if (!createSaving) {
+            setCreateOpen(next)
+            if (!next) resetCreateForm()
+          }
+        }}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>New client</DialogTitle>
+            <DialogDescription>
+              Add a CRM record with onboarding defaults so work can start from Command Center.
+            </DialogDescription>
+          </DialogHeader>
+          <form
+            className="space-y-4"
+            onSubmit={(e) => {
+              e.preventDefault()
+              void onCreateClient()
+            }}
+          >
+            <div className="space-y-2">
+              <Label htmlFor="msc-create-client-name">Client name</Label>
+              <Input
+                id="msc-create-client-name"
+                value={newClientName}
+                onChange={(e) => setNewClientName(e.target.value)}
+                disabled={createSaving}
+                autoComplete="organization"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="msc-create-client-contact-name">Primary contact name</Label>
+              <Input
+                id="msc-create-client-contact-name"
+                value={newContactName}
+                onChange={(e) => setNewContactName(e.target.value)}
+                disabled={createSaving}
+                autoComplete="name"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="msc-create-client-contact-email">Primary contact email</Label>
+              <Input
+                id="msc-create-client-contact-email"
+                type="email"
+                inputMode="email"
+                value={newContactEmail}
+                onChange={(e) => setNewContactEmail(e.target.value)}
+                disabled={createSaving}
+                autoComplete="email"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="msc-create-client-contact-phone">Primary contact phone (optional)</Label>
+              <Input
+                id="msc-create-client-contact-phone"
+                type="tel"
+                value={newContactPhone}
+                onChange={(e) => setNewContactPhone(e.target.value)}
+                disabled={createSaving}
+                autoComplete="tel"
+              />
+            </div>
+            {createError && !msc_isQuietInfrastructureUiMessage(createError) ? (
+              <p className="rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-xs text-destructive" role="alert">
+                {msc_publicPayloadError(createError)}
+              </p>
+            ) : createError && msc_isQuietInfrastructureUiMessage(createError) ? (
+              <p className="text-xs text-muted-foreground">Couldn&apos;t create client right now. Try again.</p>
+            ) : null}
+            <DialogFooter>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => {
+                  if (createSaving) return
+                  setCreateOpen(false)
+                  resetCreateForm()
+                }}
+                disabled={createSaving}
+              >
+                Cancel
+              </Button>
+              <Button type="submit" disabled={createSaving}>
+                {createSaving ? (
+                  <>
+                    <Loader2 className="animate-spin" aria-hidden />
+                    <span>Creating…</span>
+                  </>
+                ) : (
+                  'Create Client'
+                )}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      <MSC_Projectz_ClientDrawer
+        clientId={clientParam}
+        open={drawerOpen}
+        onOpenChange={setDrawerOpen}
+        onClientArchived={() => {
+          void load()
+          router.push('/clients')
+        }}
+      />
     </div>
   )
 }
