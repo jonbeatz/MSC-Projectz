@@ -496,7 +496,12 @@ export async function msc_loadVaultProjects(): Promise<Project[]> {
   const o = msc_vaultLocalApiOptions(ctx)
   const { payload } = ctx
   await msc_logVaultAuthDebug('load projects', ctx.user)
-  const u = msc_requireVaultSessionUser(ctx, 'fetch vault projects')
+  if (!ctx.user) {
+    // Read path is safe to short-circuit when unauthenticated. Returning an
+    // empty list avoids noisy dev overlays while still exposing no data.
+    return []
+  }
+  const u = ctx.user as MscVaultSessionUser
   console.log('SERVER: Fetching projects for User ID:', u.id)
   /** Defense in depth: app runtime reads projects owned by or shared with the current user. */
   const projectWhere: Where = {

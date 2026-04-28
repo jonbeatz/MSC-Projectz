@@ -209,6 +209,7 @@ Startup pattern:
 
 Morning handshake rule:
 - Operator trigger: `Ready to begin`
+- On every `Ready to begin`, re-read `START-HERE.md` and then the full canonical source-of-truth order in Section 4 before implementation work. Treat this as required each startup trigger unless operator explicitly waives docs refresh.
 - Assistant startup response must end with exact line: `Ready to start Jedi Master`
 - Before that final line, assistant must provide:
   - a short checklist proving startup context checks

@@ -21,6 +21,8 @@
     "playwright:test": "node scripts/msc_playwright_test.mjs",
     "playwright:open": "node scripts/msc_playwright_open_session.mjs",
     "playwright:cmd": "node scripts/msc_playwright_command.mjs",
+    "media:cleanup": "npm run media:cleanup:dry",
+    "media:cleanup:run": "npm run media:cleanup:apply",
     "media:cleanup:dry": "node scripts/msc_media_usage_cleanup.ts",
     "media:cleanup:apply": "set MSC_MEDIA_CLEANUP_MODE=apply && node scripts/msc_media_usage_cleanup.ts",
     "db:seed": "jiti scripts/msc_seed_data.ts",

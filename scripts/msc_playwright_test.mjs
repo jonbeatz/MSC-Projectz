@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import { chromium } from 'playwright'
-import { mkdir } from 'node:fs/promises'
+import { mkdir, readFile } from 'node:fs/promises'
 import { existsSync } from 'node:fs'
 import path from 'node:path'
 import { execSync } from 'node:child_process'
@@ -37,6 +37,7 @@ const keepOpenMs = Number(process.env.MSC_KEEP_OPEN_MS || 0)
 const interactive = (process.env.MSC_INTERACTIVE || 'true').toLowerCase() !== 'false'
 const takeScreenshot = (process.env.MSC_TAKE_SCREENSHOT || 'false').toLowerCase() === 'true'
 const browserChoice = (process.env.MSC_BROWSER || 'brave').toLowerCase()
+const braveKillMode = (process.env.MSC_KILL_BRAVE_MODE || 'none').toLowerCase()
 
 const username = process.env.USERNAME || ''
 const defaultBravePath =
@@ -46,6 +47,7 @@ const defaultBravePath =
 const screenshotDir = 'Playwright-Tests'
 const stamp = new Date().toISOString().replace(/[:.]/g, '-')
 const screenshotPath = `${screenshotDir}/playwright-test-${stamp}.png`
+const sessionFile = path.resolve(process.cwd(), 'Playwright-Tests', 'session.json')
 const profileDir =
   process.env.MSC_PROFILE_DIR ||
   path.resolve(process.cwd(), 'Playwright-Tests', 'brave-profile')
@@ -67,21 +69,39 @@ async function main() {
     )
   }
 
-  if (useBrave && process.platform === 'win32') {
+  if (useBrave && process.platform === 'win32' && braveKillMode === 'all') {
     try {
       execSync('taskkill /IM brave.exe /F', { stdio: 'ignore' })
-      console.log('[playwright-test] Cleared lingering Brave processes.')
+      console.log('[playwright-test] Cleared lingering Brave processes (MSC_KILL_BRAVE_MODE=all).')
     } catch {
       // Ignore "process not found"
     }
   }
 
-  const context = await chromium.launchPersistentContext(profileDir, {
-    headless: false,
-    viewport: null,
-    args: ['--start-maximized'],
-    ...(useBrave ? { executablePath: defaultBravePath } : {}),
-  })
+  let context
+  let browser = null
+  let ownsContext = true
+  try {
+    context = await chromium.launchPersistentContext(profileDir, {
+      headless: false,
+      viewport: null,
+      args: ['--start-maximized'],
+      ...(useBrave ? { executablePath: defaultBravePath } : {}),
+    })
+  } catch (error) {
+    // If the persistent profile is already open (common during manual-assist runs),
+    // attach to the existing CDP session instead of failing hard.
+    if (!existsSync(sessionFile)) throw error
+    const raw = await readFile(sessionFile, 'utf8')
+    const session = JSON.parse(raw)
+    if (!session.cdpPort) throw error
+    browser = await chromium.connectOverCDP(`http://127.0.0.1:${session.cdpPort}`)
+    context = browser.contexts()[0]
+    if (!context) throw error
+    ownsContext = false
+    console.log(`[playwright-test] Attached to existing Playwright session on CDP ${session.cdpPort}.`)
+  }
+
   const page = context.pages()[0] || (await context.newPage())
 
   const startUrl = joinUrl(baseUrl, startPath)
@@ -186,7 +206,11 @@ async function main() {
     await page.waitForTimeout(keepOpenMs)
   }
 
-  await context.close()
+  if (ownsContext) {
+    await context.close()
+  } else if (browser) {
+    await browser.close()
+  }
   if (!result.ok) process.exit(2)
 }
 

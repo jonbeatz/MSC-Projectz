@@ -78,7 +78,8 @@ async function main() {
 
   const protectedFilenames = new Set(['msc-icon.png'])
   const toDelete: Array<{ id: number; filename: string; url: string }> = []
-  for (const row of mediaRes.rows as Array<{ id: number; filename?: string; url?: string }>) {
+  const mediaRows = mediaRes.rows as unknown as Array<{ id: number; filename?: string; url?: string }>
+  for (const row of mediaRows) {
     const id = Number(row.id)
     const filename = String(row.filename || '')
     const url = String(row.url || '')

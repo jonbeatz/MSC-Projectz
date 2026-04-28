@@ -14,9 +14,14 @@ Fast daily workflow for MSC-Projectz.
 5. After finishing docs read/checks, type this exact confirmation in chat: `Ready to start Jedi Master`
 
 Startup response format required from assistant:
+- first line for `Ready to begin`: `Ok Jon - Ready to begin. <one-line action plan>.`
 - verified checklist (branch/status + doc-order confirmation + blockers)
 - 3-4 recommended next tasks (ordered)
 - final exact line: `Ready to start Jedi Master`
+
+Required startup behavior on every `Ready to begin`:
+- re-read `START-HERE.md` first, then continue through the full docs read order before implementation
+- do not skip this refresh unless operator explicitly says to skip docs read
 
 ## 2) Local development (no live deploy)
 
@@ -27,6 +32,17 @@ Startup response format required from assistant:
 3. After a successful verify, start dev again: **`npm run dev`** (verify deletes **`.next`**).
 4. Smoke (with dev up): **`npm run verify:local`** or open `http://127.0.0.1:3000/` and `/admin`.
 5. Continue iterating.
+
+Playwright notes (local browser automation):
+- Default: keep your normal Brave session open; Playwright uses `Playwright-Tests/brave-profile`.
+- `npm run playwright:test` should attach to existing Playwright session when profile is already open.
+- Only use all-window Brave kill for hard reset recovery:
+  - `MSC_KILL_BRAVE_MODE=all npm run playwright:test`
+
+Operator phrase shortcuts:
+- `run media cleanup` -> run owner-scoped dry-run first (`npm run media:cleanup`), show report, then ask for apply confirmation.
+- `run media cleanup apply` -> only run after explicit confirmation; execute owner-scoped apply (`npm run media:cleanup:run`).
+- Best practice: keep cleanup owner-scoped; avoid global cleanup unless explicitly requested and reviewed.
 
 **Schema pull (SQLite):** if after `git pull` the app errors with **`no such column`**, run from repo root: **`npm run repair:sqlite`** (timestamped **`payload.sqlite`** backup, idempotent). Examples: **`manual_rank`** on **`msc_vault_projects`**; **`msc_clients_id`**, **`msc_vault_snippets_id`**, etc. on **`payload_locked_documents_rels`** (Payload document-lock joins—often surfaces as **500** on **`/dashboard`** when using **Move up/down**). Then restart **`npm run dev`**. Last resort: delete **`payload.sqlite`** (+ **`-journal`**), **`PAYLOAD_SQLITE_PUSH=true npm run dev`** once to recreate schema, then **`/api/seed`** if you need demo data.
 

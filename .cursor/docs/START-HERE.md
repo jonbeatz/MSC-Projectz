@@ -21,6 +21,10 @@ Use this quick flow at the beginning of every session:
 
 When operator says `Ready to begin`, the startup response must include:
 
+0. A fresh docs-read pass confirmation for this session trigger:
+   - Start at `START-HERE.md`
+   - Continue through the full Documentation map read order in this file (items 1-15)
+   - Do this even if docs were read earlier the same day, unless operator explicitly says "skip docs read"
 1. A short verified checklist (branch/status, docs-read order, immediate blocker state).
 2. `3-4` prioritized next tasks for the session.
 3. Final line exactly: **`Ready to start Jedi Master`**.
@@ -38,6 +42,15 @@ If localhost is broken, follow recovery in `FlightPro.md` and `Agent-Runbook.md`
 - Smoke: `npm run verify:local` or `http://127.0.0.1:3000/` and `http://127.0.0.1:3000/admin`
 - Media cleanup dry-run (owner-safe): `$env:MSC_OWNER_ID='<id>'; npm run media:cleanup:dry`
 - Release package: `npm run pushitlive`
+- Playwright (open dedicated browser session): `npm run playwright:open`
+- Playwright (run harness without killing normal Brave): `npm run playwright:test`
+- Playwright hard reset mode (only if needed): `MSC_KILL_BRAVE_MODE=all npm run playwright:test`
+
+### Operator quick phrases (notes)
+
+- `run media cleanup` -> owner-scoped dry-run (`npm run media:cleanup`) + confirmation prompt before apply.
+- `run media cleanup apply` -> owner-scoped apply (`npm run media:cleanup:run`) only after explicit yes/confirm.
+- Keep media cleanup owner-scoped by default; use global scope only when explicitly requested.
 
 ### Known fixes (do this first)
 
@@ -56,6 +69,8 @@ If localhost is broken, follow recovery in `FlightPro.md` and `Agent-Runbook.md`
 At recognized workflow starts, first status line should be:
 
 - `Ok Jon - <recognized command>. <one-line action plan>.`
+
+For `Ready to begin`, this first `Ok Jon` line confirms docs context is loaded for the current startup pass.
 
 Use once at flow start to confirm context/docs were read, then continue normally.
 

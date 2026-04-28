@@ -20,6 +20,16 @@ Suggested triggers:
 - `Lets Finish`
 - `Lets Finish + Deploy`
 
+### Startup docs refresh rule (required)
+
+When operator says `Ready to begin`, run a fresh docs-read pass before coding:
+
+1. Re-read `START-HERE.md` first.
+2. Continue through the full docs sequence defined there (documentation map order).
+3. Confirm completion in the startup checklist response before execution.
+
+Apply this even if the assistant already read docs earlier that day, unless operator explicitly says to skip docs refresh.
+
 ## Error recovery (local — port 3000)
 
 This repository’s **`package.json`** may **not** define `dev:recover` / `dev:fresh` / `verify:next:safe`. If a one-liner is missing, use the **manual** sequence (Windows):
@@ -86,6 +96,15 @@ Closeout command phrase (operator shorthand):
 - `/vault` — Code Manager / vault workspace.  
 
 Shared shell: `app/(main)/(command-center)/layout.tsx`, `components/MSC-Projectz-CommandCenterShell.tsx`, `components/dashboard-layout.tsx`, `components/dashboard-sidebar.tsx`. Do not wrap Payload `RootLayout` inside the `(main)` `<body>`; root `app/layout.tsx` must remain a pass-through between `(main)` and `(payload)` route groups.
+
+## Playwright browser workflow (safe with normal Brave)
+
+- Automation uses a dedicated persistent profile: `Playwright-Tests/brave-profile` (separate from your daily Brave profile).
+- Default test behavior should **not** kill all Brave windows. Keep `MSC_KILL_BRAVE_MODE` unset (or `none`).
+- Use global kill only when explicitly needed for recovery:
+  - `MSC_KILL_BRAVE_MODE=all npm run playwright:test`
+- If the Playwright profile is already open, `npm run playwright:test` should attach to the existing CDP session (`Playwright-Tests/session.json`) instead of relaunching/failing.
+- You can stay logged in simultaneously in both profiles (Playwright + normal Brave); session cookies are isolated per profile.
 
 ## Coding style
 
