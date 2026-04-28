@@ -44,6 +44,9 @@ If localhost is broken, follow recovery in `FlightPro.md` and `Agent-Runbook.md`
 - **After any admin layout/component wiring change:** run `npm run generate:importmap`, then `npm run verify:next`, then `npm run dev`, then smoke `/` + `/admin`.
 - **Reference records:** see latest resolved incident in `Session-Snapshots.md` (`2026-04-27 08:11`) and permanent guardrail in `Agent-Runbook.md` (`Payload admin guardrail` section).
 - **Local `gate-user-*.@msc.local` in Settings → Users:** optional audit test accounts, not the dev trust bypass. To remove them from SQLite, **`npm run db:prune-gate-users`** (see `Agent-Runbook.md` → *Local SQLite: gate-user*).
+- **Paused retry streams (2026-04-28):** before resuming media thumbnail migration or Clients glassmorphism, read:
+  - `.cursor/docs/MSC-Media-Migration-Retrospective.md`
+  - `.cursor/docs/Clients-Glassmorphism-Debug-Note.md`
 
 ### Operator handshake triggers ("Ok Jon")
 

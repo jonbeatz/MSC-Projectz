@@ -13,6 +13,33 @@ Keep newest snapshot at the top.
 
 ---
 
+## 2026-04-28 — Failed attempts log (media + clients glass) / retry deferred
+
+### Session state
+
+- **Branch:** `MSC-Projectz-FullDev-v7`
+- **Outcome:** Two attempts were intentionally paused as **not shipped**:
+  1. Media/vault thumbnail migration follow-up (schema + runtime stability concerns).
+  2. Clients glassmorphism visual passes (V1, V2, diagnostic, V3) did not reach desired premium result despite class application and healthy build/runtime.
+- **Docs added/updated for continuity:**
+  - `.cursor/docs/MSC-Media-Migration-Retrospective.md`
+  - `.cursor/docs/Clients-Glassmorphism-Debug-Note.md`
+  - `Project-Truth.md` + `Development-Roadmap.md` updated to mark both as paused attempts.
+
+### Validation
+
+- Build gates remained green during styling iterations (`verify:next:safe`).
+- Runtime checks remained healthy (`/clients`, `/admin` returning `200`).
+- Visual acceptance failed; work paused by operator decision.
+
+### Start-next checklist
+
+1. Do not resume either stream from memory. Read both retrospective/debug notes first.
+2. For media retry: move schema + DB checks in lockstep and start from backup-first flow in the media retrospective.
+3. For glass retry: run structural stacking-context diagnostics first, then one controlled visual baseline.
+
+---
+
 ## 2026-04-28 — Primary line: `MSC-Projectz-FullDev-v7` (cut from `v6` tip)
 
 ### Session state
