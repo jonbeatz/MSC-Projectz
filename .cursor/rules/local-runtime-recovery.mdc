@@ -58,7 +58,7 @@ If you changed **any** file that can affect the running app — including `app/`
    (`verify:next` = `clean:next` + `next build`.) On **Windows**, if **`next dev`** might still be on port **3000**, use **`npm run verify:next:safe`** instead (frees **3000** first) so you never delete **`.next`** under a running dev server.  
    **After verify exits 0**, **`next dev` is usually not running** (**.next** was rebuilt). If **port 3000 is free**, **run `npm run dev`** (background is fine — **await Ready** in the log when practical) so **`/`** and **`/admin`** respond again. The Cursor **`stop`** hook also starts **`npm run dev`** when Git shows runtime-path changes and **3000** is free, but **do not rely on the hook alone** — run **`npm run dev` yourself** after verify so localhost is not left empty.
 
-2. **`npm run dev`** runs **`kill-dev-port`** then **`next dev`** (no **`clean:next`** on every start — faster HMR, fewer surprise wipes). Use **`npm run dev:fresh`** or **`npm run dev:recover`** when **`vendor-chunks/*`** is missing, **`/admin`** **500s** from stale chunks, or right after **`npm run build`** / **`pushit:live`** left a production **`.next`**. Do not strip **`kill-dev-port`** before dev.
+2. **`npm run dev`** starts **`next dev`**. Use **`npm run dev:recover`** (or alias **`npm run dev:fresh`**) when **`vendor-chunks/*`** is missing, **`/admin`** **500s** from stale chunks, or right after **`npm run build`** / **`pushit:live`** left a production **`.next`**.
 
 3. **Do not** mark the task complete if `verify:next` fails.
 

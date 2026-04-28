@@ -20,7 +20,7 @@ Scope: Local UI diagnostics with a reusable Playwright harness
 ## Reusable scripts
 - Generic harness: `scripts/msc_playwright_test.mjs`
 - NPM alias: `npm run playwright:test`
-- Legacy clients/glass script (still available): `scripts/msc_playwright_manual_clients_glass_check.mjs`
+- Legacy clients/glass script (archived): `scripts/archive/msc_playwright_manual_clients_glass_check.mjs`
 - Output screenshot path: `Playwright-Tests/playwright-test-<timestamp>.png`
 - Defaults:
   - Base URL: `http://localhost:3000` (opens `/dashboard` first)

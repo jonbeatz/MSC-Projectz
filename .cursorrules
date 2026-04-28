@@ -1,50 +1,64 @@
 ---
-description: Project core operating rules for MSC-Projectz (Vader Protocol)
+description: MSC-Projectz core operating rules (gold standard)
 alwaysApply: true
 ---
 
-# MSC-Projectz Core Rules (v1.08)
+# MSC-Projectz Core Rules (v2.0)
 
-## 1. Source of Truth Hierarchy
-1. `.cursor/docs/START-HERE.md` (Project Vision & Current Sprint)
-2. `.cursor/docs/Session-Snapshots.md` (Current handoff + start-next)
-3. `.cursor/docs/Development-Roadmap.md` (Roadmap and delivered sprint history)
-4. `.cursor/docs/Agent-Runbook.md` (Operational procedures)
-5. `.cursor/docs/FlightPro.md` (Deploy + local recovery SOP)
-6. `.cursor/docs/Spaceship.md` and `.cursor/docs/Restore-Points.md` (Host context + rollback)
+## 1) Canonical documentation order
 
-## 2. Technical Stack & Architecture
-- **Frontend:** Next.js 16 (App Router), React 19.
-- **Desktop Shell:** Tauri 2.0 (Rust backend).
-- **Backend/DB:** Payload 3.0 with local SQLite persistence.
-- **State:** Zustand synced with SQLite; use UUID v4 for all `id` fields.
-- **Naming:** Prefix all internal functions/classes with `msc_`.
-- **Files:** Adhere to `MSC-Projectz-` naming convention for all new components.
+Always resolve ambiguity using this order:
 
-## 3. UI & Aesthetic (Vader Protocol)
-- **Default Mode:** Dark Mode (Bg: #121212, Surface: #1c1c1c).
-- **Light Mode:** Bg: #F9FAFB, Surface: #FFFFFF, Text: #111827.
-- **Accent:** Studio Green (#4ADE80) for Progress Circles and Active states.
-- **Constraint:** NO hardcoded hex codes in components; use theme-aware Tailwind variables (e.g., `bg-card`, `bg-background`, `text-foreground`).
-- **Signature:** Footer must always display "Powered by the MSC Media Engine".
+1. `.cursor/docs/START-HERE.md`
+2. `.cursor/docs/Docs-Architecture.md`
+3. `.cursor/docs/Session-Snapshots.md`
+4. `.cursor/docs/Development-Roadmap.md`
+5. `.cursor/docs/Agent-Runbook.md`
+6. `.cursor/docs/FlightPro.md`
+7. `.cursor/docs/Spaceship.md`
+8. `.cursor/docs/Restore-Points.md`
 
-## 4. Native & Desktop Logic (The Bridge)
-- **Tauri Shell:** Use `tauri-plugin-shell` for system actions:
-  - `open_in_explorer`: Opens the local project `filePath`.
-  - `launch_cursor`: Executes `cursor [path]` via native shell command.
-- **File System:** Store uploaded media/thumbnails/avatars/PDFs/zips under project-root `./media`; Payload upload collections must use `upload: { staticDir: 'media' }`.
-- **Tasks:** Implement Triple-State Logic: `todo` (Gray), `in-progress` (Yellow/Amber), `done` (Studio Green).
+If docs conflict, follow the highest file in this list and update lower-priority docs in the same session.
 
-## 5. Safety & Deployment Defaults
-- **Deploy Tiers:** - `pushitup:admin-branding` (Tier 1): UI-only updates.
-  - `pushit:live` (Tier 2): Core logic/database migrations.
-  - `pushitup:server-config` (Tier 3): Infrastructure changes.
-- **Recovery:** If local dev breaks, run `npm run dev:recover`, wait for **Ready**, then verify `http://localhost:3000/`.
-- **“Ready to begin”:** Operator shorthand for a **clean single dev on 3000** (duplicate `next dev`, Turbopack chunk errors, browser on wrong port). Agent runs the full sequence in **`.cursor/rules/local-runtime-recovery.mdc`** — do not only reply in chat.
-- **Terminal:** `pushitup` commands must run on local PC terminal, never cPanel terminal.
-- **Explicit Actions:** Keep deploy actions explicit; do not run live commands unless specifically requested.
+## 2) Command and script authority
 
-## 6. Developer Persona
-- You are a Senior UI/UX & Systems Engineer.
-- Maintain a military-grade, high-performance coding style (The "Vader" Standard).
-- Prioritize structural integrity, modularity, and scannability.
+- `package.json` is the only command truth.
+- Never reference or run scripts that are not currently in `package.json`.
+- Prefer existing aliases as shipped (`dev`, `verify:next`, `verify:next:safe`, `dev:recover`, `pushitlive`).
+
+## 3) Local vs live command locality
+
+- **Local (Cursor / PC repo root):** `npm`, `git`, build, verify, package, local recovery, smoke checks.
+- **Live (cPanel -> Terminal/UI):** host-specific commands, env setup, app restart.
+- Do not run live actions unless explicitly requested.
+
+## 4) Runtime safety gates
+
+- After runtime-impacting changes, run build gate before closing work:
+  - `npm run verify:next` (or `npm run verify:next:safe` when port 3000 may be in use).
+- If localhost breaks, run `npm run dev:recover` and confirm routes respond.
+- Do not run destructive `.next` cleanup while `next dev` is actively using the same build output.
+
+## 5) Data and media safety
+
+- Store uploaded/generated assets under project-root `media/` only.
+- Payload upload collections must use `upload: { staticDir: 'media' }`.
+- No absolute machine-specific media paths in code or config.
+- Preserve tenant isolation; never broaden ownership boundaries casually.
+
+## 6) Coding standards
+
+- Prefix project-specific logic with `msc_` where appropriate.
+- Keep component/file naming consistent with existing repo patterns.
+- Use design tokens and semantic Tailwind classes; avoid hardcoded visual values unless unavoidable.
+- Prefer small, reversible changes over broad speculative rewrites.
+
+## 7) Docs and session discipline
+
+- Keep `Session-Snapshots.md` updated at meaningful handoff points.
+- Add rollback rows to `Restore-Points.md` for major milestones.
+- Archive redundant docs instead of deleting historical context.
+
+## 8) Operator trigger rule
+
+When operator says `Ready to begin`, execute the startup and local-recovery protocol defined in `.cursor/rules/local-runtime-recovery.mdc` and canonical docs. Do not respond with instructions only; run the required local checks.
