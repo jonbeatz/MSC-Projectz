@@ -37,6 +37,8 @@ export function CalendarTaskEditDialog({
   taskId,
   dayYmd,
   projects,
+  onTaskUpdated,
+  onTaskDeleted,
 }: {
   open: boolean
   onOpenChange: (o: boolean) => void
@@ -44,6 +46,8 @@ export function CalendarTaskEditDialog({
   taskId: string | null
   dayYmd: string
   projects: Project[]
+  onTaskUpdated?: () => void
+  onTaskDeleted?: () => void
 }) {
   const updateTaskFields = useAppStore((s) => s.updateTaskFields)
   const deleteTask = useAppStore((s) => s.deleteTask)
@@ -91,6 +95,7 @@ export function CalendarTaskEditDialog({
         status,
         completed: status === 'done',
       })
+      onTaskUpdated?.()
       onOpenChange(false)
     } catch (e) {
       console.error('[CalendarTaskEditDialog]', e)
@@ -195,6 +200,7 @@ export function CalendarTaskEditDialog({
                 setBusy(true)
                 try {
                   await deleteTask(projectId, taskId)
+                  onTaskDeleted?.()
                   onOpenChange(false)
                 } catch (e) {
                   console.error(e)

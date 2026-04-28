@@ -15,6 +15,7 @@ import { createPayloadRequest, generatePayloadCookie } from 'payload'
 import config from '@payload-config'
 import { cookies, headers } from 'next/headers'
 import { revalidatePath } from 'next/cache'
+import { eachDayOfInterval, format } from 'date-fns'
 import { MSC_TRUST_GATE_COOKIE } from '@/lib/msc_trust_gate_cookie'
 
 import { msc_getVaultLocalApiContext, msc_vaultLocalApiOptions } from '@/lib/msc_vault_auth_context'
@@ -36,6 +37,8 @@ import { msc_hasAdminAccess } from '@/lib/msc_roles'
 import { getSafePath } from '@/lib/env-utils'
 import { msc_normalizeRole } from '@/lib/msc_roles'
 import type { MscVaultLocalApiContext } from '@/lib/msc_vault_auth_context'
+import { buildDayDetail, msc_indexTasksByDueDay } from '@/lib/msc_calendar_utils'
+import type { DayDetail } from '@/lib/msc_calendar_utils'
 type MscLoginResult = {
   success: boolean
   message: string
@@ -817,6 +820,72 @@ export async function msc_quick_add_task(
  */
 export async function msc_loadCalendarVaultData() {
   return msc_loadVaultProjects()
+}
+
+export async function msc_getCalendarDayDetailsRange(args: {
+  startYmd: string
+  endYmd: string
+  includeDone?: boolean
+}): Promise<{ byDay: Record<string, DayDetail> }> {
+  const startYmd = String(args.startYmd || '').trim()
+  const endYmd = String(args.endYmd || '').trim()
+  const includeDone = args.includeDone !== false
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(startYmd) || !/^\d{4}-\d{2}-\d{2}$/.test(endYmd)) {
+    throw new Error('Invalid range; expected yyyy-MM-dd.')
+  }
+  if (startYmd > endYmd) {
+    throw new Error('Invalid range; startYmd must be <= endYmd.')
+  }
+
+  const timerLabel = '[msc-calendar] aggregation'
+  if (process.env.NODE_ENV !== 'production') {
+    console.time(timerLabel)
+  }
+  try {
+    const projects = await msc_loadVaultProjects()
+    const ctx = await msc_getVaultLocalApiContext()
+    const o = msc_vaultLocalApiOptions(ctx)
+    const clientsRes = await ctx.payload.find({
+      collection: 'msc-clients',
+      depth: 0,
+      limit: 5000,
+      user: o.user,
+      overrideAccess: o.overrideAccess,
+    })
+    const clientsById = new Map<string, string>()
+    for (const client of clientsRes.docs) {
+      clientsById.set(String(client.id), String((client as { name?: string }).name || '').trim())
+    }
+
+    const tasksByDay = msc_indexTasksByDueDay(projects, { includeDone })
+    const byDay: Record<string, DayDetail> = {}
+    const dayCells = eachDayOfInterval({
+      start: new Date(`${startYmd}T12:00:00`),
+      end: new Date(`${endYmd}T12:00:00`),
+    })
+    let taskCount = 0
+
+    for (const day of dayCells) {
+      const ymd = format(day, 'yyyy-MM-dd')
+      const dayItems = tasksByDay.get(ymd) ?? []
+      taskCount += dayItems.length
+      const detail = buildDayDetail(ymd, projects, dayItems, clientsById)
+      byDay[ymd] = detail
+    }
+
+    if (process.env.NODE_ENV !== 'production') {
+      console.info('[msc-calendar] aggregation stats', {
+        range_size_days: dayCells.length,
+        task_count: taskCount,
+      })
+    }
+
+    return { byDay }
+  } finally {
+    if (process.env.NODE_ENV !== 'production') {
+      console.timeEnd(timerLabel)
+    }
+  }
 }
 
 export async function msc_toggleVaultTask(projectId: string, taskId: string): Promise<Task> {

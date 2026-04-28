@@ -3,8 +3,14 @@
 import { useMemo, useState } from 'react'
 import { format, isSameDay, isSameMonth, parse, startOfDay } from 'date-fns'
 import { Plus } from 'lucide-react'
+import type { MouseEvent } from 'react'
 
-import { msc_formatDateKeyLocal, msc_calendarDayCells, type MscCalendarTaskItem } from '@/lib/msc_calendar_utils'
+import {
+  msc_formatDateKeyLocal,
+  msc_calendarDayCells,
+  type DayDetail,
+  type MscCalendarTaskItem,
+} from '@/lib/msc_calendar_utils'
 import type { CalendarViewMode, Project } from '@/lib/types'
 import { cn } from '@/lib/utils'
 import { CalendarTaskChip } from '@/components/CalendarTaskChip'
@@ -35,6 +41,8 @@ export function CalendarGrid({
   onAddTask,
   byDay,
   projects,
+  resolveDayDetail,
+  onJumpToClient,
 }: {
   calendarView: CalendarViewMode
   /** `yyyy-MM-dd` */
@@ -42,9 +50,11 @@ export function CalendarGrid({
   onSelectYmd: (ymd: string) => void
   onEditTask: (projectId: string, taskId: string, cellYmd: string) => void
   /** Opens global add-task flow for the active day */
-  onAddTask?: () => void
+  onAddTask?: (ymd: string) => void
   byDay: Map<string, MscCalendarTaskItem[]>
   projects: Project[]
+  resolveDayDetail: (ymd: string) => DayDetail
+  onJumpToClient: (clientId: string) => void
 }) {
   const [dayDetailYmd, setDayDetailYmd] = useState<string | null>(null)
   const byProjectId = useMemo(() => {
@@ -61,11 +71,16 @@ export function CalendarGrid({
   const baseDate = useMemo(() => new Date(selectedYmd + 'T12:00:00'), [selectedYmd])
   const selectedD = new Date(selectedYmd + 'T12:00:00')
 
-  const dayDetailItems = dayDetailYmd ? (byDay.get(dayDetailYmd) ?? []) : []
+  const dayDetail = dayDetailYmd ? resolveDayDetail(dayDetailYmd) : null
 
   const openDayDetail = (ymd: string) => {
     onSelectYmd(ymd)
     setDayDetailYmd(ymd)
+  }
+
+  const onClientHeaderClick = (e: MouseEvent<HTMLButtonElement>, clientId: string) => {
+    e.stopPropagation()
+    onJumpToClient(clientId)
   }
 
   return (
@@ -81,7 +96,7 @@ export function CalendarGrid({
           <div className="w-full min-w-0 rounded-lg md:min-w-2xl">
             <div
               className={cn(
-                'grid gap-px overflow-hidden rounded-lg border border-zinc-800 bg-zinc-800',
+                'grid gap-px overflow-hidden rounded-lg border border-border bg-border/70',
                 'grid-cols-1 md:grid-cols-7 md:min-h-0',
               )}
             >
@@ -89,7 +104,7 @@ export function CalendarGrid({
                 {DOW.map((d) => (
                   <div
                     key={d}
-                    className="bg-zinc-900 p-2 text-center text-xs font-medium text-zinc-500"
+                    className="bg-muted/40 p-2 text-center text-xs font-medium text-muted-foreground"
                   >
                     {d}
                   </div>
@@ -117,12 +132,12 @@ export function CalendarGrid({
                       }
                     }}
                     className={cn(
-                      'group flex h-auto min-h-[150px] min-w-0 cursor-pointer flex-col gap-1 bg-[#121212] p-2 text-left transition',
+                      'group flex h-auto min-h-[150px] min-w-0 cursor-pointer flex-col gap-1 bg-background p-2 text-left transition',
                       inMonth
                         ? isSel
-                          ? 'ring-1 ring-msc-gold/60 ring-inset hover:bg-zinc-900/80'
-                          : cn('hover:bg-zinc-900/80', isToday && 'ring-1 ring-msc-gold/35 ring-inset')
-                        : 'opacity-50 ring-1 ring-zinc-800/80 ring-inset',
+                          ? 'ring-1 ring-msc-gold/60 ring-inset hover:bg-muted/40'
+                          : cn('hover:bg-muted/40', isToday && 'ring-1 ring-msc-gold/35 ring-inset')
+                        : 'opacity-50 ring-1 ring-border/80 ring-inset',
                     )}
                     aria-label={`${format(day, 'EEEE, MMMM d, yyyy')}. Show day details.`}
                     aria-pressed={isSel}
@@ -130,7 +145,7 @@ export function CalendarGrid({
                     {/* Headers are md-only; mobile shows weekday here */}
                     <p
                       className={cn(
-                        'shrink-0 text-xs font-medium text-zinc-400 md:hidden',
+                        'shrink-0 text-xs font-medium text-muted-foreground md:hidden',
                         isToday && 'text-msc-gold',
                       )}
                     >
@@ -168,7 +183,7 @@ export function CalendarGrid({
                         )
                       })}
                       {hiddenCount > 0 ? (
-                        <div className="px-0.5 text-xs text-zinc-500">+ {hiddenCount} more</div>
+                        <div className="px-0.5 text-xs text-muted-foreground">+ {hiddenCount} more</div>
                       ) : null}
                     </div>
                   </div>
@@ -184,17 +199,17 @@ export function CalendarGrid({
           showCloseButton
           className={cn(
             'max-h-[min(88vh,40rem)] max-w-[calc(100%-2rem)] gap-0 overflow-hidden border-border p-0 sm:max-w-lg',
-            'bg-[#121212]',
+            'bg-card',
           )}
         >
           <DialogHeader className="shrink-0 border-b border-border/50 px-4 py-3 text-left sm:px-5 sm:py-4">
             <DialogTitle className="text-base font-semibold text-foreground">
               {dayDetailYmd ? detailHeading(dayDetailYmd) : ''}
             </DialogTitle>
-            <DialogDescription className="text-xs text-zinc-500">
-              {dayDetailItems.length === 0
+            <DialogDescription className="text-xs text-muted-foreground">
+              {dayDetail?.emptyState
                 ? 'No tasks due this day.'
-                : `${dayDetailItems.length} task${dayDetailItems.length === 1 ? '' : 's'} due`}
+                : `${dayDetail?.count ?? 0} task${dayDetail?.count === 1 ? '' : 's'} due`}
             </DialogDescription>
             {onAddTask ? (
               <Button
@@ -202,7 +217,8 @@ export function CalendarGrid({
                 variant="secondary"
                 className="mt-3 w-full border border-msc-gold/40 bg-msc-gold/10 text-foreground hover:bg-msc-gold/20"
                 onClick={() => {
-                  onAddTask()
+                  if (!dayDetailYmd) return
+                  onAddTask(dayDetailYmd)
                   setDayDetailYmd(null)
                 }}
               >
@@ -212,28 +228,53 @@ export function CalendarGrid({
             ) : null}
           </DialogHeader>
           <div className="min-h-0 max-h-[min(60vh,28rem)] overflow-y-auto overscroll-y-contain px-3 py-3 sm:px-4 [scrollbar-gutter:stable]">
-            <div className="flex flex-col gap-2">
-              {dayDetailItems.map((x) => {
-                const project = byProjectId.get(x.projectId)
-                if (!project || !dayDetailYmd) return null
-                return (
-                  <div key={x.task.id} className="min-w-0">
-                    <CalendarTaskChip
-                      task={x.task}
-                      project={project}
-                      projectName={x.projectName}
-                      cellYmd={dayDetailYmd}
-                      selectedYmd={selectedYmd}
-                      onSelectYmd={onSelectYmd}
-                      onEditTask={(pid, tid, cell) => {
-                        setDayDetailYmd(null)
-                        onEditTask(pid, tid, cell)
-                      }}
-                    />
-                  </div>
-                )
-              })}
-            </div>
+            {dayDetail?.emptyState ? (
+              <p className="text-sm text-muted-foreground">No due tasks for this day.</p>
+            ) : (
+              <div className="flex flex-col gap-3">
+                {dayDetail?.clientGroupedItems.map((group) => (
+                  <section key={group.clientId} className="space-y-2">
+                    {group.clientId !== 'unassigned' ? (
+                      <button
+                        type="button"
+                        onClick={(e) => onClientHeaderClick(e, group.clientId)}
+                        aria-label="View Client Details"
+                        className="w-full cursor-pointer rounded-md border border-border bg-muted/30 px-2 py-1 text-left text-[10px] font-bold uppercase tracking-widest text-muted-foreground/70 transition-colors hover:text-[var(--msc-accent)] hover:underline"
+                      >
+                        Client: <span className="text-foreground">{group.clientName}</span>
+                        <span className="ml-1.5 text-muted-foreground/80">({group.items.length})</span>
+                      </button>
+                    ) : (
+                      <p className="rounded-md border border-border bg-muted/30 px-2 py-1 text-[10px] font-bold uppercase tracking-widest text-muted-foreground/70">
+                        Client: <span className="text-foreground">{group.clientName}</span>
+                        <span className="ml-1.5 text-muted-foreground/80">({group.items.length})</span>
+                      </p>
+                    )}
+                    {group.items.map((x) => {
+                      const project = byProjectId.get(x.projectId)
+                      if (!project || !dayDetailYmd) return null
+                      return (
+                        <div key={x.task.id} className="min-w-0 rounded-md transition-colors hover:bg-accent/50">
+                          <CalendarTaskChip
+                            task={x.task}
+                            project={project}
+                            projectName={x.projectName}
+                            cellYmd={dayDetailYmd}
+                            selectedYmd={selectedYmd}
+                            onSelectYmd={onSelectYmd}
+                            openOnClick
+                            onEditTask={(pid, tid, cell) => {
+                              setDayDetailYmd(null)
+                              onEditTask(pid, tid, cell)
+                            }}
+                          />
+                        </div>
+                      )
+                    })}
+                  </section>
+                ))}
+              </div>
+            )}
           </div>
         </DialogContent>
       </Dialog>

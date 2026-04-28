@@ -1,18 +1,22 @@
 'use client'
 
-import type { MscCalendarTaskItem } from '@/lib/msc_calendar_utils'
+import type { DayDetail } from '@/lib/msc_calendar_utils'
 import { CalendarAgendaPanel } from '@/components/CalendarAgendaPanel'
 import { cn } from '@/lib/utils'
 
 export function CalendarSidebar({
   selectedYmd,
-  agenda,
+  dayDetail,
   onAddTask,
+  onEditTask,
+  onJumpToClient,
   className,
 }: {
   selectedYmd: string
-  agenda: MscCalendarTaskItem[]
-  onAddTask: () => void
+  dayDetail: DayDetail
+  onAddTask: (ymd: string) => void
+  onEditTask: (projectId: string, taskId: string, dayYmd: string) => void
+  onJumpToClient: (clientId: string) => void
   className?: string
 }) {
   return (
@@ -23,7 +27,14 @@ export function CalendarSidebar({
         className,
       )}
     >
-      <CalendarAgendaPanel selectedYmd={selectedYmd} agenda={agenda} onAddTask={onAddTask} className="h-full" />
+      <CalendarAgendaPanel
+        selectedYmd={selectedYmd}
+        dayDetail={dayDetail}
+        onAddTask={onAddTask}
+        onEditTask={onEditTask}
+        onJumpToClient={onJumpToClient}
+        className="h-full"
+      />
     </aside>
   )
 }

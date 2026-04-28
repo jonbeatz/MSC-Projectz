@@ -13,6 +13,15 @@ import type { MscProjectMember } from '@/types/user-admin'
 import type { Project, Task, TaskStatus } from '@/lib/types'
 import { cn } from '@/lib/utils'
 
+function msc_calendarStatusDotClass(rawStatus: string): string {
+  const status = rawStatus.trim().toLowerCase()
+  if (status === 'active' || status === 'in-progress') return 'bg-emerald-500/85'
+  if (status === 'lead' || status === 'todo') return 'bg-amber-500/85'
+  if (status === 'completed' || status === 'done') return 'bg-slate-500/85'
+  if (status === 'blocked') return 'bg-rose-500/85'
+  return 'bg-muted-foreground/70'
+}
+
 const CalendarTaskChipImpl = function CalendarTaskChip({
   task,
   project,
@@ -21,6 +30,7 @@ const CalendarTaskChipImpl = function CalendarTaskChip({
   selectedYmd,
   onSelectYmd,
   onEditTask,
+  openOnClick = false,
   className,
 }: {
   task: Task
@@ -30,6 +40,8 @@ const CalendarTaskChipImpl = function CalendarTaskChip({
   selectedYmd: string
   onSelectYmd: (ymd: string) => void
   onEditTask: (projectId: string, taskId: string, cellYmd: string) => void
+  /** When true, single click opens editor (used in day-detail views). */
+  openOnClick?: boolean
   className?: string
 }) {
   const isNarrow = useIsMaxMd()
@@ -41,6 +53,7 @@ const CalendarTaskChipImpl = function CalendarTaskChip({
 
   const status: TaskStatus = (task.status || 'todo') as TaskStatus
   const stLabel = msc_getTaskStatusLabel(status)
+  const statusDotClass = msc_calendarStatusDotClass(String(task.status || ''))
   const assignee = msc_resolveTaskAssignee(project, task)
   const label = assignee
     ? assignee.username?.trim() || assignee.email?.trim() || `User ${String(assignee.id)}`
@@ -69,11 +82,15 @@ const CalendarTaskChipImpl = function CalendarTaskChip({
       }
       e.stopPropagation()
       e.preventDefault()
+      if (openOnClick) {
+        onEditTask(project.id, task.id, cellYmd)
+        return
+      }
       if (cellYmd !== selectedYmd) {
         onSelectYmd(cellYmd)
       }
     },
-    [cellYmd, selectedYmd, onSelectYmd],
+    [cellYmd, onEditTask, onSelectYmd, openOnClick, project.id, selectedYmd, task.id],
   )
 
   const onDoubleClick = useCallback(
@@ -192,8 +209,17 @@ const CalendarTaskChipImpl = function CalendarTaskChip({
           )}
         </span>
         <div className="min-w-0 flex-1">
-          <span className="line-clamp-2" title={task.title}>
-            {task.title}
+          <span className="flex min-w-0 items-start gap-1.5">
+            <span
+              className={cn(
+                'mt-1 inline-block h-1.5 w-1.5 shrink-0 rounded-full ring-1 ring-black/20',
+                statusDotClass,
+              )}
+              aria-hidden
+            />
+            <span className="line-clamp-2 min-w-0" title={task.title}>
+              {task.title}
+            </span>
           </span>
           <span className="block truncate text-[9px] text-muted-foreground" title={projectName}>
             {stLabel} · {projectName}

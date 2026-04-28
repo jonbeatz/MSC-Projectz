@@ -31,6 +31,7 @@ type CalendarAddTaskDialogProps = {
   onOpenChange: (o: boolean) => void
   dueYmd: string
   projects: Project[]
+  onTaskCreated?: () => void
 }
 
 function formatDueHeading(ymd: string): string {
@@ -38,7 +39,18 @@ function formatDueHeading(ymd: string): string {
   return format(d, 'PPP')
 }
 
-export function CalendarAddTaskDialog({ open, onOpenChange, dueYmd, projects }: CalendarAddTaskDialogProps) {
+function formatDueInputValue(ymd: string): string {
+  const d = parse(ymd, 'yyyy-MM-dd', new Date())
+  return format(d, 'yyyy-MM-dd')
+}
+
+export function CalendarAddTaskDialog({
+  open,
+  onOpenChange,
+  dueYmd,
+  projects,
+  onTaskCreated,
+}: CalendarAddTaskDialogProps) {
   const [projectId, setProjectId] = useState<string>(projects[0]?.id ?? '')
   const [title, setTitle] = useState('')
   const [assignId, setAssignId] = useState<string | null>(null)
@@ -108,6 +120,10 @@ export function CalendarAddTaskDialog({ open, onOpenChange, dueYmd, projects }: 
                 </Select>
               </div>
               <div className="space-y-2">
+                <Label>Due date</Label>
+                <Input value={formatDueInputValue(dueYmd)} readOnly disabled />
+              </div>
+              <div className="space-y-2">
                 <Label>Title</Label>
                 <Input
                   className="border-2 border-emerald-500/30 focus-visible:border-emerald-500/70"
@@ -151,6 +167,7 @@ export function CalendarAddTaskDialog({ open, onOpenChange, dueYmd, projects }: 
                   dueDate: dueYmd,
                   assignedTo: assignId,
                 })
+                onTaskCreated?.()
                 setTitle('')
                 setAssignId(null)
                 onOpenChange(false)
