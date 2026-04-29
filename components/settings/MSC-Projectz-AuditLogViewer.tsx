@@ -25,7 +25,12 @@ import { msc_getAuditLogs, type MscAuditLogDoc } from '@/lib/msc_vault_audit_fet
 
 const MSC_AUDIT_ACTIONS = ['ALL', 'USER_CREATE', 'USER_DELETE', 'USER_ROLE_UPDATE', 'PASSWORD_RESET'] as const
 
-export function MSC_Projectz_AuditLogViewer() {
+type MSC_Projectz_AuditLogViewerProps = {
+  /** When true, omit outer title chrome (parent supplies “System Audit Logs” heading). */
+  hideTitle?: boolean
+}
+
+export function MSC_Projectz_AuditLogViewer({ hideTitle = false }: MSC_Projectz_AuditLogViewerProps) {
   const [logs, setLogs] = useState<MscAuditLogDoc[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -68,16 +73,10 @@ export function MSC_Projectz_AuditLogViewer() {
     }
   }, [selectedLog])
 
-  return (
-    <RoleGate allowedRoles={['admin']}>
-      <section className="overflow-hidden rounded-lg border border-border bg-card">
-        <div className="border-b border-border px-6 py-4">
-          <h2 className="text-lg font-semibold text-foreground">Audit Logs</h2>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Review sensitive admin actions including user role updates, password resets, and account deletions.
-          </p>
-        </div>
+  const floatShell =
+    'overflow-hidden rounded-2xl border border-border/60 bg-card/70 shadow-[0_18px_48px_-16px_rgba(0,0,0,0.42)] backdrop-blur-md dark:border-white/[0.07] dark:bg-zinc-950/50 dark:shadow-black/55'
 
+  const body = (
         <div className="space-y-4 p-6">
           <div className="grid gap-3 md:grid-cols-[220px_1fr_auto]">
             <div className="space-y-2">
@@ -136,9 +135,9 @@ export function MSC_Projectz_AuditLogViewer() {
           ) : logs.length === 0 ? (
             <p className="text-sm text-muted-foreground">No audit logs matched your filters.</p>
           ) : (
-            <div className="overflow-x-auto rounded-lg border border-border">
+            <div className="overflow-x-auto rounded-xl border border-border/60 dark:border-white/[0.06]">
               <table className="w-full text-sm">
-                <thead className="bg-secondary/60 text-xs uppercase tracking-wide text-muted-foreground">
+                <thead className="bg-muted/30 text-xs uppercase tracking-wide text-muted-foreground dark:bg-white/[0.04]">
                   <tr>
                     <th className="px-3 py-2 text-left font-medium">Timestamp</th>
                     <th className="px-3 py-2 text-left font-medium">Actor</th>
@@ -199,7 +198,23 @@ export function MSC_Projectz_AuditLogViewer() {
             </div>
           </div>
         </div>
-      </section>
+  )
+
+  return (
+    <RoleGate allowedRoles={['admin']}>
+      {hideTitle ? (
+        body
+      ) : (
+        <section className={floatShell}>
+          <div className="border-b border-border/60 px-6 py-4 dark:border-white/[0.06]">
+            <h2 className="text-lg font-semibold text-foreground">Audit Logs</h2>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Review sensitive admin actions including user role updates, password resets, and account deletions.
+            </p>
+          </div>
+          {body}
+        </section>
+      )}
 
       <Dialog open={Boolean(selectedLog)} onOpenChange={(open) => !open && setSelectedLog(null)}>
         <DialogContent className="max-w-2xl">

@@ -14,9 +14,10 @@ import {
   Settings,
   X,
   Building2,
+  FlaskConical,
 } from 'lucide-react'
 import Image from 'next/image'
-import { usePathname, useRouter, useSearchParams } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { useAppStore } from '@/lib/store'
@@ -59,7 +60,6 @@ export function DashboardSidebar({
 }: DashboardSidebarProps) {
   const router = useRouter()
   const pathname = usePathname()
-  const searchParams = useSearchParams()
   const logout = useAppStore((s) => s.logout)
   const projects = useAppStore((s) => s.projects)
   const appSettings = useAppStore((s) => s.appSettings)
@@ -73,7 +73,7 @@ export function DashboardSidebar({
   const [settingsGroupOpen, setSettingsGroupOpen] = useState(true)
 
   useEffect(() => {
-    if (pathname.startsWith('/settings')) {
+    if (pathname.startsWith('/settings') || pathname.startsWith('/admin/dev/email-previews')) {
       setSettingsGroupOpen(true)
     }
   }, [pathname])
@@ -89,8 +89,9 @@ export function DashboardSidebar({
     0,
   )
 
-  const settingsSectionActive = pathname.startsWith('/settings')
-  const extrasActive = pathname.startsWith('/settings') && searchParams.get('section') === 'extras'
+  const settingsMainActive = pathname.startsWith('/settings')
+  const devPlaygroundActive = pathname.startsWith('/admin/dev/email-previews')
+  const adminSidebarSectionActive = settingsMainActive || devPlaygroundActive
 
   const renderNavItem = (item: NavItem) => {
     const Icon = item.icon
@@ -249,11 +250,10 @@ export function DashboardSidebar({
                   <div
                     className={cn(
                       'flex items-stretch gap-0.5 rounded-xl',
-                      settingsSectionActive &&
-                        !extrasActive &&
+                      adminSidebarSectionActive &&
                         useGlassRail &&
                         'bg-white/[0.1] ring-1 ring-white/12 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.08)]',
-                      settingsSectionActive && !extrasActive && !useGlassRail && 'bg-sidebar-accent',
+                      adminSidebarSectionActive && !useGlassRail && 'bg-sidebar-accent',
                     )}
                   >
                     <button
@@ -261,7 +261,7 @@ export function DashboardSidebar({
                       onClick={() => go('/settings')}
                       className={cn(
                         'flex min-w-0 flex-1 items-center gap-3 rounded-l-xl px-3 py-3 text-left text-sm font-medium transition-colors',
-                        settingsSectionActive && !extrasActive
+                        settingsMainActive
                           ? 'text-foreground'
                           : 'text-muted-foreground hover:text-foreground',
                         useGlassRail ? 'hover:bg-white/[0.04]' : '',
@@ -300,17 +300,18 @@ export function DashboardSidebar({
                       <li>
                         <button
                           type="button"
-                          onClick={() => go('/settings?section=extras')}
+                          onClick={() => go('/admin/dev/email-previews')}
                           className={cn(
-                            'flex w-full rounded-lg px-3 py-2 text-left text-xs font-medium transition-colors',
-                            extrasActive
+                            'flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-xs font-medium transition-colors',
+                            devPlaygroundActive
                               ? useGlassRail
-                                ? 'bg-white/[0.08] text-foreground ring-1 ring-white/10'
+                                ? 'bg-msc-ui-accent/15 text-msc-ui-accent ring-1 ring-msc-ui-accent/25'
                                 : 'bg-sidebar-accent text-foreground'
                               : 'text-muted-foreground hover:bg-white/[0.05] hover:text-foreground',
                           )}
                         >
-                          Extras
+                          <FlaskConical className="h-3.5 w-3.5 shrink-0 opacity-90" aria-hidden />
+                          <span className="truncate">Dev Playground</span>
                         </button>
                       </li>
                     </ul>
@@ -323,7 +324,7 @@ export function DashboardSidebar({
                     onClick={() => go('/settings')}
                     className={cn(
                       'flex w-full items-center justify-center rounded-xl px-0 py-2.5 transition-colors',
-                      settingsSectionActive
+                      adminSidebarSectionActive
                         ? useGlassRail
                           ? 'bg-white/[0.1] text-foreground ring-1 ring-white/12'
                           : 'bg-sidebar-accent text-sidebar-foreground'

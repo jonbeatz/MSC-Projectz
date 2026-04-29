@@ -1,7 +1,6 @@
 'use client'
 
 import { useState } from 'react'
-import Link from 'next/link'
 import { 
   Search, 
   Workflow, 
@@ -22,6 +21,13 @@ import {
   AccordionItem, 
   AccordionTrigger 
 } from '@/components/ui/accordion'
+import { cn } from '@/lib/utils'
+
+const msc_engineFloatMain =
+  'rounded-2xl border border-border/60 bg-card/70 p-6 shadow-[0_18px_48px_-16px_rgba(0,0,0,0.42)] backdrop-blur-md dark:border-white/[0.07] dark:bg-zinc-950/50 dark:shadow-black/55'
+
+const msc_engineFloatAside =
+  'rounded-2xl border border-border/60 bg-card/70 p-4 shadow-[0_18px_48px_-16px_rgba(0,0,0,0.42)] backdrop-blur-md dark:border-white/[0.07] dark:bg-zinc-950/45 dark:shadow-black/50'
 
 interface FAQItem {
   id: string
@@ -226,7 +232,6 @@ const categories = [
   { id: 'security', label: 'Security' },
   { id: 'settings', label: 'Settings' },
   { id: 'admin', label: 'Admin' },
-  { id: 'data', label: 'Data' },
 ]
 
 export function HelpView() {
@@ -338,7 +343,8 @@ export function HelpView() {
   ]
 
   return (
-    <div className="min-h-[calc(100vh-8rem)] bg-background">
+    <div className="min-h-[calc(100vh-8rem)] min-w-0 px-5 py-4 pb-12 sm:px-8 md:px-12 lg:pl-14 lg:pr-12">
+      <div className="mx-auto w-full max-w-3xl xl:max-w-[50rem] 2xl:max-w-[52rem]">
       {/* Header */}
       <div className="mb-8">
         <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-muted-foreground">
@@ -350,9 +356,9 @@ export function HelpView() {
         </p>
       </div>
 
-      <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_260px]">
-        <main className="space-y-6">
-          <section className="rounded-lg border border-border bg-card p-6">
+      <div className="grid gap-8 xl:grid-cols-[minmax(0,1fr)_12.5rem] xl:items-start xl:gap-10">
+        <main className="min-w-0 space-y-6">
+          <section className={msc_engineFloatMain}>
             <div className="mb-5">
               <h2 className="text-lg font-semibold text-foreground">
                 {activeTab === 'instructionz'
@@ -390,12 +396,14 @@ export function HelpView() {
           {categories.map((cat) => (
             <button
               key={cat.id}
+              type="button"
               onClick={() => setActiveCategory(cat.id)}
-              className="px-3 py-1.5 rounded-lg text-xs font-medium transition-colors"
-              style={{ 
-                backgroundColor: activeCategory === cat.id ? 'hsl(var(--msc-accent))' : undefined,
-                color: activeCategory === cat.id ? 'hsl(var(--msc-accent-foreground))' : undefined
-              }}
+              className={cn(
+                'rounded-lg border px-3 py-1.5 text-xs font-medium transition-colors',
+                activeCategory === cat.id
+                  ? 'border-msc-ui-accent/35 bg-msc-ui-accent/15 text-msc-ui-accent shadow-sm'
+                  : 'border-transparent bg-muted/25 text-muted-foreground hover:border-border/50 hover:bg-muted/40 hover:text-foreground',
+              )}
             >
               {cat.label}
             </button>
@@ -411,11 +419,11 @@ export function HelpView() {
               <AccordionItem
                 key={item.id}
                 value={item.id}
-                className="overflow-hidden rounded-xl border border-border bg-surface transition-all data-[state=open]:bg-surface"
+                className="overflow-hidden rounded-xl border border-border/60 bg-card/40 shadow-sm transition-all data-[state=open]:shadow-md dark:border-white/[0.07] dark:bg-white/[0.04] dark:data-[state=open]:bg-white/[0.06]"
               >
-                <AccordionTrigger className="px-4 py-4 text-foreground no-underline hover:bg-surface/80 hover:no-underline data-[state=open]:bg-surface/80">
+                <AccordionTrigger className="px-4 py-4 text-foreground no-underline hover:bg-muted/20 hover:no-underline data-[state=open]:bg-muted/15 dark:hover:bg-white/[0.04] dark:data-[state=open]:bg-white/[0.04]">
                   <div className="flex min-w-0 items-center gap-3 text-left">
-                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/20 text-primary">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-msc-ui-accent/15 text-msc-ui-accent">
                       {item.icon}
                     </div>
                     <div className="min-w-0 flex-1">
@@ -424,7 +432,7 @@ export function HelpView() {
                     </div>
                   </div>
                 </AccordionTrigger>
-                <AccordionContent className="bg-surface p-4 transition-all">
+                <AccordionContent className="border-t border-border/50 bg-muted/10 p-4 transition-all dark:border-white/[0.06] dark:bg-black/15">
                     {/* SMTP Fields with Copy Buttons */}
                     {item.smtpFields && (
                       <div className="space-y-4 mb-4">
@@ -540,11 +548,11 @@ export function HelpView() {
                 <AccordionItem 
                   key={faq.id} 
                   value={faq.id}
-                  className="overflow-hidden rounded-xl border border-border bg-surface"
+                  className="overflow-hidden rounded-xl border border-border/60 bg-card/40 shadow-sm dark:border-white/[0.07] dark:bg-white/[0.04]"
                 >
-                  <AccordionTrigger className="px-4 py-3 text-foreground transition-colors hover:bg-surface/80 data-[state=open]:bg-surface/80">
+                  <AccordionTrigger className="px-4 py-3 text-foreground transition-colors hover:bg-muted/20 data-[state=open]:bg-muted/15 dark:hover:bg-white/[0.04] dark:data-[state=open]:bg-white/[0.04]">
                     <div className="flex items-center gap-3 text-left">
-                      <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 bg-primary/20 text-primary">
+                      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-msc-ui-accent/15 text-msc-ui-accent">
                         {getCategoryIcon(faq.category)}
                       </div>
                       <span className="font-medium text-sm">{faq.question}</span>
@@ -577,11 +585,11 @@ export function HelpView() {
                 <AccordionItem
                   key={guide.id}
                   value={guide.id}
-                  className="overflow-hidden rounded-xl border border-border bg-surface transition-all data-[state=open]:bg-surface"
+                  className="overflow-hidden rounded-xl border border-border/60 bg-card/40 shadow-sm transition-all dark:border-white/[0.07] dark:bg-white/[0.04]"
                 >
-                  <AccordionTrigger className="px-4 py-4 text-foreground no-underline hover:bg-surface/80 hover:no-underline data-[state=open]:bg-surface/80">
+                  <AccordionTrigger className="px-4 py-4 text-foreground no-underline hover:bg-muted/20 hover:no-underline data-[state=open]:bg-muted/15 dark:hover:bg-white/[0.04] dark:data-[state=open]:bg-white/[0.04]">
                     <div className="flex min-w-0 items-start gap-3 text-left">
-                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/20 text-primary">
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-msc-ui-accent/15 text-msc-ui-accent">
                         {getCategoryIcon(guide.category)}
                       </div>
                       <div className="min-w-0">
@@ -590,14 +598,14 @@ export function HelpView() {
                       </div>
                     </div>
                   </AccordionTrigger>
-                  <AccordionContent className="bg-surface p-4 transition-all">
+                  <AccordionContent className="border-t border-border/50 bg-muted/10 p-4 transition-all dark:border-white/[0.06] dark:bg-black/15">
                     <ol className="space-y-2">
                       {guide.steps.map((step, index) => (
                         <li 
                           key={index}
                           className="flex items-start gap-3 text-sm"
                         >
-                          <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary text-xs font-medium text-primary-foreground">
+                          <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-msc-ui-accent/90 text-xs font-medium text-white shadow-sm">
                             {index + 1}
                           </span>
                           <span className="pt-0.5 text-muted-foreground">{step}</span>
@@ -615,8 +623,8 @@ export function HelpView() {
 
         </main>
 
-        <aside className="h-fit rounded-lg border border-border bg-card p-4 xl:sticky xl:top-24">
-          <h3 className="text-xs font-bold uppercase tracking-[0.18em] text-foreground">Quick Navigation</h3>
+        <aside className={cn(msc_engineFloatAside, 'h-fit xl:sticky xl:top-24')}>
+          <h3 className="text-xs font-bold uppercase tracking-[0.18em] text-muted-foreground">Quick Navigation</h3>
           <div className="mt-4 space-y-1">
             {[
               { id: 'instructionz' as const, label: 'Setup Workflow' },
@@ -627,23 +635,19 @@ export function HelpView() {
                 key={item.id}
                 type="button"
                 onClick={() => setActiveTab(item.id)}
-                className={`block w-full rounded-md px-3 py-2 text-left text-sm transition-colors ${
+                className={cn(
+                  'block w-full rounded-lg border border-transparent px-3 py-2 text-left text-sm transition-colors',
                   activeTab === item.id
-                    ? 'bg-primary text-primary-foreground'
-                    : 'text-muted-foreground hover:text-foreground'
-                }`}
+                    ? 'border-msc-ui-accent/30 bg-msc-ui-accent/15 font-medium text-msc-ui-accent'
+                    : 'text-muted-foreground hover:border-border/40 hover:bg-muted/25 hover:text-foreground',
+                )}
               >
                 {item.label}
               </button>
             ))}
-            <Link
-              href="/admin/dev/email-previews"
-              className="block w-full rounded-md px-3 py-2 text-left text-sm text-muted-foreground transition-colors hover:bg-secondary hover:text-white"
-            >
-              Dev Playground
-            </Link>
           </div>
         </aside>
+      </div>
       </div>
     </div>
   )

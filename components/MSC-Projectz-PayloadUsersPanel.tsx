@@ -123,7 +123,7 @@ export function MSC_Projectz_PayloadUsersPanel() {
                   className={cn(
                     'text-xs px-2 py-0.5 rounded',
                     u.role === 'master-admin'
-                      ? 'bg-amber-500/90 text-black'
+                      ? 'border border-msc-ui-accent/40 bg-msc-ui-accent/18 text-sky-50'
                       : u.role === 'admin'
                         ? 'bg-primary text-primary-foreground'
                         : 'bg-muted text-muted-foreground',

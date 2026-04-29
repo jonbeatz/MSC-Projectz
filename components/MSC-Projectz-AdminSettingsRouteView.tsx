@@ -12,9 +12,17 @@ import { Switch } from '@/components/ui/switch'
 import { toast } from '@/hooks/use-toast'
 import { msc_backupDatabase } from '@/lib/msc_server_actions'
 import { msc_updateSystemConfig } from '@/lib/msc_vault_server_actions'
+import { cn } from '@/lib/utils'
 import { useAppStore } from '@/lib/store'
 
 const MSC_PROJECTZ_USE_UNIFIED_SETTINGS_USERS = true
+
+/** Frosted float on Command Center canvas — avoids stacked solid “dark bands” between sections. */
+const msc_floatSection =
+  'overflow-hidden rounded-2xl border border-border/60 bg-card/70 shadow-[0_18px_48px_-16px_rgba(0,0,0,0.42)] backdrop-blur-md dark:border-white/[0.07] dark:bg-zinc-950/50 dark:shadow-black/55'
+
+const msc_insetPanel =
+  'rounded-xl border border-border/50 bg-muted/15 p-4 shadow-sm backdrop-blur-sm dark:border-white/[0.06] dark:bg-white/[0.04] dark:shadow-[0_10px_28px_-12px_rgba(0,0,0,0.35)]'
 
 export function MSC_Projectz_AdminSettingsRouteView() {
   const { appSettings, updateAppSettings } = useAppStore()
@@ -56,11 +64,14 @@ export function MSC_Projectz_AdminSettingsRouteView() {
   }
 
   return (
-    <div className="mx-auto max-w-4xl space-y-8 bg-background">
-      <h1 className="text-3xl font-bold tracking-tight text-foreground">Settings</h1>
+    <div className="mx-auto w-full max-w-3xl space-y-6 px-4 py-6 sm:px-6">
+      <div>
+        <h1 className="text-3xl font-bold tracking-tight text-foreground">Settings</h1>
+        <p className="mt-1 text-sm text-muted-foreground">Studio server configuration and user administration.</p>
+      </div>
 
-      <div className="space-y-8">
-          <div className="rounded-lg border border-border bg-card p-6">
+      <div className="space-y-6">
+          <section className={cn(msc_floatSection, 'p-6')}>
             <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
         <div>
                 <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-muted-foreground">
@@ -73,7 +84,7 @@ export function MSC_Projectz_AdminSettingsRouteView() {
               </div>
               <div className="flex items-center gap-2">
                 {saveMessage && (
-                  <span className="flex items-center gap-2 text-sm text-primary">
+                  <span className="flex items-center gap-2 text-sm text-msc-ui-accent">
                     <CheckCircle className="h-4 w-4" />
                     {saveMessage}
                   </span>
@@ -84,13 +95,13 @@ export function MSC_Projectz_AdminSettingsRouteView() {
                 </Button>
               </div>
             </div>
-          </div>
+          </section>
 
       {MSC_PROJECTZ_USE_UNIFIED_SETTINGS_USERS ? (
         <MSC_Projectz_SettingsUsersSection />
       ) : (
-        <section id="users" className="overflow-hidden rounded-lg border border-border bg-card">
-          <div className="border-b border-border px-6 py-4">
+        <section id="users" className={msc_floatSection}>
+          <div className="border-b border-border/60 px-6 py-4 dark:border-white/[0.06]">
             <h2 className="text-lg font-semibold text-foreground">Users</h2>
             <p className="mt-1 text-sm text-muted-foreground">Manage Payload users, roles, and workspace invitations.</p>
           </div>
@@ -100,16 +111,16 @@ export function MSC_Projectz_AdminSettingsRouteView() {
         </section>
       )}
 
-      <section id="system" className="overflow-hidden rounded-lg border border-border bg-card">
-        <div className="border-b border-border px-6 py-4">
+      <section id="system" className={msc_floatSection}>
+        <div className="border-b border-border/60 px-6 py-4 dark:border-white/[0.06]">
           <h2 className="text-lg font-semibold text-foreground">System</h2>
           <p className="mt-1 text-sm text-muted-foreground">Configure local path format, backups, and status.</p>
         </div>
-        <div className="space-y-6 p-6">
-          <div className="rounded-lg border border-border bg-secondary/80 p-4">
+        <div className="space-y-5 p-6">
+          <div className={msc_insetPanel}>
             <div className="flex items-start gap-3">
-              <div className="mt-0.5 flex h-9 w-9 items-center justify-center rounded-lg bg-card">
-                <Mail className="h-4 w-4 text-primary" />
+              <div className="mt-0.5 flex h-9 w-9 items-center justify-center rounded-lg border border-border/40 bg-background/40 dark:border-white/[0.08] dark:bg-white/[0.05]">
+                <Mail className="h-4 w-4 text-msc-ui-accent" />
               </div>
               <div>
                 <p className="text-sm font-medium text-foreground">Mail (IMAP / SMTP)</p>
@@ -119,10 +130,10 @@ export function MSC_Projectz_AdminSettingsRouteView() {
               </div>
             </div>
           </div>
-          <div id="backup" className="rounded-lg border border-border bg-secondary p-4">
+          <div id="backup" className={msc_insetPanel}>
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-card">
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-border/40 bg-background/40 dark:border-white/[0.08] dark:bg-white/[0.05]">
                   {pathFormat === 'windows' ? (
                     <Monitor className="h-5 w-5 text-muted-foreground" />
                   ) : (
@@ -146,9 +157,9 @@ export function MSC_Projectz_AdminSettingsRouteView() {
             </div>
           </div>
 
-          <div className="rounded-lg border border-border bg-secondary p-4">
+          <div className={msc_insetPanel}>
             <div className="flex items-center gap-2">
-              <DatabaseBackup className="h-4 w-4 text-primary" />
+              <DatabaseBackup className="h-4 w-4 text-msc-ui-accent" />
               <p className="text-sm font-medium text-foreground">Database Backup</p>
             </div>
             <p className="mt-1 text-sm text-muted-foreground">
@@ -165,9 +176,9 @@ export function MSC_Projectz_AdminSettingsRouteView() {
             </Button>
           </div>
 
-          <div className="rounded-lg border border-border bg-secondary p-4">
+          <div className={msc_insetPanel}>
             <div className="flex items-center gap-2">
-              <Server className="h-4 w-4 text-primary" />
+              <Server className="h-4 w-4 text-msc-ui-accent" />
               <p className="text-sm font-medium text-foreground">Telemetry & Logging</p>
             </div>
             <p className="mt-1 text-sm text-muted-foreground">
@@ -179,15 +190,15 @@ export function MSC_Projectz_AdminSettingsRouteView() {
       </section>
 
       <RoleGate allowedRoles={['admin']}>
-        <div className="mt-8 border-t border-border pt-8">
-          <h2 className="text-xl font-semibold text-foreground">System Audit Logs</h2>
-          <p className="mt-2 text-sm text-muted-foreground">
-            Review administrative actions, role changes, and sensitive account operations from the settings dashboard.
-          </p>
-          <div className="mt-4">
-            <MSC_Projectz_AuditLogViewer />
+        <section className={cn(msc_floatSection, 'mt-2')}>
+          <div className="border-b border-border/60 px-6 py-4 dark:border-white/[0.06]">
+            <h2 className="text-xl font-semibold text-foreground">System Audit Logs</h2>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Review administrative actions, role changes, and sensitive account operations from the settings dashboard.
+            </p>
           </div>
-        </div>
+          <MSC_Projectz_AuditLogViewer hideTitle />
+        </section>
       </RoleGate>
 
       </div>

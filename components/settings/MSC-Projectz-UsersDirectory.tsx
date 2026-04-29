@@ -31,7 +31,7 @@ export function MSC_Projectz_UsersDirectory({
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h3 className="flex items-center gap-2 text-sm font-semibold text-foreground">
-            <Users className="h-4 w-4 text-primary" />
+            <Users className="h-4 w-4 text-msc-ui-accent" />
             Payload directory
           </h3>
           <p className="mt-1 text-xs text-muted-foreground">Server-backed accounts used by the app and Payload admin.</p>
@@ -43,12 +43,12 @@ export function MSC_Projectz_UsersDirectory({
       </div>
 
       {loading && users.length === 0 ? (
-        <div className="space-y-2 rounded-lg border border-border bg-secondary/20 p-3">
+        <div className="space-y-2 rounded-xl border border-border/50 bg-muted/10 p-3 dark:border-white/[0.06] dark:bg-white/[0.03]">
           <Skeleton className="h-20 w-full" />
           <Skeleton className="h-20 w-full" />
         </div>
       ) : users.length === 0 ? (
-        <div className="rounded-lg border border-dashed border-border bg-secondary/20 p-6 text-center">
+        <div className="rounded-xl border border-dashed border-border/60 bg-muted/10 p-6 text-center dark:border-white/[0.1] dark:bg-white/[0.03]">
           <ShieldAlert className="mx-auto h-8 w-8 text-muted-foreground" />
           <p className="mt-3 text-sm font-medium text-foreground">No Payload users found</p>
           <p className="mt-1 text-xs text-muted-foreground">

@@ -55,7 +55,7 @@ export function MSC_Projectz_CreateUserForm({ onCreated, onMessage }: MSC_Projec
   }
 
   return (
-    <div className="rounded-lg border border-border bg-secondary/30 p-4">
+    <div className="rounded-xl border border-border/50 bg-muted/15 p-4 shadow-sm backdrop-blur-sm dark:border-white/[0.06] dark:bg-white/[0.04] dark:shadow-[0_10px_28px_-12px_rgba(0,0,0,0.35)]">
       <div className="mb-4 flex items-center gap-2">
         <UserPlus className="h-4 w-4 text-primary" />
         <div>

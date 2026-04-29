@@ -72,15 +72,18 @@ export function MSC_Projectz_SettingsUsersSection({ enabled = true }: MSC_Projec
 
   return (
     <RoleGate allowedRoles={['admin']}>
-      <section id="users" className="overflow-hidden rounded-lg border border-border bg-card">
-      <div className="border-b border-border px-6 py-4">
+      <section
+        id="users"
+        className="overflow-hidden rounded-2xl border border-border/60 bg-card/70 shadow-[0_18px_48px_-16px_rgba(0,0,0,0.42)] backdrop-blur-md dark:border-white/[0.07] dark:bg-zinc-950/50 dark:shadow-black/55"
+      >
+      <div className="border-b border-border/60 px-6 py-4 dark:border-white/[0.06]">
         <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
           <div>
             <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-muted-foreground">
               Identity Control
             </p>
             <h2 className="mt-2 flex items-center gap-2 text-lg font-semibold text-foreground">
-              <Users className="h-5 w-5 text-primary" />
+              <Users className="h-5 w-5 text-msc-ui-accent" />
               Users
             </h2>
             <p className="mt-1 text-sm text-muted-foreground">
@@ -93,19 +96,19 @@ export function MSC_Projectz_SettingsUsersSection({ enabled = true }: MSC_Projec
             )}
           </div>
           <div className="grid grid-cols-2 gap-2 text-center md:grid-cols-4">
-            <div className="col-span-2 rounded-lg border border-border bg-secondary/40 px-3 py-2 md:col-span-1">
+            <div className="col-span-2 rounded-xl border border-border/50 bg-background/30 px-3 py-2 shadow-sm dark:border-white/[0.06] dark:bg-white/[0.04] md:col-span-1">
               <p className="text-lg font-semibold text-foreground">{stats.total}</p>
               <p className="text-[10px] uppercase tracking-wide text-muted-foreground">Total</p>
             </div>
-            <div className="rounded-lg border border-border bg-secondary/40 px-3 py-2">
-              <p className="text-lg font-semibold text-amber-400">{stats.masterAdmins}</p>
+            <div className="rounded-xl border border-msc-ui-accent/25 bg-msc-ui-accent/10 px-3 py-2 shadow-sm">
+              <p className="text-lg font-semibold text-msc-ui-accent">{stats.masterAdmins}</p>
               <p className="text-[10px] uppercase tracking-wide text-muted-foreground">Master</p>
             </div>
-            <div className="rounded-lg border border-border bg-secondary/40 px-3 py-2">
+            <div className="rounded-xl border border-border/50 bg-background/30 px-3 py-2 shadow-sm dark:border-white/[0.06] dark:bg-white/[0.04]">
               <p className="text-lg font-semibold text-primary">{stats.admins}</p>
               <p className="text-[10px] uppercase tracking-wide text-muted-foreground">Admins</p>
             </div>
-            <div className="rounded-lg border border-border bg-secondary/40 px-3 py-2">
+            <div className="rounded-xl border border-border/50 bg-background/30 px-3 py-2 shadow-sm dark:border-white/[0.06] dark:bg-white/[0.04]">
               <p className="text-lg font-semibold text-foreground">{stats.standard}</p>
               <p className="text-[10px] uppercase tracking-wide text-muted-foreground">Users</p>
             </div>
