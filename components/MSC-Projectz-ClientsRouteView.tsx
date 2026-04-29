@@ -2,13 +2,12 @@
 
 import { useCallback, useEffect, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { Building2, Loader2 } from 'lucide-react'
+import { Building2, CalendarDays, ChevronRight, Loader2 } from 'lucide-react'
 
 import { MSC_Projectz_ClientDrawer } from '@/components/MSC-Projectz-ClientDrawer'
 import { msc_createClient, msc_listClients } from '@/lib/msc_client_actions'
 import type { MscClientListRow } from '@/lib/msc_client_types'
 import { msc_isQuietInfrastructureUiMessage, msc_publicPayloadError } from '@/lib/msc_public_error'
-import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -22,15 +21,46 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { cn } from '@/lib/utils'
 
-function msc_statusBadgeVariant(
-  s: string,
-): 'default' | 'secondary' | 'outline' | 'destructive' {
-  if (s === 'active') return 'default'
-  if (s === 'onboarding') return 'secondary'
-  if (s === 'lead') return 'outline'
-  if (s === 'completed') return 'secondary'
-  if (s === 'archived') return 'outline'
-  return 'secondary'
+/** Visual “relationship” fill for the route tile progress strip (Ideaz-style); not a KPI. */
+function msc_clientStatusProgressPercent(status: string): number {
+  const s = status.toLowerCase()
+  if (s === 'lead') return 28
+  if (s === 'onboarding') return 52
+  if (s === 'active') return 78
+  if (s === 'completed') return 100
+  return 45
+}
+
+function msc_clientInitials(name: string): string {
+  const parts = name.trim().split(/\s+/).filter(Boolean)
+  if (parts.length === 0) return '?'
+  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase()
+  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase()
+}
+
+function msc_formatRelativeUpdated(iso: string | null | undefined): string {
+  if (!iso) return '—'
+  const d = new Date(iso)
+  if (Number.isNaN(d.getTime())) return '—'
+  const diffMs = Date.now() - d.getTime()
+  const diffM = Math.floor(diffMs / 60000)
+  if (diffM < 1) return 'just now'
+  if (diffM < 60) return `${diffM}m ago`
+  const diffH = Math.floor(diffM / 60)
+  if (diffH < 48) return `${diffH}h ago`
+  return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })
+}
+
+function msc_statusPillClass(status: string): string {
+  const s = status.toLowerCase()
+  if (s === 'active')
+    return 'border border-emerald-400/25 bg-emerald-500/15 text-emerald-100/95'
+  if (s === 'onboarding')
+    return 'border border-amber-400/28 bg-amber-500/14 text-amber-50/95'
+  if (s === 'lead') return 'border border-white/12 bg-white/[0.06] text-muted-foreground'
+  if (s === 'completed')
+    return 'border border-sky-400/22 bg-sky-500/12 text-sky-50/95'
+  return 'border border-white/10 bg-white/[0.06] text-muted-foreground'
 }
 
 export function MSC_Projectz_ClientsRouteView() {
@@ -181,40 +211,76 @@ export function MSC_Projectz_ClientsRouteView() {
           </Button>
         </div>
       ) : (
-        <ul className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-          {clients.map((c) => (
-            <li key={c.id}>
-              <button
-                type="button"
-                onClick={() => openClient(c.id)}
-                className={cn(
-                  'msc-clients-glass-card relative flex w-full flex-col gap-3 overflow-hidden rounded-2xl p-4 text-left transition-colors',
-                  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-msc-gold/40',
-                )}
-                style={{
-                  background: 'rgba(255, 255, 255, 0.1)',
-                  border: '1px solid rgba(255, 255, 255, 0.2)',
-                  boxShadow: '0 8px 32px rgba(0, 0, 0, 0.75)',
-                  backdropFilter: 'blur(18px)',
-                  WebkitBackdropFilter: 'blur(18px)',
-                }}
-              >
-                <span
-                  aria-hidden
-                  className="pointer-events-none absolute inset-0 bg-[linear-gradient(135deg,rgba(255,255,255,0.12)_0%,rgba(255,255,255,0)_50%)]"
-                />
-                <div className="relative z-10 flex items-start justify-between gap-2">
-                  <span className="line-clamp-2 font-medium text-foreground">{c.name}</span>
-                  <Badge variant={msc_statusBadgeVariant(c.status)} className="shrink-0 capitalize">
-                    {c.status}
-                  </Badge>
-                </div>
-                <p className="relative z-10 text-[11px] text-muted-foreground">
-                  Updated {c.updatedAt ? new Date(c.updatedAt).toLocaleString() : '—'}
-                </p>
-              </button>
-            </li>
-          ))}
+        <ul className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
+          {clients.map((c) => {
+            const pct = msc_clientStatusProgressPercent(c.status)
+            return (
+              <li key={c.id}>
+                <button
+                  type="button"
+                  aria-label={`Open client ${c.name}`}
+                  onClick={() => openClient(c.id)}
+                  className={cn(
+                    'msc-clients-glass-card msc-clients-route-tile group relative flex w-full flex-col gap-5 overflow-hidden p-6 text-left',
+                    'transition-[transform,box-shadow] duration-300 hover:-translate-y-0.5 hover:shadow-[0_22px_52px_rgba(0,0,0,0.58)]',
+                    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-400/35',
+                  )}
+                >
+                  <div className="relative z-10 flex gap-4">
+                    <span
+                      className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border border-white/10 bg-black/25 text-sm font-semibold tracking-tight text-white/90 shadow-inner shadow-black/40"
+                      aria-hidden
+                    >
+                      {msc_clientInitials(c.name)}
+                    </span>
+                    <div className="min-w-0 flex-1 pt-0.5">
+                      <div className="flex items-start justify-between gap-3">
+                        <span className="line-clamp-2 text-lg font-semibold leading-snug tracking-tight text-foreground">
+                          {c.name}
+                        </span>
+                        <span
+                          className={cn(
+                            'shrink-0 rounded-lg px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide',
+                            msc_statusPillClass(c.status),
+                          )}
+                        >
+                          {c.status}
+                        </span>
+                      </div>
+                      <p className="mt-1 text-xs text-muted-foreground">Studio CRM · Command Center</p>
+                    </div>
+                  </div>
+
+                  <div className="relative z-10 space-y-2">
+                    <div className="flex items-center justify-between gap-2 text-[11px] text-muted-foreground">
+                      <span>Pipeline</span>
+                      <span className="tabular-nums">{pct}%</span>
+                    </div>
+                    <div
+                      className="h-1.5 w-full overflow-hidden rounded-full bg-black/45 ring-1 ring-white/6"
+                      aria-hidden
+                    >
+                      <div
+                        className="h-full rounded-full bg-linear-to-r from-orange-500 via-amber-400 to-orange-400 shadow-[0_0_12px_rgba(249,115,22,0.35)] transition-[width] duration-500 group-hover:shadow-[0_0_16px_rgba(249,115,22,0.45)]"
+                        style={{ width: `${pct}%` }}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="relative z-10 flex items-center justify-between gap-3 border-t border-white/8 pt-4 text-[11px] text-muted-foreground">
+                    <span className="inline-flex items-center gap-1.5">
+                      <CalendarDays className="h-3.5 w-3.5 shrink-0 opacity-70" aria-hidden />
+                      <span>Updated {msc_formatRelativeUpdated(c.updatedAt)}</span>
+                    </span>
+                    <span className="inline-flex items-center gap-0.5 font-medium text-foreground/80 transition-colors group-hover:text-foreground">
+                      Open
+                      <ChevronRight className="h-3.5 w-3.5 opacity-70" aria-hidden />
+                    </span>
+                  </div>
+                </button>
+              </li>
+            )
+          })}
         </ul>
       )}
 

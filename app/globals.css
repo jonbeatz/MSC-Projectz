@@ -441,6 +441,50 @@ textarea::placeholder {
     border-radius: 24px;
   }
 
+  /**
+   * Clients route list tiles — Ideaz ref: deeper frost, large radius, warm accent glow, inset rim.
+   * Chained with `.msc-clients-glass-card` only on `/clients` cards (not calendar modals).
+   */
+  .msc-clients-glass-card.msc-clients-route-tile {
+    border-radius: 28px !important;
+    background:
+      linear-gradient(168deg, rgba(36, 36, 42, 0.78) 0%, rgba(16, 16, 20, 0.92) 52%, rgba(10, 10, 12, 0.94) 100%),
+      rgba(255, 255, 255, 0.04) !important;
+    border: 1px solid rgba(255, 255, 255, 0.11) !important;
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.1),
+      0 18px 44px rgba(0, 0, 0, 0.55),
+      0 0 0 1px rgba(0, 0, 0, 0.35) !important;
+    backdrop-filter: blur(22px) saturate(1.15) !important;
+    -webkit-backdrop-filter: blur(22px) saturate(1.15) !important;
+  }
+
+  .msc-clients-glass-card.msc-clients-route-tile::before {
+    border-radius: 28px;
+    background: linear-gradient(
+      155deg,
+      rgba(255, 255, 255, 0.11) 0%,
+      rgba(255, 255, 255, 0.03) 38%,
+      rgba(255, 255, 255, 0) 58%
+    );
+  }
+
+  .msc-clients-glass-card.msc-clients-route-tile::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    border-radius: 28px;
+    pointer-events: none;
+    background: radial-gradient(
+      ellipse 85% 55% at 100% 115%,
+      rgba(249, 115, 22, 0.14) 0%,
+      rgba(168, 85, 247, 0.06) 42%,
+      transparent 68%
+    );
+    opacity: 0.95;
+  }
+
   /** Command Center calendar — smaller radius than clients glass; nested under panel. */
   .msc-calendar-glass-panel {
     position: relative;
