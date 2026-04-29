@@ -135,6 +135,7 @@ Ship a production-ready **Payload 3** + **Next.js 16** command center (with opti
 * **Working-state note:** docs were expanded for start/continue workflow, snapshots, and closeout. Always trust `git status -sb` as the live state.
 * **Architecture:** Command Center routes live under `app/(main)/(command-center)/` (group `(main)` owns the app `<html>`/`<body>`); login and auth live under `app/(main)/`. Payload admin/API use `app/(payload)/` with its own document via `RootLayout`. Root `app/layout.tsx` only returns `children` so those shells are siblings, not nested documents.
 * **Verification (operators):** after code changes, run **`npm run verify:next`** from the repo root. For a quick local smoke, **`npm run dev`** on port **3000** and check **`/`** and **`/admin`** (expect **200**).
+* **MSC-Projectz-Master-v3.0 (Vader Dark FrostedUI):** clean restore branch for **frosted** Command Center chrome (glass rail/header, **`msc-cc-route-canvas`** on **`<main>`**, **`msc-ui-accent`**, in-flow dark footer) + operator preset docs. Roll forward/back: **`Restore-Points.md`** → **RP-2026-04-29-master-v3-vader-dark-frosted-ui**.
 
 ## Core Features
 

@@ -13,6 +13,28 @@ Keep newest snapshot at the top.
 
 ---
 
+## 2026-04-29 — Restore branch `MSC-Projectz-Master-v3.0` (Vader Dark FrostedUI)
+
+### Session state
+
+- **Outcome:** New **clean restore** branch **`MSC-Projectz-Master-v3.0`** created from **`MSC-Projectz-Master-v2.0`** tip (includes **Vader Dark FrostedUI** Command Center work + preset docs). **`Restore-Points.md`** row **RP-2026-04-29-master-v3-vader-dark-frosted-ui**; **`START-HERE.md`** restart pointer added.
+
+### What was done
+
+- **Git:** `git switch -c MSC-Projectz-Master-v3.0` from published **`Master-v2.0`** line.
+- **Docs:** restore commands + feature list in **`Restore-Points.md`**; **`START-HERE.md`** → *Current Restart Point*.
+
+### Start-next checklist
+
+1. `git fetch origin && git switch MSC-Projectz-Master-v3.0 && git pull`
+2. Frosted UI guardrails: **`.cursor/docs/msc-cc-command-center-nav-preset.md`**
+
+### Open risks / blockers
+
+- None for branch cut; **`FullDev-v10`** remains the doc-stated primary integration line unless Jon promotes **Master** to primary.
+
+---
+
 ## 2026-04-29 — Command Center style docs (canvas, gutters, accent)
 
 ### Session state
