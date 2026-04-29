@@ -13,6 +13,30 @@ Keep newest snapshot at the top.
 
 ---
 
+## 2026-04-29 — Jedi Magic lock-in (dashboard drawers + calendar final)
+
+### Session state
+
+- **Outcome:** Operator-approved “final” visual pass is documented and reusable: Dashboard/Drawer frosted look remains the reference, Calendar now matches the neutral dark studio target, and a dedicated reusable skill was added.
+
+### What was done
+
+- **UI:** finalized calendar matrix style (full weekday names, slimmer header row, equal-height desktop day cells, flatter slate cards, subtle grey strokes, neutralized saturation, detail modal close reliability).
+- **Docs:** updated `.cursor/docs/msc-cc-command-center-nav-preset.md` with Jedi Magic signature + calendar final recipe.
+- **Skill:** added `.cursor/skills/MSC-Skillz/Jedi-Dashboard-Magic/SKILL.md`.
+- **Checkpoint:** added `RP-2026-04-29-master-v3-jedi-magic-calendar-final` in `Restore-Points.md`.
+
+### Start-next checklist
+
+1. Use `.cursor/skills/MSC-Skillz/Jedi-Dashboard-Magic/SKILL.md` for any “make it match this look” request.
+2. For calendar regressions, start with `.cursor/docs/msc-cc-command-center-nav-preset.md` → *Calendar final* section.
+
+### Open risks / blockers
+
+- None; this is now a codified style baseline on `MSC-Projectz-Master-v3.0`.
+
+---
+
 ## 2026-04-29 — Restore branch `MSC-Projectz-Master-v3.0` (Vader Dark FrostedUI)
 
 ### Session state

@@ -453,8 +453,9 @@ textarea::placeholder {
    */
   .msc-calendar-route-bg {
     background:
-      linear-gradient(180deg, rgba(20, 20, 24, 0.72) 0%, rgba(12, 12, 14, 0.82) 55%, rgba(10, 10, 12, 0.88) 100%),
-      var(--msc-clients-route-bg-image) !important;
+      radial-gradient(120% 85% at 50% -8%, rgba(95, 95, 105, 0.1) 0%, rgba(36, 36, 42, 0.03) 54%, transparent 76%),
+      linear-gradient(180deg, rgba(18, 18, 21, 0.93) 0%, rgba(10, 10, 12, 0.97) 58%, rgba(8, 8, 10, 0.985) 100%),
+      hsl(var(--background)) !important;
   }
 
   /** Tasks workspace — flat dense slab (file-search / modal ref), not tall glass cards. */
@@ -706,18 +707,18 @@ textarea::placeholder {
     }
   }
 
-  /** Calendar day tiles — light grey frost; less volumetric than clients tiles. */
+  /** Calendar day tiles — neutral, flatter slate cards (desktop + mobile parity). */
   .msc-calendar-glass-cell {
     position: relative;
     overflow: hidden;
-    background: rgba(30, 30, 34, 0.38) !important;
-    backdrop-filter: blur(18px) saturate(1.04) !important;
-    -webkit-backdrop-filter: blur(18px) saturate(1.04) !important;
-    border: 1px solid rgba(255, 255, 255, 0.06) !important;
-    border-radius: 18px !important;
+    background: rgba(16, 17, 22, 0.68) !important;
+    backdrop-filter: blur(14px) saturate(1.01) !important;
+    -webkit-backdrop-filter: blur(14px) saturate(1.01) !important;
+    border: 1px solid rgba(255, 255, 255, 0.035) !important;
+    border-radius: 14px !important;
     box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.05),
-      0 2px 12px rgba(0, 0, 0, 0.22) !important;
+      inset 0 1px 0 rgba(255, 255, 255, 0.03),
+      0 1px 2px rgba(0, 0, 0, 0.32) !important;
   }
 
   .msc-calendar-glass-cell::before {
@@ -726,7 +727,7 @@ textarea::placeholder {
     inset: 0;
     z-index: 0;
     border-radius: inherit;
-    background: linear-gradient(125deg, rgba(255, 255, 255, 0.06) 0%, rgba(255, 255, 255, 0.02) 28%, rgba(255, 255, 255, 0) 50%);
+    background: linear-gradient(120deg, rgba(255, 255, 255, 0.04) 0%, rgba(255, 255, 255, 0.012) 26%, rgba(255, 255, 255, 0) 52%);
     pointer-events: none;
   }
 
@@ -750,26 +751,38 @@ textarea::placeholder {
     }
   }
 
-  /** Desktop month matrix: very flat frosted cells (grey ref). */
+  /** Desktop month matrix: flatter, even slate cards like mobile tone. */
   .msc-calendar-glass-cell.msc-calendar-glass-cell--matrix {
-    border-radius: 18px !important;
-    background: rgba(26, 26, 30, 0.34) !important;
-    backdrop-filter: blur(14px) saturate(1.02) !important;
-    -webkit-backdrop-filter: blur(14px) saturate(1.02) !important;
-    border: 1px solid rgba(255, 255, 255, 0.05) !important;
+    border-radius: 12px !important;
+    background: rgba(15, 16, 20, 0.78) !important;
+    backdrop-filter: blur(8px) saturate(0.98) !important;
+    -webkit-backdrop-filter: blur(8px) saturate(0.98) !important;
+    border: 1px solid rgba(255, 255, 255, 0.03) !important;
     box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.035),
-      0 1px 3px rgba(0, 0, 0, 0.18) !important;
+      inset 0 1px 0 rgba(255, 255, 255, 0.025),
+      0 1px 2px rgba(0, 0, 0, 0.34) !important;
   }
 
   .msc-calendar-glass-cell.msc-calendar-glass-cell--matrix::before {
     background: linear-gradient(
       98deg,
-      rgba(255, 255, 255, 0.045) 0%,
-      rgba(255, 255, 255, 0.01) 30%,
-      rgba(255, 255, 255, 0) 55%
+      rgba(255, 255, 255, 0.03) 0%,
+      rgba(255, 255, 255, 0.008) 30%,
+      rgba(255, 255, 255, 0) 58%
     );
-    opacity: 0.9;
+    opacity: 0.62;
+  }
+
+  /** Calendar day-detail modal: neutral dark shell (avoid clients-style bevel). */
+  .msc-calendar-detail-dialog {
+    background: linear-gradient(180deg, rgba(20, 21, 25, 0.95) 0%, rgba(11, 12, 14, 0.96) 100%) !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    border-radius: 20px !important;
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.05),
+      0 18px 40px rgba(0, 0, 0, 0.58) !important;
+    backdrop-filter: blur(14px) saturate(0.98) !important;
+    -webkit-backdrop-filter: blur(14px) saturate(0.98) !important;
   }
 
   .msc-calendar-glass-inset {

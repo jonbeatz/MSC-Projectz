@@ -23,7 +23,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 
-const DOW = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+const DOW = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
 
 /** Max tasks shown in cell preview; remainder summarized as "+ N more". */
 const CELL_PREVIEW_LIMIT = 3
@@ -223,19 +223,22 @@ export function CalendarGrid({
             <div className="w-full min-w-0 shrink-0 rounded-[1.25rem] md:min-w-[56rem]">
               <div
                 className={cn(
-                  'grid gap-2 overflow-hidden rounded-[1.25rem] border border-white/[0.06] bg-white/[0.025] p-1.5 backdrop-blur-sm',
-                  'grid-cols-7 md:min-h-0 md:overflow-hidden',
+                  'overflow-hidden rounded-[1.2rem] border border-white/[0.045] bg-black/22 p-1.5 backdrop-blur-xs',
+                  'md:min-h-0 md:overflow-hidden',
                 )}
               >
-                {DOW.map((d) => (
-                  <div
-                    key={d}
-                    className="rounded-lg border-b border-transparent bg-white/[0.035] px-2 py-2.5 text-center text-[11px] font-medium tracking-wide text-muted-foreground/90"
-                  >
-                    {d}
-                  </div>
-                ))}
-                {cellRows.map(
+                <div className="grid grid-cols-7 gap-1.5">
+                  {DOW.map((d) => (
+                    <div
+                      key={d}
+                      className="h-8 rounded-md border border-white/[0.04] bg-black/20 px-2 text-center text-[10px] font-medium tracking-wide text-muted-foreground/72"
+                    >
+                      <span className="inline-flex h-full items-center justify-center truncate">{d}</span>
+                    </div>
+                  ))}
+                </div>
+                <div className="mt-1.5 grid grid-cols-7 gap-1.5 md:auto-rows-[9.1rem]">
+                  {cellRows.map(
                   ({
                     day,
                     ymd,
@@ -247,7 +250,7 @@ export function CalendarGrid({
                     isToday,
                     dayAriaLabel,
                   }) => (
-                    <div key={ymd} className="flex min-h-0 min-w-0 md:h-full md:min-h-0 md:flex-col">
+                    <div key={ymd} className="flex min-h-0 min-w-0 md:h-[9.1rem] md:min-h-0 md:flex-col">
                       <div
                         role="button"
                         tabIndex={0}
@@ -260,28 +263,27 @@ export function CalendarGrid({
                         }}
                         className={cn(
                           'msc-calendar-glass-cell msc-calendar-glass-cell--matrix group flex min-h-0 min-w-0 cursor-pointer flex-col gap-1.5 overflow-hidden px-2.5 py-2 text-left transition',
-                          'md:h-full md:min-h-28 md:max-h-44 md:flex-1',
+                          'md:h-full md:min-h-0 md:max-h-none',
                           inMonth
                             ? isSel
-                              ? 'ring-1 ring-dashed ring-white/28 ring-inset hover:bg-white/[0.04]'
+                              ? 'ring-1 ring-dashed ring-white/22 ring-inset hover:bg-white/[0.03]'
                               : cn(
-                                  'hover:bg-white/[0.04]',
-                                  isToday &&
-                                    'shadow-[inset_0_0_28px_rgba(255,255,255,0.05)] ring-1 ring-inset ring-white/[0.1]',
+                                  'hover:bg-white/[0.025]',
+                                  isToday && 'shadow-[inset_0_0_26px_rgba(255,255,255,0.04)] ring-1 ring-inset ring-white/[0.08]',
                                 )
-                            : 'opacity-[0.42] ring-1 ring-dashed ring-white/[0.08] ring-inset',
+                            : 'opacity-[0.36] ring-1 ring-dashed ring-white/[0.05] ring-inset',
                         )}
                         aria-label={dayAriaLabel}
                         aria-pressed={isSel}
                       >
                         <span
                           className={cn(
-                            'mb-1 w-7 shrink-0 rounded-lg py-0.5 text-center text-[10px] font-medium tabular-nums md:text-xs',
+                            'mb-1 w-7 shrink-0 rounded-md py-0.5 text-center text-[10px] font-medium tabular-nums md:text-xs',
                             !inMonth && 'text-muted-foreground/45',
                             inMonth &&
                               (isToday
-                                ? 'bg-white/[0.08] text-foreground ring-1 ring-inset ring-white/[0.1] shadow-[inset_0_0_14px_rgba(255,255,255,0.06)]'
-                                : 'text-foreground/88'),
+                                ? 'bg-white/[0.065] text-foreground ring-1 ring-inset ring-white/[0.09] shadow-[inset_0_0_12px_rgba(255,255,255,0.05)]'
+                                : 'text-foreground/84'),
                           )}
                         >
                           {String(day.getDate())}
@@ -315,6 +317,7 @@ export function CalendarGrid({
                     </div>
                   ),
                 )}
+                </div>
               </div>
             </div>
           </div>
@@ -325,7 +328,7 @@ export function CalendarGrid({
         <DialogContent
           showCloseButton
           className={cn(
-            'msc-clients-glass-card max-h-[min(88vh,40rem)] max-w-[calc(100%-2rem)] gap-0 overflow-hidden border-border p-0 sm:max-w-lg',
+              'msc-calendar-detail-dialog max-h-[min(88vh,40rem)] max-w-[calc(100%-2rem)] gap-0 overflow-hidden border-border p-0 sm:max-w-lg',
             'bg-card/90 text-foreground',
           )}
         >

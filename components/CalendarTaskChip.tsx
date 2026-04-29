@@ -134,7 +134,7 @@ const CalendarTaskChipImpl = function CalendarTaskChip({
         role="button"
         tabIndex={0}
         className={cn(
-          'relative flex w-full min-w-0 cursor-default items-center gap-2 rounded-lg border border-white/[0.08] bg-white/[0.04] py-2 pl-2.5 pr-2 text-left text-[10px] font-medium text-foreground shadow-none transition hover:border-white/[0.1] hover:bg-white/[0.08] md:min-h-[36px]',
+          'relative flex w-full min-w-0 cursor-default items-center gap-2 rounded-md border border-white/[0.055] bg-white/[0.025] py-2 pl-2.5 pr-2 text-left text-[10px] font-medium text-foreground/90 shadow-none transition hover:border-white/[0.085] hover:bg-white/[0.05] md:min-h-[34px]',
           'pointer-events-auto',
           status === 'done' && 'opacity-75',
           className,

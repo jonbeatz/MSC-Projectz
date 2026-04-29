@@ -41,6 +41,23 @@ Light theme keeps classic **`lg:ml-64` / `lg:ml-16`** flush sidebar.
 
 - **`--msc-ui-accent-hex`** defaults to **`#599ede`**; Tailwind maps **`msc-ui-accent`** / **`color-msc-ui-accent`** in `app/globals.css`. Use for Command Center highlights (cards, pulses, selects) so polish stays **one family** with Dashboard/Tasks/Clients.
 
+## Jedi Magic signature (dashboard + right drawers)
+
+- Keep Dashboard as the **stable base layer** and right-side focus drawers as the **primary workspace motion**.
+- Right drawers should feel docked to the shell (shared dark/frost treatment), not like separate floating apps.
+- Preserve this order: **grid -> right drawer -> centered modal**.
+- Use accent blue for active edges/state cues only; keep surface hierarchy mostly neutral.
+
+## Calendar final (operator-approved dark studio pass)
+
+Use this when asked to “match the final calendar look”:
+
+1. **Desktop weekday row** uses full names (`Monday`…`Sunday`) and stays slimmer than day tiles.
+2. **Month cells** are equal-height on desktop (fixed auto rows); task count must not stretch card height.
+3. **Visual tone** is neutral dark slate (less blue/saturation), flatter cards, subtle grey perimeter strokes.
+4. **Day-detail modal** uses neutral dark shell (`msc-calendar-detail-dialog`), and close `X` must remain reliably clickable.
+5. Keep parity with mobile tone: calm, dense, minimal gloss.
+
 ## Sidebar composition (`dashboard-sidebar.tsx`)
 
 - **Workspace** caps label + primary routes.
@@ -57,3 +74,4 @@ Light theme keeps classic **`lg:ml-64` / `lg:ml-16`** flush sidebar.
 
 - More collapsible groups (mirror NavRef3).
 - Light-theme frosted variant if product wants parity.
+- If this visual language drifts, apply **`.cursor/skills/MSC-Skillz/Jedi-Dashboard-Magic/SKILL.md`**.
