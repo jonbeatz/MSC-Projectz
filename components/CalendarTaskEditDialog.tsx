@@ -114,14 +114,14 @@ export function CalendarTaskEditDialog({
     >
       <DialogContent
         className={cn(
-          'max-h-[min(90vh,640px)] overflow-y-auto sm:max-w-lg',
-          'border border-border/60 bg-card/95 text-foreground shadow-xl backdrop-blur',
+          'msc-clients-glass-card max-h-[min(90vh,640px)] overflow-y-auto sm:max-w-lg',
+          'border border-border/50 bg-card/90 text-foreground shadow-2xl backdrop-blur-xl',
         )}
         onOpenAutoFocus={(e) => e.preventDefault()}
       >
         <DialogHeader>
           <div className="flex items-center gap-2">
-            <Pencil className="h-4 w-4 text-msc-gold" />
+            <Pencil className="h-4 w-4 text-muted-foreground" />
             <DialogTitle>Edit task</DialogTitle>
           </div>
           <DialogDescription className="text-left text-muted-foreground">

@@ -29,6 +29,17 @@ export function msc_formatDateKeyLocal(d: Date): string {
   return format(d, 'yyyy-MM-dd')
 }
 
+/**
+ * Single calendar-day key for parity / diffing. Handles `Date`, ISO strings from
+ * server-action JSON, and Payload date fields — avoids `String(Date)` vs ISO mismatches.
+ */
+export function msc_canonicalDueYmdForCompare(raw: unknown): string | null {
+  if (raw == null || raw === '') return null
+  const d = raw instanceof Date ? raw : new Date(raw as string | number)
+  if (!isValid(d)) return null
+  return msc_formatDateKeyLocal(d)
+}
+
 /** `yyyy-MM-dd` from a task’s due date, or null. */
 export function msc_dueDateKeyFromTask(t: Task): string | null {
   const due = t.dueDate

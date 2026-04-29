@@ -43,6 +43,7 @@ export default function Msc_CalendarPage() {
   const [agendaOpen, setAgendaOpen] = useState(false)
   const [addOpen, setAddOpen] = useState(false)
   const [clientsById, setClientsById] = useState<Map<string, string>>(new Map())
+  const [clientsHydrated, setClientsHydrated] = useState(false)
   const [dayDetailsByYmd, setDayDetailsByYmd] = useState<Record<string, DayDetail>>({})
   const loggedAggregationFallbackRef = useRef(false)
   const [editing, setEditing] = useState<{
@@ -62,12 +63,15 @@ export default function Msc_CalendarPage() {
   useEffect(() => {
     let cancelled = false
     void msc_listClients().then((res) => {
-      if (cancelled || !res.ok) return
-      const map = new Map<string, string>()
-      for (const c of res.clients) {
-        map.set(String(c.id), String(c.name))
+      if (cancelled) return
+      if (res.ok) {
+        const map = new Map<string, string>()
+        for (const c of res.clients) {
+          map.set(String(c.id), String(c.name))
+        }
+        setClientsById(map)
       }
-      setClientsById(map)
+      setClientsHydrated(true)
     })
     return () => {
       cancelled = true
@@ -96,7 +100,7 @@ export default function Msc_CalendarPage() {
       const res = await msc_getCalendarDayDetailsRange({ startYmd, endYmd, includeDone: true })
       setDayDetailsByYmd(res.byDay)
 
-      if (process.env.NODE_ENV !== 'production') {
+      if (process.env.NODE_ENV !== 'production' && clientsHydrated) {
         const clientByDay: Record<string, DayDetail> = {}
         for (const ymd of sortedDayKeys) {
           clientByDay[ymd] = buildDayDetail(ymd, projects, byDay, clientsById)
@@ -120,7 +124,7 @@ export default function Msc_CalendarPage() {
       }
       setDayDetailsByYmd(fallbackByDay)
     }
-  }, [byDay, calendarView, clientsById, forceFallback, projects, selectedYmd])
+  }, [byDay, calendarView, clientsById, clientsHydrated, forceFallback, projects, selectedYmd])
 
   useEffect(() => {
     void loadCalendarData()
@@ -192,24 +196,23 @@ export default function Msc_CalendarPage() {
   )
 
   return (
-    <div className="flex min-h-0 w-full min-w-0 flex-1 flex-col gap-4 p-3 sm:gap-6 sm:p-6">
+    <div className="msc-calendar-route-bg relative flex min-h-0 w-full min-w-0 flex-1 flex-col gap-3 rounded-2xl p-3 sm:gap-4 sm:p-6">
       <header
         className={cn(
-          'flex min-w-0 flex-col gap-3 rounded-xl border border-border/50 bg-card/30 p-3 shadow-inner sm:p-4',
-          'backdrop-blur-md',
-          'md:flex-row md:items-center md:justify-between',
+          'msc-calendar-glass-panel relative z-[1] flex min-h-10 min-w-0 flex-col gap-2 px-3 py-2',
+          'md:flex-row md:items-center md:justify-between md:gap-3',
         )}
       >
-        <div className="flex min-w-0 items-center gap-2.5 sm:gap-3">
-          <div className="grid h-10 w-10 shrink-0 place-content-center rounded-lg border border-msc-gold/25 bg-msc-gold/10 text-msc-gold">
-            <CalendarIcon className="h-5 w-5" />
+        <div className="flex min-w-0 items-center gap-2">
+          <div className="grid h-8 w-8 shrink-0 place-content-center rounded-lg border border-white/12 bg-black/35 text-muted-foreground backdrop-blur-sm">
+            <CalendarIcon className="h-4 w-4" />
           </div>
-          <div>
-            <h1 className="text-lg font-semibold tracking-tight text-foreground sm:text-xl">Calendar</h1>
-            <p className="truncate text-xs text-muted-foreground sm:text-sm">{rangeLabel}</p>
+          <div className="min-w-0">
+            <h1 className="text-base font-semibold tracking-tight text-foreground sm:text-lg">Calendar</h1>
+            <p className="truncate text-xs text-muted-foreground">{rangeLabel}</p>
           </div>
         </div>
-        <div className="flex min-w-0 flex-wrap items-center justify-center gap-2 sm:gap-2.5 md:justify-end">
+        <div className="flex min-w-0 flex-wrap items-center justify-center gap-2 md:justify-end">
           <div
             className="inline-flex rounded-lg border border-border/50 bg-card/30 p-0.5"
             role="group"
@@ -218,7 +221,10 @@ export default function Msc_CalendarPage() {
             <Button
               type="button"
               variant="ghost"
-              className={cn('h-8 min-w-0 px-3', calendarView === 'month' && 'bg-msc-gold/15 text-msc-gold')}
+              className={cn(
+                'h-8 min-w-0 px-3',
+                calendarView === 'month' && 'bg-white/10 text-foreground ring-1 ring-inset ring-white/12',
+              )}
               onClick={() => onView('month')}
             >
               Month
@@ -226,7 +232,10 @@ export default function Msc_CalendarPage() {
             <Button
               type="button"
               variant="ghost"
-              className={cn('h-8 min-w-0 px-3', calendarView === 'week' && 'bg-msc-gold/15 text-msc-gold')}
+              className={cn(
+                'h-8 min-w-0 px-3',
+                calendarView === 'week' && 'bg-white/10 text-foreground ring-1 ring-inset ring-white/12',
+              )}
               onClick={() => onView('week')}
             >
               Week
@@ -261,7 +270,7 @@ export default function Msc_CalendarPage() {
         </div>
       </header>
 
-      <div className="grid min-h-0 flex-1 grid-cols-1 items-stretch gap-4 md:grid-cols-[minmax(0,1fr)_minmax(0,20rem)] xl:grid-cols-[minmax(0,1fr)_minmax(0,24rem)]">
+      <div className="grid min-h-0 flex-1 grid-cols-1 items-stretch gap-4 md:grid-cols-[minmax(28rem,1fr)_minmax(18rem,22rem)] xl:grid-cols-[minmax(32rem,1fr)_minmax(20rem,24rem)]">
         <CalendarGrid
           calendarView={calendarView}
           selectedYmd={selectedYmd}

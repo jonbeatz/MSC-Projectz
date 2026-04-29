@@ -26,6 +26,13 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+import {
   AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,
@@ -314,14 +321,20 @@ export function MSC_Projectz_ClientDrawer({
 
   const content = (
     <>
-      <div className="flex flex-wrap items-start justify-between gap-2 pr-8">
-        <div className="min-w-0 flex-1">
+      <SheetTitle className="sr-only">MSC CRM client detail</SheetTitle>
+      <SheetDescription className="sr-only">
+        Client profile, pulse metrics, and vault shortcuts for this account.
+      </SheetDescription>
+      <div className="relative z-1 shrink-0 border-b border-white/10 px-4 pt-3 pr-14 pb-3">
+        <div className="flex min-w-0 flex-wrap items-start justify-between gap-2">
+          <div className="min-w-0 flex-1">
           <h2 className="text-lg leading-tight font-semibold">{loading ? 'Loading…' : title}</h2>
           {!loading && detail && (
             <Badge variant={msc_statusBadgeVariant(status)} className="mt-2 capitalize">
               {status}
             </Badge>
           )}
+        </div>
         </div>
       </div>
       {error && !msc_isQuietInfrastructureUiMessage(error) ? (
@@ -344,10 +357,41 @@ export function MSC_Projectz_ClientDrawer({
             onValueChange={(v) => setActiveTab(v as MSC_Projectz_ClientDrawerTab)}
             className="flex min-h-0 flex-1 flex-col gap-0"
           >
-            <TabsList className="w-full shrink-0 justify-start rounded-none border-b border-border bg-background/60 px-4 py-2">
-              <TabsTrigger value="details">Details</TabsTrigger>
-              <TabsTrigger value="pulse">Pulse</TabsTrigger>
-              <TabsTrigger value="vault">Vault</TabsTrigger>
+            <TabsList
+              className={cn(
+                'h-auto w-full shrink-0 flex-nowrap justify-stretch gap-2 rounded-none border-b border-white/10 bg-black/30 p-2 backdrop-blur-md supports-backdrop-filter:bg-black/20',
+              )}
+            >
+              <TabsTrigger
+                value="details"
+                className={cn(
+                  'min-h-9 flex-1 rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-xs font-semibold tracking-wide text-muted-foreground shadow-none',
+                  'data-[state=active]:border-white/22 data-[state=active]:bg-white/10 data-[state=active]:text-foreground',
+                  'dark:data-[state=active]:border-white/22 dark:data-[state=active]:bg-white/10 dark:data-[state=active]:text-foreground',
+                )}
+              >
+                Details
+              </TabsTrigger>
+              <TabsTrigger
+                value="pulse"
+                className={cn(
+                  'min-h-9 flex-1 rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-xs font-semibold tracking-wide text-muted-foreground shadow-none',
+                  'data-[state=active]:border-white/22 data-[state=active]:bg-white/10 data-[state=active]:text-foreground',
+                  'dark:data-[state=active]:border-white/22 dark:data-[state=active]:bg-white/10 dark:data-[state=active]:text-foreground',
+                )}
+              >
+                Pulse
+              </TabsTrigger>
+              <TabsTrigger
+                value="vault"
+                className={cn(
+                  'min-h-9 flex-1 rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-xs font-semibold tracking-wide text-muted-foreground shadow-none',
+                  'data-[state=active]:border-white/22 data-[state=active]:bg-white/10 data-[state=active]:text-foreground',
+                  'dark:data-[state=active]:border-white/22 dark:data-[state=active]:bg-white/10 dark:data-[state=active]:text-foreground',
+                )}
+              >
+                Vault
+              </TabsTrigger>
             </TabsList>
 
             <TabsContent
@@ -435,26 +479,27 @@ export function MSC_Projectz_ClientDrawer({
                         <Label htmlFor="msc-client-status" className="text-[11px] uppercase tracking-wide text-muted-foreground">
                           Status
                         </Label>
-                        <select
-                          id="msc-client-status"
+                        <Select
                           value={draftProfile.status}
-                          onChange={(e) =>
-                            setDraftProfile((d) =>
-                              d ? { ...d, status: e.target.value } : d,
-                            )
+                          onValueChange={(v) =>
+                            setDraftProfile((d) => (d ? { ...d, status: v } : d))
                           }
                           disabled={profileSaving}
-                          className={cn(
-                            'flex h-10 w-full rounded-md border border-border bg-background px-3 py-2 text-sm text-foreground shadow-sm',
-                            'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--msc-accent)]/40',
-                          )}
                         >
-                          {MSC_CLIENT_STATUS_OPTIONS.map((opt) => (
-                            <option key={opt} value={opt}>
-                              {opt.charAt(0).toUpperCase() + opt.slice(1)}
-                            </option>
-                          ))}
-                        </select>
+                          <SelectTrigger
+                            id="msc-client-status"
+                            className="h-10 w-full border-border bg-background/80 text-foreground shadow-sm backdrop-blur-sm focus-visible:ring-white/25"
+                          >
+                            <SelectValue placeholder="Status" />
+                          </SelectTrigger>
+                          <SelectContent className="border-border bg-card/95 text-foreground backdrop-blur-xl">
+                            {MSC_CLIENT_STATUS_OPTIONS.map((opt) => (
+                              <SelectItem key={opt} value={opt} className="capitalize">
+                                {opt.charAt(0).toUpperCase() + opt.slice(1)}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
                       </div>
                       <div className="space-y-2">
                         <Label
@@ -553,7 +598,7 @@ export function MSC_Projectz_ClientDrawer({
                         >
                           Cancel
                         </Button>
-                        <Button type="submit" disabled={profileSaving} className="min-w-[5.5rem]">
+                        <Button type="submit" disabled={profileSaving} className="min-w-22">
                           {profileSaving ? (
                             <>
                               <Loader2 className="animate-spin" aria-hidden />
@@ -820,13 +865,9 @@ export function MSC_Projectz_ClientDrawer({
       <SheetContent
         side="right"
         className={cn(
-          'flex w-full flex-col gap-0 overflow-hidden border-border bg-card p-0 sm:max-w-xl',
+          'flex w-full flex-col gap-0 overflow-hidden border-l border-white/10 bg-background/80 p-0 shadow-2xl backdrop-blur-xl supports-backdrop-filter:bg-background/55 sm:max-w-xl',
         )}
       >
-        <SheetHeader className="border-b border-border px-4 py-4 text-left">
-          <SheetTitle className="sr-only">MSC CRM client detail</SheetTitle>
-          <SheetDescription className="sr-only">MSC CRM client detail</SheetDescription>
-        </SheetHeader>
         {content}
       </SheetContent>
     </Sheet>

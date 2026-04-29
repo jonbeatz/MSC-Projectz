@@ -1,4 +1,4 @@
-import type { DayDetail } from '@/lib/msc_calendar_utils'
+import { msc_canonicalDueYmdForCompare, type DayDetail } from '@/lib/msc_calendar_utils'
 
 type MscParityCheckResult = {
   match: boolean
@@ -19,7 +19,7 @@ function msc_normalizeDayDetail(detail: DayDetail) {
         status: String(item.task.status || ''),
         completed: Boolean(item.task.completed),
         archived: Boolean(item.task.archived),
-        dueDate: item.task.dueDate == null ? null : String(item.task.dueDate),
+        dueDate: msc_canonicalDueYmdForCompare(item.task.dueDate),
       },
     })),
     clientGroupedItems: detail.clientGroupedItems.map((group) => ({

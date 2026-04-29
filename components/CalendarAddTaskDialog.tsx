@@ -82,8 +82,8 @@ export function CalendarAddTaskDialog({
     >
       <DialogContent
         className={cn(
-          'max-h-[min(90vh,560px)] overflow-y-auto sm:max-w-md',
-          'border border-border/60 bg-card/95 text-foreground shadow-xl backdrop-blur',
+          'msc-clients-glass-card max-h-[min(90vh,560px)] overflow-y-auto sm:max-w-md',
+          'border border-border/50 bg-card/90 text-foreground shadow-2xl backdrop-blur-xl',
         )}
       >
         <DialogHeader>
@@ -176,7 +176,7 @@ export function CalendarAddTaskDialog({
               }
             }}
             disabled={busy || projects.length === 0 || !title.trim() || !projectId}
-            className="bg-msc-gold text-msc-gold-foreground hover:brightness-95"
+            className="border border-white/15 bg-black/40 text-foreground shadow-sm backdrop-blur-md hover:border-white/22 hover:bg-black/55"
           >
             {busy ? 'Saving…' : 'Add task'}
           </Button>

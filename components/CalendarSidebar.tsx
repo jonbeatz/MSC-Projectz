@@ -22,7 +22,7 @@ export function CalendarSidebar({
   return (
     <aside
       className={cn(
-        'hidden min-h-0 w-full min-w-0 flex-col overflow-hidden rounded-xl border border-border/50 bg-card/25 shadow-inner md:flex',
+        'msc-calendar-glass-panel relative z-[1] hidden min-h-0 w-full min-w-0 flex-col overflow-hidden md:flex',
         'md:max-w-[20rem] lg:max-w-[20rem] xl:max-w-[24rem]',
         className,
       )}
