@@ -486,6 +486,12 @@ export async function msc_login(email: string, password: string): Promise<MscLog
   }
 }
 
+/** True when Payload sees an authenticated user for this request (httpOnly cookies). */
+export async function msc_peekVaultServerSession(): Promise<{ ok: boolean }> {
+  const ctx = await msc_getVaultLocalApiContext()
+  return { ok: Boolean(ctx.user) }
+}
+
 /**
  * Load vault projects and tasks for the current Payload session. Access rules
  * on `msc-vault-projects` apply: **admin** users get the full collection;
@@ -496,7 +502,11 @@ export async function msc_loadVaultProjects(): Promise<Project[]> {
   const o = msc_vaultLocalApiOptions(ctx)
   const { payload } = ctx
   await msc_logVaultAuthDebug('load projects', ctx.user)
-  const u = msc_requireVaultSessionUser(ctx, 'fetch vault projects')
+  if (!ctx.user) {
+    console.warn('[MSC] msc_loadVaultProjects: no Payload session on server (returning empty list)')
+    return []
+  }
+  const u = ctx.user as MscVaultSessionUser
   console.log('SERVER: Fetching projects for User ID:', u.id)
   /** Defense in depth: app runtime reads projects owned by or shared with the current user. */
   const projectWhere: Where = {

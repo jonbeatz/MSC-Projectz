@@ -12,6 +12,7 @@ This folder contains utility scripts for local development, recovery, data maint
 - `msc_playwright_command.mjs`
 - `msc_playwright_open_session.mjs`
 - `msc_playwright_test.mjs`
+- `msc_playwright_dump_dom.mjs` (`npm run playwright:dump-dom` — DOM/links/a11y → `Playwright-Tests/dom-handoff-latest.json`)
 - `msc_promote_user_to_master.mjs`
 - `msc_rescue_admin.ts`
 - `msc_seed_data.ts`
@@ -31,7 +32,6 @@ These scripts were moved to `scripts/archive/` and are not part of normal workfl
 - `archive/msc_backfill_project_thumbnails_to_media.ts`
 - `archive/msc_cleanup_legacy_project_thumbnails.ts`
 - `archive/msc_sync_media_files_to_collection.ts`
-- `archive/msc_playwright_manual_clients_glass_check.mjs`
 - `archive/msc_package_for_production.mjs` (deprecated; `package:production` now aliases to `package:deploy`)
 
 If one-time scripts are re-used, promote them to canonical scripts and add an explicit `package.json` command.

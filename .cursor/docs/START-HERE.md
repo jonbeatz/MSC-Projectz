@@ -41,11 +41,28 @@ If localhost is broken, follow recovery in `FlightPro.md` and `Agent-Runbook.md`
 - Media cleanup dry-run (owner-safe): `$env:MSC_OWNER_ID='<id>'; npm run media:cleanup:dry`
 - Release package: `npm run pushitlive`
 - Playwright (open dedicated browser session): `npm run playwright:open`
-- Playwright (run harness without killing normal Brave): `npm run playwright:test`
+- Playwright (headed assist harness): **`npm run playwright:test`** (alias **`npm run playwright:assist`**) — see **Run Playwright Test** below and **`.cursor/docs/incidents/Playwright-Manual-Assist-Runbook.md`**
+- Playwright DOM snapshot for the agent (`Playwright-Tests/dom-handoff-latest.json`): `npm run playwright:open` then `npm run playwright:dump-dom` (see `.cursor/docs/incidents/Playwright-DOM-Handoff.md`)
+- Playwright CDP port stuck (open session only, does not kill all Brave): `MSC_KILL_BRAVE_MODE=port npm run playwright:open`
 - Playwright hard reset mode (only if needed): `MSC_KILL_BRAVE_MODE=all npm run playwright:test`
+
+### Run Playwright Test (`npm run playwright:test`)
+
+**What it is:** Headed **Brave** (or Chromium fallback) using the **isolated** profile **`Playwright-Tests/brave-profile`** — not your everyday Brave — so automation does not log you out of personal browsing.
+
+**What it should do (defaults):**
+
+1. Open **`http://localhost:3000/dashboard`** (override with **`MSC_BASE_URL`**, **`MSC_START_PATH`**).
+2. Click **Local Dev Trust Bypass** when that button is visible (dev gate only; not on a bare login screen).
+3. With **no** **`MSC_SELECTOR`**, keep the window **open** for manual work (**`assistStayOpen`**) until you **Ctrl+C** the terminal job — even if the shell has **`MSC_INTERACTIVE=false`**. Set **`MSC_PLAYWRIGHT_ONE_SHOT=1`** only when you want a **quick exit** after the snapshot.
+4. While running, refresh **`Playwright-Tests/assist-state.json`** (URL, header label, **tab list**) so the agent can read local context — not a live video feed.
+5. Optional: **`MSC_TARGET_PATH`**, **`MSC_SELECTOR`**, **`MSC_TAKE_SCREENSHOT=true`**, **`MSC_KEEP_OPEN_MS`** — see the **Playwright Manual-Assist Runbook**.
+
+**Operator phrase “Run Playwright Test”:** from repo root run **`npm run playwright:test`** in a **background** terminal so it keeps running; agent may read **`assist-state.json`** / logs you paste. **Full SOP:** **`.cursor/docs/incidents/Playwright-Manual-Assist-Runbook.md`**.
 
 ### Operator quick phrases (notes)
 
+- `run playwright test` / `Run Playwright Test` → **`npm run playwright:test`** (background), then use Playwright Brave + **`assist-state.json`** as needed (see **Run Playwright Test** above).
 - `run media cleanup` -> owner-scoped dry-run (`npm run media:cleanup`) + confirmation prompt before apply.
 - `run media cleanup apply` -> owner-scoped apply (`npm run media:cleanup:run`) only after explicit yes/confirm.
 - Keep media cleanup owner-scoped by default; use global scope only when explicitly requested.
@@ -59,6 +76,7 @@ If localhost is broken, follow recovery in `FlightPro.md` and `Agent-Runbook.md`
 
 ### Known fixes (do this first)
 
+- **Dashboard “Authentication required to fetch vault projects” while UI looks signed in:** client/store raced ahead of **Payload httpOnly** session on the first server action. **Do not** revert the mitigation — read **`.cursor/docs/incidents/Vault-Session-Hydration-Race.md`**. Use **one** local origin (`127.0.0.1` *or* `localhost`, not both) for cookies.
 - **Payload admin crash (`/admin/login` 500, `CodeEditor` config undefined):** ensure `app/(payload)/layout.tsx` uses Payload `RootLayout` wiring with `config` + `importMap` + `handleServerFunctions` serverFunction.
 - **After any admin layout/component wiring change:** run `npm run generate:importmap`, then `npm run verify:next`, then `npm run dev`, then smoke `/` + `/admin`.
 - **Reference records:** see latest resolved incident in `Session-Snapshots.md` (`2026-04-27 08:11`) and permanent guardrail in `Agent-Runbook.md` (`Payload admin guardrail` section).

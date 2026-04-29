@@ -1,0 +1,25 @@
+---
+description: When Jon asks to run Playwright manual-assist, start headed Brave + trust bypass + wait for operator
+alwaysApply: true
+---
+
+# Playwright manual-assist (operator phrase)
+
+When the operator says things like **"run playwright test"**, **"Run Playwright Test"**, **"playwright assist"**, or **"start playwright for manual testing"**:
+
+- That phrase **alone** means start headed assist on **their machine**; do not ask for a redundant **“browser is open”** unless debugging.
+- The agent **cannot** see their screen unless they paste output, a screenshot, or describe the UI; use **`Playwright-Tests/assist-state.json`** after the harness is running.
+
+1. **From repo root**, run **`npm run playwright:test`** (alias: **`npm run playwright:assist`** — same harness).
+2. **Run it in a background terminal** (`block_until_ms: 0` or equivalent) so the process keeps running: the harness stays in an interactive loop until **Ctrl+C** in that terminal. Do **not** run it in the foreground and then wait for exit — that blocks the session and can look like a "flash close" if the tool times out.
+3. **`MSC_PLAYWRIGHT_ONE_SHOT=1`** exits after the snapshot (no infinite loop). No-selector assist **stays open by default** even if the shell inherited **`MSC_INTERACTIVE=false`**.
+4. **Do not** use **`MSC_KILL_BRAVE_MODE=all`** unless the operator explicitly asks for hard Brave recovery (it closes **every** Brave window). For **`playwright:open`** only, **`MSC_KILL_BRAVE_MODE=port`** kills only the process listening on the CDP port (stale assist Brave) — safer than `all`.
+5. **Before** Playwright checks against the app, confirm **`npm run dev`** is listening on **port 3000** when the target is localhost (otherwise the browser has nothing to load).
+6. After assist is running, read **`Playwright-Tests/assist-state.json`** (refreshed ~1s in interactive mode) for **`href`**, **`pathname`**, **`headerSessionLabel`**, **`tabCount`**, and **`tabs`** (each tab’s `url` / `title` in this Playwright browser context — not tabs in a separate personal Brave window).
+7. For **links / images / accessibility tree** (old MCP-style dumps), have the operator run **`npm run playwright:dump-dom`** after **`playwright:open`**, then read **`Playwright-Tests/dom-handoff-latest.json`** (see **`Playwright-DOM-Handoff.md`**).
+8. **Expectations** (defaults in `scripts/msc_playwright_test.mjs`):
+   - Separate Brave user data: **`Playwright-Tests/brave-profile`** (not daily Brave).
+   - Opens **`http://localhost:3000/dashboard`**, auto-clicks **Local Dev Trust Bypass** when that button is **visible** (not on a bare login screen — operator logs in once in that profile).
+   - Browser stays open for follow-up instructions until the operator stops the terminal job (**Ctrl+C**).
+
+If the operator already uses **`npm run playwright:open`** + **`playwright:cmd`**, same isolation rules apply; do not kill global Brave unless **`MSC_KILL_BRAVE_MODE=all`**. Legacy backup always used global taskkill on open — **`MSC_KILL_BRAVE_MODE=port`** reproduces a clean CDP port without closing personal Brave.

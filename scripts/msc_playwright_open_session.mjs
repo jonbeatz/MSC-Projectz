@@ -1,10 +1,21 @@
 #!/usr/bin/env node
+/**
+ * Spawns Brave with a dedicated user-data-dir + remote-debugging-port for CDP command mode.
+ *
+ * MSC_KILL_BRAVE_MODE (Windows):
+ * - `none` (default): do not kill Brave. If CDP port is still busy, close the old Playwright
+ *   window manually or run once with `port` or `all`.
+ * - `port` | `cdp`: kill only PID(s) that are LISTENING on MSC_CDP_PORT (stale CDP — backup
+ *   used global taskkill for this; port mode is the safer equivalent).
+ * - `all`: kill every brave.exe (same as legacy backup — logs you out of normal Brave).
+ */
 import { mkdir, writeFile } from 'node:fs/promises'
 import { existsSync } from 'node:fs'
 import path from 'node:path'
 import { execSync, spawn } from 'node:child_process'
 
 const username = process.env.USERNAME || ''
+const braveKillMode = (process.env.MSC_KILL_BRAVE_MODE || 'none').toLowerCase()
 const bravePath =
   process.env.MSC_BRAVE_PATH ||
   `C:\\Users\\${username}\\AppData\\Local\\BraveSoftware\\Brave-Browser\\Application\\brave.exe`
@@ -16,6 +27,29 @@ const profileDir = process.env.MSC_PROFILE_DIR || path.join(rootDir, 'brave-prof
 const cdpPort = Number(process.env.MSC_CDP_PORT || 9223)
 const sessionFile = path.join(rootDir, 'session.json')
 
+function killListenersOnPortWindows(port) {
+  if (process.platform !== 'win32') return
+  let out = ''
+  try {
+    out = execSync(`netstat -ano | findstr :${port}`, { encoding: 'utf8' })
+  } catch {
+    return
+  }
+  const pids = new Set()
+  for (const line of out.split(/\r?\n/)) {
+    const m = line.trim().match(/LISTENING\s+(\d+)\s*$/)
+    if (m) pids.add(m[1])
+  }
+  for (const pid of pids) {
+    try {
+      execSync(`taskkill /PID ${pid} /F`, { stdio: 'ignore' })
+      console.log(`[playwright-open-session] Killed stale listener PID ${pid} on port ${port}.`)
+    } catch {
+      // ignore
+    }
+  }
+}
+
 async function main() {
   if (!existsSync(bravePath)) {
     throw new Error(`Brave executable not found: ${bravePath}`)
@@ -24,20 +58,28 @@ async function main() {
   await mkdir(rootDir, { recursive: true })
   await mkdir(profileDir, { recursive: true })
 
-  if (process.platform === 'win32') {
+  if (process.platform === 'win32' && braveKillMode === 'all') {
     try {
       execSync('taskkill /IM brave.exe /F', { stdio: 'ignore' })
+      console.log('[playwright-open-session] Cleared Brave (MSC_KILL_BRAVE_MODE=all).')
     } catch {
       // ignore when not running
     }
+  } else if (process.platform === 'win32' && (braveKillMode === 'port' || braveKillMode === 'cdp')) {
+    killListenersOnPortWindows(cdpPort)
   }
 
-  // Free the port if a stale devtools process is holding it.
+  let portBusy = false
   try {
     execSync(`netstat -ano | findstr :${cdpPort}`, { stdio: 'ignore' })
-    // If command succeeds, some process is using the port; leave it alone.
+    portBusy = true
   } catch {
-    // Nothing bound; continue.
+    portBusy = false
+  }
+  if (portBusy && braveKillMode === 'none') {
+    console.warn(
+      `[playwright-open-session] Port ${cdpPort} looks busy. If launch fails, close the old Playwright Brave or run: MSC_KILL_BRAVE_MODE=port npm run playwright:open`,
+    )
   }
 
   const args = [

@@ -13,6 +13,7 @@ import {
   msc_deleteVaultProject,
   msc_deleteVaultTask,
   msc_loadVaultProjects,
+  msc_peekVaultServerSession,
   msc_moveProjectManual,
   msc_toggleVaultTask,
   msc_updateVaultProject,
@@ -378,6 +379,17 @@ export const useAppStore = create<AppState>()(
         }
         const vaultUserId = user.payloadUserId
         try {
+          let peek = await msc_peekVaultServerSession()
+          if (!peek.ok) {
+            await new Promise((r) => setTimeout(r, 450))
+            peek = await msc_peekVaultServerSession()
+          }
+          if (!peek.ok) {
+            console.warn('[MSC] hydrateVaultFromPayload: Payload session missing after retry; purging stale client auth')
+            get().msc_purgeClientSession()
+            set({ projects: [], vaultHydrated: true, vaultUserId: null })
+            return
+          }
           const projects = await msc_loadVaultProjects()
           const activeUser = get().user?.payloadUserId
           if (String(activeUser) !== String(vaultUserId)) {

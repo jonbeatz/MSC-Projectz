@@ -77,7 +77,7 @@ Scripts: `npm run tauri`, `npm run tauri:dev`, `npm run tauri:build` (see `packa
 | Tool | Role |
 | --- | --- |
 | **ESLint** | `npm run lint` |
-| **Playwright** | `npm run playwright:test`, `playwright:open`, `playwright:cmd` — browser automation / smoke (see `scripts/msc_playwright_*.mjs`) |
+| **Playwright** | `npm run playwright:test` / `playwright:assist`, `playwright:open`, `playwright:cmd`, `playwright:dump-dom` — browser automation + DOM handoff (see `scripts/msc_playwright_*.mjs`, `Playwright-DOM-Handoff.md`) |
 | **jiti** | Runs some TS scripts from npm (`db:seed`, `db:rescue-admin`, etc.) |
 
 ---

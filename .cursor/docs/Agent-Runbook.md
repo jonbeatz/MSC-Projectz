@@ -103,7 +103,10 @@ Shared shell: `app/(main)/(command-center)/layout.tsx`, `components/MSC-Projectz
 - Default test behavior should **not** kill all Brave windows. Keep `MSC_KILL_BRAVE_MODE` unset (or `none`).
 - Use global kill only when explicitly needed for recovery:
   - `MSC_KILL_BRAVE_MODE=all npm run playwright:test`
-- If the Playwright profile is already open, `npm run playwright:test` should attach to the existing CDP session (`Playwright-Tests/session.json`) instead of relaunching/failing.
+- If the Playwright profile is already open, `npm run playwright:test` should attach to the existing CDP session (`Playwright-Tests/session.json`) instead of relaunching/failing. If Brave was closed but **`session.json`** is stale, CDP **`ECONNREFUSED`** is handled by deleting **`session.json`** and retrying a fresh launch (see `msc_playwright_test.mjs`).
+- Stale CDP on **`playwright:open`**: `MSC_KILL_BRAVE_MODE=port npm run playwright:open` (kills only the listener on the CDP port). Avoid `all` unless you intend to close every Brave.
+- While **`playwright:test`** runs, **`Playwright-Tests/assist-state.json`** holds `href`, `headerSessionLabel`, **`tabCount`**, and **`tabs`** (per-tab `url` / `title`) for agent readback (gitignored). Operator phrase and full defaults: **`START-HERE.md`** → **Run Playwright Test**; deep dive **`incidents/Playwright-Manual-Assist-Runbook.md`**.
+- **`npm run playwright:dump-dom`** (after **`playwright:open`**) writes **`Playwright-Tests/dom-handoff-latest.json`** — links, `img` srcs, and accessibility snapshot for MCP-style debugging without a `Playwrightfix/` folder (see **`incidents/Playwright-DOM-Handoff.md`**).
 - You can stay logged in simultaneously in both profiles (Playwright + normal Brave); session cookies are isolated per profile.
 
 ## Plan file location rule
@@ -140,6 +143,13 @@ Shared shell: `app/(main)/(command-center)/layout.tsx`, `components/MSC-Projectz
 * Vault server actions: assert Payload user context and ownership; follow patterns in `lib/msc_vault_server_actions.ts`.  
 * Browser-only data: use **`msc_getScopedKey()`** from `lib/msc_scoped_storage.ts` — no global project/snippet/credential keys.  
 * Legacy global project migration from `msc-projectz-storage` stays **disabled** for tenant safety.
+
+### Vault session vs client auth (hydration race)
+
+* **Symptom:** Dashboard Next overlay — **`Authentication required to fetch vault projects`** — while the UI already shows a signed-in header.  
+* **Cause:** Zustand **`isAuthenticated`** can be true **before** **`payload.auth()`** sees httpOnly cookies on the **first** `msc_loadVaultProjects` server action (timing + **localhost vs 127.0.0.1** cookie split).  
+* **Authoritative note:** **`.cursor/docs/incidents/Vault-Session-Hydration-Race.md`** — documents the **`msc_peekVaultServerSession`** retry, non-throwing read path, and **do-not-regress** rules. **Do not** reintroduce **throw** on read-only project list load to “enforce” auth; use **write** paths for hard failures.  
+* **Operator habit:** pick **one** local base URL for the whole session.
 
 ## Profile avatars & member clusters
 

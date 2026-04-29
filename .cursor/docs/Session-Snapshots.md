@@ -13,6 +13,28 @@ Keep newest snapshot at the top.
 
 ---
 
+## 2026-04-29 — Vault hydration race (dashboard “auth required” overlay)
+
+### Session state
+
+- **Outcome:** Documented and hardened client/server vault hydration so “logged in” UI does not race **`msc_loadVaultProjects`** before Payload cookies are visible.
+
+### What was done
+
+- **Code:** `msc_peekVaultServerSession`, retry in `hydrateVaultFromPayload`, and non-throwing empty read in `msc_loadVaultProjects` when `ctx.user` is missing (`lib/msc_vault_server_actions.ts`, `lib/store.ts`).
+- **Docs:** Canonical incident **`.cursor/docs/incidents/Vault-Session-Hydration-Race.md`**; pointers in `START-HERE.md`, `Agent-Runbook.md`, and this snapshot.
+
+### Start-next checklist
+
+1. If dashboard shows auth errors after doc-only merges, read **`Vault-Session-Hydration-Race.md`** before changing vault actions.
+2. Keep **one local host** for sessions (`127.0.0.1` vs `localhost` — do not mix).
+
+### Open risks / blockers
+
+- None specific; regression risk is **re-adding throw** on read-only vault list load — treat as release smell.
+
+---
+
 ## 2026-04-28 — Docs workflow audit + consolidation
 
 ### Session state
@@ -106,7 +128,7 @@ Keep newest snapshot at the top.
   - `media:cleanup` (owner-safe dry-run alias)
   - `media:cleanup:run` (owner-scoped apply alias)
 - Added operator phrase notes for `run media cleanup` and confirmation-before-apply behavior.
-- Fixed unauthenticated vault read noise by returning empty list from `msc_loadVaultProjects` when session is missing (avoids red overlay on local dashboard reads).
+- Intended fix (this commit narrative): reduce unauthenticated vault read **noise** on dashboard. **Full pattern + peek/retry + canonical incident:** see **`incidents/Vault-Session-Hydration-Race.md`** (2026-04-29 snapshot above) — do not drop that doc during consolidation.
 - Added `/dashboard/admin` route redirect to `/admin` to avoid invalid-path runtime overlay and keep operator navigation forgiving.
 - Duplicated `Vader - Test Integration` into `Jedi Master` for local testing; confirmed it appears as a separate project.
 
