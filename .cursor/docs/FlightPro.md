@@ -141,3 +141,4 @@ In **cPanel File Manager** (or SSH), typical fixes:
 - **`START-HERE.md`** — startup contract and ops context.
 - **`Spaceship.md`** — provider/DNS/cPanel context.
 - **`Deploy-Secrets-Workflow.md`** — encrypted secret handling workflow.
+- **`Deploy-Live-Cutover-JonBeatz.md`** — operator step-by-step clean cutover runbook with progress log.

@@ -13,6 +13,32 @@ Keep newest snapshot at the top.
 
 ---
 
+## 2026-04-29 — Live cutover launch map prepared (jon-beatz.com)
+
+### Session state
+
+- **Outcome:** Built and staged a fresh production artifact from `MSC-Projectz-Jedi-Master-v1` and created a dedicated cutover runbook so the next live replacement is step-by-step reproducible.
+
+### What was done
+
+- **Local package:** `npm run deploy:preflight` + `npm run pushitlive` passed; `final_deploy.zip` generated successfully.
+- **Runbook:** added `.cursor/docs/Deploy-Live-Cutover-JonBeatz.md` with exact Local vs Live steps for backup, stop/clean, upload/extract, npm install, permissions, restart, and verification.
+- **Cross-link:** added runbook to `FlightPro.md` related docs.
+- **Live baseline probe:** `jon-beatz.com` currently serves login shell on `/`, `/dashboard`, `/tasks`, `/help`; `/calendar` returned 404 before cutover (captured in runbook log).
+
+### Start-next checklist
+
+1. Open **Live (cPanel)** at `https://server9.shared.spaceship.host:2083/`.
+2. Follow `.cursor/docs/Deploy-Live-Cutover-JonBeatz.md` section **2A** first (backup), then complete sections **2B–3**.
+3. Record final live verification outcomes in the runbook progress table.
+
+### Open risks / blockers
+
+- Live cutover steps require operator cPanel actions (agent cannot click cPanel UI directly in this environment).
+- Preflight still warns `Deploy-Profile.local.json` and `ftpUsername` placeholder; non-blocking for manual upload flow.
+
+---
+
 ## 2026-04-29 — Jedi Magic lock-in (dashboard drawers + calendar final)
 
 ### Session state
