@@ -20,7 +20,12 @@ export function UserAvatar({
       <img
         src={imageSrc}
         alt={fallback}
-        className={cn('h-7 w-7 rounded-lg border border-border object-cover', className)}
+        decoding="async"
+        referrerPolicy="no-referrer"
+        className={cn(
+          'aspect-square h-7 w-7 shrink-0 rounded-lg border border-border bg-muted object-cover object-center',
+          className,
+        )}
       />
     )
   }
@@ -28,7 +33,7 @@ export function UserAvatar({
   return (
     <div
       className={cn(
-        'flex h-7 w-7 items-center justify-center rounded-lg border border-border bg-card',
+        'flex aspect-square h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-border bg-card',
         className,
       )}
       aria-label={fallback}

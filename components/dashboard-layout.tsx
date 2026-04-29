@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { Suspense, useState, useEffect } from 'react'
 import {
   ChevronDown,
   LayoutGrid,
@@ -148,25 +148,33 @@ export function DashboardLayout({ children, onAddProject, searchQuery, onSearchC
 
   return (
     <div className="min-h-screen bg-background">
-      <DashboardSidebar
-        collapsed={sidebarCollapsed}
-        onToggle={() => setSidebarCollapsed(!sidebarCollapsed)}
-        onAddProject={onAddProject}
-        isMobile={isMobile}
-        mobileMenuOpen={mobileMenuOpen}
-        onMobileMenuClose={() => setMobileMenuOpen(false)}
-      />
+      <Suspense fallback={null}>
+        <DashboardSidebar
+          collapsed={sidebarCollapsed}
+          onToggle={() => setSidebarCollapsed(!sidebarCollapsed)}
+          onAddProject={onAddProject}
+          isMobile={isMobile}
+          mobileMenuOpen={mobileMenuOpen}
+          onMobileMenuClose={() => setMobileMenuOpen(false)}
+        />
+      </Suspense>
 
       <main
         className={cn(
           'ml-0 flex min-h-screen flex-1 flex-col transition-all duration-300',
-          sidebarCollapsed ? 'lg:ml-16' : 'lg:ml-64',
+          isDark
+            ? sidebarCollapsed
+              ? 'lg:ml-[calc(0.75rem+4rem+0.75rem)]'
+              : 'lg:ml-[calc(0.75rem+16rem+0.75rem)]'
+            : sidebarCollapsed
+              ? 'lg:ml-16'
+              : 'lg:ml-64',
         )}
       >
         <header
           className={cn(
-            'sticky top-0 z-30 flex h-16 shrink-0 items-center justify-between gap-2 border-b border-border px-3 py-2 sm:px-6',
-            isDark ? 'bg-background/80 backdrop-blur-md' : 'bg-background/90 backdrop-blur-md',
+            'sticky top-0 z-30 flex h-16 shrink-0 items-center justify-between gap-2 px-3 py-2 sm:px-6',
+            isDark ? 'msc-cc-header-glass' : 'border-b border-border bg-background/90 backdrop-blur-md',
           )}
         >
           <div className="flex min-w-0 flex-1 items-center gap-2 sm:gap-4">
@@ -189,7 +197,11 @@ export function DashboardLayout({ children, onAddProject, searchQuery, onSearchC
                       user ? 'text-foreground hover:bg-card' : 'text-muted-foreground',
                     )}
                   >
-                    <UserAvatar src={sessionAvatar} fallback={sessionUserLabel} />
+                    <UserAvatar
+                      src={sessionAvatar}
+                      fallback={sessionUserLabel}
+                      className="h-8 w-8 rounded-xl sm:h-9 sm:w-9"
+                    />
                     <span className="truncate sm:inline">{sessionUserLabel}</span>
                     <ChevronDown className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
                   </button>
@@ -215,7 +227,7 @@ export function DashboardLayout({ children, onAddProject, searchQuery, onSearchC
                   <DropdownMenuSeparator />
                   <DropdownMenuItem
                     onClick={handleSignOut}
-                    className="cursor-pointer text-destructive focus:text-destructive"
+                    className="cursor-pointer text-muted-foreground focus:bg-muted focus:text-foreground"
                   >
                     <LogOut className="h-4 w-4" />
                     Sign Out

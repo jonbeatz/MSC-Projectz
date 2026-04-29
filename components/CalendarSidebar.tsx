@@ -22,12 +22,13 @@ export function CalendarSidebar({
   return (
     <aside
       className={cn(
-        'msc-calendar-glass-panel relative z-[1] hidden min-h-0 w-full min-w-0 flex-col overflow-hidden md:flex',
+        'msc-calendar-rail-glass relative z-[1] hidden min-h-0 w-full min-w-0 flex-col overflow-hidden md:flex',
         'md:max-w-[20rem] lg:max-w-[20rem] xl:max-w-[24rem]',
         className,
       )}
     >
       <CalendarAgendaPanel
+        railEmbedded
         selectedYmd={selectedYmd}
         dayDetail={dayDetail}
         onAddTask={onAddTask}

@@ -21,6 +21,8 @@ export function CalendarAgendaPanel({
   onEditTask,
   onJumpToClient,
   className,
+  /** When true, parent `msc-calendar-rail-glass` already provides gradient + frost (desktop sidebar). */
+  railEmbedded = false,
 }: {
   selectedYmd: string
   dayDetail: DayDetail
@@ -28,6 +30,7 @@ export function CalendarAgendaPanel({
   onEditTask: (projectId: string, taskId: string, dayYmd: string) => void
   onJumpToClient: (clientId: string) => void
   className?: string
+  railEmbedded?: boolean
 }) {
   const onClientHeaderClick = (e: MouseEvent<HTMLButtonElement>, clientId: string) => {
     e.stopPropagation()
@@ -37,7 +40,8 @@ export function CalendarAgendaPanel({
   return (
     <div
       className={cn(
-        'msc-calendar-route-bg relative z-[1] flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden rounded-2xl',
+        'relative z-[1] flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden',
+        !railEmbedded && 'msc-calendar-route-bg rounded-2xl',
         className,
       )}
     >

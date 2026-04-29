@@ -464,6 +464,134 @@ textarea::placeholder {
   }
 
   /**
+   * Calendar right rail (desktop agenda column): Clients radial + cool grey frost + glass rim.
+   * Agenda content sits inside without a second full-bleed gradient (see railEmbedded on panel).
+   */
+  .msc-calendar-rail-glass {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    border-radius: 16px !important;
+    border: 1px solid rgba(255, 255, 255, 0.12) !important;
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.07),
+      0 8px 28px rgba(0, 0, 0, 0.42) !important;
+    background:
+      linear-gradient(168deg, rgba(58, 58, 64, 0.28) 0%, rgba(28, 28, 32, 0.52) 45%, rgba(12, 12, 14, 0.72) 100%),
+      var(--msc-clients-route-bg-image) !important;
+    backdrop-filter: blur(20px) saturate(1.1) !important;
+    -webkit-backdrop-filter: blur(20px) saturate(1.1) !important;
+    @apply transition-all duration-300;
+  }
+
+  .msc-calendar-rail-glass::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    background: linear-gradient(
+      155deg,
+      rgba(255, 255, 255, 0.09) 0%,
+      rgba(255, 255, 255, 0.03) 35%,
+      rgba(255, 255, 255, 0) 58%
+    );
+  }
+
+  .msc-calendar-rail-glass > * {
+    position: relative;
+    z-index: 1;
+  }
+
+  @media (prefers-reduced-transparency: reduce) {
+    .msc-calendar-rail-glass {
+      backdrop-filter: none !important;
+      -webkit-backdrop-filter: none !important;
+      background: linear-gradient(180deg, #242428 0%, #18181a 55%, #121214 100%) !important;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06) !important;
+    }
+
+    .msc-calendar-rail-glass::before {
+      opacity: 0.5;
+    }
+  }
+
+  /**
+   * Command Center primary nav (dark): floating glass rail — _design_references/Navigation
+   * (frosted panel, specular edge, Clients radial base). Light theme keeps flat sidebar tokens.
+   */
+  .msc-cc-nav-rail {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.07),
+      0 16px 48px rgba(0, 0, 0, 0.38) !important;
+    background:
+      linear-gradient(185deg, rgba(52, 52, 58, 0.42) 0%, rgba(26, 26, 30, 0.62) 40%, rgba(12, 12, 14, 0.78) 100%),
+      var(--msc-clients-route-bg-image) !important;
+    backdrop-filter: blur(22px) saturate(1.12) !important;
+    -webkit-backdrop-filter: blur(22px) saturate(1.12) !important;
+    @apply transition-all duration-300;
+  }
+
+  .msc-cc-nav-rail::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    background: linear-gradient(
+      125deg,
+      rgba(255, 255, 255, 0.1) 0%,
+      rgba(255, 255, 255, 0.03) 32%,
+      rgba(255, 255, 255, 0) 55%
+    );
+  }
+
+  .msc-cc-nav-rail > * {
+    position: relative;
+    z-index: 1;
+  }
+
+  @media (prefers-reduced-transparency: reduce) {
+    .msc-cc-nav-rail {
+      backdrop-filter: none !important;
+      -webkit-backdrop-filter: none !important;
+      background: linear-gradient(180deg, #2a2a2e 0%, #1a1a1e 50%, #121214 100%) !important;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06) !important;
+    }
+
+    .msc-cc-nav-rail::before {
+      opacity: 0.45;
+    }
+  }
+
+  /** Sticky Command Center header (dark) — same language as nav rail, horizontal strip. */
+  .msc-cc-header-glass {
+    position: relative;
+    z-index: 30;
+    isolation: isolate;
+    background: linear-gradient(180deg, rgba(42, 42, 46, 0.82) 0%, rgba(20, 20, 22, 0.92) 100%),
+      var(--msc-clients-route-bg-image) !important;
+    backdrop-filter: blur(18px) saturate(1.06) !important;
+    -webkit-backdrop-filter: blur(18px) saturate(1.06) !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  }
+
+  @media (prefers-reduced-transparency: reduce) {
+    .msc-cc-header-glass {
+      backdrop-filter: none !important;
+      -webkit-backdrop-filter: none !important;
+      background: linear-gradient(180deg, #242428 0%, #161618 100%) !important;
+    }
+  }
+
+  /**
    * Calendar day tiles — NovaMira-style layered frost: cool grey gradient, glass rim,
    * subtle inner depth. Scoped to calendar only (not clients cards).
    */
