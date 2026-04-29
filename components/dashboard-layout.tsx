@@ -162,10 +162,11 @@ export function DashboardLayout({ children, onAddProject, searchQuery, onSearchC
       <main
         className={cn(
           'ml-0 flex min-h-screen flex-1 flex-col transition-all duration-300',
+          isDark && 'msc-cc-route-canvas min-w-0',
           isDark
             ? sidebarCollapsed
-              ? 'lg:ml-[calc(0.75rem+4rem+0.75rem)]'
-              : 'lg:ml-[calc(0.75rem+16rem+0.75rem)]'
+              ? 'lg:ml-[calc(0.5rem+4rem+0.5rem)]'
+              : 'lg:ml-[calc(0.5rem+16rem+0.5rem)]'
             : sidebarCollapsed
               ? 'lg:ml-16'
               : 'lg:ml-64',
@@ -174,7 +175,9 @@ export function DashboardLayout({ children, onAddProject, searchQuery, onSearchC
         <header
           className={cn(
             'sticky top-0 z-30 flex h-16 shrink-0 items-center justify-between gap-2 px-3 py-2 sm:px-6',
-            isDark ? 'msc-cc-header-glass' : 'border-b border-border bg-background/90 backdrop-blur-md',
+            isDark
+              ? 'msc-cc-header-glass msc-cc-header-glass--bite lg:-ml-2 lg:pl-8'
+              : 'border-b border-border bg-background/90 backdrop-blur-md',
           )}
         >
           <div className="flex min-w-0 flex-1 items-center gap-2 sm:gap-4">
@@ -341,9 +344,24 @@ export function DashboardLayout({ children, onAddProject, searchQuery, onSearchC
           </div>
         </header>
 
-        <div className="min-h-0 flex-1 p-4 md:p-6 lg:pb-10">{children}</div>
+        <div
+          className={cn(
+            'min-h-0 flex-1 lg:pb-10',
+            /* Dark: no horizontal inset so route canvas on <main> meets column edges; routes add their own px. */
+            isDark ? 'px-0 py-4 md:py-5' : 'p-4 md:p-6',
+          )}
+        >
+          {children}
+        </div>
 
-        <footer className="z-0 mt-auto w-full p-4 text-right text-xs text-muted-foreground sm:p-4 lg:fixed lg:bottom-0 lg:right-0 lg:mt-0">
+        <footer
+          className={cn(
+            'z-0 mt-auto w-full p-4 text-right text-xs text-muted-foreground sm:p-4',
+            isDark
+              ? 'border-t border-white/[0.05] bg-transparent'
+              : 'lg:fixed lg:bottom-0 lg:right-0 lg:mt-0',
+          )}
+        >
           Powered by the MSC Media Engine
         </footer>
       </main>

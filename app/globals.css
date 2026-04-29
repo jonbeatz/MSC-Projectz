@@ -415,11 +415,18 @@ textarea::placeholder {
 /* Clients route + glass cards (canonical; formerly styles/globals.css) */
 @layer components {
   /**
-   * Command Center main canvas — shared by Dashboard, Tasks, and Clients.
+   * Command Center main-column canvas (dark: applied on <main> in dashboard-layout).
    * Dark: soft lighter grey wash from bottom-right; subtle cool lift top-left; base = theme background.
+   * Routes add their own px-*; do not rely on layout shell horizontal padding or gutters reappear.
    */
   .msc-cc-route-canvas {
     min-height: 100%;
+  }
+
+  /** When the canvas paints the whole Command Center <main> column (see dashboard-layout). */
+  main.msc-cc-route-canvas {
+    min-height: 100vh;
+    background-repeat: no-repeat;
   }
 
   html.dark .msc-cc-route-canvas {
@@ -674,8 +681,21 @@ textarea::placeholder {
       var(--msc-clients-route-bg-image) !important;
     backdrop-filter: blur(18px) saturate(1.06) !important;
     -webkit-backdrop-filter: blur(18px) saturate(1.06) !important;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06) !important;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  }
+
+  /**
+   * Command Center header (lg+): dock the top-left to the rail (same 1.5rem as `rounded-r-3xl`).
+   * No clip-path here — it breaks `position: sticky` on the header. Inset shadow hints a concave wrap.
+   */
+  @media (min-width: 1024px) {
+    .msc-cc-header-glass.msc-cc-header-glass--bite {
+      border-top-left-radius: 1.5rem;
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.04),
+        inset 14px 14px 28px -18px rgba(0, 0, 0, 0.55);
+    }
   }
 
   @media (prefers-reduced-transparency: reduce) {

@@ -138,6 +138,12 @@ Shared shell: `app/(main)/(command-center)/layout.tsx`, `components/MSC-Projectz
 * Soft Studio light: `.light` and `[data-theme='light']` in `app/globals.css` — do not clobber default `:root` dark values when tuning light.  
 * `components/dashboard-layout.tsx` should keep `class` + `data-theme` in sync on the root.
 
+### Command Center dark canvas (do not regress gutters)
+
+* **`.msc-cc-route-canvas`** should stay on **`<main>`** for dark Command Center so the wash reaches the **edges of the content column**.  
+* Keep the **layout children wrapper** at **`px-0`** in dark; add **`px-*`** on **route roots** (`MSC_Projectz_Dashboard`, tasks view, clients view, etc.). Putting canvas only on an inner div **and** horizontal padding on the shell brings back **straight-edge strips** of `bg-background`.  
+* **Dark footer** stays **in-flow** (not fixed to the viewport) so it shares the same painted column. Full preset: **`.cursor/docs/msc-cc-command-center-nav-preset.md`**.
+
 ## Tenant isolation
 
 * Vault server actions: assert Payload user context and ownership; follow patterns in `lib/msc_vault_server_actions.ts`.  

@@ -75,7 +75,7 @@ export function MSC_Projectz_Dashboard({
   if (projects.length === 0) {
     return (
       <div
-        className="msc-projectz-dashboard msc-cc-route-canvas msc-empty-vault flex min-h-full w-full items-center justify-center p-6"
+        className="msc-projectz-dashboard msc-empty-vault flex min-h-full w-full items-center justify-center px-4 py-6 sm:px-6"
         data-msc-day-one="true"
       >
         <div className="msc-empty-vault__surface w-full max-w-md rounded-xl border border-border bg-card p-8 text-center">
@@ -111,7 +111,7 @@ export function MSC_Projectz_Dashboard({
   }
 
   return (
-    <div className="msc-projectz-dashboard msc-cc-route-canvas flex min-h-full w-full min-w-0 flex-1 flex-col gap-4 md:gap-6">
+    <div className="msc-projectz-dashboard flex min-h-full w-full min-w-0 flex-1 flex-col gap-4 px-4 sm:px-5 md:gap-6 md:px-6">
       <div className="min-w-0 flex-1">
         <ProjectGrid
           projects={filteredProjects}

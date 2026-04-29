@@ -13,6 +13,27 @@ Keep newest snapshot at the top.
 
 ---
 
+## 2026-04-29 — Command Center style docs (canvas, gutters, accent)
+
+### Session state
+
+- **Outcome:** Canonical + skill docs updated so **dark gradient edge-to-edge** behavior, **layout padding split**, **footer**, and **`msc-ui-accent`** are easy to restore if they regress.
+
+### What was done
+
+- **Docs:** Expanded **`.cursor/docs/msc-cc-command-center-nav-preset.md`** (correct **`0.5rem`** main offsets, rail **`left-2`**, **`msc-cc-route-canvas`** on **`<main>`**, gutter troubleshooting, footer, accent). Updated **`START-HERE.md`**, **`Docs-Architecture.md`**, **`Agent-Runbook.md`**, **`Component-Dependency-Map.md`**.
+- **Skill:** **`.cursor/skills/MSC-Skillz/UI-Command-Center/SKILL.md`** — surfaces/canvas/padding rules.
+
+### Start-next checklist
+
+1. If **straight dark strips** return beside the main wash, read **`msc-cc-command-center-nav-preset.md`** → *Route canvas vs shell padding* before editing **`globals.css`** gradients.
+
+### Open risks / blockers
+
+- **Help / Profile / Settings** roots may need **`px-*`** if operators want more inset than **`px-0`** shell (noted in preset doc).
+
+---
+
 ## 2026-04-29 — Vault hydration race (dashboard “auth required” overlay)
 
 ### Session state

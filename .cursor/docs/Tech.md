@@ -36,7 +36,7 @@ Dev server uses **webpack** explicitly: `next dev --webpack` (see `npm run dev`)
 | **React 19** | UI components and client boundaries. |
 | **Payload CMS 3** | Collections, admin UI, users, uploads, Lexical rich text (`payload.config.ts`, `collections/*`). |
 | **SQLite** | Database file `payload.sqlite` via `@payloadcms/db-sqlite` (Drizzle used inside Payload; you mostly think in collections + schema repair, not raw ORM app code). |
-| **Tailwind CSS v4** | Utility styling; PostCSS pipeline; global styles in `app/globals.css`. |
+| **Tailwind CSS v4** | Utility styling; PostCSS pipeline; global styles in `app/globals.css` (Command Center chrome: **`msc-cc-route-canvas`**, **`msc-cc-nav-rail`**, **`msc-ui-accent`** — see **`.cursor/docs/msc-cc-command-center-nav-preset.md`**). |
 | **Radix UI** | Headless, accessible primitives (`@radix-ui/react-*` packages). |
 | **Vaul** | Drawer/sheet-style overlays where used. |
 | **class-variance-authority / clsx / tailwind-merge** | Component variants and className composition. |

@@ -527,7 +527,7 @@ export function GlobalTasksView() {
 
   return (
     <div
-      className={cn('msc-tasks-route msc-cc-route-canvas flex min-h-screen flex-col gap-6 p-6')}
+      className={cn('msc-tasks-route flex min-h-screen flex-col gap-6 px-4 py-6 sm:px-6')}
       data-msc-component="global-tasks-view"
     >
       <header

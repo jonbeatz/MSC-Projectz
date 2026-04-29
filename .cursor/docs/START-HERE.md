@@ -150,6 +150,7 @@ Ship a production-ready **Payload 3** + **Next.js 16** command center (with opti
 * **Member avatars (dashboard):** project-card **`MemberClusterTrigger`** and related surfaces use **`msc_resolveAvatarUrl`** (**`lib/msc_avatar_url.ts`**) and default **`fallbackType="icon"`** (Lucide **`User`** when no photo). Mapper **`msc_mapProjectMember`** normalizes **`avatarUrl`** for vault payloads.  
 * **Persistence:** Local **SQLite** via Payload; uploads under **`./media`**.  
 * **Theming:** Soft Studio light mode scoped with `.light` / `[data-theme='light']` (see `app/globals.css`, `components/dashboard-layout.tsx`).  
+* **Command Center dark canvas:** Gradient class **`msc-cc-route-canvas`** is applied on **`<main>`** in **`dashboard-layout.tsx`** (not on individual route wrappers). If **dark vertical/horizontal gutters** reappear beside the wash, check for **shell `px-*`** on the layout content wrapper or a **second** canvas only on the inner page — authoritative notes live in **`.cursor/docs/msc-cc-command-center-nav-preset.md`**. Command Center UI accent: **`--msc-ui-accent-hex`** / **`msc-ui-accent`** (default cool blue **`#599ede`**) in **`app/globals.css`**.  
 * **Tenancy:** Server actions should assert current-user ownership; browser storage must stay user-scoped (see `Agent-Runbook.md`).
 * **RBAC UI gate:** Use `RoleGate` (`components/shared/RoleGate.tsx`) for role-scoped rendering. `AdminGate` is deprecated/removed.
 

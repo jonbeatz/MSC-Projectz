@@ -23,6 +23,13 @@ Use this skill for dashboard/workspace UI changes.
 - You **must** maintain clear separation between primary actions and destructive actions.
 - You **must** preserve accessibility basics (`focus-visible`, contrast, pointer affordance).
 
+### Surfaces & canvas (dark Command Center)
+
+- **Gradient:** **`msc-cc-route-canvas`** is owned by **`<main>`** in **`dashboard-layout.tsx`** — do not duplicate it on a nested route wrapper unless you have a deliberate second surface (e.g. calendar **`msc-calendar-route-bg`**).
+- **Padding:** dark layout content uses **`px-0`**; **each route** supplies **`px-4 sm:px-5 md:px-6`** (or similar) so content breathes without exposing **`bg-background`** gutters at the column edge.
+- **Accent:** prefer **`msc-ui-accent`** / **`--msc-ui-accent-hex`** for Command Center highlights (aligned with globals, default cool blue).
+- **Troubleshooting:** if straight **vertical/horizontal** seams return, read **`.cursor/docs/msc-cc-command-center-nav-preset.md`** before changing gradients.
+
 ## Regression checklist
 
 Validate before done:

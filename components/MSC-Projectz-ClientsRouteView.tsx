@@ -155,7 +155,7 @@ export function MSC_Projectz_ClientsRouteView() {
 
   return (
     <div
-      className="msc-clients-route msc-cc-route-canvas flex min-h-screen flex-col gap-6 p-6"
+      className="msc-clients-route flex min-h-screen flex-col gap-6 px-4 py-6 sm:px-6"
       data-msc-component="clients-route"
     >
       <header className="flex flex-wrap items-start justify-between gap-3 border-b border-border pb-4">

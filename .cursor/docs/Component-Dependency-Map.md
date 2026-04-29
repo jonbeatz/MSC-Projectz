@@ -15,6 +15,10 @@ This is the primary dashboard/focus workspace chain.
   - Provides search/add-project context via `MSC_Projectz_CommandCenterProvider`.
   - Renders `DashboardLayout`, `MSC_Projectz_VaultHydrator`, and `AddProjectModal`.
 
+- `components/dashboard-layout.tsx`
+  - **Dark Command Center:** **`msc-cc-route-canvas`** on **`<main>`** so the shared gradient fills the **entire content column** (no layout-level horizontal inset). Inner content wrapper uses **`px-0 py-4 md:py-5`** in dark; **routes** add **`px-4 sm:px-5 md:px-6`** (or equivalent) on their own roots.
+  - **Footer (dark):** in-flow, transparent, top hairline — avoids a second “strip” under the canvas. See **`.cursor/docs/msc-cc-command-center-nav-preset.md`**.
+
 - `components/MSC-Projectz-DashboardRouteView.tsx`
   - Route-level orchestrator for dashboard state.
   - Owns focus state (`focusProjectId`, `focusOpen`, `focusTab`) and modal/drawer selection states.

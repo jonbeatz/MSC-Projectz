@@ -35,6 +35,8 @@ Archived to `docs/archive/2026-04-28-docs-audit/`:
 
 ## Reference (not part of canonical read order)
 
+- **`msc-cc-command-center-nav-preset.md`** — Command Center **glass rail**, **header**, **`msc-cc-route-canvas`** placement, **main margin math**, **dark footer**, and **accent** token; use when tuning chrome or fixing **gradient gutter** regressions.
+- **`Component-Dependency-Map.md`** — high-level **component graph** for dashboard / focus drawer / clients; includes **`dashboard-layout`** canvas ownership.
 - **`incidents/Playwright-Manual-Assist-Runbook.md`** — **`npm run playwright:test`** / **`playwright:open`** / **`playwright:dump-dom`**: what the headed harness does, env vars, and operator phrase **“Run Playwright Test”**.
 - **`Tech.md`** — technology inventory, version snapshot, and prioritized learning map for the stack.
 - **`.cursor/plans/`** ([`../plans/README.md`](../plans/README.md)) — canonical planning artefacts in Git (README describes Cursor profile draft path vs repo rules).

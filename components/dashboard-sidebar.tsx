@@ -135,8 +135,8 @@ export function DashboardSidebar({
     useGlassRail && 'msc-cc-nav-rail rounded-r-3xl',
     isMobile
       ? cn(
-          'fixed z-50 w-64 max-w-[min(16rem,calc(100vw-1.5rem))] transform transition-transform duration-300 ease-out',
-          useGlassRail ? 'top-3 bottom-3 left-3' : 'inset-y-0 left-0 h-screen border-r border-sidebar-border bg-sidebar',
+          'fixed z-50 w-64 max-w-[min(16rem,calc(100vw-1rem))] transform transition-transform duration-300 ease-out',
+          useGlassRail ? 'top-2 bottom-2 left-2' : 'inset-y-0 left-0 h-screen border-r border-sidebar-border bg-sidebar',
           mobileMenuOpen ? 'translate-x-0' : '-translate-x-full',
           !mobileMenuOpen && 'pointer-events-none',
           !useGlassRail && 'card-shadow-lg',
@@ -144,7 +144,7 @@ export function DashboardSidebar({
       : cn(
           'fixed z-40',
           useGlassRail
-            ? cn('top-3 bottom-3 left-3', collapsed ? 'w-16' : 'w-64')
+            ? cn('top-0 bottom-0 left-2', collapsed ? 'w-16' : 'w-64')
             : cn('left-0 top-0 h-screen border-r border-sidebar-border bg-sidebar', collapsed ? 'w-16' : 'w-64'),
           !useGlassRail && 'card-shadow-lg',
         ),
@@ -161,7 +161,12 @@ export function DashboardSidebar({
       )}
 
       <aside className={asideClass}>
-        <div className={cn('flex shrink-0 items-center justify-between border-b px-4 py-3', divider)}>
+        <div
+          className={cn(
+            'flex h-16 min-h-16 shrink-0 items-center justify-between border-b px-4',
+            useGlassRail ? 'border-white/[0.06]' : divider,
+          )}
+        >
           <div className={cn('flex min-w-0 items-center gap-3', !showLabels && 'w-full justify-center')}>
             <div className="h-10 w-10 shrink-0 overflow-hidden rounded-xl ring-1 ring-white/10">
               <Image
