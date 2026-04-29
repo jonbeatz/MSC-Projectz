@@ -1,7 +1,8 @@
 {
   "host": {
     "ftpUsername": "jonbeatz@jon-beatz.com",
-    "remoteAppRoot": "/home/<cpanel-user>/jon-beatz.com",
+    "ftpPassword": "<set-locally-or-use-MSC_FTP_PASSWORD-env>",
+    "remoteAppRoot": "/",
     "nodevenvActivatePath": "/home/<cpanel-user>/nodevenv/jon-beatz.com/20/bin/activate"
   },
   "project": {

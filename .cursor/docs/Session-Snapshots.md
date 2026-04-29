@@ -13,6 +13,33 @@ Keep newest snapshot at the top.
 
 ---
 
+## 2026-04-29 — Live cutover completed (Cursor FTPS + cPanel install)
+
+### Session state
+
+- **Outcome:** `jon-beatz.com` is live on the new MSC-Projectz build; operator successfully signed in to dashboard after first-login verification workaround.
+
+### What was done
+
+- **Deploy automation:** added FTPS upload script + npm commands (`deploy:upload`, `deploy:package-upload`) and progress output.
+- **Path fix:** corrected FTP remote root to `/` for `jonbeatz@jon-beatz.com` so uploads land in the true domain root.
+- **Live cutover:** uploaded `final_deploy.zip` from Cursor, extracted in cPanel root, ran Node.js Selector **Run NPM Install**, then started app.
+- **Auth unblock:** production email verification gate was active; applied one-time sqlite update (`users.is_verified=1`) for operator account, then login succeeded.
+- **Docs:** runbook updated with path gotcha, post-upload checklist, and first-login verification fallback command.
+
+### Start-next checklist
+
+1. Use **Local (Cursor / PC repo root)** `npm run deploy:package-upload`.
+2. In cPanel File Manager root, extract `final_deploy.zip` in place, then delete zip.
+3. In Node.js Selector, click **Run NPM Install** then **Start/Restart App**.
+4. If verification blocks login and SMTP is not ready, run runbook section **2E** fallback once.
+
+### Open risks / blockers
+
+- Production SMTP verification is still not configured; fallback is documented but should be replaced with real mail delivery.
+
+---
+
 ## 2026-04-29 — Live cutover launch map prepared (jon-beatz.com)
 
 ### Session state

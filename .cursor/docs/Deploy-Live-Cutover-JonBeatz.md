@@ -19,6 +19,39 @@ From branch `MSC-Projectz-Jedi-Master-v1`, this worked:
 - **Local (Cursor / PC repo root):** `npm run pushitlive`
 - Output: `final_deploy.zip` created successfully at repo root.
 
+### Optional: upload package from Cursor via FTPS
+
+- **Local (Cursor / PC repo root):** `npm run deploy:upload`
+- Upload source: `final_deploy.zip` (or `deployment.artifactFile` in profile)
+- Remote destination: `host.remoteAppRoot` from `.cursor/docs/Deploy-Profile.local.json`
+- One-command package + upload: **Local (Cursor / PC repo root):** `npm run deploy:package-upload`
+- Dry run (no transfer): **Local (Cursor / PC repo root):** `$env:MSC_DEPLOY_DRY_RUN='1'; npm run deploy:upload`
+- If your host FTPS cert chain is flaky: **Local (Cursor / PC repo root):** `$env:MSC_FTPS_INSECURE='1'; npm run deploy:upload`
+
+### Operator phrases (chat shortcuts)
+
+Use these phrases with the agent to trigger the exact command flow:
+
+- **"make a new zip build"** -> run **Local (Cursor / PC repo root)** `npm run pushitlive`
+- **"upload the zip"** -> run **Local (Cursor / PC repo root)** `npm run deploy:upload`
+- **"build and upload in one go"** -> run **Local (Cursor / PC repo root)** `npm run deploy:package-upload`
+- **"dry-run upload check"** -> run **Local (Cursor / PC repo root)** `$env:MSC_DEPLOY_DRY_RUN='1'; npm run deploy:upload`
+
+#### Important path rule (jon-beatz.com)
+
+- For FTP user `jonbeatz@jon-beatz.com`, FTP login already lands in the domain root.
+- Set `host.remoteAppRoot` to `/` in `.cursor/docs/Deploy-Profile.local.json`.
+- Do **not** use `/home/...` or `/jon-beatz.com/` here, or upload will go into the wrong nested folder.
+
+### Post-upload checklist (required before restart)
+
+1. **Live (cPanel File Manager):** open `/home/wjehbnzcoy/jon-beatz.com/` and confirm `final_deploy.zip` exists in that exact root.
+2. Extract `final_deploy.zip` **in the same root directory** (do not extract into a subfolder).
+3. Sanity check extracted root now contains items like `.next`, `server.js`, `package.json`, `.env`, `payload.sqlite`, `media/`.
+4. If extraction accidentally created a wrapper folder, move its contents up to root, then delete the empty wrapper.
+5. Delete `final_deploy.zip` after a successful extract to keep the app root clean.
+6. Continue with section **2D** (`npm install`, permissions, restart).
+
 Observed warnings (non-blocking, keep noted):
 
 - `Deploy-Profile.local.json not found. Using template only.`
@@ -58,6 +91,45 @@ Observed warnings (non-blocking, keep noted):
    - files: `644`
 3. **Live (cPanel):** Node.js Application Manager -> **Restart**.
 
+### E. First-login verification fallback (workaround used in this cutover)
+
+Use this only when live SMTP verification is not configured yet and you need immediate operator access.
+
+1. **Live (cPanel -> Terminal):** `cd ~/jon-beatz.com`
+2. Run this one-time verify update (replace email if needed):
+
+```bash
+python3 - <<'PY'
+import sqlite3
+db = '/home/wjehbnzcoy/jon-beatz.com/payload.sqlite'
+email = 'jonbeatz@gmail.com'.lower().strip()
+
+con = sqlite3.connect(db)
+cur = con.cursor()
+cur.execute("SELECT id,email,role,is_verified FROM users WHERE lower(email)=?", (email,))
+row = cur.fetchone()
+print("before:", row)
+
+if row:
+    cur.execute("""
+      UPDATE users
+      SET is_verified = 1,
+          verification_token = NULL,
+          verification_token_expires = NULL
+      WHERE id = ?
+    """, (row[0],))
+    con.commit()
+    cur.execute("SELECT id,email,role,is_verified FROM users WHERE id=?", (row[0],))
+    print("after:", cur.fetchone())
+else:
+    print("No user found for", email)
+con.close()
+PY
+```
+
+3. Sign out/in (or restart app) and confirm login proceeds past `/auth/verify-reminder`.
+4. Long-term fix: implement real SMTP verification workflow for production.
+
 ## 3) Post-deploy verification
 
 Check in browser:
@@ -89,11 +161,14 @@ If broken:
 | 2026-04-29 | Local preflight + package | PASS | `deploy:preflight` + `pushitlive` succeeded; `final_deploy.zip` generated. |
 | 2026-04-29 | Local build inside packaging | PASS | Next build compiled and staged deploy package. |
 | 2026-04-29 | Live baseline route probe | PARTIAL | `/`, `/dashboard`, `/tasks`, `/help` return login shell. `/calendar` currently 404 on live (expected old version gap). |
-| 2026-04-29 | Live backup | PENDING | Execute section 2A in cPanel. |
-| 2026-04-29 | Live clean cutover | PENDING | Execute sections 2B–2D in cPanel. |
-| 2026-04-29 | Live route verification | PENDING | Execute section 3 and record outcomes. |
+| 2026-04-29 | Live backup | SKIPPED (operator choice) | Operator explicitly chose no backup for this cutover. |
+| 2026-04-29 | Live clean cutover | PASS | Stop app -> clean root -> upload/extract `final_deploy.zip` -> Run NPM Install -> Start app. |
+| 2026-04-29 | Live route verification | PASS (auth gate) | Live app loads; login/verify screen reachable at `jon-beatz.com`. Access blocked by expected email verification gate, not deploy/runtime failure. |
+| 2026-04-29 | FTPS upload path correction | PASS | First uploads landed in nested folders; fixed by setting `remoteAppRoot` to `/` for this FTP account. |
+| 2026-04-29 | First-login verify workaround | PASS | Updated `users.is_verified` for operator account via sqlite in cPanel terminal; login succeeded and dashboard loaded. |
 
 ## 5) What to improve next deploy
 
 - Add `.cursor/docs/Deploy-Profile.local.json` with real FTP username so preflight warning disappears.
 - Keep this file updated with exact failure + fix details after each deployment.
+- Add a one-time "bootstrap admin verify" operational step (or real SMTP verify workflow) so first live login is not blocked by `isVerified=false`.
