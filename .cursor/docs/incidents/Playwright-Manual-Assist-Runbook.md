@@ -52,7 +52,7 @@ npm run playwright:test
 ## Default behavior now (`npm run playwright:test`)
 - Opens **Brave** (or Playwright Chromium if `brave.exe` missing), **`--start-maximized`**, persistent dir **`Playwright-Tests/brave-profile`**.
 - Starts at **`http://localhost:3000/dashboard`** (unless **`MSC_BASE_URL`** / **`MSC_START_PATH`** override).
-- **Stays open** for operator assist when **`MSC_SELECTOR`** is **unset** and **`MSC_PLAYWRIGHT_ONE_SHOT`** is **not** `1` (**`assistStayOpen`** — avoids immediate close if the shell inherited **`MSC_INTERACTIVE=false`**).
+- **Stays open** for operator assist when **`MSC_SELECTOR`** is **unset** and **`MSC_PLAYWRIGHT_ONE_SHOT`** is **not** `1` (**`assistStayOpen`** — avoids immediate close if the shell inherited **`MSC_INTERACTIVE=false`**). Closing that browser window ends the process with **exit 0** (not an error); **Ctrl+C** in the terminal still stops the harness.
 - **`MSC_PLAYWRIGHT_ONE_SHOT=1`** — print JSON once and **exit** (CI / scripted one-shot).
 - Auto-clicks **Enable Local Dev Trust Bypass (Admin)** when visible (loop in long-running mode).
 - Refreshes **`Playwright-Tests/assist-state.json`**: `href`, `headerSessionLabel`, **`tabCount`**, **`tabs`** (`url` / `title` per page in this browser context).

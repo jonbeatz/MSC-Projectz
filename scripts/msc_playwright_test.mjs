@@ -118,6 +118,12 @@ function joinUrl(base, p) {
   return `${base.replace(/\/$/, '')}/${p.replace(/^\//, '')}`
 }
 
+/** Window closed by operator or browser exited — not a harness defect. */
+function isClosedTargetError(err) {
+  const msg = String(err?.message ?? err ?? '')
+  return /has been closed|Target closed|Browser has been closed/i.test(msg)
+}
+
 async function main() {
   await mkdir(screenshotDir, { recursive: true })
   await mkdir(profileDir, { recursive: true })
@@ -141,6 +147,8 @@ async function main() {
   let context
   let browser = null
   let ownsContext = true
+  /** True when assist loop ended because the user closed the browser (skip context.close noise). */
+  let harnessEndedByUserClose = false
 
   const launchFresh = () =>
     chromium.launchPersistentContext(profileDir, {
@@ -286,18 +294,36 @@ async function main() {
     console.log('[playwright-test] Waiting for follow-up checks...')
     // Keep trust-bypass automation active while the browser remains open.
     while (true) {
-      await maybeEnableDevTrustBypass()
-      await writeAssistState(context, page, { mode: 'interactive', assistHarnessRunning: true })
-      await page.waitForTimeout(1000)
+      try {
+        await maybeEnableDevTrustBypass()
+        await writeAssistState(context, page, { mode: 'interactive', assistHarnessRunning: true })
+        await page.waitForTimeout(1000)
+      } catch (e) {
+        if (isClosedTargetError(e)) {
+          harnessEndedByUserClose = true
+          console.log('[playwright-test] Browser or page closed by operator; exiting harness (ok).')
+          break
+        }
+        throw e
+      }
     }
   } else if (keepOpenMs > 0) {
     console.log(`[playwright-test] Keeping browser open for ${keepOpenMs}ms.`)
     const keepUntil = Date.now() + keepOpenMs
     while (Date.now() < keepUntil) {
-      await writeAssistState(context, page, { mode: 'keep-open', assistHarnessRunning: true })
-      const remaining = keepUntil - Date.now()
-      if (remaining <= 0) break
-      await page.waitForTimeout(Math.min(2000, remaining))
+      try {
+        await writeAssistState(context, page, { mode: 'keep-open', assistHarnessRunning: true })
+        const remaining = keepUntil - Date.now()
+        if (remaining <= 0) break
+        await page.waitForTimeout(Math.min(2000, remaining))
+      } catch (e) {
+        if (isClosedTargetError(e)) {
+          harnessEndedByUserClose = true
+          console.log('[playwright-test] Browser closed during keep-open window; exiting (ok).')
+          break
+        }
+        throw e
+      }
     }
   } else {
     console.log(
@@ -305,10 +331,20 @@ async function main() {
     )
   }
 
-  if (ownsContext) {
-    await context.close()
-  } else if (browser) {
-    await browser.close()
+  if (!harnessEndedByUserClose) {
+    if (ownsContext) {
+      try {
+        await context.close()
+      } catch (e) {
+        if (!isClosedTargetError(e)) throw e
+      }
+    } else if (browser) {
+      try {
+        await browser.close()
+      } catch (e) {
+        if (!isClosedTargetError(e)) throw e
+      }
+    }
   }
   if (!result.ok) process.exit(2)
 }
