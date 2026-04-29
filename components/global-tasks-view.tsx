@@ -44,7 +44,7 @@ function msc_highlightTitle(text: string, query: string): ReactNode {
   const parts = text.split(new RegExp(`(${msc_escapeRegExp(q)})`, 'gi'))
   return parts.map((part, i) =>
     part.toLowerCase() === q.toLowerCase() ? (
-      <mark key={i} className="rounded bg-orange-500/25 px-0.5 text-orange-50">
+      <mark key={i} className="rounded bg-msc-ui-accent/25 px-0.5 text-sky-50">
         {part}
       </mark>
     ) : (
@@ -82,7 +82,7 @@ function msc_priorityPill(p: MscTaskPriority | undefined): { label: string; clas
     }
   return {
     label: 'Medium',
-    className: 'border border-amber-400/28 bg-amber-500/14 text-amber-50/95',
+    className: 'border border-msc-ui-accent/30 bg-msc-ui-accent/14 text-sky-50/95',
   }
 }
 
@@ -104,7 +104,7 @@ const statusConfig: Record<TaskStatus, { label: string; icon: typeof Circle; col
   'in-progress': { 
     label: MSC_TASK_STATUS_LABELS['in-progress'], 
     icon: Clock, 
-    color: 'text-msc-gold',
+    color: 'text-msc-ui-accent',
     bgClass: 'bg-transparent'
   },
   'done': { 
@@ -308,7 +308,7 @@ export function GlobalTasksView() {
               }}
               className={cn(
                 'h-8 min-w-0 flex-1 text-sm',
-                isDark ? 'border-orange-500/35 bg-black/50 text-foreground' : 'border-border bg-card',
+                isDark ? 'border-msc-ui-accent/35 bg-black/50 text-foreground' : 'border-border bg-card',
               )}
             />
             {taskProject && (
@@ -348,7 +348,7 @@ export function GlobalTasksView() {
             isDone
               ? 'border-primary/40 bg-primary/15 text-primary'
               : status === 'in-progress'
-                ? 'border-orange-400/35 bg-orange-500/10 text-orange-200'
+                ? 'border-msc-ui-accent/35 bg-msc-ui-accent/12 text-sky-100'
                 : isDark
                   ? 'border-white/10 bg-black/40 text-muted-foreground hover:border-white/18'
                   : 'border-border bg-muted/50 text-muted-foreground',
@@ -368,7 +368,7 @@ export function GlobalTasksView() {
               type="button"
               onClick={() => handleStartEdit(task)}
               className={cn(
-                'min-w-0 truncate text-left text-[13px] font-medium leading-tight text-foreground hover:text-orange-300/95',
+                'min-w-0 truncate text-left text-[13px] font-medium leading-tight text-foreground hover:text-msc-ui-accent/95',
                 isDone && 'text-muted-foreground line-through',
               )}
             >
@@ -466,7 +466,7 @@ export function GlobalTasksView() {
           <span
             className={cn(
               'rounded px-1.5 py-0.5 text-[10px] font-medium tabular-nums',
-              tone === 'active' ? 'bg-orange-500/15 text-orange-200' : 'bg-white/5 text-muted-foreground',
+              tone === 'active' ? 'bg-msc-ui-accent/15 text-sky-100' : 'bg-white/5 text-muted-foreground',
             )}
           >
             {items.length}
@@ -527,10 +527,7 @@ export function GlobalTasksView() {
 
   return (
     <div
-      className={cn(
-        'msc-tasks-route flex flex-col gap-6 p-6',
-        isDark && 'msc-tasks-route-bg min-h-screen',
-      )}
+      className={cn('msc-tasks-route msc-cc-route-canvas flex min-h-screen flex-col gap-6 p-6')}
       data-msc-component="global-tasks-view"
     >
       <header
@@ -545,7 +542,7 @@ export function GlobalTasksView() {
             <ChevronRight className="h-3 w-3 opacity-50" />
             <span className="text-foreground/80">{selectedProject?.name ?? 'No Project'}</span>
             <ChevronRight className="h-3 w-3 opacity-50" />
-            <span className="font-medium text-orange-400/90">Tasks</span>
+            <span className="font-medium text-msc-ui-accent">Tasks</span>
           </nav>
           <h1 className="mb-0.5 text-xl font-semibold tracking-tight text-foreground">Tasks</h1>
           <p className="max-w-xl text-xs leading-relaxed text-muted-foreground">
@@ -668,12 +665,12 @@ export function GlobalTasksView() {
               )}
             >
               <dt className="text-[9px] font-semibold uppercase tracking-wider text-muted-foreground">Task progress</dt>
-              <dd className="mt-0.5 text-[11px] font-medium text-msc-gold">
+              <dd className="mt-0.5 text-[11px] font-medium text-msc-ui-accent">
                 {completedProjectTasks}/{totalProjectTasks} · {projectProgress}%
               </dd>
               <div className="mt-1.5 h-1 overflow-hidden rounded-full bg-black/50 ring-1 ring-white/8">
                 <div
-                  className="h-full rounded-full bg-linear-to-r from-msc-gold to-amber-400 transition-all duration-300"
+                  className="h-full rounded-full bg-linear-to-r from-msc-ui-accent to-sky-300 transition-all duration-300 shadow-[0_0_10px_rgba(89,158,222,0.35)]"
                   style={{ width: `${projectProgress}%` }}
                 />
               </div>
@@ -739,7 +736,7 @@ export function GlobalTasksView() {
                   'inline-flex items-center gap-1 rounded-md border px-2 py-1 text-[10px] font-medium transition-colors',
                   priorityFilter === key
                     ? isDark
-                      ? 'border-orange-400/40 bg-orange-500/15 text-orange-100'
+                      ? 'border-msc-ui-accent/40 bg-msc-ui-accent/15 text-sky-50'
                       : 'border-primary bg-primary/15 text-primary'
                     : isDark
                       ? 'border-white/8 bg-black/35 text-muted-foreground hover:border-white/12 hover:text-foreground'
@@ -767,7 +764,7 @@ export function GlobalTasksView() {
                     'inline-flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-semibold transition-colors',
                     layoutMode === 'board'
                       ? isDark
-                        ? 'bg-orange-500/25 text-orange-50'
+                        ? 'bg-msc-ui-accent/25 text-sky-50'
                         : 'bg-primary text-primary-foreground'
                       : 'text-muted-foreground hover:text-foreground',
                   )}
@@ -782,7 +779,7 @@ export function GlobalTasksView() {
                     'inline-flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-semibold transition-colors',
                     layoutMode === 'list'
                       ? isDark
-                        ? 'bg-orange-500/25 text-orange-50'
+                        ? 'bg-msc-ui-accent/25 text-sky-50'
                         : 'bg-primary text-primary-foreground'
                       : 'text-muted-foreground hover:text-foreground',
                   )}

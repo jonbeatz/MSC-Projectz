@@ -37,7 +37,7 @@ const statusConfig: Record<TaskStatus, { label: string; icon: typeof Circle; col
   'in-progress': { 
     label: MSC_TASK_STATUS_LABELS['in-progress'], 
     icon: Clock, 
-    colorClass: 'text-msc-gold',
+    colorClass: 'text-msc-ui-accent',
     bgClass: 'bg-transparent'
   },
   'done': { 
@@ -253,11 +253,11 @@ export function TaskDrawer({ isOpen, onClose, project }: TaskDrawerProps) {
         <div className="p-4 shrink-0 border-b border-border">
           <div className="flex items-center justify-between mb-2">
             <span className="text-sm font-medium text-foreground">Task Progress</span>
-            <span className="text-sm font-semibold text-msc-gold">{progress}%</span>
+            <span className="text-sm font-semibold text-msc-ui-accent">{progress}%</span>
           </div>
           <div className="h-1 rounded-full overflow-hidden bg-muted">
             <div 
-              className="h-full rounded-full transition-all duration-300 bg-msc-gold"
+              className="h-full rounded-full transition-all duration-300 bg-msc-ui-accent"
               style={{ width: `${progress}%` }}
             />
           </div>
@@ -267,7 +267,7 @@ export function TaskDrawer({ isOpen, onClose, project }: TaskDrawerProps) {
               {todoTasks.length} {MSC_TASK_STATUS_LABELS.todo}
             </span>
             <span className="flex items-center gap-1">
-              <Clock className="w-3 h-3 text-msc-gold" />
+              <Clock className="w-3 h-3 text-msc-ui-accent" />
               {inProgressTasks.length} {MSC_TASK_STATUS_LABELS['in-progress']}
             </span>
             <span className="flex items-center gap-1">
@@ -317,7 +317,7 @@ export function TaskDrawer({ isOpen, onClose, project }: TaskDrawerProps) {
           {/* In Progress Tasks */}
           {inProgressTasks.length > 0 && (
             <div className="mb-6">
-              <h3 className="text-xs font-semibold uppercase tracking-wider mb-3 flex items-center gap-2 text-msc-gold">
+              <h3 className="text-xs font-semibold uppercase tracking-wider mb-3 flex items-center gap-2 text-msc-ui-accent">
                 <Clock className="w-3 h-3" />
                 {MSC_TASK_STATUS_LABELS['in-progress']} ({inProgressTasks.length})
               </h3>

@@ -14,22 +14,11 @@ import { cn } from '@/lib/utils'
 
 function msc_calendarStatusDotClass(rawStatus: string): string {
   const status = rawStatus.trim().toLowerCase()
-  if (status === 'active' || status === 'in-progress') return 'bg-emerald-500/85'
-  if (status === 'lead' || status === 'todo') return 'bg-amber-500/85'
-  if (status === 'completed' || status === 'done') return 'bg-slate-500/85'
+  if (status === 'active' || status === 'in-progress') return 'bg-orange-500/90'
+  if (status === 'lead' || status === 'todo') return 'bg-sky-500/88'
+  if (status === 'completed' || status === 'done') return 'bg-slate-500/80'
   if (status === 'blocked') return 'bg-rose-500/85'
   return 'bg-muted-foreground/70'
-}
-
-/** Left accent for minimal grid chips (Studio Dark). */
-function msc_calendarStatusBorderClass(rawStatus: string): string {
-  const status = rawStatus.trim().toLowerCase()
-  if (status === 'in-progress') return 'border-l-white/45'
-  if (status === 'active') return 'border-l-emerald-500/75'
-  if (status === 'lead' || status === 'todo') return 'border-l-amber-500/75'
-  if (status === 'completed' || status === 'done') return 'border-l-slate-500/65'
-  if (status === 'blocked') return 'border-l-rose-500/75'
-  return 'border-l-muted-foreground/50'
 }
 
 const CalendarTaskChipImpl = function CalendarTaskChip({
@@ -68,7 +57,6 @@ const CalendarTaskChipImpl = function CalendarTaskChip({
   const stLabel = msc_getTaskStatusLabel(status)
   const rawStatus = String(task.status || '')
   const statusDotClass = msc_calendarStatusDotClass(rawStatus)
-  const statusBorderClass = msc_calendarStatusBorderClass(rawStatus)
   const assignee = msc_resolveTaskAssignee(project, task)
   const label = assignee
     ? assignee.username?.trim() || assignee.email?.trim() || `User ${String(assignee.id)}`
@@ -146,9 +134,8 @@ const CalendarTaskChipImpl = function CalendarTaskChip({
         role="button"
         tabIndex={0}
         className={cn(
-          'relative w-full min-w-0 cursor-default rounded border border-border/40 bg-card/35 py-1 pl-1.5 pr-1 text-left text-[10px] font-medium text-foreground transition hover:bg-card/60 md:min-h-[32px]',
-          'pointer-events-auto border-l-2',
-          statusBorderClass,
+          'relative flex w-full min-w-0 cursor-default items-center gap-2 rounded-lg border border-white/[0.08] bg-white/[0.04] py-2 pl-2.5 pr-2 text-left text-[10px] font-medium text-foreground shadow-none transition hover:border-white/[0.1] hover:bg-white/[0.08] md:min-h-[36px]',
+          'pointer-events-auto',
           status === 'done' && 'opacity-75',
           className,
         )}
@@ -193,7 +180,13 @@ const CalendarTaskChipImpl = function CalendarTaskChip({
           clearLongPress()
         }}
       >
-        <span className="line-clamp-1 min-w-0">{task.title}</span>
+        <span
+          className={cn('h-1.5 w-1.5 shrink-0 rounded-full ring-1 ring-black/35', statusDotClass)}
+          aria-hidden
+        />
+        <span className="line-clamp-1 min-w-0 leading-snug">
+          <span className="text-muted-foreground/90">{projectName}:</span> {task.title}
+        </span>
       </div>
     )
   }
@@ -205,14 +198,12 @@ const CalendarTaskChipImpl = function CalendarTaskChip({
       role="button"
       tabIndex={0}
       className={cn(
-        'relative w-full min-w-0 cursor-default rounded border border-border/50 bg-card/50 text-left font-medium text-foreground transition hover:bg-card/80',
-        isCompact ? 'px-1 py-0.5 text-[10px]' : 'px-1.5 py-1 text-[10px] sm:text-xs',
+        'relative w-full min-w-0 cursor-default rounded-lg border border-border/50 bg-card/50 text-left font-medium text-foreground transition hover:bg-card/80',
+        isCompact ? 'px-1.5 py-1 text-[10px]' : 'px-2 py-1.5 text-[10px] sm:text-xs',
         isNarrow && !isCompact && 'pr-12',
         isNarrow && isCompact && 'pr-5',
         'pointer-events-auto',
         status === 'done' && 'border-primary/20 opacity-80',
-        status === 'in-progress' && !isCompact && 'border-l-2 border-white/40 pl-1',
-        status === 'in-progress' && isCompact && 'border-l-2 border-white/35 pl-0.5',
         className,
       )}
       title={rootTitle}

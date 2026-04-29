@@ -94,7 +94,7 @@ export function MemberClusterTrigger({
             type="button"
             className={cn(
               'group inline-flex min-w-0 items-center gap-0 rounded-full text-left outline-none',
-              'focus-visible:ring-1 focus-visible:ring-msc-gold/50',
+              'focus-visible:ring-1 focus-visible:ring-msc-ui-accent/50',
             )}
             aria-label={
               showOverflowPill

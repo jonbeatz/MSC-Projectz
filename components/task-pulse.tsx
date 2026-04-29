@@ -67,7 +67,7 @@ export function TaskPulse({ project }: TaskPulseProps) {
         <div className="px-4 py-2 border-b border-border bg-secondary/50">
           <div className="h-1 rounded-full overflow-hidden bg-secondary">
             <div
-              className="h-full rounded-full transition-all duration-300 bg-msc-gold"
+              className="h-full rounded-full transition-all duration-300 bg-msc-ui-accent"
               style={{ width: `${progress}%` }}
             />
           </div>

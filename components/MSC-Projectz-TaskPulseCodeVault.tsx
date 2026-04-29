@@ -294,7 +294,7 @@ export function MSC_Projectz_TaskPulseCodeVault({
                 onClick={() => openDetail(s)}
                 className={cn(
                   'flex w-full flex-col gap-1.5 rounded-lg border border-border bg-card px-3 py-2.5 text-left text-sm transition-colors',
-                  'hover:border-primary/30 hover:bg-card/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-msc-gold/40',
+                  'hover:border-primary/30 hover:bg-card/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-msc-ui-accent/40',
                 )}
               >
                 <div className="flex items-start justify-between gap-2">
@@ -412,7 +412,7 @@ export function MSC_Projectz_TaskPulseCodeVault({
                   {isPrivateWorkspace ? (
                     <Badge
                       variant="outline"
-                      className="border-amber-500/50 bg-amber-500/15 text-[10px] font-semibold uppercase tracking-wide text-amber-200"
+                      className="border-msc-ui-accent/45 bg-msc-ui-accent/15 text-[10px] font-semibold uppercase tracking-wide text-sky-100"
                     >
                       Private
                     </Badge>

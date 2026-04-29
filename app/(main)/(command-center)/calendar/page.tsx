@@ -204,7 +204,7 @@ export default function Msc_CalendarPage() {
         )}
       >
         <div className="flex min-w-0 items-center gap-2">
-          <div className="grid h-8 w-8 shrink-0 place-content-center rounded-lg border border-white/12 bg-black/35 text-muted-foreground backdrop-blur-sm">
+          <div className="grid h-8 w-8 shrink-0 place-content-center rounded-xl border border-white/[0.08] bg-white/[0.05] text-muted-foreground backdrop-blur-sm">
             <CalendarIcon className="h-4 w-4" />
           </div>
           <div className="min-w-0">
@@ -260,7 +260,7 @@ export default function Msc_CalendarPage() {
                 className="h-8 shrink-0 px-2 text-xs"
                 onClick={() => setAgendaOpen(true)}
               >
-                Agenda
+                Scheduled
               </Button>
             ) : null}
             <Button type="button" variant="ghost" size="icon" className="h-8 w-8 shrink-0" onClick={onNext} aria-label="Next period">
@@ -298,7 +298,7 @@ export default function Msc_CalendarPage() {
           className="h-auto max-h-[90vh] w-full max-w-full gap-0 border-t-0 p-0 sm:max-w-full"
         >
           <SheetHeader className="sr-only shrink-0 border-0 p-0">
-            <SheetTitle>Agenda for selected day</SheetTitle>
+            <SheetTitle>Scheduled for selected day</SheetTitle>
           </SheetHeader>
           <CalendarAgendaPanel
             className="min-h-0 max-h-[min(88vh,100%)]"

@@ -613,7 +613,7 @@ export function MSC_Projectz_ProjectCard({
                 )}
                 {counts.inProgress > 0 && (
                   <div
-                    className="h-full shrink-0 bg-msc-gold transition-all"
+                    className="h-full shrink-0 bg-msc-ui-accent transition-all"
                     style={{ width: `${inProgressPct}%` }}
                     title={`In progress: ${counts.inProgress}`}
                   />
@@ -635,7 +635,7 @@ export function MSC_Projectz_ProjectCard({
             </span>
             <span>
               <span
-                className="inline-block size-2 rounded-sm align-middle mr-1 bg-msc-gold"
+                className="inline-block size-2 rounded-sm align-middle mr-1 bg-msc-ui-accent"
                 aria-hidden
               />
               {counts.inProgress} in progress

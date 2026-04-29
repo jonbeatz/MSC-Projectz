@@ -45,13 +45,13 @@ export function CalendarAgendaPanel({
         className,
       )}
     >
-      <div className="shrink-0 border-b border-white/10 px-4 py-3 sm:px-5 sm:py-4">
-        <h2 className="text-sm font-semibold text-foreground">{heading(selectedYmd)}</h2>
-        <p className="text-xs uppercase tracking-wide text-muted-foreground">Agenda</p>
+      <div className="shrink-0 border-b border-white/[0.06] px-4 py-3.5 sm:px-5 sm:py-4">
+        <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground/85">Scheduled</p>
+        <h2 className="mt-1 text-sm font-semibold tracking-tight text-foreground sm:text-[0.95rem]">{heading(selectedYmd)}</h2>
         <Button
           type="button"
           onClick={() => onAddTask(selectedYmd)}
-          className="mt-3 w-full border border-white/15 bg-black/35 text-foreground shadow-sm backdrop-blur-md hover:border-white/22 hover:bg-black/45"
+          className="mt-3.5 w-full border border-white/[0.1] bg-white/[0.06] text-foreground shadow-none backdrop-blur-md hover:border-white/[0.14] hover:bg-white/[0.1]"
           variant="secondary"
         >
           <Plus className="mr-1.5 h-4 w-4 text-muted-foreground" />
@@ -77,8 +77,8 @@ export function CalendarAgendaPanel({
                   onClick={(e) => onClientHeaderClick(e, group.clientId)}
                   aria-label={`View client ${group.clientName}`}
                   className={cn(
-                    'h-auto min-h-10 w-full justify-between gap-2 border-white/15 bg-black/25 px-3 py-2 text-left backdrop-blur-sm',
-                    'text-[10px] font-bold uppercase tracking-widest text-muted-foreground hover:border-white/20 hover:bg-white/8 hover:text-foreground',
+                    'h-auto min-h-10 w-full justify-between gap-2 border-white/[0.08] bg-white/[0.04] px-3 py-2 text-left backdrop-blur-sm',
+                    'text-[10px] font-bold uppercase tracking-widest text-muted-foreground hover:border-white/[0.12] hover:bg-white/[0.08] hover:text-foreground',
                     'focus-visible:ring-2 focus-visible:ring-white/25',
                   )}
                 >
@@ -106,7 +106,7 @@ export function CalendarAgendaPanel({
                   onClick={() => onEditTask(x.projectId, x.task.id, selectedYmd)}
                   className={cn(
                     'msc-calendar-glass-inset w-full p-2.5 text-left transition-colors',
-                    'hover:border-white/15 hover:bg-white/[0.06] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/20',
+                    'hover:border-white/[0.1] hover:bg-white/[0.06] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/18',
                   )}
                 >
                   <div className="line-clamp-2 text-sm font-medium text-foreground" title={x.task.title}>

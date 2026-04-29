@@ -121,7 +121,7 @@ export function CalendarGrid({
   return (
     <div
       className={cn(
-        'msc-calendar-glass-panel flex min-h-0 w-full min-w-0 flex-col self-start rounded-xl p-2 sm:p-4',
+        'msc-calendar-glass-panel flex min-h-0 w-full min-w-0 flex-col self-start rounded-[22px] p-2.5 sm:p-4',
       )}
     >
       <div className="relative z-[1] flex min-h-0 min-w-0 flex-1 flex-col">
@@ -152,14 +152,18 @@ export function CalendarGrid({
                     }
                   }}
                   className={cn(
-                    'msc-calendar-glass-cell group flex min-w-0 cursor-pointer flex-col gap-1 overflow-hidden p-2 text-left transition',
+                    'msc-calendar-glass-cell group flex min-w-0 cursor-pointer flex-col gap-1.5 overflow-hidden p-2.5 text-left transition',
                     eligibleItems.length === 0 ? 'min-h-[5.5rem]' : 'min-h-[7.5rem]',
                     'max-h-[11rem]',
                     inMonth
                       ? isSel
-                        ? 'ring-1 ring-white/18 ring-inset hover:bg-white/[0.06]'
-                        : cn('hover:bg-white/[0.06]', isToday && 'ring-1 ring-white/12 ring-inset')
-                      : 'opacity-50 ring-1 ring-border/80 ring-inset',
+                        ? 'ring-1 ring-dashed ring-white/28 ring-inset hover:bg-white/[0.04]'
+                        : cn(
+                            'hover:bg-white/[0.04]',
+                            isToday &&
+                              'shadow-[inset_0_0_28px_rgba(255,255,255,0.05)] ring-1 ring-inset ring-white/[0.1]',
+                          )
+                      : 'opacity-[0.42] ring-1 ring-dashed ring-white/[0.08] ring-inset',
                   )}
                   aria-label={dayAriaLabel}
                   aria-pressed={isSel}
@@ -182,12 +186,12 @@ export function CalendarGrid({
                       {format(day, 'MMM d')}
                     </span>
                   </div>
-                  <div className="flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto overscroll-y-contain [scrollbar-gutter:stable]">
+                  <div className="flex min-h-0 flex-1 flex-col gap-1.5 overflow-y-auto overscroll-y-contain [scrollbar-gutter:stable]">
                     {previewItems.map((x) => {
                       const project = byProjectId.get(x.projectId)
                       if (!project) return null
                       return (
-                        <div key={x.task.id} className="min-w-0 shrink-0">
+                        <div key={x.task.id} className="min-w-0 shrink-0 px-0.5">
                           <CalendarTaskChip
                             task={x.task}
                             project={project}
@@ -202,7 +206,7 @@ export function CalendarGrid({
                       )
                     })}
                     {overflowCount > 0 ? (
-                      <div className="shrink-0 px-0.5 text-[10px] font-medium text-muted-foreground">
+                      <div className="shrink-0 px-1 pt-0.5 text-[10px] font-medium text-muted-foreground">
                         + {overflowCount} more
                       </div>
                     ) : null}
@@ -216,17 +220,17 @@ export function CalendarGrid({
         {/* Desktop: 7-column matrix; horizontal scroll only here */}
         <div className="hidden min-h-0 min-w-0 flex-1 flex-col md:flex">
           <div className="w-full min-w-0 flex-1 overflow-x-auto overscroll-x-contain [scrollbar-gutter:stable]">
-            <div className="w-full min-w-0 shrink-0 rounded-lg md:min-w-[56rem]">
+            <div className="w-full min-w-0 shrink-0 rounded-[1.25rem] md:min-w-[56rem]">
               <div
                 className={cn(
-                  'grid gap-2.5 rounded-lg border border-white/10 bg-[#0c0c0c]',
+                  'grid gap-2 overflow-hidden rounded-[1.25rem] border border-white/[0.06] bg-white/[0.025] p-1.5 backdrop-blur-sm',
                   'grid-cols-7 md:min-h-0 md:overflow-hidden',
                 )}
               >
                 {DOW.map((d) => (
                   <div
                     key={d}
-                    className="border-b border-white/5 bg-[#121212] p-2 text-center text-xs font-medium text-muted-foreground backdrop-blur-sm"
+                    className="rounded-lg border-b border-transparent bg-white/[0.035] px-2 py-2.5 text-center text-[11px] font-medium tracking-wide text-muted-foreground/90"
                   >
                     {d}
                   </div>
@@ -255,33 +259,39 @@ export function CalendarGrid({
                           }
                         }}
                         className={cn(
-                          'msc-calendar-glass-cell msc-calendar-glass-cell--matrix group flex min-h-0 min-w-0 cursor-pointer flex-col gap-1 overflow-hidden px-2 py-1.5 text-left transition',
+                          'msc-calendar-glass-cell msc-calendar-glass-cell--matrix group flex min-h-0 min-w-0 cursor-pointer flex-col gap-1.5 overflow-hidden px-2.5 py-2 text-left transition',
                           'md:h-full md:min-h-28 md:max-h-44 md:flex-1',
                           inMonth
                             ? isSel
-                              ? 'ring-1 ring-white/18 ring-inset hover:bg-white/[0.06]'
-                              : cn('hover:bg-white/[0.06]', isToday && 'ring-1 ring-white/12 ring-inset')
-                            : 'opacity-50 ring-1 ring-border/80 ring-inset',
+                              ? 'ring-1 ring-dashed ring-white/28 ring-inset hover:bg-white/[0.04]'
+                              : cn(
+                                  'hover:bg-white/[0.04]',
+                                  isToday &&
+                                    'shadow-[inset_0_0_28px_rgba(255,255,255,0.05)] ring-1 ring-inset ring-white/[0.1]',
+                                )
+                            : 'opacity-[0.42] ring-1 ring-dashed ring-white/[0.08] ring-inset',
                         )}
                         aria-label={dayAriaLabel}
                         aria-pressed={isSel}
                       >
                         <span
                           className={cn(
-                            'mb-0.5 w-6 shrink-0 rounded py-px text-center text-[10px] font-medium md:text-xs',
-                            isToday
-                              ? 'bg-white/10 text-foreground/90 ring-1 ring-inset ring-white/10'
-                              : 'text-foreground/90',
+                            'mb-1 w-7 shrink-0 rounded-lg py-0.5 text-center text-[10px] font-medium tabular-nums md:text-xs',
+                            !inMonth && 'text-muted-foreground/45',
+                            inMonth &&
+                              (isToday
+                                ? 'bg-white/[0.08] text-foreground ring-1 ring-inset ring-white/[0.1] shadow-[inset_0_0_14px_rgba(255,255,255,0.06)]'
+                                : 'text-foreground/88'),
                           )}
                         >
                           {String(day.getDate())}
                         </span>
-                        <div className="flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto overscroll-y-contain [scrollbar-gutter:stable]">
+                        <div className="flex min-h-0 flex-1 flex-col gap-1.5 overflow-y-auto overscroll-y-contain [scrollbar-gutter:stable]">
                           {previewItems.map((x) => {
                             const project = byProjectId.get(x.projectId)
                             if (!project) return null
                             return (
-                              <div key={x.task.id} className="min-w-0 shrink-0">
+                              <div key={x.task.id} className="min-w-0 shrink-0 px-0.5">
                                 <CalendarTaskChip
                                   task={x.task}
                                   project={project}
@@ -296,7 +306,7 @@ export function CalendarGrid({
                             )
                           })}
                           {overflowCount > 0 ? (
-                            <div className="shrink-0 px-0.5 text-xs font-medium text-muted-foreground">
+                            <div className="shrink-0 px-1 pt-0.5 text-xs font-medium text-muted-foreground">
                               + {overflowCount} more
                             </div>
                           ) : null}
@@ -332,7 +342,7 @@ export function CalendarGrid({
               <Button
                 type="button"
                 variant="secondary"
-                className="mt-3 w-full border border-white/15 bg-black/35 text-foreground shadow-sm backdrop-blur-md hover:border-white/22 hover:bg-black/45"
+                className="mt-3 w-full border border-white/[0.1] bg-white/[0.06] text-foreground shadow-none backdrop-blur-md hover:border-white/[0.14] hover:bg-white/[0.1]"
                 onClick={() => {
                   if (!dayDetailYmd) return
                   onAddTask(dayDetailYmd)

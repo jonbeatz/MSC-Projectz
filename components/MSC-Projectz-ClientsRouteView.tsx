@@ -56,7 +56,7 @@ function msc_statusPillClass(status: string): string {
   if (s === 'active')
     return 'border border-emerald-400/25 bg-emerald-500/15 text-emerald-100/95'
   if (s === 'onboarding')
-    return 'border border-amber-400/28 bg-amber-500/14 text-amber-50/95'
+    return 'border border-msc-ui-accent/30 bg-msc-ui-accent/14 text-sky-50/95'
   if (s === 'lead') return 'border border-white/12 bg-white/[0.06] text-muted-foreground'
   if (s === 'completed')
     return 'border border-sky-400/22 bg-sky-500/12 text-sky-50/95'
@@ -155,7 +155,7 @@ export function MSC_Projectz_ClientsRouteView() {
 
   return (
     <div
-      className="msc-clients-route msc-clients-route-bg flex min-h-screen flex-col gap-6 p-6"
+      className="msc-clients-route msc-cc-route-canvas flex min-h-screen flex-col gap-6 p-6"
       data-msc-component="clients-route"
     >
       <header className="flex flex-wrap items-start justify-between gap-3 border-b border-border pb-4">
@@ -223,7 +223,7 @@ export function MSC_Projectz_ClientsRouteView() {
                   className={cn(
                     'msc-clients-glass-card msc-clients-route-tile group relative flex w-full flex-col gap-5 overflow-hidden p-6 text-left',
                     'transition-[transform,box-shadow] duration-300 hover:-translate-y-0.5 hover:shadow-[0_22px_52px_rgba(0,0,0,0.58)]',
-                    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-400/35',
+                    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-msc-ui-accent/40',
                   )}
                 >
                   <div className="relative z-10 flex gap-4">
@@ -261,7 +261,7 @@ export function MSC_Projectz_ClientsRouteView() {
                       aria-hidden
                     >
                       <div
-                        className="h-full rounded-full bg-linear-to-r from-orange-500 via-amber-400 to-orange-400 shadow-[0_0_12px_rgba(249,115,22,0.35)] transition-[width] duration-500 group-hover:shadow-[0_0_16px_rgba(249,115,22,0.45)]"
+                        className="h-full rounded-full bg-linear-to-r from-msc-ui-accent via-sky-400 to-msc-ui-accent shadow-[0_0_12px_rgba(89,158,222,0.38)] transition-[width] duration-500 group-hover:shadow-[0_0_16px_rgba(89,158,222,0.5)]"
                         style={{ width: `${pct}%` }}
                       />
                     </div>
