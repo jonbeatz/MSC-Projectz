@@ -28,32 +28,32 @@ _In Payload the role is a single value; use **master-admin** (includes all admin
 
 ## MSC-Admin (Admin)
 
-| Field    | Value                          |
-| -------- | ------------------------------ |
-| Username | `MSC-Admin`                    |
+| Field    | Value                             |
+| -------- | --------------------------------- |
+| Username | `MSC-Admin`                       |
 | Email    | `createmystudiochannel@gmail.com` |
-| Password | `[REDACTED]`                   |
+| Password | `[REDACTED]`                      |
 
 ---
 
 ## TNyse (Admin)
 
-| Field    | Value             |
-| -------- | ----------------- |
-| Username | `TNyse`           |
+| Field    | Value              |
+| -------- | ------------------ |
+| Username | `TNyse`            |
 | Email    | `bigtee@gmail.com` |
-| Password | `[REDACTED]`      |
+| Password | `[REDACTED]`       |
 
 ---
 
 ## Quick role map
 
-| Account     | App role(s)   |
-| ----------- | ------------- |
-| JonBeatz    | Master admin  |
-| JonBeatz822 | User          |
-| MSC-Admin   | Admin         |
-| TNyse       | Admin         |
+| Account     | App role(s)  |
+| ----------- | ------------ |
+| JonBeatz    | Master admin |
+| JonBeatz822 | User         |
+| MSC-Admin   | Admin        |
+| TNyse       | Admin        |
 
 ## Local audit / test users (`@msc.local`)
 

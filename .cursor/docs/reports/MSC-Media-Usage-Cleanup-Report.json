@@ -4,14 +4,7 @@
   "mode": "apply",
   "ownerId": 1,
   "mediaCount": 8,
-  "usedIds": [
-    4,
-    5,
-    7,
-    8,
-    9,
-    16
-  ],
+  "usedIds": [4, 5, 7, 8, 9, 16],
   "candidateDeleteCount": 1,
   "deletedCount": 1,
   "deleted": [

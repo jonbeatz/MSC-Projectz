@@ -62,9 +62,7 @@ export function MSC_Projectz_VerifyReminderClient({ maskedEmail, canUseDevBypass
 
   return (
     <section className="w-full rounded-xl border border-border bg-card p-6 text-center">
-      <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
-        Trust Gate
-      </p>
+      <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">Trust Gate</p>
       <h1 className="mt-3 text-xl font-semibold text-foreground">Verify your email to continue</h1>
       <p className="mt-2 text-sm text-muted-foreground">
         Please verify your email to access the Vault. We sent a verification link to{' '}
@@ -103,9 +101,7 @@ export function MSC_Projectz_VerifyReminderClient({ maskedEmail, canUseDevBypass
       )}
 
       {message && (
-        <p
-          className={`mt-3 text-sm ${messageType === 'error' ? 'text-destructive' : 'text-muted-foreground'}`}
-        >
+        <p className={`mt-3 text-sm ${messageType === 'error' ? 'text-destructive' : 'text-muted-foreground'}`}>
           {message}
         </p>
       )}

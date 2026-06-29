@@ -7,7 +7,10 @@ const resendWindow = new Map<string, number[]>()
 const registerRequestWindow = new Map<string, number[]>()
 
 function msc_isDisabled(): boolean {
-  return process.env.MSC_VERIFICATION_DISABLE_IP_RATE_LIMIT === 'true' || process.env.MSC_VERIFICATION_DISABLE_IP_RATE_LIMIT === '1'
+  return (
+    process.env.MSC_VERIFICATION_DISABLE_IP_RATE_LIMIT === 'true' ||
+    process.env.MSC_VERIFICATION_DISABLE_IP_RATE_LIMIT === '1'
+  )
 }
 
 function msc_prune(ts: number[], now: number, windowMs: number): number[] {
@@ -42,9 +45,7 @@ function msc_record(m: Map<string, number[]>, ip: string, windowMs: number) {
 }
 
 /** Resend flow: after per-account cooldown; limits burst abuse per network. */
-export function msc_checkResendIpLimit(
-  ip: string,
-): { ok: true } | { ok: false; retryAfterSeconds: number } {
+export function msc_checkResendIpLimit(ip: string): { ok: true } | { ok: false; retryAfterSeconds: number } {
   const max = Number(process.env.MSC_IP_RESEND_MAX) || 20
   const windowMs = Number(process.env.MSC_IP_RESEND_WINDOW_MS) || 60 * 60 * 1000
   return msc_check(resendWindow, ip, max, windowMs)
@@ -60,9 +61,7 @@ export function msc_recordResendSend(ip: string) {
  * Every **registration form submission** (after field validation), including
  * "email already exists" — blocks brute-force probing without creating users.
  */
-export function msc_checkAndRecordRegisterRequest(
-  ip: string,
-): { ok: true } | { ok: false; retryAfterSeconds: number } {
+export function msc_checkAndRecordRegisterRequest(ip: string): { ok: true } | { ok: false; retryAfterSeconds: number } {
   if (msc_isDisabled()) return { ok: true }
   const max = Number(process.env.MSC_IP_REGISTER_ATTEMPT_MAX) || 25
   const windowMs = Number(process.env.MSC_IP_REGISTER_ATTEMPT_WINDOW_MS) || 60 * 60 * 1000

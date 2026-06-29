@@ -105,7 +105,13 @@ export function MemberClusterTrigger({
           >
             <div className="flex -space-x-2 pr-0.5">
               {visible.map((member) => (
-                <MemberAvatar key={String(member.id)} member={member} fallbackType={fallbackType} size="sm" className="h-7 w-7" />
+                <MemberAvatar
+                  key={String(member.id)}
+                  member={member}
+                  fallbackType={fallbackType}
+                  size="sm"
+                  className="h-7 w-7"
+                />
               ))}
             </div>
             {showOverflowPill && (
@@ -122,10 +128,15 @@ export function MemberClusterTrigger({
         >
           <div className="border-b border-border/50 px-3 py-2.5">
             <p className="text-sm font-medium text-foreground">Team</p>
-            <p className="text-xs text-muted-foreground">{members.length} member{members.length === 1 ? '' : 's'}</p>
+            <p className="text-xs text-muted-foreground">
+              {members.length} member{members.length === 1 ? '' : 's'}
+            </p>
           </div>
           <ul
-            className={cn('overflow-y-auto overscroll-y-contain [scrollbar-gutter:stable] py-1', listMaxHeightClassName)}
+            className={cn(
+              'overflow-y-auto overscroll-y-contain [scrollbar-gutter:stable] py-1',
+              listMaxHeightClassName,
+            )}
             role="list"
           >
             {members.map((member) => {

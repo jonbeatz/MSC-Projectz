@@ -109,8 +109,7 @@ export async function msc_updateCurrentUserProfile(input: {
       throw new Error('Selected avatar media was not found.')
     }
     const owner = media.owner
-    const ownerId =
-      typeof owner === 'object' && owner !== null && 'id' in owner ? owner.id : owner
+    const ownerId = typeof owner === 'object' && owner !== null && 'id' in owner ? owner.id : owner
     const isOwner = ownerId !== undefined && ownerId !== null && String(ownerId) === String(ctx.user.id)
     const isAdmin = msc_hasAdminAccess((ctx.user as { role?: string | null }).role)
     if (!isOwner && !isAdmin) {

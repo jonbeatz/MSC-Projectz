@@ -48,4 +48,3 @@ Do not repeat the handshake on every follow-up message.
 1. Confirm workspace root before any command.
 2. Show short progress updates during long-running steps.
 3. Use explicit confirmation before destructive/high-impact operations (commit, push, deploy, branch surgery).
-

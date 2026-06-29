@@ -35,9 +35,7 @@ export default buildConfig({
     components: {
       afterDashboard: [
         {
-          path: msc_toPosixPath(
-            path.resolve(dirname, 'app/payload-admin/MSC-Projectz-PayloadAfterDashboard.js'),
-          ),
+          path: msc_toPosixPath(path.resolve(dirname, 'app/payload-admin/MSC-Projectz-PayloadAfterDashboard.js')),
           exportName: 'MSC_Projectz_PayloadAfterDashboard',
         },
       ],
@@ -59,12 +57,12 @@ export default buildConfig({
   },
   // payload.config.ts
   // Ensure your db configuration looks like this:
-db: sqliteAdapter({
-  client: {
-    url: process.env.DATABASE_URI || 'file:./payload.sqlite',
-  },
-  push: msc_resolveSqlitePush(),
-}),
+  db: sqliteAdapter({
+    client: {
+      url: process.env.DATABASE_URI || 'file:./payload.sqlite',
+    },
+    push: msc_resolveSqlitePush(),
+  }),
   sharp,
   onInit: async (payload) => {
     const firstU = await payload.find({

@@ -27,12 +27,9 @@ export type MscVaultSnippetProjectFlags = {
 }
 
 export type MscGetProjectSnippetsResult =
-  | { ok: true; snippets: MscVaultSnippetUi[]; flags: MscVaultSnippetProjectFlags }
-  | { ok: false; error: string }
+  { ok: true; snippets: MscVaultSnippetUi[]; flags: MscVaultSnippetProjectFlags } | { ok: false; error: string }
 
-export type MscSnippetMutationResult =
-  | { ok: true; id?: string | number }
-  | { ok: false; error: string }
+export type MscSnippetMutationResult = { ok: true; id?: string | number } | { ok: false; error: string }
 
 function msc_mapSnippetDoc(doc: Record<string, unknown>): MscVaultSnippetUi {
   const author = doc.author
@@ -42,11 +39,7 @@ function msc_mapSnippetDoc(doc: Record<string, unknown>): MscVaultSnippetUi {
       : (author as string | number)
   const updated = doc.updatedAt
   const updatedAt =
-    typeof updated === 'string'
-      ? updated
-      : updated instanceof Date
-        ? updated.toISOString()
-        : String(updated ?? '')
+    typeof updated === 'string' ? updated : updated instanceof Date ? updated.toISOString() : String(updated ?? '')
 
   return {
     id: String(doc.id),
@@ -243,7 +236,10 @@ export async function msc_updateProjectSnippet(input: MscUpdateProjectSnippetInp
 /**
  * Publish a draft (owner/admin path); collection hook also enforces publish transition.
  */
-export async function msc_publishProjectSnippet(projectId: string, snippetId: string): Promise<MscSnippetMutationResult> {
+export async function msc_publishProjectSnippet(
+  projectId: string,
+  snippetId: string,
+): Promise<MscSnippetMutationResult> {
   return msc_updateProjectSnippet({
     projectId,
     snippetId,

@@ -49,18 +49,13 @@ export function msc_vaultUserOwnsProjectForWrite(
   return String(ownerId) === String(user.id)
 }
 
-export function msc_vaultIsPayloadAdmin(
-  user: MscUserWithRole | null | undefined,
-): user is MscUserWithRole {
+export function msc_vaultIsPayloadAdmin(user: MscUserWithRole | null | undefined): user is MscUserWithRole {
   return Boolean(user && msc_hasAdminAccess((user as MscUserWithRole).role))
 }
 
 function msc_vaultProjectVisibilityWhere(userId: string | number): Where {
   return {
-    or: [
-      { user: { equals: userId } },
-      { members: { contains: userId } },
-    ],
+    or: [{ user: { equals: userId } }, { members: { contains: userId } }],
   } as Where
 }
 

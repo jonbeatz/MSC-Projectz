@@ -1,39 +1,65 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { FlaskConical, Mail } from 'lucide-react'
 
 import { Msc_VerificationView } from '@/components/auth/msc_VerificationView'
 import { MSC_Projectz_VerifyReminderClient } from '@/app/(main)/auth/verify-reminder/MSC-Projectz-VerifyReminderClient'
+import { msc_buildVerificationEmailParts } from '@/lib/msc_verification_email_template'
 import { cn } from '@/lib/utils'
 
 type MscPreviewTab =
-  | 'template'
-  | 'success'
-  | 'error'
-  | 'expired'
-  | 'verify-reminder-page'
-  | 'verify-email-page'
+  'template' | 'invite-email' | 'success' | 'error' | 'expired' | 'verify-reminder-page' | 'verify-email-page'
 
 const msc_floatPanel =
   'rounded-2xl border border-border/60 bg-card/70 shadow-[0_18px_48px_-16px_rgba(0,0,0,0.42)] backdrop-blur-md dark:border-white/[0.07] dark:bg-zinc-950/50 dark:shadow-black/55'
 
-const msc_sections: Array<{ heading: string; tabs: Array<{ id: MscPreviewTab; label: string }> }> = [
-  {
-    heading: 'Previews',
-    tabs: [
-      { id: 'template', label: 'Email Template' },
-      { id: 'success', label: 'Success' },
-      { id: 'error', label: 'Error' },
-      { id: 'expired', label: 'Expired' },
-      { id: 'verify-reminder-page', label: 'Verify Reminder Page' },
-      { id: 'verify-email-page', label: 'Verify Email Page' },
-    ],
-  },
+const msc_tabs: Array<{ id: MscPreviewTab; label: string }> = [
+  { id: 'template', label: 'Verification email' },
+  { id: 'invite-email', label: 'Invite email' },
+  { id: 'success', label: 'Success' },
+  { id: 'error', label: 'Error' },
+  { id: 'expired', label: 'Expired' },
+  { id: 'verify-reminder-page', label: 'Verify Reminder Page' },
+  { id: 'verify-email-page', label: 'Verify Email Page' },
 ]
+
+function msc_tabLabel(id: MscPreviewTab): string {
+  return msc_tabs.find((t) => t.id === id)?.label ?? 'Preview'
+}
 
 export function Msc_EmailPreviewsClient() {
   const [activeTab, setActiveTab] = useState<MscPreviewTab>('template')
+  const [origin, setOrigin] = useState('http://127.0.0.1:3000')
+
+  useEffect(() => {
+    if (typeof window !== 'undefined' && window.location.origin) {
+      setOrigin(window.location.origin)
+    }
+  }, [])
+
+  const emailPreview = useMemo(() => {
+    if (activeTab !== 'template' && activeTab !== 'invite-email') return null
+    const o = origin.replace(/\/$/, '')
+    const verifyUrl = `${o}/auth/verify?token=preview-only-not-valid`
+    const base = {
+      recipientName: 'Jordan',
+      recipientEmail: 'jordan@example.com',
+      verifyUrl,
+      signInOrigin: o,
+    }
+    if (activeTab === 'invite-email') {
+      return msc_buildVerificationEmailParts({
+        ...base,
+        mode: 'invite',
+        inviteTemporaryPassword: 'Preview-Temp9!Aa',
+      })
+    }
+    return msc_buildVerificationEmailParts({
+      ...base,
+      mode: 'signup',
+    })
+  }, [origin, activeTab])
 
   return (
     <div className="mx-auto w-full max-w-6xl space-y-6 px-4 py-6 sm:px-6">
@@ -43,14 +69,13 @@ export function Msc_EmailPreviewsClient() {
             <FlaskConical className="h-3 w-3" aria-hidden />
             Local dev
           </span>
-          <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
-            Admin only
-          </span>
+          <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">Admin only</span>
         </div>
         <h1 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">Dev Playground</h1>
         <p className="max-w-2xl text-sm leading-relaxed text-muted-foreground">
-          Deterministic previews for verification email flows. Nothing here sends real mail — use these states to tune
-          copy and layout before shipping.
+          Outbound verification and invitation emails use the same HTML as the <strong>Verification email</strong> and{' '}
+          <strong>Invite email</strong> previews below (multipart: HTML + plain text). Nothing on this page sends mail —
+          other tabs preview in-app UI states.
         </p>
       </header>
 
@@ -60,63 +85,56 @@ export function Msc_EmailPreviewsClient() {
             <Mail className="h-4 w-4 text-msc-ui-accent" aria-hidden />
             <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">Scenarios</p>
           </div>
-          {msc_sections.map((section) => (
-            <div key={section.heading} className="mb-2">
-              {section.heading ? (
-                <p className="mb-2 px-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground/90">
-                  {section.heading}
-                </p>
-              ) : null}
-              <div className="space-y-1">
-                {section.tabs.map((tab) => (
-                  <button
-                    key={tab.id}
-                    type="button"
-                    onClick={() => setActiveTab(tab.id)}
-                    className={cn(
-                      'w-full rounded-lg border border-transparent px-3 py-2 text-left text-sm transition-colors',
-                      activeTab === tab.id
-                        ? 'border-msc-ui-accent/30 bg-msc-ui-accent/15 font-medium text-msc-ui-accent shadow-sm'
-                        : 'text-muted-foreground hover:border-border/40 hover:bg-muted/25 hover:text-foreground',
-                    )}
-                  >
-                    {tab.label}
-                  </button>
-                ))}
-              </div>
+          <div className="mb-2">
+            <p className="mb-2 px-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground/90">
+              Previews
+            </p>
+            <div className="space-y-1">
+              {msc_tabs.map((tab) => (
+                <button
+                  key={tab.id}
+                  type="button"
+                  onClick={() => setActiveTab(tab.id)}
+                  className={cn(
+                    'w-full rounded-lg border border-transparent px-3 py-2 text-left text-sm transition-colors',
+                    activeTab === tab.id
+                      ? 'border-msc-ui-accent/30 bg-msc-ui-accent/15 font-medium text-msc-ui-accent shadow-sm'
+                      : 'text-muted-foreground hover:border-border/40 hover:bg-muted/25 hover:text-foreground',
+                  )}
+                >
+                  {tab.label}
+                </button>
+              ))}
             </div>
-          ))}
+          </div>
         </aside>
 
         <section className={cn(msc_floatPanel, 'min-w-0 overflow-hidden')}>
           <div className="border-b border-border/60 px-4 py-3 dark:border-white/10 sm:px-5">
             <p className="text-xs font-medium text-muted-foreground">Live preview</p>
-            <p className="text-sm font-semibold text-foreground">
-              {msc_sections[0].tabs.find((t) => t.id === activeTab)?.label ?? 'Preview'}
-            </p>
+            <p className="text-sm font-semibold text-foreground">{msc_tabLabel(activeTab)}</p>
           </div>
-          <div className="max-h-[min(70vh,640px)] overflow-y-auto p-3 sm:p-4">
-            <div className="min-h-[480px] rounded-xl border border-border/50 bg-background/50 px-3 py-10 dark:border-white/[0.06] dark:bg-black/25 sm:px-6 sm:py-12">
-              {activeTab === 'template' ? (
-                <div className="mx-auto flex min-h-[420px] w-full max-w-lg items-center justify-center">
-                  <section className="w-full rounded-xl border border-border/60 bg-card/80 p-6 text-center shadow-md dark:border-white/[0.08] dark:bg-zinc-900/60">
-                    <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
-                      MSC-Projectz
-                    </p>
-                    <h2 className="mt-3 text-xl font-semibold text-foreground">Verification Email Template</h2>
-                    <div className="mt-5 space-y-1 text-left text-sm text-muted-foreground">
-                      <p>
-                        <span className="font-medium text-foreground">Subject:</span> Verify your MSC-Projectz account
-                      </p>
-                      <p className="pt-1">
-                        <span className="font-medium text-foreground">Body preview:</span>
-                      </p>
-                      <p>Hello NAME,</p>
-                      <p>Please verify your email address to activate your account.</p>
-                      <p>{'{verification_link}'}</p>
-                      <p>This link expires in 24 hours.</p>
-                    </div>
-                  </section>
+          <div className="max-h-[min(70vh,720px)] overflow-y-auto p-3 sm:p-4">
+            <div className="min-h-[480px] rounded-xl border border-border/50 bg-background/50 px-2 py-6 dark:border-white/[0.06] dark:bg-black/25 sm:px-4 sm:py-8">
+              {emailPreview ? (
+                <div className="space-y-3">
+                  <p className="text-xs text-muted-foreground">
+                    <span className="font-medium text-foreground">Subject:</span> {emailPreview.subject}
+                  </p>
+                  <iframe
+                    title="Email HTML preview"
+                    srcDoc={emailPreview.html}
+                    className="h-[560px] w-full rounded-lg border border-border bg-[#0a0a0a]"
+                    sandbox="allow-same-origin"
+                  />
+                  <details className="rounded-md border border-border/60 bg-muted/20 p-3 text-xs">
+                    <summary className="cursor-pointer font-medium text-foreground">
+                      Plain-text part (same as mail clients without HTML)
+                    </summary>
+                    <pre className="mt-2 max-h-40 overflow-auto whitespace-pre-wrap text-muted-foreground">
+                      {emailPreview.text}
+                    </pre>
+                  </details>
                 </div>
               ) : activeTab === 'success' ? (
                 <Msc_VerificationView forceState="success" embedded />

@@ -1,10 +1,10 @@
 'use client'
 
 import { useState } from 'react'
-import { 
-  Search, 
-  Workflow, 
-  HelpCircle, 
+import {
+  Search,
+  Workflow,
+  HelpCircle,
   FolderOpen,
   Key,
   Server,
@@ -13,14 +13,9 @@ import {
   Mail,
   Users,
   Copy,
-  Check
+  Check,
 } from 'lucide-react'
-import { 
-  Accordion, 
-  AccordionContent, 
-  AccordionItem, 
-  AccordionTrigger 
-} from '@/components/ui/accordion'
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion'
 import { cn } from '@/lib/utils'
 
 const msc_engineFloatMain =
@@ -48,61 +43,71 @@ const faqItems: FAQItem[] = [
   {
     id: 'faq-1',
     question: 'How do I add a new project?',
-    answer: 'Click the "+ Add Project" button in the sidebar or on the dashboard. Follow the 4-step wizard to set up your project: Identity (name & thumbnail), Connectivity (local path & URL), Credentials (vault entries), and Status (local vs live).',
+    answer:
+      'Click the "+ Add Project" button in the sidebar or on the dashboard. Follow the 4-step wizard to set up your project: Identity (name & thumbnail), Connectivity (local path & URL), Credentials (vault entries), and Status (local vs live).',
     category: 'getting-started',
   },
   {
     id: 'faq-2',
     question: 'Where are my credentials stored?',
-    answer: 'All credentials are stored locally in your browser using encrypted localStorage. Your data never leaves your machine. The master password encrypts access to the vault.',
+    answer:
+      'All credentials are stored locally in your browser using encrypted localStorage. Your data never leaves your machine. The master password encrypts access to the vault.',
     category: 'security',
   },
   {
     id: 'faq-3',
     question: 'How do I open a project folder?',
-    answer: 'Click on a project card and hover over it to reveal quick actions. Click "Explorer" to open the project folder through the native desktop bridge.',
+    answer:
+      'Click on a project card and hover over it to reveal quick actions. Click "Explorer" to open the project folder through the native desktop bridge.',
     category: 'workflow',
   },
   {
     id: 'faq-4',
     question: 'Can I change my master password?',
-    answer: 'Yes! Go to Settings > Profile and use the "Change Master Password" section. You will need to enter your current password to confirm the change.',
+    answer:
+      'Yes! Go to Settings > Profile and use the "Change Master Password" section. You will need to enter your current password to confirm the change.',
     category: 'security',
   },
   {
     id: 'faq-5',
     question: 'What is the difference between Local and Live status?',
-    answer: 'Local status indicates a project is in development on your machine. Live status means the project has been deployed and has a public URL. This helps you track deployment status.',
+    answer:
+      'Local status indicates a project is in development on your machine. Live status means the project has been deployed and has a public URL. This helps you track deployment status.',
     category: 'workflow',
   },
   {
     id: 'faq-6',
     question: 'How do I configure Spacemail SMTP for email notifications?',
-    answer: 'Go to Settings > Spacemail SMTP Configuration. For incoming mail (IMAP), use mail.spacemail.com on port 993 with SSL/TLS. For outgoing mail (SMTP), use mail.spacemail.com on port 465 with SSL/TLS. Enter your Spacemail username and password.',
+    answer:
+      'Go to Settings > Spacemail SMTP Configuration. For incoming mail (IMAP), use mail.spacemail.com on port 993 with SSL/TLS. For outgoing mail (SMTP), use mail.spacemail.com on port 465 with SSL/TLS. Enter your Spacemail username and password.',
     category: 'settings',
   },
   {
     id: 'faq-7',
     question: 'Can I export my project data?',
-    answer: 'Project records and Code Vault snippets live in Payload/SQLite and are scoped to vault projects. Open a project on the Dashboard, use Task Pulse, and choose the Code Vault segment to add or publish snippets. Legacy browser-only snippets from the old Code Manager screen can be imported from there when this browser still has them. Other helper UI (such as project-card credential popovers) may still use small user-scoped localStorage keys.',
+    answer:
+      'Project records and Code Vault snippets live in Payload/SQLite and are scoped to vault projects. Open a project on the Dashboard, use Task Pulse, and choose the Code Vault segment to add or publish snippets. Legacy browser-only snippets from the old Code Manager screen can be imported from there when this browser still has them. Other helper UI (such as project-card credential popovers) may still use small user-scoped localStorage keys.',
     category: 'data',
   },
   {
     id: 'faq-8',
     question: 'What happens if I forget my master password?',
-    answer: 'Use the "Forgot Password?" link on the login page to receive a password recovery link via email. This requires Spacemail SMTP to be configured. If SMTP is not set up, you will need to clear localStorage and start fresh.',
+    answer:
+      'Use the "Forgot Password?" link on the login page to receive a password recovery link via email. This requires Spacemail SMTP to be configured. If SMTP is not set up, you will need to clear localStorage and start fresh.',
     category: 'security',
   },
   {
     id: 'faq-9',
     question: 'How do I upload a profile avatar?',
-    answer: 'Go to My Profile and click "Choose File" below your current avatar. The image uploads to Payload media, then Save Profile stores that media ID on your user record.',
+    answer:
+      'Go to My Profile and click "Choose File" below your current avatar. The image uploads to Payload media, then Save Profile stores that media ID on your user record.',
     category: 'settings',
   },
   {
     id: 'faq-10',
     question: 'How can I add new users to MSC-Projectz?',
-    answer: 'New user creation requires Admin Approval. Contact your system administrator to request a new account. The admin will create the account and provide login credentials via secure channel.',
+    answer:
+      'New user creation requires Admin Approval. Contact your system administrator to request a new account. The admin will create the account and provide login credentials via secure channel.',
     category: 'admin',
   },
 ]
@@ -252,7 +257,7 @@ export function HelpView() {
   }
 
   const filteredFAQs = faqItems.filter((item) => {
-    const matchesSearch = 
+    const matchesSearch =
       item.question.toLowerCase().includes(searchQuery.toLowerCase()) ||
       item.answer.toLowerCase().includes(searchQuery.toLowerCase())
     const matchesCategory = activeCategory === 'all' || item.category === activeCategory
@@ -260,7 +265,7 @@ export function HelpView() {
   })
 
   const filteredGuides = workflowGuides.filter((item) => {
-    const matchesSearch = 
+    const matchesSearch =
       item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       item.description.toLowerCase().includes(searchQuery.toLowerCase())
     const matchesCategory = activeCategory === 'all' || item.category === activeCategory
@@ -269,13 +274,20 @@ export function HelpView() {
 
   const getCategoryIcon = (category: string) => {
     switch (category) {
-      case 'getting-started': return <Zap className="w-3.5 h-3.5" />
-      case 'workflow': return <Workflow className="w-3.5 h-3.5" />
-      case 'security': return <Key className="w-3.5 h-3.5" />
-      case 'settings': return <Server className="w-3.5 h-3.5" />
-      case 'admin': return <Users className="w-3.5 h-3.5" />
-      case 'data': return <FolderOpen className="w-3.5 h-3.5" />
-      default: return <HelpCircle className="w-3.5 h-3.5" />
+      case 'getting-started':
+        return <Zap className="w-3.5 h-3.5" />
+      case 'workflow':
+        return <Workflow className="w-3.5 h-3.5" />
+      case 'security':
+        return <Key className="w-3.5 h-3.5" />
+      case 'settings':
+        return <Server className="w-3.5 h-3.5" />
+      case 'admin':
+        return <Users className="w-3.5 h-3.5" />
+      case 'data':
+        return <FolderOpen className="w-3.5 h-3.5" />
+      default:
+        return <HelpCircle className="w-3.5 h-3.5" />
     }
   }
 
@@ -306,17 +318,15 @@ export function HelpView() {
         incoming: {
           host: 'mail.spacemail.com',
           port: '993',
-          security: 'SSL/TLS'
+          security: 'SSL/TLS',
         },
         outgoing: {
           host: 'mail.spacemail.com',
           port: '465',
-          security: 'SSL/TLS'
-        }
+          security: 'SSL/TLS',
+        },
       },
-      content: [
-        'Click "Send Test Email" in Settings to verify your configuration.',
-      ],
+      content: ['Click "Send Test Email" in Settings to verify your configuration.'],
     },
     {
       id: 'inst-3',
@@ -325,7 +335,8 @@ export function HelpView() {
       description: 'Process for requesting and approving new user accounts',
       adminNote: {
         title: 'Admin Strategy Note',
-        content: 'Admin Tip: New signups are locked by default. To grant access, navigate to Settings > User Management and toggle the status from "Pending" to "Active". Use the Spacemail SMTP test button to ensure your notification system is online before inviting external users.'
+        content:
+          'Admin Tip: New signups are locked by default. To grant access, navigate to Settings > User Management and toggle the status from "Pending" to "Active". Use the Spacemail SMTP test button to ensure your notification system is online before inviting external users.',
       },
       content: [
         'For New Users:',
@@ -345,309 +356,317 @@ export function HelpView() {
   return (
     <div className="min-h-[calc(100vh-8rem)] min-w-0 px-5 py-4 pb-12 sm:px-8 md:px-12 lg:pl-14 lg:pr-12">
       <div className="mx-auto w-full max-w-3xl xl:max-w-[50rem] 2xl:max-w-[52rem]">
-      {/* Header */}
-      <div className="mb-8">
-        <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-muted-foreground">
-          MSC Engine
-        </p>
-        <h1 className="mt-2 text-3xl font-bold tracking-tight text-foreground">Engine Instructionz</h1>
-        <p className="mt-4 max-w-2xl text-sm text-muted-foreground">
-          Complete documentation for the MSC Media Pro engine, setup guides, and troubleshooting.
-        </p>
-      </div>
+        {/* Header */}
+        <div className="mb-8">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-muted-foreground">MSC Engine</p>
+          <h1 className="mt-2 text-3xl font-bold tracking-tight text-foreground">Engine Instructionz</h1>
+          <p className="mt-4 max-w-2xl text-sm text-muted-foreground">
+            Complete documentation for the MSC Media Pro engine, setup guides, and troubleshooting.
+          </p>
+        </div>
 
-      <div className="grid gap-8 xl:grid-cols-[minmax(0,1fr)_12.5rem] xl:items-start xl:gap-10">
-        <main className="min-w-0 space-y-6">
-          <section className={msc_engineFloatMain}>
-            <div className="mb-5">
-              <h2 className="text-lg font-semibold text-foreground">
-                {activeTab === 'instructionz'
-                  ? 'Setup Workflow'
-                  : activeTab === 'faq'
-                    ? 'Developer FAQ'
-                    : 'Workflow Guides'}
-              </h2>
-              <p className="mt-1 text-sm text-muted-foreground">
-                {activeTab === 'instructionz'
-                  ? 'Follow these steps to get your studio site fully operational.'
-                  : 'Search and filter the current documentation set.'}
-              </p>
-            </div>
+        <div className="grid gap-8 xl:grid-cols-[minmax(0,1fr)_12.5rem] xl:items-start xl:gap-10">
+          <main className="min-w-0 space-y-6">
+            <section className={msc_engineFloatMain}>
+              <div className="mb-5">
+                <h2 className="text-lg font-semibold text-foreground">
+                  {activeTab === 'instructionz'
+                    ? 'Setup Workflow'
+                    : activeTab === 'faq'
+                      ? 'Developer FAQ'
+                      : 'Workflow Guides'}
+                </h2>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  {activeTab === 'instructionz'
+                    ? 'Follow these steps to get your studio site fully operational.'
+                    : 'Search and filter the current documentation set.'}
+                </p>
+              </div>
 
-      {/* Search */}
-      <div className="relative mb-6">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-        <input
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          placeholder="Search documentation..."
-          className="w-full pl-10 pr-4 py-3 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary bg-card border border-border text-foreground placeholder:text-muted-foreground"
-        />
-      </div>
+              {/* Search */}
+              <div className="relative mb-6">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <input
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search documentation..."
+                  className="w-full pl-10 pr-4 py-3 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary bg-card border border-border text-foreground placeholder:text-muted-foreground"
+                />
+              </div>
 
-      {/* Tabs */}
-      <div className="sr-only" aria-live="polite">
-        Active section: {activeTab}
-      </div>
+              {/* Tabs */}
+              <div className="sr-only" aria-live="polite">
+                Active section: {activeTab}
+              </div>
 
-      {/* Category Filters (for FAQ and Guides) */}
-      {(activeTab === 'faq' || activeTab === 'guides') && (
-        <div className="flex flex-wrap gap-2 mb-6">
-          {categories.map((cat) => (
-            <button
-              key={cat.id}
-              type="button"
-              onClick={() => setActiveCategory(cat.id)}
-              className={cn(
-                'rounded-lg border px-3 py-1.5 text-xs font-medium transition-colors',
-                activeCategory === cat.id
-                  ? 'border-msc-ui-accent/35 bg-msc-ui-accent/15 text-msc-ui-accent shadow-sm'
-                  : 'border-transparent bg-muted/25 text-muted-foreground hover:border-border/50 hover:bg-muted/40 hover:text-foreground',
+              {/* Category Filters (for FAQ and Guides) */}
+              {(activeTab === 'faq' || activeTab === 'guides') && (
+                <div className="flex flex-wrap gap-2 mb-6">
+                  {categories.map((cat) => (
+                    <button
+                      key={cat.id}
+                      type="button"
+                      onClick={() => setActiveCategory(cat.id)}
+                      className={cn(
+                        'rounded-lg border px-3 py-1.5 text-xs font-medium transition-colors',
+                        activeCategory === cat.id
+                          ? 'border-msc-ui-accent/35 bg-msc-ui-accent/15 text-msc-ui-accent shadow-sm'
+                          : 'border-transparent bg-muted/25 text-muted-foreground hover:border-border/50 hover:bg-muted/40 hover:text-foreground',
+                      )}
+                    >
+                      {cat.label}
+                    </button>
+                  ))}
+                </div>
               )}
-            >
-              {cat.label}
-            </button>
-          ))}
-        </div>
-      )}
 
-      {/* Instructionz Tab */}
-      {activeTab === 'instructionz' && (
-        <div className="space-y-4">
-          <Accordion type="multiple" value={expandedSections} onValueChange={setExpandedSections}>
-            {instructionzItems.map((item) => (
-              <AccordionItem
-                key={item.id}
-                value={item.id}
-                className="overflow-hidden rounded-xl border border-border/60 bg-card/40 shadow-sm transition-all data-[state=open]:shadow-md dark:border-white/[0.07] dark:bg-white/[0.04] dark:data-[state=open]:bg-white/[0.06]"
-              >
-                <AccordionTrigger className="px-4 py-4 text-foreground no-underline hover:bg-muted/20 hover:no-underline data-[state=open]:bg-muted/15 dark:hover:bg-white/[0.04] dark:data-[state=open]:bg-white/[0.04]">
-                  <div className="flex min-w-0 items-center gap-3 text-left">
-                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-msc-ui-accent/15 text-msc-ui-accent">
-                      {item.icon}
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <h3 className="font-semibold text-foreground">{item.title}</h3>
-                      <p className="truncate text-sm text-muted-foreground">{item.description}</p>
-                    </div>
-                  </div>
-                </AccordionTrigger>
-                <AccordionContent className="border-t border-border/50 bg-muted/10 p-4 transition-all dark:border-white/[0.06] dark:bg-black/15">
-                    {/* SMTP Fields with Copy Buttons */}
-                    {item.smtpFields && (
-                      <div className="space-y-4 mb-4">
-                        <div>
-                          <h4 className="text-sm font-medium mb-2 text-foreground">Incoming Mail (IMAP)</h4>
-                          <div className="space-y-2">
-                            <div className="flex items-center justify-between p-2 rounded bg-card">
-                              <span className="text-sm text-muted-foreground">Host: <span className="text-foreground">{item.smtpFields.incoming.host}</span></span>
-                              <button 
-                                onClick={() => copyToClipboard(item.smtpFields!.incoming.host, 'imap-host')}
-                                className="p-1 rounded hover:bg-secondary transition-colors"
-                              >
-                                {copiedField === 'imap-host' ? (
-                                  <Check className="w-4 h-4 text-primary" />
-                                ) : (
-                                  <Copy className="w-4 h-4 text-muted-foreground" />
-                                )}
-                              </button>
+              {/* Instructionz Tab */}
+              {activeTab === 'instructionz' && (
+                <div className="space-y-4">
+                  <Accordion type="multiple" value={expandedSections} onValueChange={setExpandedSections}>
+                    {instructionzItems.map((item) => (
+                      <AccordionItem
+                        key={item.id}
+                        value={item.id}
+                        className="overflow-hidden rounded-xl border border-border/60 bg-card/40 shadow-sm transition-all data-[state=open]:shadow-md dark:border-white/[0.07] dark:bg-white/[0.04] dark:data-[state=open]:bg-white/[0.06]"
+                      >
+                        <AccordionTrigger className="px-4 py-4 text-foreground no-underline hover:bg-muted/20 hover:no-underline data-[state=open]:bg-muted/15 dark:hover:bg-white/[0.04] dark:data-[state=open]:bg-white/[0.04]">
+                          <div className="flex min-w-0 items-center gap-3 text-left">
+                            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-msc-ui-accent/15 text-msc-ui-accent">
+                              {item.icon}
                             </div>
-                            <div className="flex items-center justify-between p-2 rounded bg-card">
-                              <span className="text-sm text-muted-foreground">Port: <span className="text-foreground">{item.smtpFields.incoming.port}</span></span>
-                              <button 
-                                onClick={() => copyToClipboard(item.smtpFields!.incoming.port, 'imap-port')}
-                                className="p-1 rounded hover:bg-secondary transition-colors"
-                              >
-                                {copiedField === 'imap-port' ? (
-                                  <Check className="w-4 h-4 text-primary" />
-                                ) : (
-                                  <Copy className="w-4 h-4 text-muted-foreground" />
-                                )}
-                              </button>
-                            </div>
-                            <div className="flex items-center justify-between p-2 rounded bg-card">
-                              <span className="text-sm text-muted-foreground">Security: <span className="text-foreground">{item.smtpFields.incoming.security}</span></span>
+                            <div className="min-w-0 flex-1">
+                              <h3 className="font-semibold text-foreground">{item.title}</h3>
+                              <p className="truncate text-sm text-muted-foreground">{item.description}</p>
                             </div>
                           </div>
-                        </div>
-                        <div>
-                          <h4 className="text-sm font-medium mb-2 text-foreground">Outgoing Mail (SMTP)</h4>
-                          <div className="space-y-2">
-                            <div className="flex items-center justify-between p-2 rounded bg-card">
-                              <span className="text-sm text-muted-foreground">Host: <span className="text-foreground">{item.smtpFields.outgoing.host}</span></span>
-                              <button 
-                                onClick={() => copyToClipboard(item.smtpFields!.outgoing.host, 'smtp-host')}
-                                className="p-1 rounded hover:bg-secondary transition-colors"
+                        </AccordionTrigger>
+                        <AccordionContent className="border-t border-border/50 bg-muted/10 p-4 transition-all dark:border-white/[0.06] dark:bg-black/15">
+                          {/* SMTP Fields with Copy Buttons */}
+                          {item.smtpFields && (
+                            <div className="space-y-4 mb-4">
+                              <div>
+                                <h4 className="text-sm font-medium mb-2 text-foreground">Incoming Mail (IMAP)</h4>
+                                <div className="space-y-2">
+                                  <div className="flex items-center justify-between p-2 rounded bg-card">
+                                    <span className="text-sm text-muted-foreground">
+                                      Host: <span className="text-foreground">{item.smtpFields.incoming.host}</span>
+                                    </span>
+                                    <button
+                                      onClick={() => copyToClipboard(item.smtpFields!.incoming.host, 'imap-host')}
+                                      className="p-1 rounded hover:bg-secondary transition-colors"
+                                    >
+                                      {copiedField === 'imap-host' ? (
+                                        <Check className="w-4 h-4 text-primary" />
+                                      ) : (
+                                        <Copy className="w-4 h-4 text-muted-foreground" />
+                                      )}
+                                    </button>
+                                  </div>
+                                  <div className="flex items-center justify-between p-2 rounded bg-card">
+                                    <span className="text-sm text-muted-foreground">
+                                      Port: <span className="text-foreground">{item.smtpFields.incoming.port}</span>
+                                    </span>
+                                    <button
+                                      onClick={() => copyToClipboard(item.smtpFields!.incoming.port, 'imap-port')}
+                                      className="p-1 rounded hover:bg-secondary transition-colors"
+                                    >
+                                      {copiedField === 'imap-port' ? (
+                                        <Check className="w-4 h-4 text-primary" />
+                                      ) : (
+                                        <Copy className="w-4 h-4 text-muted-foreground" />
+                                      )}
+                                    </button>
+                                  </div>
+                                  <div className="flex items-center justify-between p-2 rounded bg-card">
+                                    <span className="text-sm text-muted-foreground">
+                                      Security:{' '}
+                                      <span className="text-foreground">{item.smtpFields.incoming.security}</span>
+                                    </span>
+                                  </div>
+                                </div>
+                              </div>
+                              <div>
+                                <h4 className="text-sm font-medium mb-2 text-foreground">Outgoing Mail (SMTP)</h4>
+                                <div className="space-y-2">
+                                  <div className="flex items-center justify-between p-2 rounded bg-card">
+                                    <span className="text-sm text-muted-foreground">
+                                      Host: <span className="text-foreground">{item.smtpFields.outgoing.host}</span>
+                                    </span>
+                                    <button
+                                      onClick={() => copyToClipboard(item.smtpFields!.outgoing.host, 'smtp-host')}
+                                      className="p-1 rounded hover:bg-secondary transition-colors"
+                                    >
+                                      {copiedField === 'smtp-host' ? (
+                                        <Check className="w-4 h-4 text-primary" />
+                                      ) : (
+                                        <Copy className="w-4 h-4 text-muted-foreground" />
+                                      )}
+                                    </button>
+                                  </div>
+                                  <div className="flex items-center justify-between p-2 rounded bg-card">
+                                    <span className="text-sm text-muted-foreground">
+                                      Port: <span className="text-foreground">{item.smtpFields.outgoing.port}</span>
+                                    </span>
+                                    <button
+                                      onClick={() => copyToClipboard(item.smtpFields!.outgoing.port, 'smtp-port')}
+                                      className="p-1 rounded hover:bg-secondary transition-colors"
+                                    >
+                                      {copiedField === 'smtp-port' ? (
+                                        <Check className="w-4 h-4 text-primary" />
+                                      ) : (
+                                        <Copy className="w-4 h-4 text-muted-foreground" />
+                                      )}
+                                    </button>
+                                  </div>
+                                  <div className="flex items-center justify-between p-2 rounded bg-card">
+                                    <span className="text-sm text-muted-foreground">
+                                      Security:{' '}
+                                      <span className="text-foreground">{item.smtpFields.outgoing.security}</span>
+                                    </span>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Admin Note */}
+                          {item.adminNote && (
+                            <div className="p-3 rounded-lg mb-4 bg-primary/10 border border-primary/30">
+                              <h4 className="text-sm font-medium mb-1 text-primary">{item.adminNote.title}</h4>
+                              <p className="text-xs text-foreground">{item.adminNote.content}</p>
+                            </div>
+                          )}
+
+                          {/* Content */}
+                          <div className="space-y-1.5">
+                            {item.content.map((line, index) => (
+                              <p
+                                key={index}
+                                className={`text-sm ${line === '' ? 'h-2' : line.startsWith('Note:') || line.startsWith('Invite Code') ? 'text-primary' : 'text-muted-foreground'}`}
                               >
-                                {copiedField === 'smtp-host' ? (
-                                  <Check className="w-4 h-4 text-primary" />
-                                ) : (
-                                  <Copy className="w-4 h-4 text-muted-foreground" />
-                                )}
-                              </button>
-                            </div>
-                            <div className="flex items-center justify-between p-2 rounded bg-card">
-                              <span className="text-sm text-muted-foreground">Port: <span className="text-foreground">{item.smtpFields.outgoing.port}</span></span>
-                              <button 
-                                onClick={() => copyToClipboard(item.smtpFields!.outgoing.port, 'smtp-port')}
-                                className="p-1 rounded hover:bg-secondary transition-colors"
-                              >
-                                {copiedField === 'smtp-port' ? (
-                                  <Check className="w-4 h-4 text-primary" />
-                                ) : (
-                                  <Copy className="w-4 h-4 text-muted-foreground" />
-                                )}
-                              </button>
-                            </div>
-                            <div className="flex items-center justify-between p-2 rounded bg-card">
-                              <span className="text-sm text-muted-foreground">Security: <span className="text-foreground">{item.smtpFields.outgoing.security}</span></span>
-                            </div>
+                                {line}
+                              </p>
+                            ))}
                           </div>
-                        </div>
-                      </div>
-                    )}
+                        </AccordionContent>
+                      </AccordionItem>
+                    ))}
+                  </Accordion>
+                </div>
+              )}
 
-                    {/* Admin Note */}
-                    {item.adminNote && (
-                      <div className="p-3 rounded-lg mb-4 bg-primary/10 border border-primary/30">
-                        <h4 className="text-sm font-medium mb-1 text-primary">{item.adminNote.title}</h4>
-                        <p className="text-xs text-foreground">{item.adminNote.content}</p>
-                      </div>
-                    )}
-
-                    {/* Content */}
-                    <div className="space-y-1.5">
-                      {item.content.map((line, index) => (
-                        <p 
-                          key={index} 
-                          className={`text-sm ${line === '' ? 'h-2' : line.startsWith('Note:') || line.startsWith('Invite Code') ? 'text-primary' : 'text-muted-foreground'}`}
+              {/* FAQ Tab */}
+              {activeTab === 'faq' && (
+                <div className="space-y-3">
+                  {filteredFAQs.length === 0 ? (
+                    <div className="text-center py-12">
+                      <HelpCircle className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
+                      <p className="text-foreground">No results found</p>
+                      <p className="text-sm text-muted-foreground">Try a different search term or category</p>
+                    </div>
+                  ) : (
+                    <Accordion type="single" collapsible className="space-y-3">
+                      {filteredFAQs.map((faq) => (
+                        <AccordionItem
+                          key={faq.id}
+                          value={faq.id}
+                          className="overflow-hidden rounded-xl border border-border/60 bg-card/40 shadow-sm dark:border-white/[0.07] dark:bg-white/[0.04]"
                         >
-                          {line}
-                        </p>
+                          <AccordionTrigger className="px-4 py-3 text-foreground transition-colors hover:bg-muted/20 data-[state=open]:bg-muted/15 dark:hover:bg-white/[0.04] dark:data-[state=open]:bg-white/[0.04]">
+                            <div className="flex items-center gap-3 text-left">
+                              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-msc-ui-accent/15 text-msc-ui-accent">
+                                {getCategoryIcon(faq.category)}
+                              </div>
+                              <span className="font-medium text-sm">{faq.question}</span>
+                            </div>
+                          </AccordionTrigger>
+                          <AccordionContent className="px-4 pb-4">
+                            <div className="pl-11">
+                              <p className="text-sm text-muted-foreground leading-relaxed">{faq.answer}</p>
+                            </div>
+                          </AccordionContent>
+                        </AccordionItem>
                       ))}
-                    </div>
-                </AccordionContent>
-              </AccordionItem>
-            ))}
-          </Accordion>
-        </div>
-      )}
+                    </Accordion>
+                  )}
+                </div>
+              )}
 
-      {/* FAQ Tab */}
-      {activeTab === 'faq' && (
-        <div className="space-y-3">
-          {filteredFAQs.length === 0 ? (
-            <div className="text-center py-12">
-              <HelpCircle className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
-              <p className="text-foreground">No results found</p>
-              <p className="text-sm text-muted-foreground">Try a different search term or category</p>
-            </div>
-          ) : (
-            <Accordion type="single" collapsible className="space-y-3">
-              {filteredFAQs.map((faq) => (
-                <AccordionItem 
-                  key={faq.id} 
-                  value={faq.id}
-                  className="overflow-hidden rounded-xl border border-border/60 bg-card/40 shadow-sm dark:border-white/[0.07] dark:bg-white/[0.04]"
-                >
-                  <AccordionTrigger className="px-4 py-3 text-foreground transition-colors hover:bg-muted/20 data-[state=open]:bg-muted/15 dark:hover:bg-white/[0.04] dark:data-[state=open]:bg-white/[0.04]">
-                    <div className="flex items-center gap-3 text-left">
-                      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-msc-ui-accent/15 text-msc-ui-accent">
-                        {getCategoryIcon(faq.category)}
-                      </div>
-                      <span className="font-medium text-sm">{faq.question}</span>
+              {/* Guides Tab */}
+              {activeTab === 'guides' && (
+                <div className="space-y-4">
+                  {filteredGuides.length === 0 ? (
+                    <div className="text-center py-12">
+                      <Workflow className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
+                      <p className="text-foreground">No guides found</p>
+                      <p className="text-sm text-muted-foreground">Try a different search term or category</p>
                     </div>
-                  </AccordionTrigger>
-                  <AccordionContent className="px-4 pb-4">
-                    <div className="pl-11">
-                      <p className="text-sm text-muted-foreground leading-relaxed">{faq.answer}</p>
-                    </div>
-                  </AccordionContent>
-                </AccordionItem>
-              ))}
-            </Accordion>
-          )}
-        </div>
-      )}
-
-      {/* Guides Tab */}
-      {activeTab === 'guides' && (
-        <div className="space-y-4">
-          {filteredGuides.length === 0 ? (
-            <div className="text-center py-12">
-              <Workflow className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
-              <p className="text-foreground">No guides found</p>
-              <p className="text-sm text-muted-foreground">Try a different search term or category</p>
-            </div>
-          ) : (
-            <Accordion type="single" collapsible>
-              {filteredGuides.map((guide) => (
-                <AccordionItem
-                  key={guide.id}
-                  value={guide.id}
-                  className="overflow-hidden rounded-xl border border-border/60 bg-card/40 shadow-sm transition-all dark:border-white/[0.07] dark:bg-white/[0.04]"
-                >
-                  <AccordionTrigger className="px-4 py-4 text-foreground no-underline hover:bg-muted/20 hover:no-underline data-[state=open]:bg-muted/15 dark:hover:bg-white/[0.04] dark:data-[state=open]:bg-white/[0.04]">
-                    <div className="flex min-w-0 items-start gap-3 text-left">
-                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-msc-ui-accent/15 text-msc-ui-accent">
-                        {getCategoryIcon(guide.category)}
-                      </div>
-                      <div className="min-w-0">
-                        <h3 className="font-semibold text-foreground">{guide.title}</h3>
-                        <p className="text-sm text-muted-foreground">{guide.description}</p>
-                      </div>
-                    </div>
-                  </AccordionTrigger>
-                  <AccordionContent className="border-t border-border/50 bg-muted/10 p-4 transition-all dark:border-white/[0.06] dark:bg-black/15">
-                    <ol className="space-y-2">
-                      {guide.steps.map((step, index) => (
-                        <li 
-                          key={index}
-                          className="flex items-start gap-3 text-sm"
+                  ) : (
+                    <Accordion type="single" collapsible>
+                      {filteredGuides.map((guide) => (
+                        <AccordionItem
+                          key={guide.id}
+                          value={guide.id}
+                          className="overflow-hidden rounded-xl border border-border/60 bg-card/40 shadow-sm transition-all dark:border-white/[0.07] dark:bg-white/[0.04]"
                         >
-                          <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-msc-ui-accent/90 text-xs font-medium text-white shadow-sm">
-                            {index + 1}
-                          </span>
-                          <span className="pt-0.5 text-muted-foreground">{step}</span>
-                        </li>
+                          <AccordionTrigger className="px-4 py-4 text-foreground no-underline hover:bg-muted/20 hover:no-underline data-[state=open]:bg-muted/15 dark:hover:bg-white/[0.04] dark:data-[state=open]:bg-white/[0.04]">
+                            <div className="flex min-w-0 items-start gap-3 text-left">
+                              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-msc-ui-accent/15 text-msc-ui-accent">
+                                {getCategoryIcon(guide.category)}
+                              </div>
+                              <div className="min-w-0">
+                                <h3 className="font-semibold text-foreground">{guide.title}</h3>
+                                <p className="text-sm text-muted-foreground">{guide.description}</p>
+                              </div>
+                            </div>
+                          </AccordionTrigger>
+                          <AccordionContent className="border-t border-border/50 bg-muted/10 p-4 transition-all dark:border-white/[0.06] dark:bg-black/15">
+                            <ol className="space-y-2">
+                              {guide.steps.map((step, index) => (
+                                <li key={index} className="flex items-start gap-3 text-sm">
+                                  <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-msc-ui-accent/90 text-xs font-medium text-white shadow-sm">
+                                    {index + 1}
+                                  </span>
+                                  <span className="pt-0.5 text-muted-foreground">{step}</span>
+                                </li>
+                              ))}
+                            </ol>
+                          </AccordionContent>
+                        </AccordionItem>
                       ))}
-                    </ol>
-                  </AccordionContent>
-                </AccordionItem>
+                    </Accordion>
+                  )}
+                </div>
+              )}
+            </section>
+          </main>
+
+          <aside className={cn(msc_engineFloatAside, 'h-fit xl:sticky xl:top-24')}>
+            <h3 className="text-xs font-bold uppercase tracking-[0.18em] text-muted-foreground">Quick Navigation</h3>
+            <div className="mt-4 space-y-1">
+              {[
+                { id: 'instructionz' as const, label: 'Setup Workflow' },
+                { id: 'faq' as const, label: 'How it Works' },
+                { id: 'guides' as const, label: 'Troubleshooting' },
+              ].map((item) => (
+                <button
+                  key={item.id}
+                  type="button"
+                  onClick={() => setActiveTab(item.id)}
+                  className={cn(
+                    'block w-full rounded-lg border border-transparent px-3 py-2 text-left text-sm transition-colors',
+                    activeTab === item.id
+                      ? 'border-msc-ui-accent/30 bg-msc-ui-accent/15 font-medium text-msc-ui-accent'
+                      : 'text-muted-foreground hover:border-border/40 hover:bg-muted/25 hover:text-foreground',
+                  )}
+                >
+                  {item.label}
+                </button>
               ))}
-            </Accordion>
-          )}
+            </div>
+          </aside>
         </div>
-      )}
-          </section>
-
-        </main>
-
-        <aside className={cn(msc_engineFloatAside, 'h-fit xl:sticky xl:top-24')}>
-          <h3 className="text-xs font-bold uppercase tracking-[0.18em] text-muted-foreground">Quick Navigation</h3>
-          <div className="mt-4 space-y-1">
-            {[
-              { id: 'instructionz' as const, label: 'Setup Workflow' },
-              { id: 'faq' as const, label: 'How it Works' },
-              { id: 'guides' as const, label: 'Troubleshooting' },
-            ].map((item) => (
-              <button
-                key={item.id}
-                type="button"
-                onClick={() => setActiveTab(item.id)}
-                className={cn(
-                  'block w-full rounded-lg border border-transparent px-3 py-2 text-left text-sm transition-colors',
-                  activeTab === item.id
-                    ? 'border-msc-ui-accent/30 bg-msc-ui-accent/15 font-medium text-msc-ui-accent'
-                    : 'text-muted-foreground hover:border-border/40 hover:bg-muted/25 hover:text-foreground',
-                )}
-              >
-                {item.label}
-              </button>
-            ))}
-          </div>
-        </aside>
-      </div>
       </div>
     </div>
   )

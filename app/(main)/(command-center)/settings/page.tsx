@@ -1,8 +1,10 @@
+import { Suspense } from 'react'
 import { redirect } from 'next/navigation'
 
 import { MSC_Projectz_AdminSettingsRouteView } from '@/components/MSC-Projectz-AdminSettingsRouteView'
 import { msc_getVaultLocalApiContext } from '@/lib/msc_vault_auth_context'
 import { msc_vaultIsPayloadAdmin } from '@/lib/msc_vault_payload_access'
+import { SettingsSkeleton } from '@/components/MscLoadingSkeleton'
 
 export default async function MSC_Projectz_SettingsPage() {
   const ctx = await msc_getVaultLocalApiContext()
@@ -11,5 +13,9 @@ export default async function MSC_Projectz_SettingsPage() {
     redirect('/dashboard')
   }
 
-  return <MSC_Projectz_AdminSettingsRouteView />
+  return (
+    <Suspense fallback={<SettingsSkeleton />}>
+      <MSC_Projectz_AdminSettingsRouteView />
+    </Suspense>
+  )
 }

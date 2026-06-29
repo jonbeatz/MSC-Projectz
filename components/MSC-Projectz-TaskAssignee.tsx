@@ -4,13 +4,7 @@ import { User, UserRound } from 'lucide-react'
 
 import { msc_resolveAvatarUrl } from '@/lib/msc_avatar_url'
 
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import type { Project, Task } from '@/lib/types'
 import type { MscProjectMember } from '@/types/user-admin'
 

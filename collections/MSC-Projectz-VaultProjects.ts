@@ -7,12 +7,8 @@ import {
   msc_vaultWriteOwnProjects,
 } from '../lib/msc_vault_payload_access.ts'
 
-function msc_coerceUsersRelId(
-  req: { payload: import('payload').Payload },
-  id: string | number,
-): string | number {
-  const idType =
-    req.payload.collections['users']?.customIDType || req.payload.db?.defaultIDType || 'text'
+function msc_coerceUsersRelId(req: { payload: import('payload').Payload }, id: string | number): string | number {
+  const idType = req.payload.collections['users']?.customIDType || req.payload.db?.defaultIDType || 'text'
   if (idType === 'number' && /^\d+$/.test(String(id).trim())) {
     return Number(String(id).trim())
   }
@@ -110,7 +106,8 @@ export const MSC_Projectz_VaultProjects: CollectionConfig = {
       type: 'relationship',
       relationTo: 'media',
       admin: {
-        description: 'Preferred thumbnail source (Payload media). Legacy text thumbnail remains fallback during migration.',
+        description:
+          'Preferred thumbnail source (Payload media). Legacy text thumbnail remains fallback during migration.',
       },
     },
     { name: 'localPath', type: 'text' },
@@ -164,7 +161,10 @@ export const MSC_Projectz_VaultProjects: CollectionConfig = {
     {
       name: 'emailSettings',
       type: 'group',
-      admin: { description: 'Per-project IMAP (incoming) and SMTP (outgoing). Empty fields fall back to studio defaults when applicable.' },
+      admin: {
+        description:
+          'Per-project IMAP (incoming) and SMTP (outgoing). Empty fields fall back to studio defaults when applicable.',
+      },
       fields: [
         {
           name: 'incoming',

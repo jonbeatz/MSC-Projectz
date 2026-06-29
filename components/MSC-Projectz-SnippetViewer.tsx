@@ -18,13 +18,7 @@ type Props = {
   snippetId?: string
 }
 
-export function MSC_Projectz_SnippetViewer({
-  content,
-  canEdit,
-  onSaveContent,
-  saveBusy = false,
-  snippetId,
-}: Props) {
+export function MSC_Projectz_SnippetViewer({ content, canEdit, onSaveContent, saveBusy = false, snippetId }: Props) {
   const [editing, setEditing] = useState(false)
   const [draft, setDraft] = useState(content)
   const [copied, setCopied] = useState(false)
@@ -113,10 +107,7 @@ export function MSC_Projectz_SnippetViewer({
             type="button"
             onClick={() => void handleSaveEdits()}
             disabled={saveBusy || draft === content}
-            className={cn(
-              toolbarBtn,
-              'border-primary/45 text-primary hover:border-primary hover:bg-primary/10',
-            )}
+            className={cn(toolbarBtn, 'border-primary/45 text-primary hover:border-primary hover:bg-primary/10')}
           >
             {saveBusy ? <Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden /> : null}
             Save

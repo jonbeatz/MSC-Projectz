@@ -1,4 +1,13 @@
-import { addMonths, eachDayOfInterval, endOfMonth, endOfWeek, format, isValid, startOfMonth, startOfWeek } from 'date-fns'
+import {
+  addMonths,
+  eachDayOfInterval,
+  endOfMonth,
+  endOfWeek,
+  format,
+  isValid,
+  startOfMonth,
+  startOfWeek,
+} from 'date-fns'
 
 import type { Project, Task } from '@/lib/types'
 
@@ -60,8 +69,7 @@ export function msc_indexTasksByDueDay(
   const projectClientById = new Map<string, string | null>()
   for (const p of projects) {
     const raw = p.clientId
-    const cid =
-      raw === undefined || raw === null || String(raw).trim() === '' ? null : String(raw).trim()
+    const cid = raw === undefined || raw === null || String(raw).trim() === '' ? null : String(raw).trim()
     projectClientById.set(p.id, cid)
   }
   const includeDone = opts?.includeDone !== false
@@ -82,10 +90,7 @@ export function msc_indexTasksByDueDay(
   return map
 }
 
-export function msc_filterTasksForDay(
-  byDay: Map<string, MscCalendarTaskItem[]>,
-  ymd: string,
-): MscCalendarTaskItem[] {
+export function msc_filterTasksForDay(byDay: Map<string, MscCalendarTaskItem[]>, ymd: string): MscCalendarTaskItem[] {
   return byDay.get(ymd) ?? []
 }
 
@@ -105,10 +110,7 @@ function msc_taskStatusSortKey(task: Task): string {
   return `9:${status}`
 }
 
-function msc_resolveClientName(args: {
-  clientId: string
-  clientsById?: ReadonlyMap<string, string>
-}): string {
+function msc_resolveClientName(args: { clientId: string; clientsById?: ReadonlyMap<string, string> }): string {
   const { clientId, clientsById } = args
   const fromClients = clientsById?.get(clientId)?.trim()
   if (fromClients) return fromClients
@@ -124,10 +126,8 @@ function msc_calendarTaskItemSort(args: {
   const { a, b, projectClientById, clientsById } = args
   const aClient = projectClientById.get(a.projectId)
   const bClient = projectClientById.get(b.projectId)
-  const aClientName =
-    aClient == null ? 'Unassigned' : msc_resolveClientName({ clientId: aClient, clientsById })
-  const bClientName =
-    bClient == null ? 'Unassigned' : msc_resolveClientName({ clientId: bClient, clientsById })
+  const aClientName = aClient == null ? 'Unassigned' : msc_resolveClientName({ clientId: aClient, clientsById })
+  const bClientName = bClient == null ? 'Unassigned' : msc_resolveClientName({ clientId: bClient, clientsById })
   const byClient = aClientName.localeCompare(bClientName)
   if (byClient !== 0) return byClient
 
@@ -153,28 +153,22 @@ export function buildDayDetail(
   tasksByDayOrItems: Map<string, MscCalendarTaskItem[]> | MscCalendarTaskItem[],
   clientsById?: ReadonlyMap<string, string>,
 ): DayDetail {
-  const baseItems = Array.isArray(tasksByDayOrItems)
-    ? tasksByDayOrItems
-    : msc_filterTasksForDay(tasksByDayOrItems, ymd)
+  const baseItems = Array.isArray(tasksByDayOrItems) ? tasksByDayOrItems : msc_filterTasksForDay(tasksByDayOrItems, ymd)
 
   const projectClientById = new Map<string, string | null>()
   for (const p of projects) {
     const raw = p.clientId
-    const cid =
-      raw === undefined || raw === null || String(raw).trim() === '' ? null : String(raw).trim()
+    const cid = raw === undefined || raw === null || String(raw).trim() === '' ? null : String(raw).trim()
     projectClientById.set(p.id, cid)
   }
 
-  const items = [...baseItems].sort((a, b) =>
-    msc_calendarTaskItemSort({ a, b, projectClientById, clientsById }),
-  )
+  const items = [...baseItems].sort((a, b) => msc_calendarTaskItemSort({ a, b, projectClientById, clientsById }))
 
   const grouped = new Map<string, DayDetailGroup>()
   for (const item of items) {
     const rawClient = projectClientById.get(item.projectId)
     const clientId = rawClient ?? 'unassigned'
-    const clientName =
-      rawClient == null ? 'Unassigned' : msc_resolveClientName({ clientId: rawClient, clientsById })
+    const clientName = rawClient == null ? 'Unassigned' : msc_resolveClientName({ clientId: rawClient, clientsById })
     const existing = grouped.get(clientId)
     if (existing) {
       existing.items.push(item)
@@ -183,9 +177,7 @@ export function buildDayDetail(
     grouped.set(clientId, { clientId, clientName, items: [item] })
   }
 
-  const clientGroupedItems = [...grouped.values()].sort((a, b) =>
-    a.clientName.localeCompare(b.clientName),
-  )
+  const clientGroupedItems = [...grouped.values()].sort((a, b) => a.clientName.localeCompare(b.clientName))
 
   return {
     ymd,

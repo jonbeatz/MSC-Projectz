@@ -1,12 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useState, type FormEvent } from 'react'
-import {
-  Activity,
-  FolderKanban,
-  Loader2,
-  Sparkles,
-} from 'lucide-react'
+import { Activity, FolderKanban, Loader2, Sparkles } from 'lucide-react'
 
 import {
   msc_archiveClient,
@@ -15,23 +10,13 @@ import {
   msc_updateClientChecklist,
   msc_updateClientProfile,
 } from '@/lib/msc_client_actions'
-import type {
-  MscClientDetail,
-  MscClientPulseStats,
-  OnboardingChecklist,
-} from '@/lib/msc_client_types'
+import type { MscClientDetail, MscClientPulseStats, OnboardingChecklist } from '@/lib/msc_client_types'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -43,35 +28,21 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog'
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-} from '@/components/ui/sheet'
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/components/ui/sheet'
 import { Dialog } from '@/components/ui/dialog'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { msc_isQuietInfrastructureUiMessage, msc_publicPayloadError } from '@/lib/msc_public_error'
 import { cn } from '@/lib/utils'
 import { MSC_Projectz_WorkspaceModalShell } from '@/components/MSC-Projectz-WorkspaceModalShell'
 
-function msc_statusBadgeVariant(
-  s: string,
-): 'default' | 'secondary' | 'outline' | 'destructive' {
+function msc_statusBadgeVariant(s: string): 'default' | 'secondary' | 'outline' | 'destructive' {
   if (s === 'active') return 'default'
   if (s === 'onboarding') return 'secondary'
   if (s === 'archived') return 'outline'
   return 'secondary'
 }
 
-const MSC_CLIENT_STATUS_OPTIONS = [
-  'lead',
-  'active',
-  'onboarding',
-  'completed',
-  'archived',
-] as const
+const MSC_CLIENT_STATUS_OPTIONS = ['lead', 'active', 'onboarding', 'completed', 'archived'] as const
 
 type MscProfileDraft = {
   name: string
@@ -103,22 +74,9 @@ export type MSC_Projectz_ClientDrawerProps = {
   presentation?: 'sheet' | 'dialog'
 }
 
-function PulseStatCard({
-  label,
-  value,
-  hint,
-}: {
-  label: string
-  value: number | string
-  hint?: string
-}) {
+function PulseStatCard({ label, value, hint }: { label: string; value: number | string; hint?: string }) {
   return (
-    <div
-      className={cn(
-        'rounded-lg border border-border bg-secondary/25 px-3 py-3 backdrop-blur-sm',
-        'shadow-sm',
-      )}
-    >
+    <div className={cn('rounded-lg border border-border bg-secondary/25 px-3 py-3 backdrop-blur-sm', 'shadow-sm')}>
       <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">{label}</p>
       <p className="mt-1 text-2xl font-semibold tabular-nums text-foreground">{value}</p>
       {hint ? <p className="mt-1 text-[10px] text-muted-foreground">{hint}</p> : null}
@@ -271,10 +229,7 @@ export function MSC_Projectz_ClientDrawer({
         primaryContact: {
           name: draftProfile.primaryContact.name,
           email: draftProfile.primaryContact.email,
-          phone:
-            draftProfile.primaryContact.phone.trim() === ''
-              ? null
-              : draftProfile.primaryContact.phone.trim(),
+          phone: draftProfile.primaryContact.phone.trim() === '' ? null : draftProfile.primaryContact.phone.trim(),
         },
       })
       setProfileSaving(false)
@@ -328,13 +283,13 @@ export function MSC_Projectz_ClientDrawer({
       <div className="relative z-1 shrink-0 border-b border-white/10 px-4 pt-3 pr-14 pb-3">
         <div className="flex min-w-0 flex-wrap items-start justify-between gap-2">
           <div className="min-w-0 flex-1">
-          <h2 className="text-lg leading-tight font-semibold">{loading ? 'Loading…' : title}</h2>
-          {!loading && detail && (
-            <Badge variant={msc_statusBadgeVariant(status)} className="mt-2 capitalize">
-              {status}
-            </Badge>
-          )}
-        </div>
+            <h2 className="text-lg leading-tight font-semibold">{loading ? 'Loading…' : title}</h2>
+            {!loading && detail && (
+              <Badge variant={msc_statusBadgeVariant(status)} className="mt-2 capitalize">
+                {status}
+              </Badge>
+            )}
+          </div>
         </div>
       </div>
       {error && !msc_isQuietInfrastructureUiMessage(error) ? (
@@ -400,9 +355,7 @@ export function MSC_Projectz_ClientDrawer({
             >
               <div className="space-y-4">
                 <div className="flex flex-wrap items-center justify-between gap-2">
-                  <h3 className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
-                    Profile
-                  </h3>
+                  <h3 className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Profile</h3>
                   {!isEditingProfile ? (
                     <Button
                       type="button"
@@ -453,37 +406,33 @@ export function MSC_Projectz_ClientDrawer({
                   </dl>
                 ) : (
                   draftProfile && (
-                    <form
-                      onSubmit={(e) => void onSaveProfile(e)}
-                      className="space-y-4"
-                      aria-busy={profileSaving}
-                    >
+                    <form onSubmit={(e) => void onSaveProfile(e)} className="space-y-4" aria-busy={profileSaving}>
                       <div className="space-y-2">
-                        <Label htmlFor="msc-client-name" className="text-[11px] uppercase tracking-wide text-muted-foreground">
+                        <Label
+                          htmlFor="msc-client-name"
+                          className="text-[11px] uppercase tracking-wide text-muted-foreground"
+                        >
                           Client name
                         </Label>
                         <Input
                           id="msc-client-name"
                           value={draftProfile.name}
-                          onChange={(e) =>
-                            setDraftProfile((d) =>
-                              d ? { ...d, name: e.target.value } : d,
-                            )
-                          }
+                          onChange={(e) => setDraftProfile((d) => (d ? { ...d, name: e.target.value } : d))}
                           disabled={profileSaving}
                           className="border-border bg-background"
                           autoComplete="organization"
                         />
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="msc-client-status" className="text-[11px] uppercase tracking-wide text-muted-foreground">
+                        <Label
+                          htmlFor="msc-client-status"
+                          className="text-[11px] uppercase tracking-wide text-muted-foreground"
+                        >
                           Status
                         </Label>
                         <Select
                           value={draftProfile.status}
-                          onValueChange={(v) =>
-                            setDraftProfile((d) => (d ? { ...d, status: v } : d))
-                          }
+                          onValueChange={(v) => setDraftProfile((d) => (d ? { ...d, status: v } : d))}
                           disabled={profileSaving}
                         >
                           <SelectTrigger
@@ -527,7 +476,10 @@ export function MSC_Projectz_ClientDrawer({
                         />
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="msc-primary-email" className="text-[11px] uppercase tracking-wide text-muted-foreground">
+                        <Label
+                          htmlFor="msc-primary-email"
+                          className="text-[11px] uppercase tracking-wide text-muted-foreground"
+                        >
                           Email
                         </Label>
                         <Input
@@ -554,7 +506,10 @@ export function MSC_Projectz_ClientDrawer({
                         />
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="msc-primary-phone" className="text-[11px] uppercase tracking-wide text-muted-foreground">
+                        <Label
+                          htmlFor="msc-primary-phone"
+                          className="text-[11px] uppercase tracking-wide text-muted-foreground"
+                        >
                           Phone
                         </Label>
                         <Input
@@ -581,7 +536,10 @@ export function MSC_Projectz_ClientDrawer({
                         />
                       </div>
                       {profileError && !msc_isQuietInfrastructureUiMessage(profileError) ? (
-                        <p className="rounded-md border border-destructive/30 bg-destructive/5 px-2.5 py-2 text-xs text-destructive" role="alert">
+                        <p
+                          className="rounded-md border border-destructive/30 bg-destructive/5 px-2.5 py-2 text-xs text-destructive"
+                          role="alert"
+                        >
                           {msc_publicPayloadError(profileError)}
                         </p>
                       ) : null}
@@ -616,13 +574,18 @@ export function MSC_Projectz_ClientDrawer({
 
               <div className="mt-8 rounded-xl border border-border/80 bg-secondary/10 px-4 py-4">
                 <div className="flex flex-wrap items-center justify-between gap-2">
-                  <h3 className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Onboarding</h3>
+                  <h3 className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+                    Onboarding
+                  </h3>
                   <span className="rounded-full border border-border bg-background/80 px-2 py-0.5 text-[10px] font-medium tabular-nums text-muted-foreground">
                     {onboardingDone}/{onboardingTotal} complete
                   </span>
                 </div>
                 {checklistError && !msc_isQuietInfrastructureUiMessage(checklistError) ? (
-                  <p className="mt-2 rounded-md border border-destructive/30 bg-destructive/5 px-2.5 py-2 text-xs text-destructive" role="alert">
+                  <p
+                    className="mt-2 rounded-md border border-destructive/30 bg-destructive/5 px-2.5 py-2 text-xs text-destructive"
+                    role="alert"
+                  >
                     {msc_publicPayloadError(checklistError)}
                   </p>
                 ) : checklistError && msc_isQuietInfrastructureUiMessage(checklistError) ? (
@@ -650,7 +613,10 @@ export function MSC_Projectz_ClientDrawer({
                       >
                         {item.label}
                         {checklistSavingId === item.id ? (
-                          <Loader2 className="ml-2 inline h-3.5 w-3.5 animate-spin align-middle text-muted-foreground" aria-hidden />
+                          <Loader2
+                            className="ml-2 inline h-3.5 w-3.5 animate-spin align-middle text-muted-foreground"
+                            aria-hidden
+                          />
                         ) : null}
                       </Label>
                     </li>
@@ -663,7 +629,10 @@ export function MSC_Projectz_ClientDrawer({
                   Archiving hides this client from active workflows without deleting historical CRM data.
                 </p>
                 {archiveError && !msc_isQuietInfrastructureUiMessage(archiveError) ? (
-                  <p className="mt-3 rounded-md border border-destructive/35 bg-destructive/10 px-2.5 py-2 text-xs text-destructive" role="alert">
+                  <p
+                    className="mt-3 rounded-md border border-destructive/35 bg-destructive/10 px-2.5 py-2 text-xs text-destructive"
+                    role="alert"
+                  >
                     {msc_publicPayloadError(archiveError)}
                   </p>
                 ) : archiveError && msc_isQuietInfrastructureUiMessage(archiveError) ? (
@@ -672,11 +641,7 @@ export function MSC_Projectz_ClientDrawer({
                 <div className="mt-4">
                   <AlertDialog open={archiveOpen} onOpenChange={setArchiveOpen}>
                     <AlertDialogTrigger asChild>
-                      <Button
-                        type="button"
-                        variant="destructive"
-                        disabled={archiveSaving || profileSaving}
-                      >
+                      <Button type="button" variant="destructive" disabled={archiveSaving || profileSaving}>
                         Archive Client
                       </Button>
                     </AlertDialogTrigger>
@@ -684,8 +649,8 @@ export function MSC_Projectz_ClientDrawer({
                       <AlertDialogHeader>
                         <AlertDialogTitle>Archive this client?</AlertDialogTitle>
                         <AlertDialogDescription>
-                          This will mark the client as archived and remove it from active client views.
-                          You can still recover the record later.
+                          This will mark the client as archived and remove it from active client views. You can still
+                          recover the record later.
                         </AlertDialogDescription>
                       </AlertDialogHeader>
                       <AlertDialogFooter>
@@ -714,10 +679,7 @@ export function MSC_Projectz_ClientDrawer({
               </div>
             </TabsContent>
 
-            <TabsContent
-              value="pulse"
-              className="mt-0 flex-1 overflow-y-auto px-4 py-4 text-sm text-muted-foreground"
-            >
+            <TabsContent value="pulse" className="mt-0 flex-1 overflow-y-auto px-4 py-4 text-sm text-muted-foreground">
               {pulseLoading && (
                 <div className="flex items-center justify-center gap-2 py-12 text-muted-foreground">
                   <Loader2 className="h-5 w-5 animate-spin" aria-hidden />
@@ -727,7 +689,10 @@ export function MSC_Projectz_ClientDrawer({
               {pulseError && !pulseLoading ? (
                 <div className="space-y-3">
                   {!msc_isQuietInfrastructureUiMessage(pulseError) ? (
-                    <p className="rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-xs text-destructive" role="alert">
+                    <p
+                      className="rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-xs text-destructive"
+                      role="alert"
+                    >
                       {msc_publicPayloadError(pulseError)}
                     </p>
                   ) : (
@@ -756,7 +721,8 @@ export function MSC_Projectz_ClientDrawer({
                 <div className="rounded-lg border border-dashed border-border bg-secondary/15 px-4 py-10 text-center">
                   <p className="text-sm font-medium text-foreground">No projects assigned</p>
                   <p className="mt-2 text-xs text-muted-foreground">
-                    Link vault projects to this client (Payload Admin or project record) to see task and snippet pulse metrics.
+                    Link vault projects to this client (Payload Admin or project record) to see task and snippet pulse
+                    metrics.
                   </p>
                 </div>
               )}
@@ -771,18 +737,15 @@ export function MSC_Projectz_ClientDrawer({
               )}
             </TabsContent>
 
-            <TabsContent
-              value="vault"
-              className="mt-0 flex-1 overflow-y-auto px-4 py-6 text-sm text-muted-foreground"
-            >
+            <TabsContent value="vault" className="mt-0 flex-1 overflow-y-auto px-4 py-6 text-sm text-muted-foreground">
               <div className="rounded-xl border border-border bg-secondary/15 p-4">
                 <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-foreground">
                   <Sparkles className="h-4 w-4 text-primary" aria-hidden />
                   Code vault (workspace)
                 </p>
                 <p className="mt-2 text-xs leading-relaxed">
-                  Snippets and implementation notes live on the vault project linked to this client. Use the steps below as
-                  a quick tour—nothing here is required for CRM to function.
+                  Snippets and implementation notes live on the vault project linked to this client. Use the steps below
+                  as a quick tour—nothing here is required for CRM to function.
                 </p>
               </div>
               <ol className="mt-5 space-y-4 text-left">
@@ -796,8 +759,8 @@ export function MSC_Projectz_ClientDrawer({
                       Open the project on the Dashboard
                     </p>
                     <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
-                      Select the vault build tied to <span className="text-foreground">{detail.name}</span>. CRM links one
-                      client → one or more vault projects.
+                      Select the vault build tied to <span className="text-foreground">{detail.name}</span>. CRM links
+                      one client → one or more vault projects.
                     </p>
                   </div>
                 </li>
@@ -819,8 +782,8 @@ export function MSC_Projectz_ClientDrawer({
                   <div>
                     <p className="text-sm font-medium text-foreground">Cross-check Pulse metrics</p>
                     <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
-                      The <span className="text-foreground">Pulse</span> tab aggregates open tasks and snippets across all
-                      projects linked to this client.
+                      The <span className="text-foreground">Pulse</span> tab aggregates open tasks and snippets across
+                      all projects linked to this client.
                     </p>
                   </div>
                 </li>

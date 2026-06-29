@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Plus, Search, ExternalLink, FolderOpen, MonitorPlay, Settings, Key, Trash2, Check } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { MscManualProjectMoveControls, type MscManualProjectMove } from '@/components/msc_ManualProjectMoveControls'
@@ -15,6 +15,7 @@ import { getSafePath } from '@/lib/env-utils'
 import { msc_isQuietInfrastructureUiMessage, msc_publicPayloadError } from '@/lib/msc_public_error'
 import { msc_open_project_folder } from '@/lib/msc_native_system_bridge'
 import { toast } from '@/hooks/use-toast'
+import { useMscPagination, MscPaginationBar } from '@/components/MscPagination'
 
 interface ProjectGridProps {
   projects: Project[]
@@ -46,10 +47,10 @@ function ProjectListItem({
   const appSettings = useAppStore((s) => s.appSettings)
   const isDark = appSettings.theme === 'dark'
   const [isCopied, setIsCopied] = useState(false)
-  
+
   const totalTasks = project.tasks.length
-  const completedTasks = project.tasks.filter(t => t.completed).length
-  const calculatedProgress = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : (project.progress || 0)
+  const completedTasks = project.tasks.filter((t) => t.completed).length
+  const calculatedProgress = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : project.progress || 0
   const safeLocalPath = getSafePath(project.localPath)
 
   const handleOpenInExplorer = async () => {
@@ -75,9 +76,9 @@ function ProjectListItem({
   return (
     <div
       className={cn(
-        "flex items-center gap-4 p-4 rounded-xl transition-all cursor-pointer",
-        "bg-card border border-border hover:bg-secondary/50",
-        !isDark && "card-shadow"
+        'flex items-center gap-4 p-4 rounded-xl transition-all cursor-pointer',
+        'bg-card border border-border hover:bg-secondary/50',
+        !isDark && 'card-shadow',
       )}
       onClick={onSelect}
     >
@@ -94,12 +95,10 @@ function ProjectListItem({
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2">
           <h3 className="font-medium truncate text-foreground">{project.name}</h3>
-          <span 
+          <span
             className={cn(
-              "px-2 py-0.5 text-[10px] uppercase font-semibold rounded",
-              project.status === 'live' 
-                ? "bg-primary text-primary-foreground" 
-                : "bg-muted text-muted-foreground"
+              'px-2 py-0.5 text-[10px] uppercase font-semibold rounded',
+              project.status === 'live' ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground',
             )}
           >
             {project.status}
@@ -110,14 +109,11 @@ function ProjectListItem({
         ) : (
           <p className="mt-1 text-xs text-muted-foreground/90">No local path — use Edit to set one</p>
         )}
-        
+
         {/* Progress Bar with clickable task counter */}
         <div className="flex items-center gap-3 mt-2">
           <div className="flex-1 h-1.5 rounded-full max-w-32 bg-muted">
-            <div 
-              className="h-full rounded-full bg-primary"
-              style={{ width: `${calculatedProgress}%` }}
-            />
+            <div className="h-full rounded-full bg-primary" style={{ width: `${calculatedProgress}%` }} />
           </div>
           <span className="text-xs text-primary">{calculatedProgress}%</span>
           <button
@@ -206,19 +202,21 @@ export function ProjectGrid({
   const viewMode = appSettings.projectViewMode
   const [moveBusyId, setMoveBusyId] = useState<string | null>(null)
 
+  const { pageItems: paginatedProjects, meta: paginationMeta, goToPage, resetPage } = useMscPagination(projects, 12)
+
+  // Reset to page 1 when search or sort changes
+  useEffect(() => {
+    resetPage()
+  }, [searchQuery, projectSortMode, resetPage])
+
   const isDark = appSettings.theme === 'dark'
 
-  const manualOrdered = useMemo(
-    () => msc_sortProjectsForDashboard(allProjects, 'manual'),
-    [allProjects],
-  )
+  const manualOrdered = useMemo(() => msc_sortProjectsForDashboard(allProjects, 'manual'), [allProjects])
 
   const getManualMoveFor = useCallback(
     (project: Project): MscManualProjectMove | undefined => {
       const admin = msc_hasAdminAccess(user?.role)
-      const mayReorder =
-        projectSortMode === 'manual' &&
-        (admin || msc_isVaultProjectOwner(project, user))
+      const mayReorder = projectSortMode === 'manual' && (admin || msc_isVaultProjectOwner(project, user))
       if (!mayReorder) {
         return undefined
       }
@@ -227,11 +225,9 @@ export function ProjectGrid({
       const prev = idx > 0 ? manualOrdered[idx - 1] : null
       const next = idx < manualOrdered.length - 1 ? manualOrdered[idx + 1] : null
       const canUp =
-        prev != null &&
-        (admin ? true : msc_isVaultProjectOwner(prev, user) && msc_isVaultProjectOwner(project, user))
+        prev != null && (admin ? true : msc_isVaultProjectOwner(prev, user) && msc_isVaultProjectOwner(project, user))
       const canDown =
-        next != null &&
-        (admin ? true : msc_isVaultProjectOwner(next, user) && msc_isVaultProjectOwner(project, user))
+        next != null && (admin ? true : msc_isVaultProjectOwner(next, user) && msc_isVaultProjectOwner(project, user))
 
       const run = (direction: 'up' | 'down') => {
         setMoveBusyId(project.id)
@@ -272,10 +268,12 @@ export function ProjectGrid({
   if (projects.length === 0 && searchQuery) {
     return (
       <div className="flex flex-col items-center justify-center py-20">
-        <div className={cn(
-          "w-20 h-20 rounded-2xl flex items-center justify-center mb-6 bg-card border border-border",
-          !isDark && "card-shadow"
-        )}>
+        <div
+          className={cn(
+            'w-20 h-20 rounded-2xl flex items-center justify-center mb-6 bg-card border border-border',
+            !isDark && 'card-shadow',
+          )}
+        >
           <Search className="w-10 h-10 text-muted-foreground" />
         </div>
         <h2 className="text-lg font-medium mb-2 text-foreground">No projects found</h2>
@@ -298,21 +296,21 @@ export function ProjectGrid({
           <div className="w-px h-8 bg-border" />
           <div>
             <p className="text-2xl font-semibold text-primary">
-              {allProjects.filter(p => p.status === 'live').length}
+              {allProjects.filter((p) => p.status === 'live').length}
             </p>
             <p className="text-xs uppercase tracking-wider text-muted-foreground">Live</p>
           </div>
           <div className="w-px h-8 bg-border" />
           <div>
             <p className="text-2xl font-semibold text-foreground">
-              {allProjects.filter(p => p.status === 'local').length}
+              {allProjects.filter((p) => p.status === 'local').length}
             </p>
             <p className="text-xs uppercase tracking-wider text-muted-foreground">Local</p>
           </div>
         </div>
-        <Button 
-          onClick={onAddProject} 
-          size="sm" 
+        <Button
+          onClick={onAddProject}
+          size="sm"
           className="gap-2 bg-primary text-primary-foreground hover:bg-primary/90"
         >
           <Plus className="w-4 h-4" />
@@ -330,7 +328,7 @@ export function ProjectGrid({
       {/* Grid or List View */}
       {viewMode === 'grid' ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-          {projects.map((project) => (
+          {paginatedProjects.map((project) => (
             <ProjectCard
               key={project.id}
               project={project}
@@ -347,7 +345,7 @@ export function ProjectGrid({
         </div>
       ) : (
         <div className="space-y-3">
-          {projects.map((project) => (
+          {paginatedProjects.map((project) => (
             <ProjectListItem
               key={project.id}
               project={project}
@@ -361,6 +359,16 @@ export function ProjectGrid({
               onOpenTaskDrawer={() => onOpenTaskDrawer?.(project.id)}
             />
           ))}
+        </div>
+      )}
+
+      {/* Pagination */}
+      {paginationMeta.totalPages > 1 && (
+        <div className="flex flex-col items-center gap-2 pt-4">
+          <MscPaginationBar meta={paginationMeta} onPageChange={goToPage} />
+          <p className="text-xs text-muted-foreground">
+            Page {paginationMeta.page} of {paginationMeta.totalPages} ({paginationMeta.total} total)
+          </p>
         </div>
       )}
     </div>

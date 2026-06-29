@@ -19,7 +19,7 @@ export function UserManagementModal({ isOpen, onClose }: UserManagementModalProp
   const [username, setUsername] = useState('')
   const [email, setEmail] = useState('')
   const [tempPassword, setTempPassword] = useState('')
-  const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null)
+  const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null)
 
   const { users, inviteUser, deleteUser, updateUserStatus, user } = useAppStore()
@@ -27,8 +27,8 @@ export function UserManagementModal({ isOpen, onClose }: UserManagementModalProp
   const isAdmin = user?.role === 'admin'
 
   // Separate pending and active users
-  const pendingUsers = users.filter(u => u.status === 'pending')
-  const activeUsers = users.filter(u => u.status === 'active')
+  const pendingUsers = users.filter((u) => u.status === 'pending')
+  const activeUsers = users.filter((u) => u.status === 'active')
 
   const handleInviteUser = () => {
     if (!username.trim() || !email.trim() || !tempPassword.trim()) {
@@ -41,7 +41,7 @@ export function UserManagementModal({ isOpen, onClose }: UserManagementModalProp
       return
     }
 
-    if (users.some(u => u.username === username)) {
+    if (users.some((u) => u.username === username)) {
       setMessage({ type: 'error', text: 'Username already exists' })
       return
     }
@@ -68,9 +68,9 @@ export function UserManagementModal({ isOpen, onClose }: UserManagementModalProp
   const handleToggleStatus = (userId: string, currentStatus: 'pending' | 'active') => {
     const newStatus = currentStatus === 'pending' ? 'active' : 'pending'
     if (updateUserStatus(userId, newStatus)) {
-      setMessage({ 
-        type: 'success', 
-        text: `User ${newStatus === 'active' ? 'activated' : 'deactivated'} successfully` 
+      setMessage({
+        type: 'success',
+        text: `User ${newStatus === 'active' ? 'activated' : 'deactivated'} successfully`,
       })
       setTimeout(() => setMessage(null), 2000)
     }
@@ -89,18 +89,14 @@ export function UserManagementModal({ isOpen, onClose }: UserManagementModalProp
         <div className="space-y-6">
           {/* Global Message */}
           {message && !showInviteForm && (
-            <div 
+            <div
               className="flex items-center gap-2 text-sm p-3 rounded-lg"
-              style={{ 
+              style={{
                 backgroundColor: message.type === 'success' ? 'rgba(74, 222, 128, 0.1)' : 'rgba(239, 68, 68, 0.1)',
-                color: message.type === 'success' ? '#4ADE80' : '#EF4444' 
+                color: message.type === 'success' ? '#4ADE80' : '#EF4444',
               }}
             >
-              {message.type === 'success' ? (
-                <CheckCircle className="w-4 h-4" />
-              ) : (
-                <AlertCircle className="w-4 h-4" />
-              )}
+              {message.type === 'success' ? <CheckCircle className="w-4 h-4" /> : <AlertCircle className="w-4 h-4" />}
               {message.text}
             </div>
           )}
@@ -163,7 +159,7 @@ export function UserManagementModal({ isOpen, onClose }: UserManagementModalProp
                   </div>
 
                   {message && (
-                    <div 
+                    <div
                       className="flex items-center gap-2 text-sm"
                       style={{ color: message.type === 'success' ? '#4ADE80' : '#EF4444' }}
                     >
@@ -183,10 +179,7 @@ export function UserManagementModal({ isOpen, onClose }: UserManagementModalProp
                     >
                       Send Invite
                     </Button>
-                    <Button
-                      onClick={() => setShowInviteForm(false)}
-                      variant="outline"
-                    >
+                    <Button onClick={() => setShowInviteForm(false)} variant="outline">
                       Cancel
                     </Button>
                   </div>
@@ -204,7 +197,7 @@ export function UserManagementModal({ isOpen, onClose }: UserManagementModalProp
               </h3>
               <div className="space-y-2">
                 {pendingUsers.map((u) => (
-                  <div 
+                  <div
                     key={u.id}
                     className="flex items-center justify-between p-3 rounded-lg bg-secondary border border-yellow-500"
                   >
@@ -235,11 +228,7 @@ export function UserManagementModal({ isOpen, onClose }: UserManagementModalProp
                           >
                             Confirm
                           </Button>
-                          <Button
-                            size="sm"
-                            onClick={() => setDeleteConfirm(null)}
-                            variant="secondary"
-                          >
+                          <Button size="sm" onClick={() => setDeleteConfirm(null)} variant="secondary">
                             Cancel
                           </Button>
                         </div>
@@ -273,12 +262,8 @@ export function UserManagementModal({ isOpen, onClose }: UserManagementModalProp
                   <div>
                     <p className="text-sm font-medium text-foreground">
                       {user.username}
-                      <span className="ml-2 text-xs px-2 py-0.5 rounded bg-primary text-primary-foreground">
-                        Admin
-                      </span>
-                      {user.role === 'admin' && (
-                        <span className="ml-2 text-xs text-primary">(You)</span>
-                      )}
+                      <span className="ml-2 text-xs px-2 py-0.5 rounded bg-primary text-primary-foreground">Admin</span>
+                      {user.role === 'admin' && <span className="ml-2 text-xs text-primary">(You)</span>}
                     </p>
                     <p className="text-xs text-muted-foreground">{user.email}</p>
                   </div>
@@ -287,16 +272,14 @@ export function UserManagementModal({ isOpen, onClose }: UserManagementModalProp
 
               {/* Other Active Users */}
               {activeUsers.map((u) => (
-                <div 
+                <div
                   key={u.id}
                   className="flex items-center justify-between p-3 rounded-lg bg-secondary border border-border"
                 >
                   <div>
                     <p className="text-sm font-medium text-foreground">
                       {u.username}
-                      <span className="ml-2 text-xs px-2 py-0.5 rounded bg-primary/20 text-primary">
-                        Active
-                      </span>
+                      <span className="ml-2 text-xs px-2 py-0.5 rounded bg-primary/20 text-primary">Active</span>
                     </p>
                     <p className="text-xs text-muted-foreground">{u.email}</p>
                   </div>
@@ -311,11 +294,7 @@ export function UserManagementModal({ isOpen, onClose }: UserManagementModalProp
                           >
                             Confirm
                           </Button>
-                          <Button
-                            size="sm"
-                            onClick={() => setDeleteConfirm(null)}
-                            variant="secondary"
-                          >
+                          <Button size="sm" onClick={() => setDeleteConfirm(null)} variant="secondary">
                             Cancel
                           </Button>
                         </div>

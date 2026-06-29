@@ -14,12 +14,14 @@ Fast daily workflow for MSC-Projectz.
 5. After finishing docs read/checks, type this exact confirmation in chat: `Ready to start Jedi Master`
 
 Startup response format required from assistant:
+
 - first line for `Ready to begin`: `Ok Jon - Ready to begin. <one-line action plan>.`
 - verified checklist (branch/status + doc-order confirmation + blockers)
 - 3-4 recommended next tasks (ordered)
 - final exact line: `Ready to start Jedi Master`
 
 Required startup behavior on every `Ready to begin`:
+
 - re-read `START-HERE.md` first, then continue through the full docs read order before implementation
 - do not skip this refresh unless operator explicitly says to skip docs read
 
@@ -34,17 +36,20 @@ Required startup behavior on every `Ready to begin`:
 5. Continue iterating.
 
 Playwright notes (local browser automation):
+
 - Default: keep your normal Brave session open; Playwright uses `Playwright-Tests/brave-profile`.
 - `npm run playwright:test` should attach to existing Playwright session when profile is already open.
 - Only use all-window Brave kill for hard reset recovery:
   - `MSC_KILL_BRAVE_MODE=all npm run playwright:test`
 
 Operator phrase shortcuts:
+
 - `run media cleanup` -> run owner-scoped dry-run first (`npm run media:cleanup`), show report, then ask for apply confirmation.
 - `run media cleanup apply` -> only run after explicit confirmation; execute owner-scoped apply (`npm run media:cleanup:run`).
 - Best practice: keep cleanup owner-scoped; avoid global cleanup unless explicitly requested and reviewed.
 
 Plan file location rule:
+
 - Save project plans in `D:\Cursor_Projectz\MSC-Projectz\.cursor\plans` by default.
 - If a plan is generated in `C:\Users\JONBEATZ\.cursor\plans`, copy/move it into `D:\Cursor_Projectz\MSC-Projectz\.cursor\plans` in the same session.
 

@@ -12,7 +12,7 @@ export function LoginScreen() {
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState('')
   const [isLoading, setIsLoading] = useState(false)
-  
+
   const { login, masterPassword } = useAppStore()
   const isFirstTime = !masterPassword
 
@@ -48,22 +48,28 @@ export function LoginScreen() {
       {/* Vader Vault Logo */}
       <div className="flex flex-col items-center gap-6 mb-8">
         <div className="relative">
-          <div className="w-24 h-24 rounded-full overflow-hidden border-2 border-[#2a2a2a] flex items-center justify-center" style={{ backgroundColor: '#1c1c1c' }}>
-            <Image 
-              src="/msc-icon.png" 
-              alt="MSC-Projectz" 
-              width={96} 
+          <div
+            className="w-24 h-24 rounded-full overflow-hidden border-2 border-[#2a2a2a] flex items-center justify-center"
+            style={{ backgroundColor: '#1c1c1c' }}
+          >
+            <Image
+              src="/msc-icon.png"
+              alt="MSC-Projectz"
+              width={96}
               height={96}
               className="object-contain"
               loading="eager"
               priority
             />
           </div>
-          <div className="absolute -bottom-1 -right-1 w-8 h-8 rounded-full flex items-center justify-center" style={{ backgroundColor: '#4ADE80' }}>
+          <div
+            className="absolute -bottom-1 -right-1 w-8 h-8 rounded-full flex items-center justify-center"
+            style={{ backgroundColor: '#4ADE80' }}
+          >
             <Lock className="w-4 h-4" style={{ color: '#121212' }} />
           </div>
         </div>
-        
+
         <div className="text-center">
           <h1 className="text-2xl font-semibold tracking-tight" style={{ color: '#f5f5f5' }}>
             Vader Vault
@@ -83,10 +89,10 @@ export function LoginScreen() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             className="h-12 pr-12"
-            style={{ 
-              backgroundColor: '#1c1c1c', 
-              borderColor: '#2a2a2a', 
-              color: '#f5f5f5' 
+            style={{
+              backgroundColor: '#1c1c1c',
+              borderColor: '#2a2a2a',
+              color: '#f5f5f5',
             }}
             autoFocus
           />
@@ -96,11 +102,7 @@ export function LoginScreen() {
             className="absolute right-3 top-1/2 -translate-y-1/2 transition-colors"
             style={{ color: '#888888' }}
           >
-            {showPassword ? (
-              <EyeOff className="w-5 h-5" />
-            ) : (
-              <Eye className="w-5 h-5" />
-            )}
+            {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
           </button>
         </div>
 
@@ -114,9 +116,9 @@ export function LoginScreen() {
         <Button
           type="submit"
           className="w-full h-12 font-medium"
-          style={{ 
-            backgroundColor: '#4ADE80', 
-            color: '#121212' 
+          style={{
+            backgroundColor: '#4ADE80',
+            color: '#121212',
           }}
           disabled={isLoading}
         >

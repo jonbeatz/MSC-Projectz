@@ -13,26 +13,26 @@ A **private Command Center** for MyStudioChannel operations. Dashboard for proje
 
 ## Key npm scripts
 
-| Command | Purpose |
-|---------|---------|
-| `npm run dev` | Start Next.js dev server |
-| `npm run build` | Production build |
-| `npm run verify:next` | Build verification |
+| Command                    | Purpose                               |
+| -------------------------- | ------------------------------------- |
+| `npm run dev`              | Start Next.js dev server              |
+| `npm run build`            | Production build                      |
+| `npm run verify:next`      | Build verification                    |
 | `npm run verify:next:safe` | Build verification (no port conflict) |
-| `npm run dev:recover` | Reset dev server |
-| `npm run seed` | Seed test data |
-| `npm run rescue:admin` | Recover admin access |
+| `npm run dev:recover`      | Reset dev server                      |
+| `npm run seed`             | Seed test data                        |
+| `npm run rescue:admin`     | Recover admin access                  |
 
 ## Documentation hierarchy
 
-| Priority | Document | Purpose |
-|----------|----------|---------|
-| 1 | `TRUTH.md` | Constitution, stack, architecture |
-| 2 | `.cursor/docs/Docs-Architecture.md` | Canonical docs map |
-| 3 | `.cursor/docs/START-HERE.md` | Session startup contract |
-| 4 | `.cursorrules` | Operating rules |
-| 5 | `.cursor/docs/Session-Snapshots.md` | Handoff reference |
-| 6 | `.cursor/rules/*.mdc` | Scoped workflow rules |
+| Priority | Document                            | Purpose                           |
+| -------- | ----------------------------------- | --------------------------------- |
+| 1        | `TRUTH.md`                          | Constitution, stack, architecture |
+| 2        | `.cursor/docs/Docs-Architecture.md` | Canonical docs map                |
+| 3        | `.cursor/docs/START-HERE.md`        | Session startup contract          |
+| 4        | `.cursorrules`                      | Operating rules                   |
+| 5        | `.cursor/docs/Session-Snapshots.md` | Handoff reference                 |
+| 6        | `.cursor/rules/*.mdc`               | Scoped workflow rules             |
 
 ## Safety defaults
 

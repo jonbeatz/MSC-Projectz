@@ -50,8 +50,8 @@ export function MSC_Projectz_UserRow({ user, isMasterAdmin, onChanged, onMessage
                   user.role === 'master-admin'
                     ? 'border-msc-ui-accent/45 bg-msc-ui-accent/18 text-sky-50 shadow-[0_0_14px_rgba(89,158,222,0.22)]'
                     : user.role === 'admin'
-                    ? 'border-transparent bg-primary text-primary-foreground'
-                    : 'border-border bg-secondary text-secondary-foreground',
+                      ? 'border-transparent bg-primary text-primary-foreground'
+                      : 'border-border bg-secondary text-secondary-foreground',
                 )}
               >
                 <Shield className="h-3 w-3" />

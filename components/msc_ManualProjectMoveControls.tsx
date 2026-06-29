@@ -2,12 +2,7 @@
 
 import { ChevronDown, ChevronUp, MoreVertical } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { cn } from '@/lib/utils'
 
 export type MscManualProjectMove = {
@@ -34,10 +29,7 @@ export function MscManualProjectMoveControls({ manualMove, layout, isDark }: Pro
       size="icon"
       variant="secondary"
       disabled={!canUp || busy}
-      className={cn(
-        'h-8 w-8 border border-border',
-        isDark ? 'bg-background/90' : 'bg-card',
-      )}
+      className={cn('h-8 w-8 border border-border', isDark ? 'bg-background/90' : 'bg-card')}
       title="Move up"
       aria-label="Move project up"
       onClick={(e) => {
@@ -54,10 +46,7 @@ export function MscManualProjectMoveControls({ manualMove, layout, isDark }: Pro
       size="icon"
       variant="secondary"
       disabled={!canDown || busy}
-      className={cn(
-        'h-8 w-8 border border-border',
-        isDark ? 'bg-background/90' : 'bg-card',
-      )}
+      className={cn('h-8 w-8 border border-border', isDark ? 'bg-background/90' : 'bg-card')}
       title="Move down"
       aria-label="Move project down"
       onClick={(e) => {
@@ -118,10 +107,7 @@ export function MscManualProjectMoveControls({ manualMove, layout, isDark }: Pro
         {upBtn}
         {downBtn}
       </div>
-      <div
-        className="absolute bottom-2 right-2 z-30 md:hidden"
-        onClick={(e) => e.stopPropagation()}
-      >
+      <div className="absolute bottom-2 right-2 z-30 md:hidden" onClick={(e) => e.stopPropagation()}>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button

@@ -49,9 +49,7 @@ export const MSC_Projectz_Media: CollectionConfig = {
 
         const prevOwner = (originalDoc as MscMediaRow | undefined)?.owner
         const prevOwnerId =
-          typeof prevOwner === 'object' && prevOwner !== null && 'id' in prevOwner
-            ? prevOwner.id
-            : prevOwner
+          typeof prevOwner === 'object' && prevOwner !== null && 'id' in prevOwner ? prevOwner.id : prevOwner
         next.owner = prevOwnerId ?? req.user.id
         return next
       },

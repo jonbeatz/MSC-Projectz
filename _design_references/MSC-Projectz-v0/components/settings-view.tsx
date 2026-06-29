@@ -1,22 +1,22 @@
 'use client'
 
 import { useState, useRef } from 'react'
-import { 
-  User, 
-  Mail, 
-  Lock, 
-  Server, 
-  Monitor, 
-  Apple, 
-  Save, 
-  Eye, 
+import {
+  User,
+  Mail,
+  Lock,
+  Server,
+  Monitor,
+  Apple,
+  Save,
+  Eye,
   EyeOff,
   CheckCircle,
   AlertCircle,
   Upload,
   Send,
   Shield,
-  Users
+  Users,
 } from 'lucide-react'
 import Image from 'next/image'
 import { Button } from '@/components/ui/button'
@@ -29,20 +29,20 @@ import { useAppStore } from '@/lib/store'
 export function SettingsView() {
   const { appSettings, updateAppSettings, changeMasterPassword, user, updateUser } = useAppStore()
   const [userManagementOpen, setUserManagementOpen] = useState(false)
-  
+
   const [username, setUsername] = useState(user?.username || '')
   const [email, setEmail] = useState(user?.email || appSettings.email)
   const [avatar, setAvatar] = useState(user?.avatar || '')
-  
+
   const [currentPassword, setCurrentPassword] = useState('')
   const [newPassword, setNewPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   const [showCurrentPassword, setShowCurrentPassword] = useState(false)
   const [showNewPassword, setShowNewPassword] = useState(false)
-  const [passwordMessage, setPasswordMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null)
-  
+  const [passwordMessage, setPasswordMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
+
   const [pathFormat, setPathFormat] = useState(appSettings.pathFormat)
-  
+
   // Spacemail SMTP Settings
   const [smtpIncomingHost, setSmtpIncomingHost] = useState(appSettings.smtp.incomingHost)
   const [smtpIncomingPort, setSmtpIncomingPort] = useState(appSettings.smtp.incomingPort)
@@ -52,11 +52,11 @@ export function SettingsView() {
   const [smtpPassword, setSmtpPassword] = useState(appSettings.smtp.password)
   const [smtpSsl, setSmtpSsl] = useState(appSettings.smtp.ssl)
   const [showSmtpPassword, setShowSmtpPassword] = useState(false)
-  
+
   const [saveMessage, setSaveMessage] = useState<string | null>(null)
   const [testEmailSending, setTestEmailSending] = useState(false)
-  const [testEmailMessage, setTestEmailMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null)
-  
+  const [testEmailMessage, setTestEmailMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
+
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const handleAvatarUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -80,7 +80,7 @@ export function SettingsView() {
       setPasswordMessage({ type: 'error', text: 'Password must be at least 6 characters' })
       return
     }
-    
+
     const success = changeMasterPassword(currentPassword, newPassword)
     if (success) {
       setPasswordMessage({ type: 'success', text: 'Password changed successfully' })
@@ -90,23 +90,23 @@ export function SettingsView() {
     } else {
       setPasswordMessage({ type: 'error', text: 'Current password is incorrect' })
     }
-    
+
     setTimeout(() => setPasswordMessage(null), 3000)
   }
 
   const handleSendTestEmail = async () => {
     setTestEmailSending(true)
     setTestEmailMessage(null)
-    
+
     // Simulate sending test email
     await new Promise((r) => setTimeout(r, 1500))
-    
+
     if (smtpUsername && smtpPassword) {
       setTestEmailMessage({ type: 'success', text: 'Test email sent successfully!' })
     } else {
       setTestEmailMessage({ type: 'error', text: 'Please fill in all SMTP credentials' })
     }
-    
+
     setTestEmailSending(false)
     setTimeout(() => setTestEmailMessage(null), 3000)
   }
@@ -147,46 +147,27 @@ export function SettingsView() {
             <User className="w-5 h-5 text-primary" />
             Profile
           </h2>
-          <p className="text-sm mt-1 text-muted-foreground">
-            Manage your profile information and avatar
-          </p>
+          <p className="text-sm mt-1 text-muted-foreground">Manage your profile information and avatar</p>
         </div>
-        
+
         <div className="space-y-6">
           {/* Avatar Upload */}
           <div className="flex items-start gap-6">
             <div className="flex flex-col items-center gap-3">
               <div className="w-24 h-24 rounded-full overflow-hidden flex items-center justify-center bg-secondary border-2 border-border">
                 {avatar ? (
-                  <Image 
-                    src={avatar} 
-                    alt="Avatar" 
-                    width={96} 
-                    height={96}
-                    className="w-full h-full object-cover"
-                  />
+                  <Image src={avatar} alt="Avatar" width={96} height={96} className="w-full h-full object-cover" />
                 ) : (
                   <User className="w-12 h-12 text-muted-foreground" />
                 )}
               </div>
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/*"
-                onChange={handleAvatarUpload}
-                className="hidden"
-              />
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => fileInputRef.current?.click()}
-                className="gap-2"
-              >
+              <input ref={fileInputRef} type="file" accept="image/*" onChange={handleAvatarUpload} className="hidden" />
+              <Button variant="outline" size="sm" onClick={() => fileInputRef.current?.click()} className="gap-2">
                 <Upload className="w-4 h-4" />
                 Choose File
               </Button>
             </div>
-            
+
             <div className="flex-1 space-y-4">
               {/* Username */}
               <div className="space-y-2">
@@ -203,7 +184,7 @@ export function SettingsView() {
                   className="bg-input border-border text-foreground"
                 />
               </div>
-              
+
               {/* Email */}
               <div className="space-y-2">
                 <Label htmlFor="email" className="text-sm flex items-center gap-2 text-muted-foreground">
@@ -228,7 +209,7 @@ export function SettingsView() {
               <Lock className="w-4 h-4 text-muted-foreground" />
               <span className="text-sm font-medium text-foreground">Change Master Password</span>
             </div>
-            
+
             <div className="space-y-4 max-w-md">
               <div className="space-y-2">
                 <Label htmlFor="current-password" className="text-xs text-muted-foreground">
@@ -251,7 +232,7 @@ export function SettingsView() {
                   </button>
                 </div>
               </div>
-              
+
               <div className="space-y-2">
                 <Label htmlFor="new-password" className="text-xs text-muted-foreground">
                   New Password
@@ -273,7 +254,7 @@ export function SettingsView() {
                   </button>
                 </div>
               </div>
-              
+
               <div className="space-y-2">
                 <Label htmlFor="confirm-password" className="text-xs text-muted-foreground">
                   Confirm New Password
@@ -288,7 +269,7 @@ export function SettingsView() {
               </div>
 
               {passwordMessage && (
-                <div 
+                <div
                   className="flex items-center gap-2 text-sm"
                   style={{ color: passwordMessage.type === 'success' ? '#4ADE80' : '#EF4444' }}
                 >
@@ -301,7 +282,7 @@ export function SettingsView() {
                 </div>
               )}
 
-              <Button 
+              <Button
                 onClick={handleChangePassword}
                 disabled={!currentPassword || !newPassword || !confirmPassword}
                 className="mt-2 bg-primary text-primary-foreground hover:bg-primary/90"
@@ -320,16 +301,12 @@ export function SettingsView() {
             <h2 className="text-lg font-medium flex items-center gap-2 text-foreground">
               <Users className="w-5 h-5 text-primary" />
               User Management
-              <span className="text-xs px-2 py-0.5 rounded bg-primary text-primary-foreground">
-                Admin
-              </span>
+              <span className="text-xs px-2 py-0.5 rounded bg-primary text-primary-foreground">Admin</span>
             </h2>
-            <p className="text-sm mt-1 text-muted-foreground">
-              Manage user accounts and permissions
-            </p>
+            <p className="text-sm mt-1 text-muted-foreground">Manage user accounts and permissions</p>
           </div>
-          
-          <Button 
+
+          <Button
             onClick={() => setUserManagementOpen(true)}
             className="flex items-center gap-2 bg-primary text-primary-foreground hover:bg-primary/90"
           >
@@ -346,11 +323,9 @@ export function SettingsView() {
             <Monitor className="w-5 h-5 text-primary" />
             App Preferences
           </h2>
-          <p className="text-sm mt-1 text-muted-foreground">
-            Configure application behavior and display settings
-          </p>
+          <p className="text-sm mt-1 text-muted-foreground">Configure application behavior and display settings</p>
         </div>
-        
+
         <div className="p-4 rounded-lg bg-secondary border border-border">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -364,8 +339,8 @@ export function SettingsView() {
               <div>
                 <p className="text-sm font-medium text-foreground">Local Path Format</p>
                 <p className="text-xs text-muted-foreground">
-                  {pathFormat === 'windows' 
-                    ? 'Windows style: C:\\Projects\\my-project' 
+                  {pathFormat === 'windows'
+                    ? 'Windows style: C:\\Projects\\my-project'
                     : 'Mac style: /Users/name/Projects/my-project'}
                 </p>
               </div>
@@ -393,7 +368,7 @@ export function SettingsView() {
             Configure Spacemail settings for email notifications and password recovery
           </p>
         </div>
-        
+
         <div className="space-y-6">
           {/* Incoming Mail (IMAP) */}
           <div className="p-4 rounded-lg bg-secondary border border-border">
@@ -509,25 +484,17 @@ export function SettingsView() {
               <p className="text-sm font-medium text-foreground">SSL/TLS Encryption</p>
               <p className="text-xs text-muted-foreground">Required for secure email transmission</p>
             </div>
-            <Switch
-              checked={smtpSsl}
-              onCheckedChange={setSmtpSsl}
-            />
+            <Switch checked={smtpSsl} onCheckedChange={setSmtpSsl} />
           </div>
 
           {/* Test Email */}
           <div className="flex items-center gap-4">
-            <Button
-              variant="outline"
-              onClick={handleSendTestEmail}
-              disabled={testEmailSending}
-              className="gap-2"
-            >
+            <Button variant="outline" onClick={handleSendTestEmail} disabled={testEmailSending} className="gap-2">
               <Send className="w-4 h-4" />
               {testEmailSending ? 'Sending...' : 'Send Test Email'}
             </Button>
             {testEmailMessage && (
-              <div 
+              <div
                 className="flex items-center gap-2 text-sm"
                 style={{ color: testEmailMessage.type === 'success' ? '#4ADE80' : '#EF4444' }}
               >
@@ -552,20 +519,14 @@ export function SettingsView() {
           </div>
         )}
         <div className="flex-1" />
-        <Button 
-          onClick={handleSaveSettings} 
-          className="gap-2 bg-primary text-primary-foreground hover:bg-primary/90"
-        >
+        <Button onClick={handleSaveSettings} className="gap-2 bg-primary text-primary-foreground hover:bg-primary/90">
           <Save className="w-4 h-4" />
           Save Settings
         </Button>
       </div>
 
       {/* User Management Modal */}
-      <UserManagementModal 
-        isOpen={userManagementOpen} 
-        onClose={() => setUserManagementOpen(false)} 
-      />
+      <UserManagementModal isOpen={userManagementOpen} onClose={() => setUserManagementOpen(false)} />
     </div>
   )
 }

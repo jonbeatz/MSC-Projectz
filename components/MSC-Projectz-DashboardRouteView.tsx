@@ -43,9 +43,10 @@ export function MSC_Projectz_DashboardRouteView() {
   useEffect(() => {
     if (!needsAttention) return
 
-    const target = targetProjectId && projects.some((project) => project.id === targetProjectId)
-      ? targetProjectId
-      : projects[0]?.id ?? null
+    const target =
+      targetProjectId && projects.some((project) => project.id === targetProjectId)
+        ? targetProjectId
+        : (projects[0]?.id ?? null)
 
     if (target) {
       setFocusProjectId(target)
@@ -69,11 +70,7 @@ export function MSC_Projectz_DashboardRouteView() {
 
   const msc_vaultSyncPending =
     isAuthenticated &&
-    (
-      user?.payloadUserId == null ||
-      !vaultHydrated ||
-      String(vaultUserId ?? '') !== String(user.payloadUserId)
-    )
+    (user?.payloadUserId == null || !vaultHydrated || String(vaultUserId ?? '') !== String(user.payloadUserId))
 
   if (msc_vaultSyncPending) {
     return (
@@ -110,18 +107,10 @@ export function MSC_Projectz_DashboardRouteView() {
         onFocusTabChange={setFocusTab}
       />
 
-      <EditProjectModal
-        project={editProject || null}
-        isOpen={!!editProjectId}
-        onClose={() => setEditProjectId(null)}
-      />
+      <EditProjectModal project={editProject || null} isOpen={!!editProjectId} onClose={() => setEditProjectId(null)} />
 
       {vaultProject && (
-        <ProjectVault
-          project={vaultProject}
-          isOpen={!!vaultProjectId}
-          onClose={() => setVaultProjectId(null)}
-        />
+        <ProjectVault project={vaultProject} isOpen={!!vaultProjectId} onClose={() => setVaultProjectId(null)} />
       )}
 
       <TaskDrawer

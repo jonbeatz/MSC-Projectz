@@ -1,12 +1,12 @@
 'use client'
 
 import { useState } from 'react'
-import { 
-  Search, 
-  BookOpen, 
-  Code, 
-  Workflow, 
-  HelpCircle, 
+import {
+  Search,
+  BookOpen,
+  Code,
+  Workflow,
+  HelpCircle,
   FolderOpen,
   Key,
   Globe,
@@ -19,14 +19,9 @@ import {
   Shield,
   Copy,
   Check,
-  ChevronDown
+  ChevronDown,
 } from 'lucide-react'
-import { 
-  Accordion, 
-  AccordionContent, 
-  AccordionItem, 
-  AccordionTrigger 
-} from '@/components/ui/accordion'
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion'
 import { useAppStore } from '@/lib/store'
 
 interface FAQItem {
@@ -48,61 +43,71 @@ const faqItems: FAQItem[] = [
   {
     id: 'faq-1',
     question: 'How do I add a new project?',
-    answer: 'Click the "+ Add Project" button in the sidebar or on the dashboard. Follow the 4-step wizard to set up your project: Identity (name & thumbnail), Connectivity (local path & URL), Credentials (vault entries), and Status (local vs live).',
+    answer:
+      'Click the "+ Add Project" button in the sidebar or on the dashboard. Follow the 4-step wizard to set up your project: Identity (name & thumbnail), Connectivity (local path & URL), Credentials (vault entries), and Status (local vs live).',
     category: 'getting-started',
   },
   {
     id: 'faq-2',
     question: 'Where are my credentials stored?',
-    answer: 'All credentials are stored locally in your browser using encrypted localStorage. Your data never leaves your machine. The master password encrypts access to the vault.',
+    answer:
+      'All credentials are stored locally in your browser using encrypted localStorage. Your data never leaves your machine. The master password encrypts access to the vault.',
     category: 'security',
   },
   {
     id: 'faq-3',
     question: 'How do I open a project in VS Code / Cursor?',
-    answer: 'Click on a project card and hover over it to reveal quick actions. Click "Cursor" to open the project in your default code editor. This uses the vscode:// protocol.',
+    answer:
+      'Click on a project card and hover over it to reveal quick actions. Click "Cursor" to open the project in your default code editor. This uses the vscode:// protocol.',
     category: 'workflow',
   },
   {
     id: 'faq-4',
     question: 'Can I change my master password?',
-    answer: 'Yes! Go to Settings > Profile and use the "Change Master Password" section. You will need to enter your current password to confirm the change.',
+    answer:
+      'Yes! Go to Settings > Profile and use the "Change Master Password" section. You will need to enter your current password to confirm the change.',
     category: 'security',
   },
   {
     id: 'faq-5',
     question: 'What is the difference between Local and Live status?',
-    answer: 'Local status indicates a project is in development on your machine. Live status means the project has been deployed and has a public URL. This helps you track deployment status.',
+    answer:
+      'Local status indicates a project is in development on your machine. Live status means the project has been deployed and has a public URL. This helps you track deployment status.',
     category: 'workflow',
   },
   {
     id: 'faq-6',
     question: 'How do I configure Spacemail SMTP for email notifications?',
-    answer: 'Go to Settings > Spacemail SMTP Configuration. For incoming mail (IMAP), use mail.spacemail.com on port 993 with SSL/TLS. For outgoing mail (SMTP), use mail.spacemail.com on port 465 with SSL/TLS. Enter your Spacemail username and password.',
+    answer:
+      'Go to Settings > Spacemail SMTP Configuration. For incoming mail (IMAP), use mail.spacemail.com on port 993 with SSL/TLS. For outgoing mail (SMTP), use mail.spacemail.com on port 465 with SSL/TLS. Enter your Spacemail username and password.',
     category: 'settings',
   },
   {
     id: 'faq-7',
     question: 'Can I export my project data?',
-    answer: 'Project data is stored in localStorage under the key "msc-projectz-storage". You can export this data by copying the localStorage value from your browser developer tools.',
+    answer:
+      'Project data is stored in localStorage under the key "msc-projectz-storage". You can export this data by copying the localStorage value from your browser developer tools.',
     category: 'data',
   },
   {
     id: 'faq-8',
     question: 'What happens if I forget my master password?',
-    answer: 'Use the "Forgot Password?" link on the login page to receive a password recovery link via email. This requires Spacemail SMTP to be configured. If SMTP is not set up, you will need to clear localStorage and start fresh.',
+    answer:
+      'Use the "Forgot Password?" link on the login page to receive a password recovery link via email. This requires Spacemail SMTP to be configured. If SMTP is not set up, you will need to clear localStorage and start fresh.',
     category: 'security',
   },
   {
     id: 'faq-9',
     question: 'How do I upload a profile avatar?',
-    answer: 'Go to Settings > Profile section. Click the "Choose File" button below your current avatar to select an image from your local machine. The avatar is stored locally and displayed in the sidebar and dashboard header.',
+    answer:
+      'Go to Settings > Profile section. Click the "Choose File" button below your current avatar to select an image from your local machine. The avatar is stored locally and displayed in the sidebar and dashboard header.',
     category: 'settings',
   },
   {
     id: 'faq-10',
     question: 'How can I add new users to MSC-Projectz?',
-    answer: 'New user creation requires Admin Approval. Contact your system administrator to request a new account. The admin will create the account and provide login credentials via secure channel.',
+    answer:
+      'New user creation requires Admin Approval. Contact your system administrator to request a new account. The admin will create the account and provide login credentials via secure channel.',
     category: 'admin',
   },
 ]
@@ -232,10 +237,8 @@ export function HelpView() {
   const setCurrentView = useAppStore((s) => s.setCurrentView)
 
   const toggleSection = (sectionId: string) => {
-    setExpandedSections(prev => 
-      prev.includes(sectionId) 
-        ? prev.filter(id => id !== sectionId)
-        : [...prev, sectionId]
+    setExpandedSections((prev) =>
+      prev.includes(sectionId) ? prev.filter((id) => id !== sectionId) : [...prev, sectionId],
     )
   }
 
@@ -250,7 +253,7 @@ export function HelpView() {
   }
 
   const filteredFAQs = faqItems.filter((item) => {
-    const matchesSearch = 
+    const matchesSearch =
       item.question.toLowerCase().includes(searchQuery.toLowerCase()) ||
       item.answer.toLowerCase().includes(searchQuery.toLowerCase())
     const matchesCategory = activeCategory === 'all' || item.category === activeCategory
@@ -258,7 +261,7 @@ export function HelpView() {
   })
 
   const filteredGuides = workflowGuides.filter((item) => {
-    const matchesSearch = 
+    const matchesSearch =
       item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       item.description.toLowerCase().includes(searchQuery.toLowerCase())
     const matchesCategory = activeCategory === 'all' || item.category === activeCategory
@@ -267,13 +270,20 @@ export function HelpView() {
 
   const getCategoryIcon = (category: string) => {
     switch (category) {
-      case 'getting-started': return <Zap className="w-3.5 h-3.5" />
-      case 'workflow': return <Workflow className="w-3.5 h-3.5" />
-      case 'security': return <Key className="w-3.5 h-3.5" />
-      case 'settings': return <Server className="w-3.5 h-3.5" />
-      case 'admin': return <Users className="w-3.5 h-3.5" />
-      case 'data': return <FolderOpen className="w-3.5 h-3.5" />
-      default: return <HelpCircle className="w-3.5 h-3.5" />
+      case 'getting-started':
+        return <Zap className="w-3.5 h-3.5" />
+      case 'workflow':
+        return <Workflow className="w-3.5 h-3.5" />
+      case 'security':
+        return <Key className="w-3.5 h-3.5" />
+      case 'settings':
+        return <Server className="w-3.5 h-3.5" />
+      case 'admin':
+        return <Users className="w-3.5 h-3.5" />
+      case 'data':
+        return <FolderOpen className="w-3.5 h-3.5" />
+      default:
+        return <HelpCircle className="w-3.5 h-3.5" />
     }
   }
 
@@ -304,17 +314,15 @@ export function HelpView() {
         incoming: {
           host: 'mail.spacemail.com',
           port: '993',
-          security: 'SSL/TLS'
+          security: 'SSL/TLS',
         },
         outgoing: {
           host: 'mail.spacemail.com',
           port: '465',
-          security: 'SSL/TLS'
-        }
+          security: 'SSL/TLS',
+        },
       },
-      content: [
-        'Click "Send Test Email" in Settings to verify your configuration.',
-      ],
+      content: ['Click "Send Test Email" in Settings to verify your configuration.'],
     },
     {
       id: 'inst-3',
@@ -323,7 +331,8 @@ export function HelpView() {
       description: 'Process for requesting and approving new user accounts',
       adminNote: {
         title: 'Admin Strategy Note',
-        content: 'Admin Tip: New signups are locked by default. To grant access, navigate to Settings > User Management and toggle the status from "Pending" to "Active". Use the Spacemail SMTP test button to ensure your notification system is online before inviting external users.'
+        content:
+          'Admin Tip: New signups are locked by default. To grant access, navigate to Settings > User Management and toggle the status from "Pending" to "Active". Use the Spacemail SMTP test button to ensure your notification system is online before inviting external users.',
       },
       content: [
         'For New Users:',
@@ -357,9 +366,7 @@ export function HelpView() {
           </div>
           <div>
             <h1 className="text-2xl font-semibold text-foreground">Help & Documentation</h1>
-            <p className="text-sm text-muted-foreground">
-              Developer FAQ and workflow guides for MSC-Projectz
-            </p>
+            <p className="text-sm text-muted-foreground">Developer FAQ and workflow guides for MSC-Projectz</p>
           </div>
         </div>
       </div>
@@ -381,9 +388,9 @@ export function HelpView() {
           <button
             onClick={() => setActiveTab('instructionz')}
             className="flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-colors"
-            style={{ 
+            style={{
               backgroundColor: activeTab === 'instructionz' ? '#4ADE80' : 'transparent',
-              color: activeTab === 'instructionz' ? '#121212' : undefined
+              color: activeTab === 'instructionz' ? '#121212' : undefined,
             }}
           >
             <Shield className="w-4 h-4" />
@@ -414,9 +421,9 @@ export function HelpView() {
               key={cat.id}
               onClick={() => setActiveCategory(cat.id)}
               className="px-3 py-1.5 rounded-lg text-xs font-medium transition-colors"
-              style={{ 
+              style={{
                 backgroundColor: activeCategory === cat.id ? '#4ADE80' : undefined,
-                color: activeCategory === cat.id ? '#121212' : undefined
+                color: activeCategory === cat.id ? '#121212' : undefined,
               }}
             >
               {cat.label}
@@ -433,19 +440,19 @@ export function HelpView() {
               Essential documentation for Master Password Recovery, SMTP Setup, and Adding New Users.
             </p>
           </div>
-          
+
           {instructionzItems.map((item) => {
             const isExpanded = expandedSections.includes(item.id)
             return (
-              <div 
+              <div
                 key={item.id}
                 className="rounded-xl overflow-hidden transition-all bg-card border"
-                style={{ 
+                style={{
                   borderColor: isExpanded ? '#4ADE80' : undefined,
-                  boxShadow: isExpanded ? '0 0 12px rgba(74, 222, 128, 0.15)' : 'none'
+                  boxShadow: isExpanded ? '0 0 12px rgba(74, 222, 128, 0.15)' : 'none',
                 }}
               >
-                <button 
+                <button
                   onClick={() => toggleSection(item.id)}
                   className="flex items-center gap-3 p-4 w-full text-left hover:bg-secondary/50 transition-colors"
                 >
@@ -456,12 +463,12 @@ export function HelpView() {
                     <h3 className="font-semibold text-foreground">{item.title}</h3>
                     <p className="text-sm truncate text-muted-foreground">{item.description}</p>
                   </div>
-                  <ChevronDown 
+                  <ChevronDown
                     className="w-5 h-5 flex-shrink-0 transition-transform duration-200 text-muted-foreground"
                     style={{ transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)' }}
                   />
                 </button>
-                
+
                 {isExpanded && (
                   <div className="p-4 bg-secondary/50 border-t border-border">
                     {/* SMTP Fields with Copy Buttons */}
@@ -471,8 +478,10 @@ export function HelpView() {
                           <h4 className="text-sm font-medium mb-2 text-foreground">Incoming Mail (IMAP)</h4>
                           <div className="space-y-2">
                             <div className="flex items-center justify-between p-2 rounded bg-card">
-                              <span className="text-sm text-muted-foreground">Host: <span className="text-foreground">{item.smtpFields.incoming.host}</span></span>
-                              <button 
+                              <span className="text-sm text-muted-foreground">
+                                Host: <span className="text-foreground">{item.smtpFields.incoming.host}</span>
+                              </span>
+                              <button
                                 onClick={() => copyToClipboard(item.smtpFields!.incoming.host, 'imap-host')}
                                 className="p-1 rounded hover:bg-secondary transition-colors"
                               >
@@ -484,8 +493,10 @@ export function HelpView() {
                               </button>
                             </div>
                             <div className="flex items-center justify-between p-2 rounded bg-card">
-                              <span className="text-sm text-muted-foreground">Port: <span className="text-foreground">{item.smtpFields.incoming.port}</span></span>
-                              <button 
+                              <span className="text-sm text-muted-foreground">
+                                Port: <span className="text-foreground">{item.smtpFields.incoming.port}</span>
+                              </span>
+                              <button
                                 onClick={() => copyToClipboard(item.smtpFields!.incoming.port, 'imap-port')}
                                 className="p-1 rounded hover:bg-secondary transition-colors"
                               >
@@ -497,7 +508,9 @@ export function HelpView() {
                               </button>
                             </div>
                             <div className="flex items-center justify-between p-2 rounded bg-card">
-                              <span className="text-sm text-muted-foreground">Security: <span className="text-foreground">{item.smtpFields.incoming.security}</span></span>
+                              <span className="text-sm text-muted-foreground">
+                                Security: <span className="text-foreground">{item.smtpFields.incoming.security}</span>
+                              </span>
                             </div>
                           </div>
                         </div>
@@ -505,8 +518,10 @@ export function HelpView() {
                           <h4 className="text-sm font-medium mb-2 text-foreground">Outgoing Mail (SMTP)</h4>
                           <div className="space-y-2">
                             <div className="flex items-center justify-between p-2 rounded bg-card">
-                              <span className="text-sm text-muted-foreground">Host: <span className="text-foreground">{item.smtpFields.outgoing.host}</span></span>
-                              <button 
+                              <span className="text-sm text-muted-foreground">
+                                Host: <span className="text-foreground">{item.smtpFields.outgoing.host}</span>
+                              </span>
+                              <button
                                 onClick={() => copyToClipboard(item.smtpFields!.outgoing.host, 'smtp-host')}
                                 className="p-1 rounded hover:bg-secondary transition-colors"
                               >
@@ -518,8 +533,10 @@ export function HelpView() {
                               </button>
                             </div>
                             <div className="flex items-center justify-between p-2 rounded bg-card">
-                              <span className="text-sm text-muted-foreground">Port: <span className="text-foreground">{item.smtpFields.outgoing.port}</span></span>
-                              <button 
+                              <span className="text-sm text-muted-foreground">
+                                Port: <span className="text-foreground">{item.smtpFields.outgoing.port}</span>
+                              </span>
+                              <button
                                 onClick={() => copyToClipboard(item.smtpFields!.outgoing.port, 'smtp-port')}
                                 className="p-1 rounded hover:bg-secondary transition-colors"
                               >
@@ -531,7 +548,9 @@ export function HelpView() {
                               </button>
                             </div>
                             <div className="flex items-center justify-between p-2 rounded bg-card">
-                              <span className="text-sm text-muted-foreground">Security: <span className="text-foreground">{item.smtpFields.outgoing.security}</span></span>
+                              <span className="text-sm text-muted-foreground">
+                                Security: <span className="text-foreground">{item.smtpFields.outgoing.security}</span>
+                              </span>
                             </div>
                           </div>
                         </div>
@@ -549,8 +568,8 @@ export function HelpView() {
                     {/* Content */}
                     <div className="space-y-1.5">
                       {item.content.map((line, index) => (
-                        <p 
-                          key={index} 
+                        <p
+                          key={index}
                           className={`text-sm ${line === '' ? 'h-2' : line.startsWith('Note:') || line.startsWith('Invite Code') ? 'text-primary' : 'text-muted-foreground'}`}
                         >
                           {line}
@@ -577,8 +596,8 @@ export function HelpView() {
           ) : (
             <Accordion type="single" collapsible className="space-y-3">
               {filteredFAQs.map((faq) => (
-                <AccordionItem 
-                  key={faq.id} 
+                <AccordionItem
+                  key={faq.id}
                   value={faq.id}
                   className="rounded-xl border border-border bg-card overflow-hidden"
                 >
@@ -613,10 +632,7 @@ export function HelpView() {
             </div>
           ) : (
             filteredGuides.map((guide) => (
-              <div 
-                key={guide.id}
-                className="rounded-xl overflow-hidden bg-card border border-border"
-              >
+              <div key={guide.id} className="rounded-xl overflow-hidden bg-card border border-border">
                 <div className="p-4 border-b border-border">
                   <div className="flex items-start gap-3">
                     <div className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 bg-primary/20 text-primary">
@@ -631,10 +647,7 @@ export function HelpView() {
                 <div className="p-4 bg-secondary/30">
                   <ol className="space-y-2">
                     {guide.steps.map((step, index) => (
-                      <li 
-                        key={index}
-                        className="flex items-start gap-3 text-sm"
-                      >
+                      <li key={index} className="flex items-start gap-3 text-sm">
                         <span className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 text-xs font-medium bg-primary text-primary-foreground">
                           {index + 1}
                         </span>
@@ -653,28 +666,28 @@ export function HelpView() {
       <div className="mt-8 rounded-xl p-4 bg-card border border-border">
         <h3 className="font-semibold mb-4 text-foreground">Quick Links</h3>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-          <button 
+          <button
             onClick={() => setCurrentView('dashboard')}
             className="flex items-center gap-2 p-3 rounded-lg transition-colors bg-secondary hover:bg-secondary/80 text-foreground"
           >
             <Monitor className="w-4 h-4 text-muted-foreground" />
             <span className="text-sm">Dashboard</span>
           </button>
-          <button 
+          <button
             onClick={() => {}}
             className="flex items-center gap-2 p-3 rounded-lg transition-colors bg-secondary hover:bg-secondary/80 text-foreground"
           >
             <Key className="w-4 h-4 text-muted-foreground" />
             <span className="text-sm">Credentials</span>
           </button>
-          <button 
+          <button
             onClick={() => setCurrentView('settings')}
             className="flex items-center gap-2 p-3 rounded-lg transition-colors bg-secondary hover:bg-secondary/80 text-foreground"
           >
             <Mail className="w-4 h-4 text-muted-foreground" />
             <span className="text-sm">SMTP Setup</span>
           </button>
-          <button 
+          <button
             onClick={() => setCurrentView('dashboard')}
             className="flex items-center gap-2 p-3 rounded-lg transition-colors bg-secondary hover:bg-secondary/80 text-foreground"
           >

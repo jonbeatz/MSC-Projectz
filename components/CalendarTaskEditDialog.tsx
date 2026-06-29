@@ -16,13 +16,7 @@ import {
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { MSC_TASK_STATUS_LABELS, msc_getTaskStatusLabel } from '@/lib/msc_task_status_labels'
 import { useAppStore } from '@/lib/store'
 import type { Project, TaskStatus } from '@/lib/types'

@@ -1,19 +1,8 @@
 'use client'
 
 import { useMemo, useState } from 'react'
-import {
-  Activity,
-  Building2,
-  Plus,
-  Trash2,
-  ChevronRight,
-  CircleDot,
-  Zap,
-} from 'lucide-react'
-import {
-  MSC_Projectz_ClientDrawer,
-  type MSC_Projectz_ClientDrawerTab,
-} from '@/components/MSC-Projectz-ClientDrawer'
+import { Activity, Building2, Plus, Trash2, ChevronRight, CircleDot, Zap } from 'lucide-react'
+import { MSC_Projectz_ClientDrawer, type MSC_Projectz_ClientDrawerTab } from '@/components/MSC-Projectz-ClientDrawer'
 import { MSC_Projectz_TaskPulseCodeVault } from '@/components/MSC-Projectz-TaskPulseCodeVault'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -72,10 +61,7 @@ export function MSC_Projectz_TaskPulse({
 
   const clientId = project.clientId?.trim() ? project.clientId.trim() : null
 
-  const visibleTasks = useMemo(
-    () => project.tasks.filter((t) => !t.archived),
-    [project.tasks],
-  )
+  const visibleTasks = useMemo(() => project.tasks.filter((t) => !t.archived), [project.tasks])
 
   const progressPercent = useMemo(() => {
     if (visibleTasks.length === 0) return 0
@@ -145,7 +131,12 @@ export function MSC_Projectz_TaskPulse({
               }}
               autoFocus
             />
-            <Button type="button" size="sm" className="bg-primary text-primary-foreground" onClick={() => void handleAdd()}>
+            <Button
+              type="button"
+              size="sm"
+              className="bg-primary text-primary-foreground"
+              onClick={() => void handleAdd()}
+            >
               Save
             </Button>
             <Button
@@ -165,206 +156,209 @@ export function MSC_Projectz_TaskPulse({
       )
     ) : (
       <div className="msc-task-pulse flex min-h-[420px] w-full max-w-full flex-col gap-4 lg:flex-row lg:items-stretch">
-      {/* Left: Kanban ~70% */}
-      <div className="msc-task-pulse__kanban flex min-w-0 flex-1 flex-col gap-3 lg:min-w-0 lg:flex-[7]">
-        <div className="flex items-center justify-between border-b border-border pb-2">
-          <h3 className="text-sm font-semibold text-foreground">Task Pulse</h3>
-          {!isAdding && (
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              className="h-8 gap-1 text-primary"
-              onClick={() => setIsAdding(true)}
-            >
-              <Plus className="h-4 w-4" />
-              Add task
-            </Button>
-          )}
-        </div>
-
-        {isAdding && (
-          <div className="flex flex-wrap items-end gap-2 rounded-lg border border-border bg-background/50 p-3">
-            <div className="min-w-[200px] flex-1">
-              <Input
-                placeholder="Task title"
-                value={newTitle}
-                onChange={(e) => setNewTitle(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') void handleAdd()
-                  if (e.key === 'Escape') {
-                    setIsAdding(false)
-                    setNewTitle('')
-                  }
-                }}
-                className="text-sm"
-              />
-            </div>
-            <Button type="button" size="sm" className="bg-primary text-primary-foreground" onClick={() => void handleAdd()}>
-              Save
-            </Button>
-            <Button
-              type="button"
-              size="sm"
-              variant="ghost"
-              onClick={() => {
-                setIsAdding(false)
-                setNewTitle('')
-              }}
-            >
-              Cancel
-            </Button>
-          </div>
-        )}
-
-        <div className="grid min-h-[280px] flex-1 grid-cols-1 gap-3 md:grid-cols-3">
-          {MSC_TASK_PULSE_COLUMNS.map((col) => {
-            const colTasks = visibleTasks.filter((t) => t.status === col.status)
-            return (
-              <div
-                key={col.status}
-                className="msc-task-pulse__column flex min-h-0 flex-col rounded-lg border border-border bg-background/40"
+        {/* Left: Kanban ~70% */}
+        <div className="msc-task-pulse__kanban flex min-w-0 flex-1 flex-col gap-3 lg:min-w-0 lg:flex-[7]">
+          <div className="flex items-center justify-between border-b border-border pb-2">
+            <h3 className="text-sm font-semibold text-foreground">Task Pulse</h3>
+            {!isAdding && (
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                className="h-8 gap-1 text-primary"
+                onClick={() => setIsAdding(true)}
               >
-                <div className="border-b border-border bg-card/60 px-3 py-2">
-                  <div className="flex items-center justify-between gap-2">
-                    <span className="text-xs font-semibold uppercase tracking-wide text-foreground">
-                      {col.label}
-                    </span>
-                    <span className="text-[10px] text-muted-foreground">{colTasks.length}</span>
+                <Plus className="h-4 w-4" />
+                Add task
+              </Button>
+            )}
+          </div>
+
+          {isAdding && (
+            <div className="flex flex-wrap items-end gap-2 rounded-lg border border-border bg-background/50 p-3">
+              <div className="min-w-[200px] flex-1">
+                <Input
+                  placeholder="Task title"
+                  value={newTitle}
+                  onChange={(e) => setNewTitle(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') void handleAdd()
+                    if (e.key === 'Escape') {
+                      setIsAdding(false)
+                      setNewTitle('')
+                    }
+                  }}
+                  className="text-sm"
+                />
+              </div>
+              <Button
+                type="button"
+                size="sm"
+                className="bg-primary text-primary-foreground"
+                onClick={() => void handleAdd()}
+              >
+                Save
+              </Button>
+              <Button
+                type="button"
+                size="sm"
+                variant="ghost"
+                onClick={() => {
+                  setIsAdding(false)
+                  setNewTitle('')
+                }}
+              >
+                Cancel
+              </Button>
+            </div>
+          )}
+
+          <div className="grid min-h-[280px] flex-1 grid-cols-1 gap-3 md:grid-cols-3">
+            {MSC_TASK_PULSE_COLUMNS.map((col) => {
+              const colTasks = visibleTasks.filter((t) => t.status === col.status)
+              return (
+                <div
+                  key={col.status}
+                  className="msc-task-pulse__column flex min-h-0 flex-col rounded-lg border border-border bg-background/40"
+                >
+                  <div className="border-b border-border bg-card/60 px-3 py-2">
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="text-xs font-semibold uppercase tracking-wide text-foreground">{col.label}</span>
+                      <span className="text-[10px] text-muted-foreground">{colTasks.length}</span>
+                    </div>
+                    <p className="text-[10px] text-muted-foreground/90">{col.description}</p>
                   </div>
-                  <p className="text-[10px] text-muted-foreground/90">{col.description}</p>
-                </div>
-                <ul className="msc-task-pulse__list flex min-h-0 flex-1 flex-col gap-1.5 overflow-y-auto p-2">
-                  {colTasks.map((task) => (
-                    <li
-                      key={task.id}
-                      className="group rounded-md border border-border/80 bg-card p-2.5 text-left shadow-sm"
-                    >
-                      <p className="pr-1 text-sm text-foreground">{task.title}</p>
-                      <div className="mt-2 flex flex-wrap items-center gap-1">
-                        <MSC_Projectz_TaskAssigneeBadge project={project} task={task} />
-                        {col.status === 'todo' && (
-                          <Button
-                            type="button"
-                            variant="outline"
-                            size="sm"
-                            className="h-7 gap-0.5 text-xs"
-                            onClick={() => msc_moveTo(task, 'in-progress')}
-                          >
-                            Active
-                            <ChevronRight className="h-3 w-3" />
-                          </Button>
-                        )}
-                        {col.status === 'in-progress' && (
-                          <>
+                  <ul className="msc-task-pulse__list flex min-h-0 flex-1 flex-col gap-1.5 overflow-y-auto p-2">
+                    {colTasks.map((task) => (
+                      <li
+                        key={task.id}
+                        className="group rounded-md border border-border/80 bg-card p-2.5 text-left shadow-sm"
+                      >
+                        <p className="pr-1 text-sm text-foreground">{task.title}</p>
+                        <div className="mt-2 flex flex-wrap items-center gap-1">
+                          <MSC_Projectz_TaskAssigneeBadge project={project} task={task} />
+                          {col.status === 'todo' && (
                             <Button
                               type="button"
-                              variant="ghost"
+                              variant="outline"
+                              size="sm"
+                              className="h-7 gap-0.5 text-xs"
+                              onClick={() => msc_moveTo(task, 'in-progress')}
+                            >
+                              Active
+                              <ChevronRight className="h-3 w-3" />
+                            </Button>
+                          )}
+                          {col.status === 'in-progress' && (
+                            <>
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="sm"
+                                className="h-7 text-xs"
+                                onClick={() => msc_moveTo(task, 'todo')}
+                              >
+                                Queue
+                              </Button>
+                              <button
+                                type="button"
+                                className="inline-flex h-7 items-center gap-0.5 rounded-md px-2 text-xs font-medium msc-cta-initialize"
+                                onClick={() => msc_moveTo(task, 'done')}
+                              >
+                                Stabilize
+                              </button>
+                            </>
+                          )}
+                          {col.status === 'done' && (
+                            <Button
+                              type="button"
+                              variant="secondary"
                               size="sm"
                               className="h-7 text-xs"
                               onClick={() => msc_moveTo(task, 'todo')}
                             >
-                              Queue
+                              Reopen
                             </Button>
-                            <button
-                              type="button"
-                              className="inline-flex h-7 items-center gap-0.5 rounded-md px-2 text-xs font-medium msc-cta-initialize"
-                              onClick={() => msc_moveTo(task, 'done')}
-                            >
-                              Stabilize
-                            </button>
-                          </>
-                        )}
-                        {col.status === 'done' && (
-                          <Button
+                          )}
+                          <button
                             type="button"
-                            variant="secondary"
-                            size="sm"
-                            className="h-7 text-xs"
-                            onClick={() => msc_moveTo(task, 'todo')}
+                            onClick={() => void deleteTask(project.id, task.id)}
+                            className="ml-auto p-1 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100 hover:text-destructive"
+                            aria-label="Delete task"
                           >
-                            Reopen
-                          </Button>
-                        )}
-                        <button
-                          type="button"
-                          onClick={() => void deleteTask(project.id, task.id)}
-                          className="ml-auto p-1 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100 hover:text-destructive"
-                          aria-label="Delete task"
-                        >
-                          <Trash2 className="h-3.5 w-3.5" />
-                        </button>
-                      </div>
-                    </li>
-                  ))}
-                </ul>
+                            <Trash2 className="h-3.5 w-3.5" />
+                          </button>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+
+        {/* Right: Vader Telemetry ~30% */}
+        <aside className="msc-task-pulse__telemetry flex w-full min-w-0 flex-col rounded-xl border border-border bg-card lg:min-w-[200px] lg:max-w-none lg:flex-[3]">
+          <div className="border-b border-border px-4 py-3">
+            <h3 className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Vader Telemetry</h3>
+          </div>
+
+          <div className="flex flex-1 flex-col items-center justify-start gap-4 px-4 py-5">
+            <div className="relative flex h-36 w-36 items-center justify-center">
+              <svg className="h-36 w-36 -rotate-90" viewBox="0 0 100 100" aria-hidden>
+                <circle
+                  className="text-border"
+                  cx="50"
+                  cy="50"
+                  r="36"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="6"
+                />
+                <circle
+                  cx="50"
+                  cy="50"
+                  r="36"
+                  fill="none"
+                  stroke="hsl(var(--msc-accent))"
+                  strokeWidth="6"
+                  strokeLinecap="round"
+                  strokeDasharray={`${strokeDash} ${circumference}`}
+                  className="transition-all duration-500"
+                />
+              </svg>
+              <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center text-center">
+                <span className="text-2xl font-bold tabular-nums text-foreground">{progressPercent}%</span>
+                <span className="text-[10px] text-muted-foreground">Pulse</span>
               </div>
-            )
-          })}
-        </div>
+            </div>
+
+            <div className="w-full space-y-1 rounded-lg border border-border bg-background/50 p-3">
+              <div className="flex items-center gap-2 text-sm text-foreground">
+                <CircleDot className="h-4 w-4 shrink-0 text-primary" />
+                <span className="font-medium">Project health</span>
+              </div>
+              <p className="text-sm text-muted-foreground leading-snug">{health}</p>
+            </div>
+
+            <dl className="w-full space-y-2 text-xs text-muted-foreground">
+              <div className="flex justify-between gap-2 border-b border-border/60 pb-1.5">
+                <dt>Last updated</dt>
+                <dd className="shrink-0 text-right text-foreground/90">{msc_formatTaskPulseDate(project.updatedAt)}</dd>
+              </div>
+              <div className="flex justify-between gap-2">
+                <dt>Created</dt>
+                <dd className="shrink-0 text-right text-foreground/90">{msc_formatTaskPulseDate(project.createdAt)}</dd>
+              </div>
+            </dl>
+          </div>
+
+          <div className="mt-auto border-t border-border px-3 py-2.5 text-center text-[10px] text-muted-foreground">
+            Powered by the MSC Media Engine
+          </div>
+        </aside>
       </div>
-
-      {/* Right: Vader Telemetry ~30% */}
-      <aside className="msc-task-pulse__telemetry flex w-full min-w-0 flex-col rounded-xl border border-border bg-card lg:min-w-[200px] lg:max-w-none lg:flex-[3]">
-        <div className="border-b border-border px-4 py-3">
-          <h3 className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Vader Telemetry</h3>
-        </div>
-
-        <div className="flex flex-1 flex-col items-center justify-start gap-4 px-4 py-5">
-          <div className="relative flex h-36 w-36 items-center justify-center">
-            <svg className="h-36 w-36 -rotate-90" viewBox="0 0 100 100" aria-hidden>
-              <circle
-                className="text-border"
-                cx="50"
-                cy="50"
-                r="36"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="6"
-              />
-              <circle
-                cx="50"
-                cy="50"
-                r="36"
-                fill="none"
-                stroke="hsl(var(--msc-accent))"
-                strokeWidth="6"
-                strokeLinecap="round"
-                strokeDasharray={`${strokeDash} ${circumference}`}
-                className="transition-all duration-500"
-              />
-            </svg>
-            <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center text-center">
-              <span className="text-2xl font-bold tabular-nums text-foreground">{progressPercent}%</span>
-              <span className="text-[10px] text-muted-foreground">Pulse</span>
-            </div>
-          </div>
-
-          <div className="w-full space-y-1 rounded-lg border border-border bg-background/50 p-3">
-            <div className="flex items-center gap-2 text-sm text-foreground">
-              <CircleDot className="h-4 w-4 shrink-0 text-primary" />
-              <span className="font-medium">Project health</span>
-            </div>
-            <p className="text-sm text-muted-foreground leading-snug">{health}</p>
-          </div>
-
-          <dl className="w-full space-y-2 text-xs text-muted-foreground">
-            <div className="flex justify-between gap-2 border-b border-border/60 pb-1.5">
-              <dt>Last updated</dt>
-              <dd className="shrink-0 text-right text-foreground/90">{msc_formatTaskPulseDate(project.updatedAt)}</dd>
-            </div>
-            <div className="flex justify-between gap-2">
-              <dt>Created</dt>
-              <dd className="shrink-0 text-right text-foreground/90">{msc_formatTaskPulseDate(project.createdAt)}</dd>
-            </div>
-          </dl>
-        </div>
-
-        <div className="mt-auto border-t border-border px-3 py-2.5 text-center text-[10px] text-muted-foreground">
-          Powered by the MSC Media Engine
-        </div>
-      </aside>
-    </div>
     )
 
   return (
@@ -392,17 +386,26 @@ export function MSC_Projectz_TaskPulse({
         className="w-full gap-4"
       >
         <TabsList className="mb-1 h-auto w-auto flex-wrap justify-start gap-2 rounded-none border-0 bg-transparent p-0">
-          <TabsTrigger value="tasks" className="rounded-lg border border-border bg-secondary/25 px-4 py-2 text-xs font-semibold uppercase tracking-wide hover:bg-secondary/45">
+          <TabsTrigger
+            value="tasks"
+            className="rounded-lg border border-border bg-secondary/25 px-4 py-2 text-xs font-semibold uppercase tracking-wide hover:bg-secondary/45"
+          >
             Tasks
           </TabsTrigger>
-          <TabsTrigger value="code-vault" className="rounded-lg border border-border bg-secondary/25 px-4 py-2 text-xs font-semibold uppercase tracking-wide hover:bg-secondary/45">
+          <TabsTrigger
+            value="code-vault"
+            className="rounded-lg border border-border bg-secondary/25 px-4 py-2 text-xs font-semibold uppercase tracking-wide hover:bg-secondary/45"
+          >
             Code Vault
           </TabsTrigger>
         </TabsList>
         <TabsContent value="tasks" className="mt-0 focus-visible:outline-none">
           {tasksPanel}
         </TabsContent>
-        <TabsContent value="code-vault" className="mt-0 rounded-xl border border-border bg-card p-4 focus-visible:outline-none">
+        <TabsContent
+          value="code-vault"
+          className="mt-0 rounded-xl border border-border bg-card p-4 focus-visible:outline-none"
+        >
           <MSC_Projectz_TaskPulseCodeVault
             project={project}
             onOpenClientVault={

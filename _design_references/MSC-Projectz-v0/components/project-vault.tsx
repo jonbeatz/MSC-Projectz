@@ -1,20 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { 
-  X, 
-  Key, 
-  Mail, 
-  Plus, 
-  Trash2, 
-  Eye, 
-  EyeOff, 
-  Copy, 
-  Check,
-  Server,
-  ChevronDown,
-  ChevronUp
-} from 'lucide-react'
+import { X, Key, Mail, Plus, Trash2, Eye, EyeOff, Copy, Check, Server, ChevronDown, ChevronUp } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -29,11 +16,11 @@ interface ProjectVaultProps {
 
 export function ProjectVault({ project, isOpen, onClose }: ProjectVaultProps) {
   const { addCredential, updateCredential, deleteCredential, updateEmailSettings } = useAppStore()
-  
+
   const [showPasswords, setShowPasswords] = useState<Record<string, boolean>>({})
   const [copiedField, setCopiedField] = useState<string | null>(null)
   const [emailExpanded, setEmailExpanded] = useState(false)
-  
+
   // New credential form
   const [newCredential, setNewCredential] = useState({ label: '', username: '', password: '' })
   const [showNewForm, setShowNewForm] = useState(false)
@@ -46,7 +33,7 @@ export function ProjectVault({ project, isOpen, onClose }: ProjectVaultProps) {
       smtpPort: '',
       smtpUser: '',
       smtpPass: '',
-    }
+    },
   )
 
   const togglePassword = (id: string) => {
@@ -76,11 +63,8 @@ export function ProjectVault({ project, isOpen, onClose }: ProjectVaultProps) {
   return (
     <div className="fixed inset-0 z-50 flex justify-end">
       {/* Backdrop */}
-      <div 
-        className="absolute inset-0 backdrop-blur-sm bg-black/80" 
-        onClick={onClose} 
-      />
-      
+      <div className="absolute inset-0 backdrop-blur-sm bg-black/80" onClick={onClose} />
+
       {/* Slide-out Panel */}
       <div className="relative w-full max-w-md h-full overflow-hidden flex flex-col animate-in slide-in-from-right duration-300 bg-card border-l border-border">
         {/* Header */}
@@ -114,12 +98,7 @@ export function ProjectVault({ project, isOpen, onClose }: ProjectVaultProps) {
                   {project.credentials.length}
                 </span>
               </div>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setShowNewForm(!showNewForm)}
-                className="gap-1.5 h-8"
-              >
+              <Button variant="ghost" size="sm" onClick={() => setShowNewForm(!showNewForm)} className="gap-1.5 h-8">
                 <Plus className="w-3.5 h-3.5" />
                 Add
               </Button>
@@ -148,9 +127,9 @@ export function ProjectVault({ project, isOpen, onClose }: ProjectVaultProps) {
                   className="h-9 bg-card border-border text-foreground"
                 />
                 <div className="flex gap-2">
-                  <Button 
-                    size="sm" 
-                    onClick={handleAddCredential} 
+                  <Button
+                    size="sm"
+                    onClick={handleAddCredential}
                     className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90"
                   >
                     Add Credential
@@ -229,7 +208,7 @@ export function ProjectVault({ project, isOpen, onClose }: ProjectVaultProps) {
                       SMTP Settings
                     </span>
                   </div>
-                  
+
                   <div className="grid grid-cols-2 gap-3">
                     <div className="space-y-2">
                       <Label className="text-xs text-muted-foreground">Host</Label>
@@ -274,9 +253,9 @@ export function ProjectVault({ project, isOpen, onClose }: ProjectVaultProps) {
                   </div>
                 </div>
 
-                <Button 
-                  size="sm" 
-                  onClick={handleSaveEmailSettings} 
+                <Button
+                  size="sm"
+                  onClick={handleSaveEmailSettings}
                   className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
                 >
                   Save Email Settings
@@ -288,9 +267,7 @@ export function ProjectVault({ project, isOpen, onClose }: ProjectVaultProps) {
 
         {/* Footer */}
         <div className="px-6 py-4 text-center border-t border-border">
-          <p className="text-xs text-muted-foreground">
-            All credentials are stored locally and encrypted
-          </p>
+          <p className="text-xs text-muted-foreground">All credentials are stored locally and encrypted</p>
         </div>
       </div>
     </div>
@@ -360,11 +337,7 @@ function CredentialItem({
           className="h-8 w-8 flex-shrink-0 text-muted-foreground"
           onClick={onTogglePassword}
         >
-          {showPassword ? (
-            <EyeOff className="w-3.5 h-3.5" />
-          ) : (
-            <Eye className="w-3.5 h-3.5" />
-          )}
+          {showPassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
         </Button>
         <Button
           variant="ghost"

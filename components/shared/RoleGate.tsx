@@ -14,11 +14,8 @@ export function RoleGate({ allowedRoles, children, fallback = null }: RoleGatePr
   const user = useAppStore((s) => s.user)
   const role = user?.role
 
-  const allowMasterAdminForAdminGate =
-    msc_isMasterAdminRole(role) && allowedRoles.includes('admin')
-  const isAllowed =
-    Boolean(role && allowedRoles.includes(role)) ||
-    allowMasterAdminForAdminGate
+  const allowMasterAdminForAdminGate = msc_isMasterAdminRole(role) && allowedRoles.includes('admin')
+  const isAllowed = Boolean(role && allowedRoles.includes(role)) || allowMasterAdminForAdminGate
 
   if (!isAllowed) {
     return <>{fallback}</>

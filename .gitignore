@@ -21,6 +21,7 @@ yarn-error.log*
 .env.local
 .env.*.local
 !.env.example
+!.env.local.example
 
 # vercel
 .vercel
@@ -41,7 +42,8 @@ deploy_package/
 final_deploy.zip
 Playwright-Tests/
 
-# deploy profile local overrides / encrypted secrets artifacts
-.cursor/docs/Deploy-Profile.local.json
+# Sentry
+.sentryclirc
+.sentry/
 .cursor/docs/Deploy-Secrets.enc
 .cursor/docs/Deploy-Secrets.key

@@ -35,6 +35,7 @@ Archived to `docs/archive/2026-04-28-docs-audit/`:
 
 ## Reference (not part of canonical read order)
 
+- **`EmailSetUp.md`** — verification + SMTP + master-admin **invite-by-email** playbook for reuse on new projects.
 - **`msc-cc-command-center-nav-preset.md`** — Command Center **glass rail**, **header**, **`msc-cc-route-canvas`** placement, **main margin math**, **dark footer**, and **accent** token; use when tuning chrome or fixing **gradient gutter** regressions.
 - **`Component-Dependency-Map.md`** — high-level **component graph** for dashboard / focus drawer / clients; includes **`dashboard-layout`** canvas ownership.
 - **`incidents/Playwright-Manual-Assist-Runbook.md`** — **`npm run playwright:test`** / **`playwright:open`** / **`playwright:dump-dom`**: what the headed harness does, env vars, and operator phrase **“Run Playwright Test”**.

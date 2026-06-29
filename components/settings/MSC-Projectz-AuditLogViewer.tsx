@@ -5,22 +5,10 @@ import { Eye, ShieldAlert } from 'lucide-react'
 
 import { RoleGate } from '@/components/shared/RoleGate'
 import { Button } from '@/components/ui/button'
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog'
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { msc_getAuditLogs, type MscAuditLogDoc } from '@/lib/msc_vault_audit_fetch'
 
 const MSC_AUDIT_ACTIONS = ['ALL', 'USER_CREATE', 'USER_DELETE', 'USER_ROLE_UPDATE', 'PASSWORD_RESET'] as const
@@ -77,127 +65,127 @@ export function MSC_Projectz_AuditLogViewer({ hideTitle = false }: MSC_Projectz_
     'overflow-hidden rounded-2xl border border-border/60 bg-card/70 shadow-[0_18px_48px_-16px_rgba(0,0,0,0.42)] backdrop-blur-md dark:border-white/[0.07] dark:bg-zinc-950/50 dark:shadow-black/55'
 
   const body = (
-        <div className="space-y-4 p-6">
-          <div className="grid gap-3 md:grid-cols-[220px_1fr_auto]">
-            <div className="space-y-2">
-              <Label className="text-xs text-muted-foreground">Action</Label>
-              <Select
-                value={action}
-                onValueChange={(v) => {
-                  setAction(v as (typeof MSC_AUDIT_ACTIONS)[number])
-                  setPage(1)
-                }}
-              >
-                <SelectTrigger className="bg-input">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {MSC_AUDIT_ACTIONS.map((item) => (
-                    <SelectItem key={item} value={item}>
-                      {item === 'ALL' ? 'All actions' : item}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
-              <Label className="text-xs text-muted-foreground">Actor ID</Label>
-              <Input
-                value={actorId}
-                onChange={(e) => setActorId(e.target.value)}
-                className="bg-input"
-                placeholder="Filter by actor relationship ID"
-              />
-            </div>
-
-            <div className="flex items-end">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => {
-                  setPage(1)
-                  void msc_loadLogs()
-                }}
-              >
-                Apply Filters
-              </Button>
-            </div>
-          </div>
-
-          {loading ? (
-            <p className="text-sm text-muted-foreground">Loading audit logs...</p>
-          ) : error ? (
-            <div className="flex items-center gap-2 rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive">
-              <ShieldAlert className="h-4 w-4" />
-              {error}
-            </div>
-          ) : logs.length === 0 ? (
-            <p className="text-sm text-muted-foreground">No audit logs matched your filters.</p>
-          ) : (
-            <div className="overflow-x-auto rounded-xl border border-border/60 dark:border-white/[0.06]">
-              <table className="w-full text-sm">
-                <thead className="bg-muted/30 text-xs uppercase tracking-wide text-muted-foreground dark:bg-white/[0.04]">
-                  <tr>
-                    <th className="px-3 py-2 text-left font-medium">Timestamp</th>
-                    <th className="px-3 py-2 text-left font-medium">Actor</th>
-                    <th className="px-3 py-2 text-left font-medium">Action</th>
-                    <th className="px-3 py-2 text-left font-medium">Target</th>
-                    <th className="px-3 py-2 text-right font-medium">Details</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {logs.map((log) => (
-                    <tr key={String(log.id)} className="border-t border-border">
-                      <td className="px-3 py-2 text-muted-foreground">
-                        {log.createdAt ? new Date(log.createdAt).toLocaleString() : '—'}
-                      </td>
-                      <td className="px-3 py-2">
-                        {log.actor?.email || log.actor?.username || String(log.actor?.id || '—')}
-                      </td>
-                      <td className="px-3 py-2 font-medium text-foreground">{log.action}</td>
-                      <td className="px-3 py-2">
-                        {log.target?.email || log.target?.username || String(log.target?.id || '—')}
-                      </td>
-                      <td className="px-3 py-2 text-right">
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="sm"
-                          className="gap-2"
-                          onClick={() => setSelectedLog(log)}
-                        >
-                          <Eye className="h-4 w-4" />
-                          View
-                        </Button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-
-          <div className="flex items-center justify-between">
-            <p className="text-xs text-muted-foreground">
-              Page {page} of {totalPages}
-            </p>
-            <div className="flex gap-2">
-              <Button type="button" variant="outline" size="sm" disabled={page <= 1} onClick={() => setPage((p) => p - 1)}>
-                Previous
-              </Button>
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                disabled={page >= totalPages}
-                onClick={() => setPage((p) => p + 1)}
-              >
-                Next
-              </Button>
-            </div>
-          </div>
+    <div className="space-y-4 p-6">
+      <div className="grid gap-3 md:grid-cols-[220px_1fr_auto]">
+        <div className="space-y-2">
+          <Label className="text-xs text-muted-foreground">Action</Label>
+          <Select
+            value={action}
+            onValueChange={(v) => {
+              setAction(v as (typeof MSC_AUDIT_ACTIONS)[number])
+              setPage(1)
+            }}
+          >
+            <SelectTrigger className="bg-input">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {MSC_AUDIT_ACTIONS.map((item) => (
+                <SelectItem key={item} value={item}>
+                  {item === 'ALL' ? 'All actions' : item}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
+
+        <div className="space-y-2">
+          <Label className="text-xs text-muted-foreground">Actor ID</Label>
+          <Input
+            value={actorId}
+            onChange={(e) => setActorId(e.target.value)}
+            className="bg-input"
+            placeholder="Filter by actor relationship ID"
+          />
+        </div>
+
+        <div className="flex items-end">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => {
+              setPage(1)
+              void msc_loadLogs()
+            }}
+          >
+            Apply Filters
+          </Button>
+        </div>
+      </div>
+
+      {loading ? (
+        <p className="text-sm text-muted-foreground">Loading audit logs...</p>
+      ) : error ? (
+        <div className="flex items-center gap-2 rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive">
+          <ShieldAlert className="h-4 w-4" />
+          {error}
+        </div>
+      ) : logs.length === 0 ? (
+        <p className="text-sm text-muted-foreground">No audit logs matched your filters.</p>
+      ) : (
+        <div className="overflow-x-auto rounded-xl border border-border/60 dark:border-white/[0.06]">
+          <table className="w-full text-sm">
+            <thead className="bg-muted/30 text-xs uppercase tracking-wide text-muted-foreground dark:bg-white/[0.04]">
+              <tr>
+                <th className="px-3 py-2 text-left font-medium">Timestamp</th>
+                <th className="px-3 py-2 text-left font-medium">Actor</th>
+                <th className="px-3 py-2 text-left font-medium">Action</th>
+                <th className="px-3 py-2 text-left font-medium">Target</th>
+                <th className="px-3 py-2 text-right font-medium">Details</th>
+              </tr>
+            </thead>
+            <tbody>
+              {logs.map((log) => (
+                <tr key={String(log.id)} className="border-t border-border">
+                  <td className="px-3 py-2 text-muted-foreground">
+                    {log.createdAt ? new Date(log.createdAt).toLocaleString() : '—'}
+                  </td>
+                  <td className="px-3 py-2">
+                    {log.actor?.email || log.actor?.username || String(log.actor?.id || '—')}
+                  </td>
+                  <td className="px-3 py-2 font-medium text-foreground">{log.action}</td>
+                  <td className="px-3 py-2">
+                    {log.target?.email || log.target?.username || String(log.target?.id || '—')}
+                  </td>
+                  <td className="px-3 py-2 text-right">
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="gap-2"
+                      onClick={() => setSelectedLog(log)}
+                    >
+                      <Eye className="h-4 w-4" />
+                      View
+                    </Button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      <div className="flex items-center justify-between">
+        <p className="text-xs text-muted-foreground">
+          Page {page} of {totalPages}
+        </p>
+        <div className="flex gap-2">
+          <Button type="button" variant="outline" size="sm" disabled={page <= 1} onClick={() => setPage((p) => p - 1)}>
+            Previous
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            disabled={page >= totalPages}
+            onClick={() => setPage((p) => p + 1)}
+          >
+            Next
+          </Button>
+        </div>
+      </div>
+    </div>
   )
 
   return (
@@ -221,11 +209,12 @@ export function MSC_Projectz_AuditLogViewer({ hideTitle = false }: MSC_Projectz_
           <DialogHeader>
             <DialogTitle>Audit Details</DialogTitle>
             <DialogDescription>
-              {selectedLog?.action || 'Event'} · {selectedLog?.createdAt ? new Date(selectedLog.createdAt).toLocaleString() : '—'}
+              {selectedLog?.action || 'Event'} ·{' '}
+              {selectedLog?.createdAt ? new Date(selectedLog.createdAt).toLocaleString() : '—'}
             </DialogDescription>
           </DialogHeader>
           <pre className="max-h-[55vh] overflow-auto rounded-lg border border-border bg-secondary/50 p-3 text-xs text-foreground">
-{detailsText}
+            {detailsText}
           </pre>
         </DialogContent>
       </Dialog>

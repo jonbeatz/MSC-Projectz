@@ -1,9 +1,6 @@
 import type { CollectionConfig } from 'payload'
 
-import {
-  msc_mscClientsAdminWriteAccess,
-  msc_readMscClientsAccess,
-} from '../lib/msc_client_access.ts'
+import { msc_mscClientsAdminWriteAccess, msc_readMscClientsAccess } from '../lib/msc_client_access.ts'
 
 export const MSC_Projectz_Clients: CollectionConfig = {
   slug: 'msc-clients',
@@ -34,7 +31,10 @@ export const MSC_Projectz_Clients: CollectionConfig = {
       name: 'primaryContact',
       type: 'group',
       required: true,
-      admin: { description: 'Client-facing contact. Link `user` to the Payload account used for the client portal (read access).' },
+      admin: {
+        description:
+          'Client-facing contact. Link `user` to the Payload account used for the client portal (read access).',
+      },
       fields: [
         { name: 'name', type: 'text', required: true },
         { name: 'email', type: 'email', required: true },
@@ -55,7 +55,8 @@ export const MSC_Projectz_Clients: CollectionConfig = {
       relationTo: 'msc-vault-projects',
       hasMany: true,
       admin: {
-        description: 'Projects linked to this account. The vault project’s `client` field is the primary join; this list is kept in sync when possible.',
+        description:
+          'Projects linked to this account. The vault project’s `client` field is the primary join; this list is kept in sync when possible.',
       },
     },
     {

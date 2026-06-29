@@ -1,13 +1,6 @@
 import payloadConfig from '@payload-config'
 import '@payloadcms/next/css'
-import {
-  REST_DELETE,
-  REST_GET,
-  REST_OPTIONS,
-  REST_PATCH,
-  REST_POST,
-  REST_PUT,
-} from '@payloadcms/next/routes'
+import { REST_DELETE, REST_GET, REST_OPTIONS, REST_PATCH, REST_POST, REST_PUT } from '@payloadcms/next/routes'
 
 /** Large admin uploads / REST bodies (Payload API). Import is `payloadConfig` to avoid clashing with this export name. */
 export const config = {

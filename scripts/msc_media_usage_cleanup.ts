@@ -6,12 +6,16 @@ type MscScope = 'owner' | 'global'
 type MscMode = 'dry-run' | 'apply'
 
 function msc_parseScope(): MscScope {
-  const raw = String(process.env.MSC_MEDIA_SCOPE || 'owner').trim().toLowerCase()
+  const raw = String(process.env.MSC_MEDIA_SCOPE || 'owner')
+    .trim()
+    .toLowerCase()
   return raw === 'global' ? 'global' : 'owner'
 }
 
 function msc_parseMode(): MscMode {
-  const raw = String(process.env.MSC_MEDIA_CLEANUP_MODE || 'dry-run').trim().toLowerCase()
+  const raw = String(process.env.MSC_MEDIA_CLEANUP_MODE || 'dry-run')
+    .trim()
+    .toLowerCase()
   return raw === 'apply' ? 'apply' : 'dry-run'
 }
 

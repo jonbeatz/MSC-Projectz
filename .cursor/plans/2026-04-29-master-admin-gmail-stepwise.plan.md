@@ -37,7 +37,7 @@
 
 ## Open questions (answer when ready; we implement after)
 
-1. **“Admin messages” + “approvals”:** Do you mean **(A)** signing in as master admin and approving things **inside the app** (Settings, users, etc.), **(B)** receiving **email copies** at `jonbeatz@gmail.com` when something happens (new signup, etc.), or **(C)** both? *(Today there is no built-in “email master on every admin event” unless we add it.)*
+1. **“Admin messages” + “approvals”:** Do you mean **(A)** signing in as master admin and approving things **inside the app** (Settings, users, etc.), **(B)** receiving **email copies** at `jonbeatz@gmail.com` when something happens (new signup, etc.), or **(C)** both? _(Today there is no built-in “email master on every admin event” unless we add it.)_
 2. **Password:** Will you set/change password only via normal login + profile / Payload admin, or do you still need **`npm run db:rescue-admin`** for emergencies?
 3. **Sending mail FROM:** Use **Spaceship/Spacemail** (current docs) or **Gmail SMTP** for app-sent mail? (Inbox can stay `jonbeatz@gmail.com` either way; **From** domain affects deliverability.)
 
@@ -52,26 +52,26 @@
 
 ## Current app behavior (code review)
 
-| Step | What happens today |
-|------|---------------------|
-| Self signup | `/auth/register` → `msc_registerUser` creates Payload `users` row: `role: user`, **`isVerified: false`**, stores **hashed** token, sends **one email** with a **verification link** only (`/auth/verify?token=...`). **No numeric code** to type in the UI. |
-| After signup | User sees “check your email”. Trust **middleware** keeps unverified sessions on **`/auth/verify-reminder`** until verified. |
-| Verify | User **clicks the link** → `/auth/verify` runs `msc_verifyEmailAction` → sets **`isVerified: true`**, clears token → redirect to sign in. |
-| Welcome | Second optional email (`msc_sendWelcomeEmail`) if SMTP is configured. |
-| **Admin “new account” email** | **Not implemented** — nothing emails `jonbeatz@gmail.com` on registration. |
-| **Settings → Create server user** | **`msc_createPayloadUserAsAdmin`** creates a real user with password; **does not** send verification email or invite link. Default **`isVerified`** is false unless changed elsewhere → invitee may still hit verify-reminder with no email sent. |
-| **“Invite New User” in old modal** | **`user-management-modal`** / Zustand **`inviteUser`** only mutates **client fake state** — **not** Payload, **not** email. Do not rely on it. |
+| Step                               | What happens today                                                                                                                                                                                                                                          |
+| ---------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Self signup                        | `/auth/register` → `msc_registerUser` creates Payload `users` row: `role: user`, **`isVerified: false`**, stores **hashed** token, sends **one email** with a **verification link** only (`/auth/verify?token=...`). **No numeric code** to type in the UI. |
+| After signup                       | User sees “check your email”. Trust **middleware** keeps unverified sessions on **`/auth/verify-reminder`** until verified.                                                                                                                                 |
+| Verify                             | User **clicks the link** → `/auth/verify` runs `msc_verifyEmailAction` → sets **`isVerified: true`**, clears token → redirect to sign in.                                                                                                                   |
+| Welcome                            | Second optional email (`msc_sendWelcomeEmail`) if SMTP is configured.                                                                                                                                                                                       |
+| **Admin “new account” email**      | **Not implemented** — nothing emails `jonbeatz@gmail.com` on registration.                                                                                                                                                                                  |
+| **Settings → Create server user**  | **`msc_createPayloadUserAsAdmin`** creates a real user with password; **does not** send verification email or invite link. Default **`isVerified`** is false unless changed elsewhere → invitee may still hit verify-reminder with no email sent.           |
+| **“Invite New User” in old modal** | **`user-management-modal`** / Zustand **`inviteUser`** only mutates **client fake state** — **not** Payload, **not** email. Do not rely on it.                                                                                                              |
 
 ## Gaps vs your desired flow
 
-1. **Notify master on self-signup:** *Deferred / not requested.* Optional later: env **`MSC_MASTER_NOTIFY_EMAIL`** after `msc_registerUser`.
+1. **Notify master on self-signup:** _Deferred / not requested._ Optional later: env **`MSC_MASTER_NOTIFY_EMAIL`** after `msc_registerUser`.
 2. **Invite from Settings:** **Done (2026-04-29).** `msc_invitePayloadUserAsMaster` + **Invite by email** tab in `MSC-Projectz-CreateUserForm` and `MSC-Projectz-PayloadUsersPanel`. One email: verify link + temp password + sign-in URL. Playbook: **`.cursor/docs/EmailSetUp.md`**.
-3. **Optional “enter code”:** *Not planned* — link-only verify is enough.
+3. **Optional “enter code”:** _Not planned_ — link-only verify is enough.
 4. **Register form copy:** Still says “admin can grant access” on `/auth/register` — optional copy tweak later (access is email verification for self-serve).
 
 ## Decisions log
 
-| Date | Decision |
-|------|----------|
-| (pending) | Phases 1–4 signed off step by step |
+| Date       | Decision                                                                                                                                   |
+| ---------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| (pending)  | Phases 1–4 signed off step by step                                                                                                         |
 | 2026-04-29 | Operator: self-serve verify for access; master wants signup notification email; Settings invite + verify URL; keep password change normal. |

@@ -1,16 +1,7 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
-import { 
-  X, 
-  Plus, 
-  Trash2, 
-  Pencil,
-  FolderOpen,
-  Circle,
-  Clock,
-  CheckCircle2
-} from 'lucide-react'
+import { X, Plus, Trash2, Pencil, FolderOpen, Circle, Clock, CheckCircle2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { MSC_Projectz_TaskAssigneeBadge, MSC_Projectz_TaskAssigneeSelect } from '@/components/MSC-Projectz-TaskAssignee'
@@ -28,23 +19,23 @@ interface TaskDrawerProps {
 
 // Status configuration with Tailwind classes
 const statusConfig: Record<TaskStatus, { label: string; icon: typeof Circle; colorClass: string; bgClass: string }> = {
-  'todo': { 
-    label: MSC_TASK_STATUS_LABELS.todo, 
-    icon: Circle, 
+  todo: {
+    label: MSC_TASK_STATUS_LABELS.todo,
+    icon: Circle,
     colorClass: 'text-muted-foreground',
-    bgClass: 'bg-muted/50'
+    bgClass: 'bg-muted/50',
   },
-  'in-progress': { 
-    label: MSC_TASK_STATUS_LABELS['in-progress'], 
-    icon: Clock, 
+  'in-progress': {
+    label: MSC_TASK_STATUS_LABELS['in-progress'],
+    icon: Clock,
     colorClass: 'text-msc-ui-accent',
-    bgClass: 'bg-transparent'
+    bgClass: 'bg-transparent',
   },
-  'done': { 
-    label: MSC_TASK_STATUS_LABELS.done, 
-    icon: CheckCircle2, 
+  done: {
+    label: MSC_TASK_STATUS_LABELS.done,
+    icon: CheckCircle2,
     colorClass: 'text-primary',
-    bgClass: 'bg-primary/10'
+    bgClass: 'bg-primary/10',
   },
 }
 
@@ -54,22 +45,22 @@ export function TaskDrawer({ isOpen, onClose, project }: TaskDrawerProps) {
   const [editingText, setEditingText] = useState('')
   const [editingAssignedToId, setEditingAssignedToId] = useState<string | null>(null)
   const editInputRef = useRef<HTMLInputElement>(null)
-  
+
   const addTask = useAppStore((s) => s.addTask)
   const cycleTaskStatus = useAppStore((s) => s.cycleTaskStatus)
   const updateTaskTitle = useAppStore((s) => s.updateTaskTitle)
   const deleteTask = useAppStore((s) => s.deleteTask)
   const projects = useAppStore((s) => s.projects)
-  
+
   // Get live project data from store
-  const liveProject = projects.find(p => p.id === project?.id) || project
-  
+  const liveProject = projects.find((p) => p.id === project?.id) || project
+
   useEffect(() => {
     if (editingTaskId && editInputRef.current) {
       editInputRef.current.focus()
     }
   }, [editingTaskId])
-  
+
   const handleAddTask = async () => {
     if (!newTaskText.trim() || !liveProject) return
     await addTask(liveProject.id, newTaskText.trim())
@@ -85,13 +76,13 @@ export function TaskDrawer({ isOpen, onClose, project }: TaskDrawerProps) {
     if (!liveProject) return
     await deleteTask(liveProject.id, taskId)
   }
-  
+
   const handleStartEdit = (task: Task) => {
     setEditingTaskId(task.id)
     setEditingText(task.title)
     setEditingAssignedToId(task.assignedTo ? String(task.assignedTo.id) : null)
   }
-  
+
   const handleSaveEdit = async () => {
     if (!liveProject || !editingTaskId || !editingText.trim()) {
       setEditingTaskId(null)
@@ -112,14 +103,14 @@ export function TaskDrawer({ isOpen, onClose, project }: TaskDrawerProps) {
       setEditingTaskId(null)
     }
   }
-  
+
   if (!liveProject) return null
-  
+
   // Separate tasks by status
-  const todoTasks = liveProject.tasks.filter(t => (t.status || 'todo') === 'todo' && !t.archived)
-  const inProgressTasks = liveProject.tasks.filter(t => t.status === 'in-progress' && !t.archived)
-  const doneTasks = liveProject.tasks.filter(t => t.status === 'done' || t.archived)
-  
+  const todoTasks = liveProject.tasks.filter((t) => (t.status || 'todo') === 'todo' && !t.archived)
+  const inProgressTasks = liveProject.tasks.filter((t) => t.status === 'in-progress' && !t.archived)
+  const doneTasks = liveProject.tasks.filter((t) => t.status === 'done' || t.archived)
+
   const totalTasks = liveProject.tasks.length
   const completedCount = doneTasks.length
   const progress = totalTasks > 0 ? Math.round((completedCount / totalTasks) * 100) : 0
@@ -129,14 +120,14 @@ export function TaskDrawer({ isOpen, onClose, project }: TaskDrawerProps) {
     const config = statusConfig[status]
     const StatusIcon = config.icon
     const isDone = status === 'done'
-    
+
     return (
-      <div 
+      <div
         key={task.id}
         className={cn(
           'group flex items-center gap-3 p-3 rounded-lg transition-all border',
           isDone && 'opacity-60',
-          'bg-secondary border-border'
+          'bg-secondary border-border',
         )}
       >
         {/* Status Badge - Clickable */}
@@ -144,17 +135,17 @@ export function TaskDrawer({ isOpen, onClose, project }: TaskDrawerProps) {
           type="button"
           onClick={() => void handleCycleStatus(task.id)}
           className={cn(
-            "flex items-center gap-1.5 px-2 py-1 rounded-md transition-all hover:scale-105 shrink-0",
-            config.bgClass
+            'flex items-center gap-1.5 px-2 py-1 rounded-md transition-all hover:scale-105 shrink-0',
+            config.bgClass,
           )}
           title={`Status: ${config.label} (click to change)`}
         >
-          <StatusIcon className={cn("w-3.5 h-3.5", config.colorClass)} />
-          <span className={cn("text-[10px] font-medium uppercase tracking-wider", config.colorClass)}>
+          <StatusIcon className={cn('w-3.5 h-3.5', config.colorClass)} />
+          <span className={cn('text-[10px] font-medium uppercase tracking-wider', config.colorClass)}>
             {config.label}
           </span>
         </button>
-        
+
         {/* Task Title - Editable */}
         {editingTaskId === task.id ? (
           <div className="flex flex-1 flex-wrap items-end gap-2">
@@ -170,7 +161,12 @@ export function TaskDrawer({ isOpen, onClose, project }: TaskDrawerProps) {
               value={editingAssignedToId}
               onChange={setEditingAssignedToId}
             />
-            <Button type="button" size="sm" className="h-8 bg-primary text-primary-foreground" onClick={() => void handleSaveEdit()}>
+            <Button
+              type="button"
+              size="sm"
+              className="h-8 bg-primary text-primary-foreground"
+              onClick={() => void handleSaveEdit()}
+            >
               Save Task
             </Button>
           </div>
@@ -179,7 +175,7 @@ export function TaskDrawer({ isOpen, onClose, project }: TaskDrawerProps) {
             <span
               className={cn(
                 'min-w-[120px] flex-1 text-sm cursor-pointer transition-colors hover:opacity-80',
-                isDone ? 'line-through text-muted-foreground' : 'text-foreground'
+                isDone ? 'line-through text-muted-foreground' : 'text-foreground',
               )}
               onClick={() => handleStartEdit(task)}
             >
@@ -188,7 +184,7 @@ export function TaskDrawer({ isOpen, onClose, project }: TaskDrawerProps) {
             <MSC_Projectz_TaskAssigneeBadge project={liveProject} task={task} />
           </div>
         )}
-        
+
         {/* Actions */}
         <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
           <button
@@ -212,20 +208,20 @@ export function TaskDrawer({ isOpen, onClose, project }: TaskDrawerProps) {
   return (
     <>
       {/* Backdrop */}
-      <div 
+      <div
         className={cn(
           'fixed inset-0 z-50 transition-opacity duration-300 bg-black/50',
-          isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
+          isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none',
         )}
         onClick={onClose}
       />
-      
+
       {/* Drawer */}
       <div
         className={cn(
           'fixed right-0 top-0 h-screen w-full max-w-md z-50 transform transition-transform duration-300 ease-out flex flex-col',
           'bg-background border-l border-border',
-          isOpen ? 'translate-x-0' : 'translate-x-full'
+          isOpen ? 'translate-x-0' : 'translate-x-full',
         )}
       >
         {/* Header */}
@@ -248,7 +244,7 @@ export function TaskDrawer({ isOpen, onClose, project }: TaskDrawerProps) {
             <X className="w-5 h-5" />
           </button>
         </div>
-        
+
         {/* Progress Summary */}
         <div className="p-4 shrink-0 border-b border-border">
           <div className="flex items-center justify-between mb-2">
@@ -256,7 +252,7 @@ export function TaskDrawer({ isOpen, onClose, project }: TaskDrawerProps) {
             <span className="text-sm font-semibold text-msc-ui-accent">{progress}%</span>
           </div>
           <div className="h-1 rounded-full overflow-hidden bg-muted">
-            <div 
+            <div
               className="h-full rounded-full transition-all duration-300 bg-msc-ui-accent"
               style={{ width: `${progress}%` }}
             />
@@ -276,7 +272,7 @@ export function TaskDrawer({ isOpen, onClose, project }: TaskDrawerProps) {
             </span>
           </div>
         </div>
-        
+
         {/* Add Task Input */}
         <div className="p-4 shrink-0 border-b border-border">
           <div className="flex gap-2">
@@ -298,7 +294,7 @@ export function TaskDrawer({ isOpen, onClose, project }: TaskDrawerProps) {
             </Button>
           </div>
         </div>
-        
+
         {/* Task List - Scrollable */}
         <div className="flex-1 overflow-y-auto p-4">
           {/* To Do Tasks */}
@@ -308,12 +304,10 @@ export function TaskDrawer({ isOpen, onClose, project }: TaskDrawerProps) {
                 <Circle className="w-3 h-3" />
                 {MSC_TASK_STATUS_LABELS.todo} ({todoTasks.length})
               </h3>
-              <div className="space-y-2">
-                {todoTasks.map(renderTask)}
-              </div>
+              <div className="space-y-2">{todoTasks.map(renderTask)}</div>
             </div>
           )}
-          
+
           {/* In Progress Tasks */}
           {inProgressTasks.length > 0 && (
             <div className="mb-6">
@@ -321,12 +315,10 @@ export function TaskDrawer({ isOpen, onClose, project }: TaskDrawerProps) {
                 <Clock className="w-3 h-3" />
                 {MSC_TASK_STATUS_LABELS['in-progress']} ({inProgressTasks.length})
               </h3>
-              <div className="space-y-2">
-                {inProgressTasks.map(renderTask)}
-              </div>
+              <div className="space-y-2">{inProgressTasks.map(renderTask)}</div>
             </div>
           )}
-          
+
           {/* Done Tasks */}
           {doneTasks.length > 0 && (
             <div>
@@ -334,12 +326,10 @@ export function TaskDrawer({ isOpen, onClose, project }: TaskDrawerProps) {
                 <CheckCircle2 className="w-3 h-3" />
                 {MSC_TASK_STATUS_LABELS.done} ({doneTasks.length})
               </h3>
-              <div className="space-y-2">
-                {doneTasks.map(renderTask)}
-              </div>
+              <div className="space-y-2">{doneTasks.map(renderTask)}</div>
             </div>
           )}
-          
+
           {/* Empty State */}
           {todoTasks.length === 0 && inProgressTasks.length === 0 && doneTasks.length === 0 && (
             <div className="flex flex-col items-center justify-center py-12">
@@ -357,4 +347,3 @@ export function TaskDrawer({ isOpen, onClose, project }: TaskDrawerProps) {
     </>
   )
 }
-

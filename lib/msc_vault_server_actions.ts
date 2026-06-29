@@ -29,7 +29,12 @@ import {
 import { msc_vaultIsPayloadAdmin, type MscUserWithRole } from '@/lib/msc_vault_payload_access'
 import { msc_coercePayloadRelationId } from '@/lib/msc_vault_payload_ids'
 import type { AppSettings, Credential, EmailSettings, MscSmtpEncryption, Project, Task, TaskStatus } from '@/lib/types'
-import { msc_mergeProjectsAndTasks, msc_mapProjectDoc, msc_mapTaskDoc, msc_normalizeProjectEmailSettings } from '@/lib/msc_map_vault'
+import {
+  msc_mergeProjectsAndTasks,
+  msc_mapProjectDoc,
+  msc_mapTaskDoc,
+  msc_normalizeProjectEmailSettings,
+} from '@/lib/msc_map_vault'
 import { msc_sortProjectsForDashboard } from '@/lib/msc_project_sort'
 import { msc_sendSendNotificationTaskEmail, msc_testSettingsFromForm } from '@/lib/msc_smtp_nodemailer'
 import { msc_stringifyReferencesJson } from '@/lib/msc_project_references'
@@ -82,10 +87,7 @@ function msc_resolvePayloadRequestOrigin(h: Headers): string {
 
 type MscVaultSessionUser = { id: string | number; role?: 'master-admin' | 'admin' | 'user' | null }
 
-function msc_requireVaultSessionUser(
-  ctx: MscVaultLocalApiContext,
-  actionName: string,
-): MscVaultSessionUser {
+function msc_requireVaultSessionUser(ctx: MscVaultLocalApiContext, actionName: string): MscVaultSessionUser {
   if (!ctx.user) {
     throw new Error(`Authentication required to ${actionName}.`)
   }
@@ -93,11 +95,7 @@ function msc_requireVaultSessionUser(
   return ctx.user as MscVaultSessionUser
 }
 
-async function msc_assertOwnedVaultProject(
-  ctx: MscVaultLocalApiContext,
-  projectId: string,
-  actionName: string,
-) {
+async function msc_assertOwnedVaultProject(ctx: MscVaultLocalApiContext, projectId: string, actionName: string) {
   const u = msc_requireVaultSessionUser(ctx, actionName) as MscUserWithRole
   const o = msc_vaultLocalApiOptions(ctx)
   const { payload } = ctx
@@ -121,11 +119,7 @@ async function msc_assertOwnedVaultProject(
   return project
 }
 
-async function msc_assertAuthorizedVaultProject(
-  ctx: MscVaultLocalApiContext,
-  projectId: string,
-  actionName: string,
-) {
+async function msc_assertAuthorizedVaultProject(ctx: MscVaultLocalApiContext, projectId: string, actionName: string) {
   const u = msc_requireVaultSessionUser(ctx, actionName) as MscUserWithRole
   const o = msc_vaultLocalApiOptions(ctx)
   const { payload } = ctx
@@ -171,10 +165,7 @@ async function msc_assertOwnedVaultTask(
     user: o.user,
     overrideAccess: o.overrideAccess,
     where: {
-      and: [
-        { id: { equals: ownedTaskId } },
-        { project: { equals: ownedProjectId } },
-      ],
+      and: [{ id: { equals: ownedTaskId } }, { project: { equals: ownedProjectId } }],
     },
   })
   const task = res.docs[0]
@@ -199,7 +190,9 @@ export async function msc_updateSystemConfig(input: MscSystemConfigInput): Promi
 }
 
 /** Admin-only SMTP test workflow. Real delivery can replace this stub without weakening RBAC. */
-export async function msc_testSystemEmailConfig(input: MscSystemConfigInput): Promise<{ success: boolean; message: string }> {
+export async function msc_testSystemEmailConfig(
+  input: MscSystemConfigInput,
+): Promise<{ success: boolean; message: string }> {
   await msc_requireVaultAdmin('system email test')
   if (input.smtp.username && input.smtp.password) {
     return { success: true, message: 'Test email sent successfully!' }
@@ -214,7 +207,9 @@ function msc_thumbnailPayload(value: string | undefined | null): { thumbnail?: s
   return { thumbnail: t }
 }
 
-export async function msc_uploadVaultProjectThumbnail(formData: FormData): Promise<{ id: string | number; url: string }> {
+export async function msc_uploadVaultProjectThumbnail(
+  formData: FormData,
+): Promise<{ id: string | number; url: string }> {
   const ctx = await msc_getVaultLocalApiContext()
   if (!ctx.user) {
     throw new Error('Authentication required to upload project thumbnail.')
@@ -415,9 +410,11 @@ export async function msc_login(email: string, password: string): Promise<MscLog
         overrideAccess: true,
       })
     : null
-  const avatar = (fullUser as { avatar?: string | number | { id?: string | number; url?: string | null } | null } | null)?.avatar
-  const avatarId = avatar && typeof avatar === 'object' ? avatar.id ?? null : avatar ?? null
-  const avatarUrl = avatar && typeof avatar === 'object' ? avatar.url ?? null : null
+  const avatar = (
+    fullUser as { avatar?: string | number | { id?: string | number; url?: string | null } | null } | null
+  )?.avatar
+  const avatarId = avatar && typeof avatar === 'object' ? (avatar.id ?? null) : (avatar ?? null)
+  const avatarUrl = avatar && typeof avatar === 'object' ? (avatar.url ?? null) : null
 
   const col = payload.collections['users']
   const prefix = payload.config.cookiePrefix
@@ -457,9 +454,7 @@ export async function msc_login(email: string, password: string): Promise<MscLog
   })
 
   const msc_role = msc_normalizeRole(result.user?.role)
-  const username =
-    (fullUser as { username?: string | null } | null)?.username?.trim() ||
-    msc_email.split('@')[0]
+  const username = (fullUser as { username?: string | null } | null)?.username?.trim() || msc_email.split('@')[0]
   return {
     success: true,
     message: 'Authenticated.',
@@ -497,10 +492,7 @@ export async function msc_loadVaultProjects(): Promise<Project[]> {
   const u = ctx.user as MscVaultSessionUser
   /** Defense in depth: app runtime reads projects owned by or shared with the current user. */
   const projectWhere: Where = {
-    or: [
-      { user: { equals: u.id } },
-      { members: { contains: u.id } },
-    ],
+    or: [{ user: { equals: u.id } }, { members: { contains: u.id } }],
   }
   const projectsRes = await payload.find({
     collection: 'msc-vault-projects',
@@ -513,10 +505,7 @@ export async function msc_loadVaultProjects(): Promise<Project[]> {
   })
   const projectIds = projectsRes.docs.map((project) => project.id)
   if (projectIds.length === 0) {
-    return msc_mergeProjectsAndTasks(
-      projectsRes.docs as Parameters<typeof msc_mergeProjectsAndTasks>[0],
-      [],
-    )
+    return msc_mergeProjectsAndTasks(projectsRes.docs as Parameters<typeof msc_mergeProjectsAndTasks>[0], [])
   }
   const tasksRes = await payload.find({
     collection: 'msc-vault-tasks',
@@ -555,7 +544,9 @@ export async function msc_createVaultProject(
     topDoc && typeof topDoc.manualRank === 'number' && !Number.isNaN(topDoc.manualRank) ? topDoc.manualRank : -1
   const createManualRank = topRank + 1
   let thumbnailMediaId =
-    input.thumbnailMediaId === undefined || input.thumbnailMediaId === null || String(input.thumbnailMediaId).trim() === ''
+    input.thumbnailMediaId === undefined ||
+    input.thumbnailMediaId === null ||
+    String(input.thumbnailMediaId).trim() === ''
       ? null
       : msc_coercePayloadRelationId(payload, 'media', String(input.thumbnailMediaId))
   if (thumbnailMediaId !== null) {
@@ -718,10 +709,7 @@ export async function msc_updateVaultProject(
  * matching `msc_sortProjectsForDashboard`). Standard users may only swap two rows
  * they own. **Admin / master-admin** may swap any adjacent pair in their loaded list.
  */
-export async function msc_moveProjectManual(
-  projectId: string,
-  direction: 'up' | 'down',
-): Promise<void> {
+export async function msc_moveProjectManual(projectId: string, direction: 'up' | 'down'): Promise<void> {
   const ctx = await msc_getVaultLocalApiContext()
   const o = msc_vaultLocalApiOptions(ctx)
   const { payload } = ctx
@@ -746,9 +734,7 @@ export async function msc_moveProjectManual(
       throw new Error('Project ownership data missing.')
     }
     if (String(a.ownerUserId) !== String(u.id) || String(b.ownerUserId) !== String(u.id)) {
-      throw new Error(
-        'You can only reorder your own projects next to each other. A shared project is in the way.',
-      )
+      throw new Error('You can only reorder your own projects next to each other. A shared project is in the way.')
     }
   }
 
@@ -854,9 +840,7 @@ async function msc_createVaultTaskInPayload(
   }
   if (options && options.assignedTo !== undefined) {
     data.assignedTo =
-      options.assignedTo === null
-        ? null
-        : msc_coercePayloadRelationId(payload, 'users', String(options.assignedTo))
+      options.assignedTo === null ? null : msc_coercePayloadRelationId(payload, 'users', String(options.assignedTo))
   }
   const created = await payload.create({
     collection: 'msc-vault-tasks',
@@ -915,13 +899,11 @@ export async function msc_getCalendarDayDetailsRange(args: {
   try {
     const projects = await msc_loadVaultProjects()
     const ctx = await msc_getVaultLocalApiContext()
-    const o = msc_vaultLocalApiOptions(ctx)
     const clientsRes = await ctx.payload.find({
       collection: 'msc-clients',
       depth: 0,
       limit: 5000,
-      user: o.user,
-      overrideAccess: o.overrideAccess,
+      overrideAccess: true,
     })
     const clientsById = new Map<string, string>()
     for (const client of clientsRes.docs) {
@@ -996,7 +978,7 @@ export async function msc_update_task_status(
   const o = msc_vaultLocalApiOptions(ctx)
   const { payload } = ctx
   const doc = await msc_assertOwnedVaultTask(ctx, projectId, taskId, 'update task status')
-  const completed = extra?.completed ?? (status === 'done')
+  const completed = extra?.completed ?? status === 'done'
   const archived = extra?.archived ?? Boolean(doc.archived)
   const updated = await payload.update({
     collection: 'msc-vault-tasks',
@@ -1049,8 +1031,7 @@ export async function msc_updateVaultTaskTitle(
   await msc_assertOwnedVaultTask(ctx, projectId, taskId, 'update task title')
   const data: Record<string, unknown> = { title }
   if (assignedTo !== undefined) {
-    data.assignedTo =
-      assignedTo === null ? null : msc_coercePayloadRelationId(payload, 'users', String(assignedTo))
+    data.assignedTo = assignedTo === null ? null : msc_coercePayloadRelationId(payload, 'users', String(assignedTo))
   }
   const updated = await payload.update({
     collection: 'msc-vault-tasks',
@@ -1076,11 +1057,7 @@ export type MscVaultTaskPatch = {
 /**
  * Partial update for calendar / task row (title, assignee, due date). Omitted keys are unchanged.
  */
-export async function msc_patchVaultTask(
-  projectId: string,
-  taskId: string,
-  patch: MscVaultTaskPatch,
-): Promise<Task> {
+export async function msc_patchVaultTask(projectId: string, taskId: string, patch: MscVaultTaskPatch): Promise<Task> {
   const ctx = await msc_getVaultLocalApiContext()
   const o = msc_vaultLocalApiOptions(ctx)
   const { payload } = ctx
@@ -1091,9 +1068,7 @@ export async function msc_patchVaultTask(
   }
   if (patch.assignedTo !== undefined) {
     data.assignedTo =
-      patch.assignedTo === null
-        ? null
-        : msc_coercePayloadRelationId(payload, 'users', String(patch.assignedTo))
+      patch.assignedTo === null ? null : msc_coercePayloadRelationId(payload, 'users', String(patch.assignedTo))
   }
   if (patch.dueDate !== undefined) {
     const s = patch.dueDate

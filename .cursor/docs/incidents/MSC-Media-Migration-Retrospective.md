@@ -62,14 +62,14 @@ Internal notes from the **2026-04** push to move vault project thumbnails onto P
 
 ## Things we tried that helped
 
-| Approach | Why it helped |
-|----------|----------------|
-| **`npm run repair:sqlite`** extended with **`legacy_thumbnail_backup`**, **`thumbnail_id`**, backfills from legacy **`thumbnail` TEXT** | Avoids some Drizzle “missing column” prompts; aligns DB without GUI |
-| **`ALTER TABLE … DROP COLUMN thumbnail`** (after backup + **`thumbnail_id`** / **`legacy_thumbnail_backup`**) | Stops Drizzle from prompting to **delete** the legacy column (which blocked stdin) |
-| **`migrate:thumbnails`** with **`PAYLOAD_MIGRATING`**, **`disableOnInit`** where applicable | Safer one-off migration |
-| **`npm run db:list-vault-thumbs`** | Quick sanity check of relation vs legacy fields (**historical branch script; run only if present**) |
-| **`payload.sqlite.bak.*` backups** (repair script timestamps) | Restore points when schema experiments go wrong |
-| **`patch-package`** for Payload **`loadEnv`** | Makes **`tsx`** CLI scripts usable again after **`npm install`** |
+| Approach                                                                                                                                | Why it helped                                                                                       |
+| --------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------- |
+| **`npm run repair:sqlite`** extended with **`legacy_thumbnail_backup`**, **`thumbnail_id`**, backfills from legacy **`thumbnail` TEXT** | Avoids some Drizzle “missing column” prompts; aligns DB without GUI                                 |
+| **`ALTER TABLE … DROP COLUMN thumbnail`** (after backup + **`thumbnail_id`** / **`legacy_thumbnail_backup`**)                           | Stops Drizzle from prompting to **delete** the legacy column (which blocked stdin)                  |
+| **`migrate:thumbnails`** with **`PAYLOAD_MIGRATING`**, **`disableOnInit`** where applicable                                             | Safer one-off migration                                                                             |
+| **`npm run db:list-vault-thumbs`**                                                                                                      | Quick sanity check of relation vs legacy fields (**historical branch script; run only if present**) |
+| **`payload.sqlite.bak.*` backups** (repair script timestamps)                                                                           | Restore points when schema experiments go wrong                                                     |
+| **`patch-package`** for Payload **`loadEnv`**                                                                                           | Makes **`tsx`** CLI scripts usable again after **`npm install`**                                    |
 
 ---
 

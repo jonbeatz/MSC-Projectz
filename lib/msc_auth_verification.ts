@@ -1,8 +1,12 @@
 import { createHash, randomBytes, timingSafeEqual } from 'node:crypto'
 import { msc_createSmtpTransporter } from '@/lib/msc_smtp_nodemailer'
 import { msc_outgoingSmtpIsSendReady } from '@/lib/msc_smtp_resolve'
+import {
+  MSC_VERIFICATION_EMAIL_TTL_HOURS,
+  msc_buildVerificationEmailParts,
+} from '@/lib/msc_verification_email_template'
 
-const MSC_VERIFICATION_TTL_HOURS = 24
+const MSC_VERIFICATION_TTL_HOURS = MSC_VERIFICATION_EMAIL_TTL_HOURS
 
 export function msc_hashVerificationToken(rawToken: string): string {
   return createHash('sha256').update(rawToken).digest('hex')
@@ -41,6 +45,8 @@ export async function msc_sendVerificationEmail(input: {
   email: string
   name?: string | null
   token: string
+  /** When set, email explains studio invite and includes temp password for sign-in after verify. */
+  inviteTemporaryPassword?: string
 }): Promise<void> {
   const { transporter, fromAddress, layered } = msc_createSmtpTransporter(null)
   if (!msc_outgoingSmtpIsSendReady(layered)) {
@@ -51,17 +57,24 @@ export async function msc_sendVerificationEmail(input: {
   }
 
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL?.trim() || 'http://127.0.0.1:3000'
-  const verifyUrl = `${baseUrl.replace(/\/$/, '')}/auth/verify?token=${encodeURIComponent(input.token)}`
-  const greeting = input.name?.trim() ? `Hello ${input.name.trim()},` : 'Hello,'
+  const origin = baseUrl.replace(/\/$/, '')
+  const verifyUrl = `${origin}/auth/verify?token=${encodeURIComponent(input.token)}`
+  const invitePw = input.inviteTemporaryPassword?.trim()
+  const parts = msc_buildVerificationEmailParts({
+    recipientName: input.name,
+    recipientEmail: input.email,
+    verifyUrl,
+    signInOrigin: origin,
+    mode: invitePw ? 'invite' : 'signup',
+    inviteTemporaryPassword: invitePw || undefined,
+    ttlHours: MSC_VERIFICATION_TTL_HOURS,
+  })
 
   await transporter.sendMail({
     from: fromAddress,
     to: input.email,
-    subject: 'Verify your MSC-Projectz account',
-    text:
-      `${greeting}\n\n` +
-      `Please verify your email address to activate your account.\n\n` +
-      `${verifyUrl}\n\n` +
-      `This link expires in ${MSC_VERIFICATION_TTL_HOURS} hours.`,
+    subject: parts.subject,
+    text: parts.text,
+    html: parts.html,
   })
 }

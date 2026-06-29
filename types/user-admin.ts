@@ -9,6 +9,7 @@ export type MscUserAdminRow = {
   avatarUrl?: string | null
   createdAt?: string
   isCurrentUser: boolean
+  isVerified?: boolean
 }
 
 export type MscProjectMember = {
@@ -21,17 +22,21 @@ export type MscProjectMember = {
 
 export type MscTaskAssignee = string | number | MscProjectMember | null
 
-export type MscUserAdminActionResult =
-  | { ok: true }
-  | { ok: false; error: string }
+export type MscUserAdminActionResult = { ok: true } | { ok: false; error: string }
 
 export type MscUserAdminListResult =
-  | { ok: true; users: MscUserAdminRow[]; isMasterAdmin: boolean }
-  | { ok: false; error: string }
+  { ok: true; users: MscUserAdminRow[]; isMasterAdmin: boolean } | { ok: false; error: string }
 
 export type MscCreateUserAdminInput = {
   email: string
   password: string
+  role: MscUserAdminRole
+  username?: string
+}
+
+/** Master-admin invite: no password from admin; server generates one and emails verify link + temp password. */
+export type MscInviteUserAdminInput = {
+  email: string
   role: MscUserAdminRole
   username?: string
 }

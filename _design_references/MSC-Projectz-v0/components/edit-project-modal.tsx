@@ -18,7 +18,7 @@ interface EditProjectModalProps {
 
 export function EditProjectModal({ project, isOpen, onClose }: EditProjectModalProps) {
   const updateProject = useAppStore((s) => s.updateProject)
-  
+
   const [name, setName] = useState('')
   const [thumbnail, setThumbnail] = useState('')
   const [localPath, setLocalPath] = useState('')
@@ -38,7 +38,7 @@ export function EditProjectModal({ project, isOpen, onClose }: EditProjectModalP
 
   const handleSave = () => {
     if (!project) return
-    
+
     updateProject(project.id, {
       name,
       thumbnail: thumbnail || undefined,
@@ -65,11 +65,8 @@ export function EditProjectModal({ project, isOpen, onClose }: EditProjectModalP
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       {/* Backdrop */}
-      <div 
-        className="absolute inset-0 backdrop-blur-sm bg-black/80" 
-        onClick={onClose} 
-      />
-      
+      <div className="absolute inset-0 backdrop-blur-sm bg-black/80" onClick={onClose} />
+
       {/* Modal */}
       <div className="relative w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden bg-card border border-border">
         {/* Header */}
@@ -91,10 +88,10 @@ export function EditProjectModal({ project, isOpen, onClose }: EditProjectModalP
                 key={tab}
                 onClick={() => setActiveTab(tab)}
                 className={cn(
-                  "px-3 py-2 rounded-md text-xs font-medium transition-colors capitalize",
-                  activeTab === tab 
-                    ? "bg-card text-foreground shadow-sm" 
-                    : "text-muted-foreground hover:text-foreground"
+                  'px-3 py-2 rounded-md text-xs font-medium transition-colors capitalize',
+                  activeTab === tab
+                    ? 'bg-card text-foreground shadow-sm'
+                    : 'text-muted-foreground hover:text-foreground',
                 )}
               >
                 {tab}
@@ -133,12 +130,7 @@ export function EditProjectModal({ project, isOpen, onClose }: EditProjectModalP
                   </div>
                   <div className="flex flex-col gap-2 flex-1">
                     <label className="cursor-pointer">
-                      <input
-                        type="file"
-                        accept="image/*"
-                        onChange={handleThumbnailUpload}
-                        className="hidden"
-                      />
+                      <input type="file" accept="image/*" onChange={handleThumbnailUpload} className="hidden" />
                       <div className="flex items-center gap-2 px-3 py-2 rounded-lg border border-dashed transition-colors text-sm border-border text-muted-foreground hover:border-primary hover:text-primary">
                         <Upload className="w-4 h-4" />
                         Upload Image
@@ -233,16 +225,10 @@ export function EditProjectModal({ project, isOpen, onClose }: EditProjectModalP
 
         {/* Footer */}
         <div className="flex justify-end gap-2 px-6 py-4 border-t border-border bg-secondary/50">
-          <Button 
-            variant="ghost" 
-            onClick={onClose}
-          >
+          <Button variant="ghost" onClick={onClose}>
             Cancel
           </Button>
-          <Button 
-            onClick={handleSave} 
-            className="gap-2 bg-primary text-primary-foreground hover:bg-primary/90"
-          >
+          <Button onClick={handleSave} className="gap-2 bg-primary text-primary-foreground hover:bg-primary/90">
             <Save className="w-4 h-4" />
             Save Changes
           </Button>

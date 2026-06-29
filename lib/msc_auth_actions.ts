@@ -17,11 +17,7 @@ import { msc_logVerificationTelemetry } from '@/lib/msc_verification_telemetry'
 
 type MscRegisterUserResult = { success: boolean; message: string }
 
-export async function msc_registerUser(
-  email: string,
-  password: string,
-  name: string,
-): Promise<MscRegisterUserResult> {
+export async function msc_registerUser(email: string, password: string, name: string): Promise<MscRegisterUserResult> {
   const payload = await getPayload({ config })
   const msc_email = email.trim().toLowerCase()
   const msc_password = password
@@ -92,9 +88,7 @@ export async function msc_registerUser(
       name: msc_name,
       token: verification.rawToken,
     }).catch((err) => console.error('[msc] Verification email failed:', err))
-    void msc_sendWelcomeEmail(msc_email, msc_name).catch((err) =>
-      console.error('[msc] Welcome email failed:', err),
-    )
+    void msc_sendWelcomeEmail(msc_email, msc_name).catch((err) => console.error('[msc] Welcome email failed:', err))
     return { success: true, message: 'Request sent. Check your email to verify your account.' }
   } catch {
     return { success: false, message: 'Registration failed. Please try again.' }

@@ -34,14 +34,14 @@ async function msc_main() {
     const result = exact.docs[0]
       ? exact
       : await payload.find({
-      collection: 'users',
-      where: {
-        or: [{ role: { equals: 'master-admin' } }, { role: { equals: 'admin' } }],
-      },
-      limit: 1,
-      depth: 0,
-      overrideAccess: true,
-    })
+          collection: 'users',
+          where: {
+            or: [{ role: { equals: 'master-admin' } }, { role: { equals: 'admin' } }],
+          },
+          limit: 1,
+          depth: 0,
+          overrideAccess: true,
+        })
 
     const msc_admin = result.docs[0]
     if (!msc_admin) {
@@ -86,4 +86,3 @@ msc_main().catch((err) => {
   console.error('[db:rescue-admin] Failed:', err)
   process.exit(1)
 })
-

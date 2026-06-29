@@ -4,7 +4,13 @@ import { fileURLToPath } from 'url'
 import { copyFile, mkdir, readFile, writeFile } from 'fs/promises'
 import { createClient } from '@libsql/client'
 
-type MscProjectRow = { id: number; name: string | null; thumbnail: string | null; thumbnail_media_id: number | null; user_id: number | null }
+type MscProjectRow = {
+  id: number
+  name: string | null
+  thumbnail: string | null
+  thumbnail_media_id: number | null
+  user_id: number | null
+}
 
 type MscBackfillRow = {
   projectId: string
@@ -70,7 +76,8 @@ async function msc_blobFromLegacy(legacy: string): Promise<{ buffer: Buffer; mim
 
   const buffer = await readFile(localPath)
   const ext = extname(localPath) || '.bin'
-  const mime = ext === '.png' ? 'image/png' : ext === '.webp' ? 'image/webp' : ext === '.gif' ? 'image/gif' : 'image/jpeg'
+  const mime =
+    ext === '.png' ? 'image/png' : ext === '.webp' ? 'image/webp' : ext === '.gif' ? 'image/gif' : 'image/jpeg'
   return { buffer, mime, ext }
 }
 
@@ -145,19 +152,23 @@ async function main() {
       let mime = 'application/octet-stream'
       let bytes = 0
       if (legacy.startsWith('/media/') || legacy.startsWith('media/')) {
-        const localLegacy = legacy.startsWith('/media/') ? resolve(process.cwd(), legacy.replace(/^\/+/, '')) : resolve(process.cwd(), legacy)
+        const localLegacy = legacy.startsWith('/media/')
+          ? resolve(process.cwd(), legacy.replace(/^\/+/, ''))
+          : resolve(process.cwd(), legacy)
         await readFile(localLegacy)
         filename = basename(localLegacy)
         bytes = (await readFile(localLegacy)).byteLength
         const ext = extname(filename).toLowerCase()
-        mime = ext === '.png' ? 'image/png' : ext === '.webp' ? 'image/webp' : ext === '.gif' ? 'image/gif' : 'image/jpeg'
+        mime =
+          ext === '.png' ? 'image/png' : ext === '.webp' ? 'image/webp' : ext === '.gif' ? 'image/gif' : 'image/jpeg'
       } else if (isAbsolute(legacy)) {
         const ext = extname(legacy) || '.bin'
         filename = msc_uniqueFilename(p.id, ext)
         const dest = resolve(mediaDir, filename)
         await copyFile(legacy, dest)
         bytes = (await readFile(dest)).byteLength
-        mime = ext === '.png' ? 'image/png' : ext === '.webp' ? 'image/webp' : ext === '.gif' ? 'image/gif' : 'image/jpeg'
+        mime =
+          ext === '.png' ? 'image/png' : ext === '.webp' ? 'image/webp' : ext === '.gif' ? 'image/gif' : 'image/jpeg'
       } else {
         const blob = await msc_blobFromLegacy(legacy)
         filename = msc_uniqueFilename(p.id, blob.ext)

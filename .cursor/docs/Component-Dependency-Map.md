@@ -119,7 +119,7 @@ This keeps navigation predictable and avoids drawer-on-drawer stacking issues.
 
 **Suggested next routes** (high visibility, similar card density to Clients)
 
-- **`/tasks`** — [`app/(main)/(command-center)/tasks/page.tsx`](../../app/(main)/(command-center)/tasks/page.tsx) + related task list components.
+- **`/tasks`** — [`app/(main)/(command-center)/tasks/page.tsx`](<../../app/(main)/(command-center)/tasks/page.tsx>) + related task list components.
 - **`/vault`** — Code Manager split-pane; prose already uses `.msc-vault-prose`; extend glass/surface tokens only where cards need parity with Clients.
 
 After each route: **`npm run verify:next`** or **`npm run verify:next:safe`**, then smoke **`/`** and **`/admin`** (and the route you touched).

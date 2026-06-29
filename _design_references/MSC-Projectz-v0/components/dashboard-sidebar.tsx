@@ -1,14 +1,6 @@
 'use client'
 
-import { 
-  LayoutDashboard, 
-  Settings, 
-  HelpCircle,
-  LogOut,
-  Plus,
-  ChevronLeft,
-  ClipboardList
-} from 'lucide-react'
+import { LayoutDashboard, Settings, HelpCircle, LogOut, Plus, ChevronLeft, ClipboardList } from 'lucide-react'
 import Image from 'next/image'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
@@ -34,7 +26,7 @@ export function DashboardSidebar({ collapsed, onToggle, onAddProject }: SidebarP
   const currentView = useAppStore((s) => s.currentView)
   const setCurrentView = useAppStore((s) => s.setCurrentView)
   const appSettings = useAppStore((s) => s.appSettings)
-  
+
   const isDark = appSettings.theme === 'dark'
 
   return (
@@ -43,27 +35,19 @@ export function DashboardSidebar({ collapsed, onToggle, onAddProject }: SidebarP
         'fixed left-0 top-0 h-screen flex flex-col transition-all duration-300 z-40',
         'bg-sidebar border-r border-sidebar-border',
         collapsed ? 'w-16' : 'w-64',
-        !isDark && 'card-shadow-lg'
+        !isDark && 'card-shadow-lg',
       )}
     >
       {/* Header */}
       <div className="flex items-center justify-between h-16 px-4 border-b border-sidebar-border">
         <div className={cn('flex items-center gap-3', collapsed && 'justify-center w-full')}>
           <div className="w-10 h-10 rounded-lg overflow-hidden flex-shrink-0">
-            <Image 
-              src="/msc-icon.png" 
-              alt="MSC" 
-              width={40} 
-              height={40}
-              className="object-contain"
-            />
+            <Image src="/msc-icon.png" alt="MSC" width={40} height={40} className="object-contain" />
           </div>
           {!collapsed && (
             <div className="flex flex-col">
               <span className="font-semibold text-sm text-sidebar-foreground">MSC-Projectz</span>
-              <span className="text-[10px] uppercase tracking-wider text-muted-foreground">
-                Command Center
-              </span>
+              <span className="text-[10px] uppercase tracking-wider text-muted-foreground">Command Center</span>
             </div>
           )}
         </div>
@@ -83,7 +67,7 @@ export function DashboardSidebar({ collapsed, onToggle, onAddProject }: SidebarP
           onClick={onAddProject}
           className={cn(
             'w-full bg-primary text-primary-foreground hover:bg-primary/90',
-            collapsed ? 'px-0' : 'justify-start gap-2'
+            collapsed ? 'px-0' : 'justify-start gap-2',
           )}
           size={collapsed ? 'icon' : 'default'}
         >
@@ -105,9 +89,9 @@ export function DashboardSidebar({ collapsed, onToggle, onAddProject }: SidebarP
                   className={cn(
                     'w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors text-sm',
                     collapsed && 'justify-center px-0',
-                    isActive 
-                      ? 'bg-sidebar-accent text-sidebar-foreground' 
-                      : 'text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-foreground'
+                    isActive
+                      ? 'bg-sidebar-accent text-sidebar-foreground'
+                      : 'text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-foreground',
                   )}
                 >
                   <Icon className="w-4 h-4 flex-shrink-0" />
@@ -117,11 +101,17 @@ export function DashboardSidebar({ collapsed, onToggle, onAddProject }: SidebarP
                       {projects.length}
                     </span>
                   )}
-                  {!collapsed && item.id === 'global-tasks' && projects.reduce((sum, p) => sum + p.tasks.filter(t => !t.completed && !t.archived).length, 0) > 0 && (
-                    <span className="ml-auto text-xs px-1.5 py-0.5 rounded bg-primary/20 text-primary">
-                      {projects.reduce((sum, p) => sum + p.tasks.filter(t => !t.completed && !t.archived).length, 0)}
-                    </span>
-                  )}
+                  {!collapsed &&
+                    item.id === 'global-tasks' &&
+                    projects.reduce((sum, p) => sum + p.tasks.filter((t) => !t.completed && !t.archived).length, 0) >
+                      0 && (
+                      <span className="ml-auto text-xs px-1.5 py-0.5 rounded bg-primary/20 text-primary">
+                        {projects.reduce(
+                          (sum, p) => sum + p.tasks.filter((t) => !t.completed && !t.archived).length,
+                          0,
+                        )}
+                      </span>
+                    )}
                 </button>
               </li>
             )
@@ -140,7 +130,7 @@ export function DashboardSidebar({ collapsed, onToggle, onAddProject }: SidebarP
           className={cn(
             'w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors text-sm',
             'text-muted-foreground hover:bg-destructive/10 hover:text-destructive',
-            collapsed && 'justify-center px-0'
+            collapsed && 'justify-center px-0',
           )}
         >
           <LogOut className="w-4 h-4 flex-shrink-0" />

@@ -8,7 +8,7 @@
 
 ## 0. System instructions (Cursor context)
 
-*Use this file as additional context for deploy and build troubleshooting.*
+_Use this file as additional context for deploy and build troubleshooting._
 
 1. **Ask before large changes:** confirm whether the target is a **new public URL** or the existing **jon-beatz.com** stack.
 2. **Environments:** develop on **Windows (Vader)**; production is **Linux**. **Never** ship a standard zip that relies on **Windows-compiled** `node_modules` — either install on the server or use a **WSL/Linux** build for bundled native deps (see §3 Scenario B).
@@ -20,14 +20,14 @@
 
 Keep secrets in the repo-root **`.env`**. Do not paste real secrets into cPanel or chat; mirror values in cPanel’s app **environment UI** for production.
 
-| Variable | Purpose / typical value |
-| --- | --- |
-| `NODE_ENV` | `production` on the server |
-| `DATABASE_URL` | `file:./payload.sqlite` (see `payload.config.ts`) |
+| Variable               | Purpose / typical value                                                        |
+| ---------------------- | ------------------------------------------------------------------------------ |
+| `NODE_ENV`             | `production` on the server                                                     |
+| `DATABASE_URL`         | `file:./payload.sqlite` (see `payload.config.ts`)                              |
 | `NEXT_PUBLIC_SITE_URL` | Public origin, e.g. `https://jon-beatz.com` (used by vault/server URL helpers) |
-| `PAYLOAD_SECRET` | Long random string — **never commit a real value** in docs or Git |
+| `PAYLOAD_SECRET`       | Long random string — **never commit a real value** in docs or Git              |
 
-*Legacy/alternate names:* some docs mention `PAYLOAD_PUBLIC_SERVER_URL` / `NEXT_PUBLIC_SERVER_URL`. This codebase’s app layer prefers **`NEXT_PUBLIC_SITE_URL`** — align with `lib/msc_vault_*.ts` and `.env.example`.
+_Legacy/alternate names:_ some docs mention `PAYLOAD_PUBLIC_SERVER_URL` / `NEXT_PUBLIC_SERVER_URL`. This codebase’s app layer prefers **`NEXT_PUBLIC_SITE_URL`** — align with `lib/msc_vault_*.ts` and `.env.example`.
 
 ---
 
@@ -39,24 +39,24 @@ Keep secrets in the repo-root **`.env`**. Do not paste real secrets into cPanel 
 
 ### COPY_PLAN (default entries)
 
-| Path | Type |
-| --- | --- |
-| `.next` | dir |
-| `public` | dir |
-| `media` | dir |
-| `app` | dir |
-| `collections` | dir |
-| `components` | dir |
-| `lib` | dir |
-| `types` | dir |
-| `server.js` | file |
+| Path                | Type |
+| ------------------- | ---- |
+| `.next`             | dir  |
+| `public`            | dir  |
+| `media`             | dir  |
+| `app`               | dir  |
+| `collections`       | dir  |
+| `components`        | dir  |
+| `lib`               | dir  |
+| `types`             | dir  |
+| `server.js`         | file |
 | `payload.config.ts` | file |
-| `next.config.mjs` | file |
-| `tsconfig.json` | file |
-| `.env` | file |
-| `package.json` | file |
-| `payload.sqlite` | file |
-| `unzip.php` | file |
+| `next.config.mjs`   | file |
+| `tsconfig.json`     | file |
+| `.env`              | file |
+| `package.json`      | file |
+| `payload.sqlite`    | file |
+| `unzip.php`         | file |
 
 **OOM / WSL note:** to include **`node_modules`** in the package (emergency only, large artifact), add `{ from: 'node_modules', type: 'dir' }` to **COPY_PLAN** in `msc_package_deploy.mjs` after a **Linux** or WSL `npm install`+`npm run build`. Prefer server-side `npm install` when possible.
 
@@ -100,13 +100,13 @@ Use when host build/runtime repeatedly hits OOM or Linux native module issues.
 
 ## 4. Troubleshooting
 
-| Symptom | Cause | Solution |
-| --- | --- | --- |
-| **500, EACCES** | Permissions; Next may **write** under **`.next`** at runtime | Run `chmod -R 755` on **`.next`**, `public`, and `media` (and `node_modules` if present). If errors **continue**, see **ownership** below — cPanel often breaks when files are uploaded or unzipped as a **different user** than the Node app. |
-| **`sharp` / `Failed to load external module sharp`** | **Binary mismatch** (Windows vs Linux `node_modules`, or wrong prebuild) | On the server: `npm rebuild sharp --platform=linux --arch=x64` (from app root). Prefer server-side `npm install` or a WSL/Linux-built tree — see §2 **Native sharp**. |
-| **Process killed / OOM** | Low server memory at build or runtime | Use the **WSL / Linux** build pipeline (§3 B) to produce a **Linux-native** build locally, or add RAM/swap; avoid huge in-place builds on the smallest tier. |
-| **500, generic module not found** | Bad `node_modules` tree or path | Reinstall on the **server** (`rm -rf node_modules && npm install` if policy allows) or use Scenario B with a Linux-built `node_modules`. |
-| **Database locked** | SQLite permissions / two writers | Ensure one process owns **`payload.sqlite`**; same **owner** as the Node process; avoid two services writing the DB at once. |
+| Symptom                                              | Cause                                                                    | Solution                                                                                                                                                                                                                                       |
+| ---------------------------------------------------- | ------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **500, EACCES**                                      | Permissions; Next may **write** under **`.next`** at runtime             | Run `chmod -R 755` on **`.next`**, `public`, and `media` (and `node_modules` if present). If errors **continue**, see **ownership** below — cPanel often breaks when files are uploaded or unzipped as a **different user** than the Node app. |
+| **`sharp` / `Failed to load external module sharp`** | **Binary mismatch** (Windows vs Linux `node_modules`, or wrong prebuild) | On the server: `npm rebuild sharp --platform=linux --arch=x64` (from app root). Prefer server-side `npm install` or a WSL/Linux-built tree — see §2 **Native sharp**.                                                                          |
+| **Process killed / OOM**                             | Low server memory at build or runtime                                    | Use the **WSL / Linux** build pipeline (§3 B) to produce a **Linux-native** build locally, or add RAM/swap; avoid huge in-place builds on the smallest tier.                                                                                   |
+| **500, generic module not found**                    | Bad `node_modules` tree or path                                          | Reinstall on the **server** (`rm -rf node_modules && npm install` if policy allows) or use Scenario B with a Linux-built `node_modules`.                                                                                                       |
+| **Database locked**                                  | SQLite permissions / two writers                                         | Ensure one process owns **`payload.sqlite`**; same **owner** as the Node process; avoid two services writing the DB at once.                                                                                                                   |
 
 **If you still get EACCES after `chmod`:** permissions are not always enough. **Reset ownership** so the cPanel/Node system user owns the app tree (exact UI varies: File Manager “Change ownership”, JetBackup tools, or host support / SSH `chown` if your plan allows). Symptom: app starts but cannot write cache or temp files under **`.next`**.
 

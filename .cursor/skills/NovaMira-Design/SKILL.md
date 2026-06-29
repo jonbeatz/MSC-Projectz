@@ -68,5 +68,3 @@ Do not over-apply accent colors; scarcity preserves hierarchy.
 ## Non-override rule
 
 If an active product surface already has a locked palette/system, do not mass-refactor without a scoped migration task.
-
-

@@ -91,9 +91,9 @@ Observed warnings (non-blocking, keep noted):
    - files: `644`
 3. **Live (cPanel):** Node.js Application Manager -> **Restart**.
 
-### E. First-login verification fallback (workaround used in this cutover)
+### E. First-login verification fallback (emergency only)
 
-Use this only when live SMTP verification is not configured yet and you need immediate operator access.
+Use this only when **section 2F** is not configured yet and you need immediate operator access without receiving email.
 
 1. **Live (cPanel -> Terminal):** `cd ~/jon-beatz.com`
 2. Run this one-time verify update (replace email if needed):
@@ -128,7 +128,13 @@ PY
 ```
 
 3. Sign out/in (or restart app) and confirm login proceeds past `/auth/verify-reminder`.
-4. Long-term fix: implement real SMTP verification workflow for production.
+4. Prefer **section 2F** next so new users receive real verification mail.
+
+### F. Production SMTP for verification (recommended before inviting users)
+
+Verification, welcome, and resend flows use **`MSC_STUDIO_OUTGOING_*`** on the Node process. Configure in **Live (cPanel → Node.js Application Manager → Environment Variables)** then **Restart**. Full variable list and Spacemail defaults: **`FlightPro.md` → §4.1 Production verification email**.
+
+After setting variables, test with a new registration or **Resend verification** from `/auth/verify-reminder` and confirm the message arrives (and the link opens on `https://jon-beatz.com/auth/verify?...`).
 
 ## 3) Post-deploy verification
 
@@ -156,19 +162,19 @@ If broken:
 
 ## 4) Progress and wins log
 
-| Time | Step | Result | Notes |
-|---|---|---|---|
-| 2026-04-29 | Local preflight + package | PASS | `deploy:preflight` + `pushitlive` succeeded; `final_deploy.zip` generated. |
-| 2026-04-29 | Local build inside packaging | PASS | Next build compiled and staged deploy package. |
-| 2026-04-29 | Live baseline route probe | PARTIAL | `/`, `/dashboard`, `/tasks`, `/help` return login shell. `/calendar` currently 404 on live (expected old version gap). |
-| 2026-04-29 | Live backup | SKIPPED (operator choice) | Operator explicitly chose no backup for this cutover. |
-| 2026-04-29 | Live clean cutover | PASS | Stop app -> clean root -> upload/extract `final_deploy.zip` -> Run NPM Install -> Start app. |
-| 2026-04-29 | Live route verification | PASS (auth gate) | Live app loads; login/verify screen reachable at `jon-beatz.com`. Access blocked by expected email verification gate, not deploy/runtime failure. |
-| 2026-04-29 | FTPS upload path correction | PASS | First uploads landed in nested folders; fixed by setting `remoteAppRoot` to `/` for this FTP account. |
-| 2026-04-29 | First-login verify workaround | PASS | Updated `users.is_verified` for operator account via sqlite in cPanel terminal; login succeeded and dashboard loaded. |
+| Time       | Step                          | Result                    | Notes                                                                                                                                             |
+| ---------- | ----------------------------- | ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 2026-04-29 | Local preflight + package     | PASS                      | `deploy:preflight` + `pushitlive` succeeded; `final_deploy.zip` generated.                                                                        |
+| 2026-04-29 | Local build inside packaging  | PASS                      | Next build compiled and staged deploy package.                                                                                                    |
+| 2026-04-29 | Live baseline route probe     | PARTIAL                   | `/`, `/dashboard`, `/tasks`, `/help` return login shell. `/calendar` currently 404 on live (expected old version gap).                            |
+| 2026-04-29 | Live backup                   | SKIPPED (operator choice) | Operator explicitly chose no backup for this cutover.                                                                                             |
+| 2026-04-29 | Live clean cutover            | PASS                      | Stop app -> clean root -> upload/extract `final_deploy.zip` -> Run NPM Install -> Start app.                                                      |
+| 2026-04-29 | Live route verification       | PASS (auth gate)          | Live app loads; login/verify screen reachable at `jon-beatz.com`. Access blocked by expected email verification gate, not deploy/runtime failure. |
+| 2026-04-29 | FTPS upload path correction   | PASS                      | First uploads landed in nested folders; fixed by setting `remoteAppRoot` to `/` for this FTP account.                                             |
+| 2026-04-29 | First-login verify workaround | PASS                      | Updated `users.is_verified` for operator account via sqlite in cPanel terminal; login succeeded and dashboard loaded.                             |
 
 ## 5) What to improve next deploy
 
 - Add `.cursor/docs/Deploy-Profile.local.json` with real FTP username so preflight warning disappears.
 - Keep this file updated with exact failure + fix details after each deployment.
-- Add a one-time "bootstrap admin verify" operational step (or real SMTP verify workflow) so first live login is not blocked by `isVerified=false`.
+- Complete **section 2F** + **`FlightPro.md` §4.1** on live so SMTP verification replaces SQLite **§2E** workarounds for normal onboarding.

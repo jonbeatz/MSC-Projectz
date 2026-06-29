@@ -29,10 +29,7 @@ export function SystemStatus({ status = 'Active' }: SystemStatusProps) {
       title={mscStatusLabels[status]}
     >
       <span
-        className={cn(
-          'msc-system-status__pulse h-2 w-2 rounded-full animate-pulse',
-          mscStatusStyles[status],
-        )}
+        className={cn('msc-system-status__pulse h-2 w-2 rounded-full animate-pulse', mscStatusStyles[status])}
         aria-hidden
       />
       <span className="hidden sm:inline">{status}</span>

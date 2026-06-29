@@ -10,15 +10,15 @@ Use this doc when **reusing this workflow** on a new Next.js + Payload project o
 
 ## Environment variables
 
-| Variable | Purpose |
-|----------|---------|
-| `NEXT_PUBLIC_SITE_URL` | **Must** match the origin users open in the browser. Local: `http://127.0.0.1:3000`. Production: `https://jon-beatz.com`. Verification links are built from this. |
-| `MSC_STUDIO_OUTGOING_HOST` | SMTP host (e.g. Spaceship `mail.spacemail.com`). |
-| `MSC_STUDIO_OUTGOING_PORT` | Usually `465` (SSL). |
-| `MSC_STUDIO_OUTGOING_SSL` | `true` for implicit TLS on 465. |
-| `MSC_STUDIO_OUTGOING_USER` | Mailbox login (often full email). |
-| `MSC_STUDIO_OUTGOING_PASS` | App password or mailbox password (never commit). |
-| `MSC_STUDIO_OUTGOING_FROM` | Optional **From** header override (see `lib/msc_smtp_nodemailer.ts`). |
+| Variable                   | Purpose                                                                                                                                                           |
+| -------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `NEXT_PUBLIC_SITE_URL`     | **Must** match the origin users open in the browser. Local: `http://127.0.0.1:3000`. Production: `https://jon-beatz.com`. Verification links are built from this. |
+| `MSC_STUDIO_OUTGOING_HOST` | SMTP host (e.g. Spaceship `mail.spacemail.com`).                                                                                                                  |
+| `MSC_STUDIO_OUTGOING_PORT` | Usually `465` (SSL).                                                                                                                                              |
+| `MSC_STUDIO_OUTGOING_SSL`  | `true` for implicit TLS on 465.                                                                                                                                   |
+| `MSC_STUDIO_OUTGOING_USER` | Mailbox login (often full email).                                                                                                                                 |
+| `MSC_STUDIO_OUTGOING_PASS` | App password or mailbox password (never commit).                                                                                                                  |
+| `MSC_STUDIO_OUTGOING_FROM` | Optional **From** header override (see `lib/msc_smtp_nodemailer.ts`).                                                                                             |
 
 **Local:** `.env.local` (gitignored). **Production:** cPanel Node.js Application Manager → Environment Variables (not only a checked-in `.env`).
 
@@ -26,18 +26,18 @@ Canonical deploy notes: **`FlightPro.md`** §4 and §4.1.
 
 ## Code touchpoints (MSC-Projectz)
 
-| Concern | Location |
-|---------|----------|
-| Registration | `lib/msc_auth_actions.ts` → `msc_registerUser` |
-| Invite (master) | `lib/msc_vault_user_admin.ts` → `msc_invitePayloadUserAsMaster` |
-| Admin create w/ password | `msc_createPayloadUserAsAdmin` (sets `isVerified: true`, no email) |
+| Concern                         | Location                                                                                                                                                                                                                                                                                                                         |
+| ------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Registration                    | `lib/msc_auth_actions.ts` → `msc_registerUser`                                                                                                                                                                                                                                                                                   |
+| Invite (master)                 | `lib/msc_vault_user_admin.ts` → `msc_invitePayloadUserAsMaster`                                                                                                                                                                                                                                                                  |
+| Admin create w/ password        | `msc_createPayloadUserAsAdmin` (sets `isVerified: true`, no email)                                                                                                                                                                                                                                                               |
 | Send verification / invite body | `lib/msc_auth_verification.ts` → `msc_sendVerificationEmail` (multipart **HTML + text** from `lib/msc_verification_email_template.ts` — dark studio card + **`msc-ui-accent` blue (`#599ede`)** CTA with forced link reset so clients do not inject default blue/underline; system sans stack; invite credentials in inset rows) |
-| Dev Playground email tabs | `app/(main)/(command-center)/admin/dev/email-previews/msc_EmailPreviewsClient.tsx` — same builder as production for **Verification email** / **Invite email** previews |
-| SMTP merge + From | `lib/msc_smtp_nodemailer.ts`, `lib/msc_smtp_resolve.ts` |
-| Trust gate (unverified) | `middleware` / proxy (see repo) + `/auth/verify-reminder` |
-| Verify link handler | `app/(main)/auth/verify/page.tsx` + `components/auth/msc_VerificationView.tsx` |
-| UI: Settings invite | `components/settings/MSC-Projectz-CreateUserForm.tsx` |
-| UI: Payload panel | `components/MSC-Projectz-PayloadUsersPanel.tsx` |
+| Dev Playground email tabs       | `app/(main)/(command-center)/admin/dev/email-previews/msc_EmailPreviewsClient.tsx` — same builder as production for **Verification email** / **Invite email** previews                                                                                                                                                           |
+| SMTP merge + From               | `lib/msc_smtp_nodemailer.ts`, `lib/msc_smtp_resolve.ts`                                                                                                                                                                                                                                                                          |
+| Trust gate (unverified)         | `middleware` / proxy (see repo) + `/auth/verify-reminder`                                                                                                                                                                                                                                                                        |
+| Verify link handler             | `app/(main)/auth/verify/page.tsx` + `components/auth/msc_VerificationView.tsx`                                                                                                                                                                                                                                                   |
+| UI: Settings invite             | `components/settings/MSC-Projectz-CreateUserForm.tsx`                                                                                                                                                                                                                                                                            |
+| UI: Payload panel               | `components/MSC-Projectz-PayloadUsersPanel.tsx`                                                                                                                                                                                                                                                                                  |
 
 ## Invite email content (behavior)
 

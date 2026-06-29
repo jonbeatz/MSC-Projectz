@@ -7,19 +7,20 @@
 
 ## Core Stack
 
-| Layer | Technology | Version |
-|-------|-----------|---------|
-| **Framework** | Next.js (App Router) | 16.2.3 |
-| **CMS** | Payload | 3.84.1 |
-| **Database** | SQLite (`payload.sqlite`) | via `@payloadcms/db-sqlite` |
-| **Language** | TypeScript (strict) | 5.7.3 |
-| **UI** | shadcn/ui (New York) + Tailwind CSS v4 | — |
-| **State** | Zustand + persist (localStorage) | 5.x |
-| **Desktop** | Tauri | v2 |
+| Layer         | Technology                             | Version                     |
+| ------------- | -------------------------------------- | --------------------------- |
+| **Framework** | Next.js (App Router)                   | 16.2.3                      |
+| **CMS**       | Payload                                | 3.84.1                      |
+| **Database**  | SQLite (`payload.sqlite`)              | via `@payloadcms/db-sqlite` |
+| **Language**  | TypeScript (strict)                    | 5.7.3                       |
+| **UI**        | shadcn/ui (New York) + Tailwind CSS v4 | —                           |
+| **State**     | Zustand + persist (localStorage)       | 5.x                         |
+| **Desktop**   | Tauri                                  | v2                          |
 
 ## Architecture
 
 Two route groups in `app/`:
+
 - `(main)` — Command Center app (dashboard, vault, calendar, clients, tasks, settings, profile)
 - `(payload)` — Payload CMS admin panel + API + GraphQL
 
@@ -42,11 +43,11 @@ Two route groups in `app/`:
 
 ## Related projects
 
-| Project | Path | Dependency |
-|---------|------|------------|
-| **MyStudioChannel** | `D:\Cursor_Projectz\MyStudioChannel` | Website, Payload CMS, Hostinger deploy |
-| **Hermes Core Scripts** | `D:\Hermes\projects\_core-scripts` | Shared infrastructure (deploy, voice, MCP) |
-| **JonBeatz Profile** | `D:\Hermes\projects\JonBeatz` | Personal AI command center |
+| Project                 | Path                                 | Dependency                                 |
+| ----------------------- | ------------------------------------ | ------------------------------------------ |
+| **MyStudioChannel**     | `D:\Cursor_Projectz\MyStudioChannel` | Website, Payload CMS, Hostinger deploy     |
+| **Hermes Core Scripts** | `D:\Hermes\projects\_core-scripts`   | Shared infrastructure (deploy, voice, MCP) |
+| **JonBeatz Profile**    | `D:\Hermes\projects\JonBeatz`        | Personal AI command center                 |
 
 ## Core rules
 

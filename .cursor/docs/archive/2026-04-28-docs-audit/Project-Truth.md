@@ -22,6 +22,7 @@ Use this file first, then follow its linked source-of-truth order.
 - **Current workflow branch (at last docs update):** `MSC-Projectz-FullDev-v7`
 
 Primary goal:
+
 - Ship and maintain a production-ready command center with stable local workflow, reliable deploy packaging, and strong continuity between sessions.
 
 ---
@@ -65,6 +66,7 @@ If credentials were exposed outside encrypted storage, rotate provider-side valu
 3. `RESEND_API_KEY`
 
 After rotation:
+
 - update local `.env` values
 - update encrypted secret payload (see `Deploy-Secrets-Workflow.md`)
 - do not commit plaintext secrets
@@ -75,6 +77,7 @@ After rotation:
 ## 3) What This Project Is
 
 Core product areas:
+
 - Route-based Command Center UI under `app/(main)/(command-center)/` (with `app/(main)/layout.tsx` as the app document shell; Payload admin stays in `app/(payload)/` with a separate document root)
 - CRM Command Center on `/clients` now supports in-app **create** and **archive** flows plus inline profile edit; archived clients are hidden from active list by default (record retained in DB via status).
 - Clients glassmorphism styling experiment attempted twice on 2026-04-28 and paused (not shipped to desired quality); resume from `.cursor/docs/Clients-Glassmorphism-Debug-Note.md`.
@@ -87,6 +90,7 @@ Core product areas:
 - Local-first development and deploy packaging via zip artifact
 
 Core quality expectations:
+
 - Keep commands/docs aligned with `package.json`
 - Keep upload/media assets under project-root `media/`
 - Keep user-scope/ownership safety in runtime actions and browser storage
@@ -109,6 +113,7 @@ Read in this exact order when onboarding:
 10. `msc_package_deploy.mjs` (deploy artifact truth)
 
 Use only when needed:
+
 - `FlightPro-Alt.md` for advanced failures (OOM, sharp/native modules, ownership/permissions edge cases)
 - `ReCall.md` for historical deep context
 - `.cursor/docs/Deploy-Secrets-Workflow.md` for encrypted credential handling
@@ -124,6 +129,7 @@ Use `.cursor/docs/Deploy-Profile.template.json` as the canonical non-secret prof
 - runtime guards (`sharp`, sqlite, Linux module expectations)
 
 Local account overrides belong in:
+
 - `.cursor/docs/Deploy-Profile.local.json` (gitignored)
 - reference format: `.cursor/docs/Deploy-Profile.local.example.json`
 
@@ -134,6 +140,7 @@ Never hardcode account-specific host usernames or absolute paths in app runtime 
 Secrets are handled through `.cursor/docs/Deploy-Secrets-Workflow.md`.
 
 Rules:
+
 - no plaintext secrets in tracked docs
 - no secrets in chat output
 - local `.env` stays source of truth for runtime values
@@ -144,10 +151,12 @@ Rules:
 ## 5) Command Truth (Do Not Guess)
 
 Before suggesting/running any command:
+
 - Verify script exists in `package.json`
 - Prefer exact scripts over legacy aliases mentioned in old docs/rules
 
 Current key commands:
+
 - `npm run dev` -> local dev server
 - `npm run verify:next` -> build gate (`clean:next` + build)
 - `npm run deploy:preflight` -> validate deploy profile + script/path guardrails
@@ -164,6 +173,7 @@ Current key commands:
 ## 6) Deploy Truth (High Level)
 
 Primary deploy flow:
+
 1. Local preflight using `npm run deploy:preflight`
 2. Local build/package using `npm run pushitlive`
 3. Artifact output: `final_deploy.zip`
@@ -173,10 +183,12 @@ Primary deploy flow:
 7. Validate routes and logs
 
 Deployment source files:
+
 - `FlightPro.md` (canonical SOP)
 - `msc_package_deploy.mjs` (actual packaging rules/COPY_PLAN)
 
 Important:
+
 - Do not assume `node_modules` is bundled by default
 - On Linux host, install/rebuild dependencies as needed
 - Use `FlightPro-Alt.md` for advanced module/ownership/OOM recovery
@@ -186,6 +198,7 @@ Important:
 ## 7) Local Recovery Truth
 
 If localhost breaks (port 3000, white screen, stale chunks):
+
 - Use the manual recover pattern in `FlightPro.md` / `Agent-Runbook.md`
 - Reconfirm `http://127.0.0.1:3000/` and `/admin`
 - For runtime edits, do not close out until build gate is green
@@ -198,16 +211,19 @@ If a script is missing from `package.json`, use documented manual fallback.
 ## 8) Session Continuity Truth
 
 This repo uses explicit session memory:
+
 - `Session-Snapshots.md` must be updated at closeout
 - Newest snapshot stays at top
 - Snapshot includes: what changed, where, validation, and exact start-next steps
 
 Startup pattern:
+
 1. Read latest snapshot
 2. Verify branch/status
 3. Continue from listed next task/file
 
 Morning handshake rule:
+
 - Operator trigger: `Ready to begin`
 - On every `Ready to begin`, re-read `START-HERE.md` and then the full canonical source-of-truth order in Section 4 before implementation work. Treat this as required each startup trigger unless operator explicitly waives docs refresh.
 - Assistant startup response must end with exact line: `Ready to start Jedi Master`
@@ -216,6 +232,7 @@ Morning handshake rule:
   - 3-4 prioritized next-work recommendations
 
 Closeout pattern:
+
 1. Update snapshot
 2. Record commands/outcomes
 3. Capture blockers/risks
@@ -234,6 +251,7 @@ Closeout pattern:
 - Keep project plans in `D:\Cursor_Projectz\MSC-Projectz\.cursor\plans` as default/source-of-truth location; if generated in global Cursor plans, copy into the project folder in the same session.
 
 Policy locations:
+
 - `.cursorrules`
 - `.cursor/rules/*.mdc`
 
@@ -281,12 +299,14 @@ Rules:
 ## 12) Maintenance Rule for This File
 
 Update `Project-Truth.md` when any of these change:
+
 - Source-of-truth file order
 - Core scripts or deploy mechanics
 - Session continuity process
 - Branching/release workflow model
 
 When `Versioning` is changed in this file:
+
 - Add a matching note in `Session-Snapshots.md` (what changed, why, and any new startup/closeout behavior).
 
 Keep it short, current, and operational.

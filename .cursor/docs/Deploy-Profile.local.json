@@ -1,0 +1,10 @@
+{
+  "host": {
+    "ftpUsername": "jonbeatz@jon-beatz.com",
+    "ftpPassword": "Penguin822!",
+    "remoteAppRoot": "/"
+  },
+  "project": {
+    "domain": "https://jon-beatz.com"
+  }
+}

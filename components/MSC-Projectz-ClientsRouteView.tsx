@@ -53,13 +53,10 @@ function msc_formatRelativeUpdated(iso: string | null | undefined): string {
 
 function msc_statusPillClass(status: string): string {
   const s = status.toLowerCase()
-  if (s === 'active')
-    return 'border border-emerald-400/25 bg-emerald-500/15 text-emerald-100/95'
-  if (s === 'onboarding')
-    return 'border border-msc-ui-accent/30 bg-msc-ui-accent/14 text-sky-50/95'
+  if (s === 'active') return 'border border-emerald-400/25 bg-emerald-500/15 text-emerald-100/95'
+  if (s === 'onboarding') return 'border border-msc-ui-accent/30 bg-msc-ui-accent/14 text-sky-50/95'
   if (s === 'lead') return 'border border-white/12 bg-white/[0.06] text-muted-foreground'
-  if (s === 'completed')
-    return 'border border-sky-400/22 bg-sky-500/12 text-sky-50/95'
+  if (s === 'completed') return 'border border-sky-400/22 bg-sky-500/12 text-sky-50/95'
   return 'border border-white/10 bg-white/[0.06] text-muted-foreground'
 }
 
@@ -143,15 +140,7 @@ export function MSC_Projectz_ClientsRouteView() {
     resetCreateForm()
     await load()
     openClient(res.id)
-  }, [
-    load,
-    newClientName,
-    newContactEmail,
-    newContactName,
-    newContactPhone,
-    openClient,
-    resetCreateForm,
-  ])
+  }, [load, newClientName, newContactEmail, newContactName, newContactPhone, openClient, resetCreateForm])
 
   return (
     <div
@@ -178,7 +167,10 @@ export function MSC_Projectz_ClientsRouteView() {
       </header>
 
       {error && !msc_isQuietInfrastructureUiMessage(error) ? (
-        <p className="rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive" role="alert">
+        <p
+          className="rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive"
+          role="alert"
+        >
           {msc_publicPayloadError(error)}
         </p>
       ) : error && msc_isQuietInfrastructureUiMessage(error) ? (
@@ -351,7 +343,10 @@ export function MSC_Projectz_ClientsRouteView() {
               />
             </div>
             {createError && !msc_isQuietInfrastructureUiMessage(createError) ? (
-              <p className="rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-xs text-destructive" role="alert">
+              <p
+                className="rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-xs text-destructive"
+                role="alert"
+              >
                 {msc_publicPayloadError(createError)}
               </p>
             ) : createError && msc_isQuietInfrastructureUiMessage(createError) ? (

@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next'
 import { Geist, Geist_Mono } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 
+import { MscQueryProvider } from '@/components/MscQueryProvider'
 import { MSC_Projectz_SessionGuard } from '@/components/MSC-Projectz-SessionGuard'
 import { Toaster } from '@/components/ui/toaster'
 import '../globals.css'
@@ -40,13 +41,11 @@ export default function MSC_Projectz_MainAppLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html
-      lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} dark`}
-      suppressHydrationWarning
-    >
+    <html lang="en" className={`${geistSans.variable} ${geistMono.variable} dark`} suppressHydrationWarning>
       <body className="font-sans antialiased min-h-screen bg-background text-foreground">
-        <MSC_Projectz_SessionGuard>{children}</MSC_Projectz_SessionGuard>
+        <MscQueryProvider>
+          <MSC_Projectz_SessionGuard>{children}</MSC_Projectz_SessionGuard>
+        </MscQueryProvider>
         <Toaster />
         {process.env.NODE_ENV === 'production' && <Analytics />}
       </body>

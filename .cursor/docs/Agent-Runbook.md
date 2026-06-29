@@ -9,6 +9,7 @@ For recognized workflow trigger points (start, continue, deploy, verify, checkpo
 Use it once at flow start, then continue with normal concise updates. This confirms context/doc-read state before execution.
 
 Suggested triggers:
+
 - `Ready to begin`
 - `Lets Start`
 - `Lets Continue`
@@ -34,10 +35,10 @@ Apply this even if the assistant already read docs earlier that day, unless oper
 
 Primary recovery one-liners are available in this repository (`dev:recover`, `dev:fresh`, `verify:next:safe`). Use them first; if they fail, use the manual sequence (Windows):
 
-1. Find PID: `netstat -ano | findstr ":3000"` (note **LISTENING** PID on **3000**).  
-2. Stop it: `taskkill /PID <pid> /F`  
-3. `npm run clean:next`  
-4. `npm run dev` — wait for **Local:** / **Ready** in the terminal.  
+1. Find PID: `netstat -ano | findstr ":3000"` (note **LISTENING** PID on **3000**).
+2. Stop it: `taskkill /PID <pid> /F`
+3. `npm run clean:next`
+4. `npm run dev` — wait for **Local:** / **Ready** in the terminal.
 5. Open `http://127.0.0.1:3000/` and `http://127.0.0.1:3000/admin` (expect **200**).
 
 **Build gate (after code edits):** `npm run verify:next` from repo root until it exits with code **0**. **Do not** run `verify:next` or `clean:next` while `next dev` is still running on 3000 — it will delete **`.next`** and break the dev server; stop dev first.
@@ -84,16 +85,17 @@ At the end of every session, update `Session-Snapshots.md` (newest entry at top)
 6. Open risks/blockers.
 
 Closeout command phrase (operator shorthand):
+
 - `Lets Finish` -> update `Session-Snapshots.md`, then summarize final next-start steps.
 
 ## Current local routes
 
-- `/dashboard` — project dashboard.  
-- `/profile` — authenticated user profile and security.  
-- `/settings` — admin system settings and user management.  
-- `/help` — help.  
-- `/tasks` — global task view.  
-- `/vault` — Code Manager / vault workspace.  
+- `/dashboard` — project dashboard.
+- `/profile` — authenticated user profile and security.
+- `/settings` — admin system settings and user management.
+- `/help` — help.
+- `/tasks` — global task view.
+- `/vault` — Code Manager / vault workspace.
 
 Shared shell: `app/(main)/(command-center)/layout.tsx`, `components/MSC-Projectz-CommandCenterShell.tsx`, `components/dashboard-layout.tsx`, `components/dashboard-sidebar.tsx`. Do not wrap Payload `RootLayout` inside the `(main)` `<body>`; root `app/layout.tsx` must remain a pass-through between `(main)` and `(payload)` route groups.
 
@@ -128,48 +130,48 @@ Shared shell: `app/(main)/(command-center)/layout.tsx`, `components/MSC-Projectz
 
 ## Coding style
 
-* Use **`msc_`** prefix for new project-specific logic.  
-* Prefer clear locations under `components/` (existing conventions over deep one-off trees).  
-* **Lucide** for icons.
+- Use **`msc_`** prefix for new project-specific logic.
+- Prefer clear locations under `components/` (existing conventions over deep one-off trees).
+- **Lucide** for icons.
 
 ## Theme logic
 
-* Do not hardcode raw hex; use theme tokens (`--background`, `--surface`, `--text`, etc.).  
-* Soft Studio light: `.light` and `[data-theme='light']` in `app/globals.css` — do not clobber default `:root` dark values when tuning light.  
-* `components/dashboard-layout.tsx` should keep `class` + `data-theme` in sync on the root.
+- Do not hardcode raw hex; use theme tokens (`--background`, `--surface`, `--text`, etc.).
+- Soft Studio light: `.light` and `[data-theme='light']` in `app/globals.css` — do not clobber default `:root` dark values when tuning light.
+- `components/dashboard-layout.tsx` should keep `class` + `data-theme` in sync on the root.
 
 ### Command Center dark canvas (do not regress gutters)
 
-* **`.msc-cc-route-canvas`** should stay on **`<main>`** for dark Command Center so the wash reaches the **edges of the content column**.  
-* Keep the **layout children wrapper** at **`px-0`** in dark; add **`px-*`** on **route roots** (`MSC_Projectz_Dashboard`, tasks view, clients view, etc.). Putting canvas only on an inner div **and** horizontal padding on the shell brings back **straight-edge strips** of `bg-background`.  
-* **Dark footer** stays **in-flow** (not fixed to the viewport) so it shares the same painted column. Full preset: **`.cursor/docs/msc-cc-command-center-nav-preset.md`**.
+- **`.msc-cc-route-canvas`** should stay on **`<main>`** for dark Command Center so the wash reaches the **edges of the content column**.
+- Keep the **layout children wrapper** at **`px-0`** in dark; add **`px-*`** on **route roots** (`MSC_Projectz_Dashboard`, tasks view, clients view, etc.). Putting canvas only on an inner div **and** horizontal padding on the shell brings back **straight-edge strips** of `bg-background`.
+- **Dark footer** stays **in-flow** (not fixed to the viewport) so it shares the same painted column. Full preset: **`.cursor/docs/msc-cc-command-center-nav-preset.md`**.
 
 ## Tenant isolation
 
-* Vault server actions: assert Payload user context and ownership; follow patterns in `lib/msc_vault_server_actions.ts`.  
-* Browser-only data: use **`msc_getScopedKey()`** from `lib/msc_scoped_storage.ts` — no global project/snippet/credential keys.  
-* Legacy global project migration from `msc-projectz-storage` stays **disabled** for tenant safety.
+- Vault server actions: assert Payload user context and ownership; follow patterns in `lib/msc_vault_server_actions.ts`.
+- Browser-only data: use **`msc_getScopedKey()`** from `lib/msc_scoped_storage.ts` — no global project/snippet/credential keys.
+- Legacy global project migration from `msc-projectz-storage` stays **disabled** for tenant safety.
 
 ### Vault session vs client auth (hydration race)
 
-* **Symptom:** Dashboard Next overlay — **`Authentication required to fetch vault projects`** — while the UI already shows a signed-in header.  
-* **Cause:** Zustand **`isAuthenticated`** can be true **before** **`payload.auth()`** sees httpOnly cookies on the **first** `msc_loadVaultProjects` server action (timing + **localhost vs 127.0.0.1** cookie split).  
-* **Authoritative note:** **`.cursor/docs/incidents/Vault-Session-Hydration-Race.md`** — documents the **`msc_peekVaultServerSession`** retry, non-throwing read path, and **do-not-regress** rules. **Do not** reintroduce **throw** on read-only project list load to “enforce” auth; use **write** paths for hard failures.  
-* **Operator habit:** pick **one** local base URL for the whole session.
+- **Symptom:** Dashboard Next overlay — **`Authentication required to fetch vault projects`** — while the UI already shows a signed-in header.
+- **Cause:** Zustand **`isAuthenticated`** can be true **before** **`payload.auth()`** sees httpOnly cookies on the **first** `msc_loadVaultProjects` server action (timing + **localhost vs 127.0.0.1** cookie split).
+- **Authoritative note:** **`.cursor/docs/incidents/Vault-Session-Hydration-Race.md`** — documents the **`msc_peekVaultServerSession`** retry, non-throwing read path, and **do-not-regress** rules. **Do not** reintroduce **throw** on read-only project list load to “enforce” auth; use **write** paths for hard failures.
+- **Operator habit:** pick **one** local base URL for the whole session.
 
 ## Profile avatars & member clusters
 
-* Upload to Payload `media` first; persist **`users.avatar`** as a media id from the server response — not a `blob:` URL.  
-* After save, prefer Zustand (or client state) updates from the **server-returned** user object.
+- Upload to Payload `media` first; persist **`users.avatar`** as a media id from the server response — not a `blob:` URL.
+- After save, prefer Zustand (or client state) updates from the **server-returned** user object.
 
 ### Avatar URL resolution (Sprint 8)
 
-* Use **`msc_resolveAvatarUrl`** from **`lib/msc_avatar_url.ts`** anywhere you need a display URL from Payload-shaped data (`avatar` string URL, populated media **`{ url }`**, or **`avatarUrl`**). Do **not** assume **`member.avatarUrl || member.avatar`** in UI — raw **`avatar`** may be a media object.  
-* **`msc_mapProjectMember`** (**`lib/msc_map_vault.ts`**) resolves once for vault projects/tasks; mapped **`MscProjectMember`** ships **`avatarUrl`** for photos and does **not** pass raw media blobs for `<img>`.  
-* **No client-side fetch** for media by numeric id only — if no URL is available, the resolver returns **`null`** and components show the fallback.  
-* Profile mapping reuses the same resolver via **`msc_avatarUrlFromDoc`** in **`lib/msc_profile_server_actions.ts`**.
+- Use **`msc_resolveAvatarUrl`** from **`lib/msc_avatar_url.ts`** anywhere you need a display URL from Payload-shaped data (`avatar` string URL, populated media **`{ url }`**, or **`avatarUrl`**). Do **not** assume **`member.avatarUrl || member.avatar`** in UI — raw **`avatar`** may be a media object.
+- **`msc_mapProjectMember`** (**`lib/msc_map_vault.ts`**) resolves once for vault projects/tasks; mapped **`MscProjectMember`** ships **`avatarUrl`** for photos and does **not** pass raw media blobs for `<img>`.
+- **No client-side fetch** for media by numeric id only — if no URL is available, the resolver returns **`null`** and components show the fallback.
+- Profile mapping reuses the same resolver via **`msc_avatarUrlFromDoc`** in **`lib/msc_profile_server_actions.ts`**.
 
 ### Member cluster UI (`MemberClusterTrigger`)
 
-* **`fallbackType`**: **`'icon'`** (default, Soft Studio) shows Lucide **`User`** inside the same circular shell as initials would use; **`'initials'`** opt-in per instance. Do **not** mix fallback styles within one cluster.  
-* **`strokeWidth`** matches dashboard icons (**1.5**); inner **`p-1`** keeps the glyph off the ring.
+- **`fallbackType`**: **`'icon'`** (default, Soft Studio) shows Lucide **`User`** inside the same circular shell as initials would use; **`'initials'`** opt-in per instance. Do **not** mix fallback styles within one cluster.
+- **`strokeWidth`** matches dashboard icons (**1.5**); inner **`p-1`** keeps the glyph off the ring.

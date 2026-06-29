@@ -104,9 +104,7 @@ export async function msc_getVaultDocument(filePath: string | null): Promise<Msc
 
   const content = await readFile(absPath, 'utf8')
   const title = msc_vaultTitleFromName(path.basename(absPath))
-  const breadcrumbs = safePath
-    .split('/')
-    .map((part) => msc_vaultTitleFromName(part))
+  const breadcrumbs = safePath.split('/').map((part) => msc_vaultTitleFromName(part))
 
   return {
     title,

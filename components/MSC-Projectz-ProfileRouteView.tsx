@@ -6,10 +6,7 @@ import { AlertCircle, CheckCircle, Eye, EyeOff, Lock, Mail, Save, Upload, User }
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import {
-  msc_updateCurrentUserProfile,
-  msc_uploadProfileAvatar,
-} from '@/lib/msc_profile_server_actions'
+import { msc_updateCurrentUserProfile, msc_uploadProfileAvatar } from '@/lib/msc_profile_server_actions'
 import { useAppStore } from '@/lib/store'
 import { cn } from '@/lib/utils'
 
@@ -150,13 +147,7 @@ export function MSC_Projectz_ProfileRouteView() {
                 <User className="h-12 w-12 text-muted-foreground" />
               )}
             </div>
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="image/*"
-              onChange={handleAvatarUpload}
-              className="hidden"
-            />
+            <input ref={fileInputRef} type="file" accept="image/*" onChange={handleAvatarUpload} className="hidden" />
             <Button
               variant="outline"
               size="sm"
@@ -211,7 +202,9 @@ export function MSC_Projectz_ProfileRouteView() {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="current-password" className="text-xs text-muted-foreground">Current Password</Label>
+            <Label htmlFor="current-password" className="text-xs text-muted-foreground">
+              Current Password
+            </Label>
             <div className="relative">
               <Input
                 id="current-password"
@@ -231,7 +224,9 @@ export function MSC_Projectz_ProfileRouteView() {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="new-password" className="text-xs text-muted-foreground">New Password</Label>
+            <Label htmlFor="new-password" className="text-xs text-muted-foreground">
+              New Password
+            </Label>
             <div className="relative">
               <Input
                 id="new-password"
@@ -251,7 +246,9 @@ export function MSC_Projectz_ProfileRouteView() {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="confirm-password" className="text-xs text-muted-foreground">Confirm New Password</Label>
+            <Label htmlFor="confirm-password" className="text-xs text-muted-foreground">
+              Confirm New Password
+            </Label>
             <Input
               id="confirm-password"
               type="password"

@@ -4,10 +4,7 @@ import type { Access, Payload, Where } from 'payload'
 
 import { msc_coercePayloadRelationId } from '@/lib/msc_vault_payload_ids'
 import { msc_hasAdminAccess } from '@/lib/msc_roles'
-import {
-  msc_vaultUserOwnsProjectForWrite,
-  type MscUserWithRole,
-} from '@/lib/msc_vault_payload_access'
+import { msc_vaultUserOwnsProjectForWrite, type MscUserWithRole } from '@/lib/msc_vault_payload_access'
 
 type MscClientDocLike = {
   primaryContact?: {

@@ -74,9 +74,7 @@ function msc_mapTaskPriority(raw: unknown): MscTaskPriority {
   return 'normal'
 }
 
-export function msc_resolveProjectId(
-  rel: MscVaultTaskDoc['project'],
-): string {
+export function msc_resolveProjectId(rel: MscVaultTaskDoc['project']): string {
   if (rel == null) return ''
   if (typeof rel === 'object' && 'id' in rel) {
     return String(rel.id)
@@ -128,9 +126,7 @@ function msc_mapProjectMember(member: string | number | MscProjectMember): MscPr
   return { id: member }
 }
 
-function msc_resolveClientRelationId(
-  client: MscVaultProjectDoc['client'],
-): string | undefined {
+function msc_resolveClientRelationId(client: MscVaultProjectDoc['client']): string | undefined {
   if (client == null) return undefined
   if (typeof client === 'object' && 'id' in client) {
     return String((client as { id: string | number }).id)
@@ -154,7 +150,8 @@ function msc_coerceMscSmtpEncryption(value: string | null | undefined): MscSmtpE
 function msc_mapIncomingDoc(sub: Record<string, unknown> | null | undefined): MscProjectIncomingMail {
   if (!sub) return { host: '', port: 993, username: '', password: '' }
   const p = sub
-  const port = typeof p.port === 'number' ? p.port : parseInt(String(p.port != null && p.port !== '' ? p.port : '993'), 10) || 993
+  const port =
+    typeof p.port === 'number' ? p.port : parseInt(String(p.port != null && p.port !== '' ? p.port : '993'), 10) || 993
   return {
     host: String((p.host as string) || '').trim(),
     port,
@@ -168,7 +165,8 @@ function msc_mapOutgoingDoc(sub: Record<string, unknown> | null | undefined): Ms
     return { host: '', port: 465, username: '', password: '', encryption: 'ssl' }
   }
   const p = sub
-  const port = typeof p.port === 'number' ? p.port : parseInt(String(p.port != null && p.port !== '' ? p.port : '465'), 10) || 465
+  const port =
+    typeof p.port === 'number' ? p.port : parseInt(String(p.port != null && p.port !== '' ? p.port : '465'), 10) || 465
   return {
     host: String((p.host as string) || '').trim(),
     port,
@@ -265,10 +263,7 @@ export function msc_mapProjectDoc(doc: MscVaultProjectDoc, tasks: Task[]): Proje
   }
 }
 
-export function msc_mergeProjectsAndTasks(
-  projectDocs: MscVaultProjectDoc[],
-  taskDocs: MscVaultTaskDoc[],
-): Project[] {
+export function msc_mergeProjectsAndTasks(projectDocs: MscVaultProjectDoc[], taskDocs: MscVaultTaskDoc[]): Project[] {
   const byProject: Record<string, Task[]> = {}
   for (const t of taskDocs) {
     const pid = msc_resolveProjectId(t.project)

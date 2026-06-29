@@ -16,11 +16,7 @@ export function MSC_Projectz_CommandCenterProvider({
   children: React.ReactNode
   value: MscCommandCenterContextValue
 }) {
-  return (
-    <MscCommandCenterContext.Provider value={value}>
-      {children}
-    </MscCommandCenterContext.Provider>
-  )
+  return <MscCommandCenterContext.Provider value={value}>{children}</MscCommandCenterContext.Provider>
 }
 
 export function useMSCProjectzCommandCenter() {

@@ -72,9 +72,7 @@ export function Msc_VerificationView({ token = '', forceState, embedded = false 
         }
       >
         <section className="w-full rounded-xl border border-border bg-card p-6 text-center">
-          <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
-            MSC-Projectz
-          </p>
+          <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">MSC-Projectz</p>
           <h1 className="mt-3 text-xl font-semibold">Email Verification</h1>
 
           <div className="mt-5 flex items-center justify-center">

@@ -21,20 +21,18 @@ export function Dashboard() {
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null)
   const [taskDrawerProjectId, setTaskDrawerProjectId] = useState<string | null>(null)
   const [searchQuery, setSearchQuery] = useState('')
-  
+
   const projects = useAppStore((s) => s.projects)
   const currentView = useAppStore((s) => s.currentView)
   const appSettings = useAppStore((s) => s.appSettings)
-  
+
   const vaultProject = projects.find((p) => p.id === vaultProjectId)
   const selectedProject = projects.find((p) => p.id === selectedProjectId)
   const editProject = projects.find((p) => p.id === editProjectId)
   const taskDrawerProject = projects.find((p) => p.id === taskDrawerProjectId)
 
   // Filter projects based on search query
-  const filteredProjects = projects.filter((project) =>
-    project.name.toLowerCase().includes(searchQuery.toLowerCase())
-  )
+  const filteredProjects = projects.filter((project) => project.name.toLowerCase().includes(searchQuery.toLowerCase()))
 
   const renderContent = () => {
     switch (currentView) {
@@ -84,7 +82,7 @@ export function Dashboard() {
   }
 
   return (
-    <DashboardLayout 
+    <DashboardLayout
       onAddProject={() => setAddProjectOpen(true)}
       searchQuery={searchQuery}
       onSearchChange={setSearchQuery}
@@ -92,25 +90,14 @@ export function Dashboard() {
       {renderContent()}
 
       {/* Modals & Panels */}
-      <AddProjectModal
-        isOpen={addProjectOpen}
-        onClose={() => setAddProjectOpen(false)}
-      />
+      <AddProjectModal isOpen={addProjectOpen} onClose={() => setAddProjectOpen(false)} />
 
-      <EditProjectModal
-        project={editProject || null}
-        isOpen={!!editProjectId}
-        onClose={() => setEditProjectId(null)}
-      />
+      <EditProjectModal project={editProject || null} isOpen={!!editProjectId} onClose={() => setEditProjectId(null)} />
 
       {vaultProject && (
-        <ProjectVault
-          project={vaultProject}
-          isOpen={!!vaultProjectId}
-          onClose={() => setVaultProjectId(null)}
-        />
+        <ProjectVault project={vaultProject} isOpen={!!vaultProjectId} onClose={() => setVaultProjectId(null)} />
       )}
-      
+
       {/* Task Drawer - Triggered by progress circle click */}
       <TaskDrawer
         isOpen={!!taskDrawerProjectId}

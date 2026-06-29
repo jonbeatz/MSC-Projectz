@@ -12,15 +12,15 @@ Single inventory of **what MSC-Projectz is built with**, **what to learn first**
 
 Captured from **`package.json`** at doc time:
 
-| Piece | Version / note |
-| --- | --- |
-| Next.js | 16.2.3 |
-| React / React DOM | 19.2.4 |
-| TypeScript | 5.7.3 |
-| Payload CMS | 3.84.1 (with `@payloadcms/*` aligned via `overrides`) |
-| Tailwind CSS | ^4.2.0 (`@tailwindcss/postcss` ^4.2.0) |
-| Tauri (API / CLI) | `@tauri-apps/api` ^2.10.1, `@tauri-apps/cli` ^2.10.1 |
-| Playwright | ^1.59.1 (dev) |
+| Piece             | Version / note                                        |
+| ----------------- | ----------------------------------------------------- |
+| Next.js           | 16.2.3                                                |
+| React / React DOM | 19.2.4                                                |
+| TypeScript        | 5.7.3                                                 |
+| Payload CMS       | 3.84.1 (with `@payloadcms/*` aligned via `overrides`) |
+| Tailwind CSS      | ^4.2.0 (`@tailwindcss/postcss` ^4.2.0)                |
+| Tauri (API / CLI) | `@tauri-apps/api` ^2.10.1, `@tauri-apps/cli` ^2.10.1  |
+| Playwright        | ^1.59.1 (dev)                                         |
 
 Dev server uses **webpack** explicitly: `next dev --webpack` (see `npm run dev`).
 
@@ -28,30 +28,30 @@ Dev server uses **webpack** explicitly: `next dev --webpack` (see `npm run dev`)
 
 ## Core runtime (what ships with the product)
 
-| Technology | Role in this repo |
-| --- | --- |
-| **Node.js** | Runs local dev, scripts, Payload CLI, Playwright harness, and packaging (`msc_package_deploy.mjs`). Production can use `node server.js` after `npm run build` (see `npm run test:local`). |
-| **TypeScript** | App code under `app/`, `components/`, `lib/`, `collections/`, etc. |
-| **Next.js 16** | App Router, layouts, routes; integrated with Payload via `@payloadcms/next` (`withPayload` in `next.config.mjs`). **Server Actions** used for vault features; body size limits in `next.config.mjs`. |
-| **React 19** | UI components and client boundaries. |
-| **Payload CMS 3** | Collections, admin UI, users, uploads, Lexical rich text (`payload.config.ts`, `collections/*`). |
-| **SQLite** | Database file `payload.sqlite` via `@payloadcms/db-sqlite` (Drizzle used inside Payload; you mostly think in collections + schema repair, not raw ORM app code). |
-| **Tailwind CSS v4** | Utility styling; PostCSS pipeline; global styles in `app/globals.css` (Command Center chrome: **`msc-cc-route-canvas`**, **`msc-cc-nav-rail`**, **`msc-ui-accent`** — see **`.cursor/docs/msc-cc-command-center-nav-preset.md`**). |
-| **Radix UI** | Headless, accessible primitives (`@radix-ui/react-*` packages). |
-| **Vaul** | Drawer/sheet-style overlays where used. |
-| **class-variance-authority / clsx / tailwind-merge** | Component variants and className composition. |
-| **Lucide React** | Icons. |
-| **Sharp** | Image processing (Payload/media pipeline). |
-| **GraphQL** | Available through Payload (`graphql` dependency); deep GraphQL knowledge is optional unless you integrate via that API. |
-| **@libsql/client** | Present as a dependency; oriented toward LibSQL-compatible usage if extended (not the main learning path unless you wire it). |
-| **Nodemailer** | Outgoing mail when studio/vault mail features are enabled. |
-| **Zustand** | Client app state. |
-| **react-hook-form** | Form handling where used. |
-| **next-themes** | Theme switching (e.g. light/dark). |
-| **date-fns**, **react-day-picker** | Dates and calendar UI. |
-| **recharts** | Charts where used. |
-| **react-markdown** + **rehype-highlight** | Markdown rendering in app. |
-| **@vercel/analytics** | Analytics package in dependencies (usage follows app wiring). |
+| Technology                                           | Role in this repo                                                                                                                                                                                                                  |
+| ---------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Node.js**                                          | Runs local dev, scripts, Payload CLI, Playwright harness, and packaging (`msc_package_deploy.mjs`). Production can use `node server.js` after `npm run build` (see `npm run test:local`).                                          |
+| **TypeScript**                                       | App code under `app/`, `components/`, `lib/`, `collections/`, etc.                                                                                                                                                                 |
+| **Next.js 16**                                       | App Router, layouts, routes; integrated with Payload via `@payloadcms/next` (`withPayload` in `next.config.mjs`). **Server Actions** used for vault features; body size limits in `next.config.mjs`.                               |
+| **React 19**                                         | UI components and client boundaries.                                                                                                                                                                                               |
+| **Payload CMS 3**                                    | Collections, admin UI, users, uploads, Lexical rich text (`payload.config.ts`, `collections/*`).                                                                                                                                   |
+| **SQLite**                                           | Database file `payload.sqlite` via `@payloadcms/db-sqlite` (Drizzle used inside Payload; you mostly think in collections + schema repair, not raw ORM app code).                                                                   |
+| **Tailwind CSS v4**                                  | Utility styling; PostCSS pipeline; global styles in `app/globals.css` (Command Center chrome: **`msc-cc-route-canvas`**, **`msc-cc-nav-rail`**, **`msc-ui-accent`** — see **`.cursor/docs/msc-cc-command-center-nav-preset.md`**). |
+| **Radix UI**                                         | Headless, accessible primitives (`@radix-ui/react-*` packages).                                                                                                                                                                    |
+| **Vaul**                                             | Drawer/sheet-style overlays where used.                                                                                                                                                                                            |
+| **class-variance-authority / clsx / tailwind-merge** | Component variants and className composition.                                                                                                                                                                                      |
+| **Lucide React**                                     | Icons.                                                                                                                                                                                                                             |
+| **Sharp**                                            | Image processing (Payload/media pipeline).                                                                                                                                                                                         |
+| **GraphQL**                                          | Available through Payload (`graphql` dependency); deep GraphQL knowledge is optional unless you integrate via that API.                                                                                                            |
+| **@libsql/client**                                   | Present as a dependency; oriented toward LibSQL-compatible usage if extended (not the main learning path unless you wire it).                                                                                                      |
+| **Nodemailer**                                       | Outgoing mail when studio/vault mail features are enabled.                                                                                                                                                                         |
+| **Zustand**                                          | Client app state.                                                                                                                                                                                                                  |
+| **react-hook-form**                                  | Form handling where used.                                                                                                                                                                                                          |
+| **next-themes**                                      | Theme switching (e.g. light/dark).                                                                                                                                                                                                 |
+| **date-fns**, **react-day-picker**                   | Dates and calendar UI.                                                                                                                                                                                                             |
+| **recharts**                                         | Charts where used.                                                                                                                                                                                                                 |
+| **react-markdown** + **rehype-highlight**            | Markdown rendering in app.                                                                                                                                                                                                         |
+| **@vercel/analytics**                                | Analytics package in dependencies (usage follows app wiring).                                                                                                                                                                      |
 
 ---
 
@@ -74,11 +74,11 @@ Scripts: `npm run tauri`, `npm run tauri:dev`, `npm run tauri:build` (see `packa
 
 ## Quality and automation
 
-| Tool | Role |
-| --- | --- |
-| **ESLint** | `npm run lint` |
+| Tool           | Role                                                                                                                                                                                                             |
+| -------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **ESLint**     | `npm run lint`                                                                                                                                                                                                   |
 | **Playwright** | `npm run playwright:test` / `playwright:assist`, `playwright:open`, `playwright:cmd`, `playwright:dump-dom` — browser automation + DOM handoff (see `scripts/msc_playwright_*.mjs`, `Playwright-DOM-Handoff.md`) |
-| **jiti** | Runs some TS scripts from npm (`db:seed`, `db:rescue-admin`, etc.) |
+| **jiti**       | Runs some TS scripts from npm (`db:seed`, `db:rescue-admin`, etc.)                                                                                                                                               |
 
 ---
 
@@ -131,4 +131,4 @@ Live stack is **Linux + cPanel** (e.g. Spaceship). Exact steps, zip layout, and 
 
 - Update the **Version snapshot** table when you bump **Next**, **Payload**, **React**, or **Tailwind** majors.
 - If you add a major new dependency (e.g. ORM, test runner), add one row to **Core runtime** or **Quality and automation** so this file stays the single stack index.
-- **Global CSS:** ship namespaced surfaces from **`app/globals.css`** only (imported by [`app/(main)/layout.tsx`](../../app/(main)/layout.tsx)); add shared `.msc-*` blocks there rather than a second unimported `globals.css`.
+- **Global CSS:** ship namespaced surfaces from **`app/globals.css`** only (imported by [`app/(main)/layout.tsx`](<../../app/(main)/layout.tsx>)); add shared `.msc-*` blocks there rather than a second unimported `globals.css`.

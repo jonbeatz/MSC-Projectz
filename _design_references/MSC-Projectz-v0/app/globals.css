@@ -30,14 +30,14 @@
   --input: 0 0% 11%;
   --ring: 142 69% 58%;
   --radius: 0.5rem;
-  
+
   /* Chart colors */
   --chart-1: 142 69% 58%;
   --chart-2: 199 89% 61%;
   --chart-3: 234 89% 74%;
   --chart-4: 48 96% 53%;
   --chart-5: 27 96% 61%;
-  
+
   /* Sidebar - stays dark */
   --sidebar: 0 0% 10%;
   --sidebar-foreground: 0 0% 96%;
@@ -72,7 +72,7 @@
   --border: 220 13% 91%;
   --input: 0 0% 100%;
   --ring: 142 69% 58%;
-  
+
   /* Light mode sidebar - can stay dark for contrast */
   --sidebar: 0 0% 100%;
   --sidebar-foreground: 222 47% 11%;
@@ -88,7 +88,7 @@
 @theme inline {
   --font-sans: 'Geist', system-ui, sans-serif;
   --font-mono: 'Geist Mono', monospace;
-  
+
   --color-background: hsl(var(--background));
   --color-foreground: hsl(var(--foreground));
   --color-card: hsl(var(--card));
@@ -108,7 +108,7 @@
   --color-border: hsl(var(--border));
   --color-input: hsl(var(--input));
   --color-ring: hsl(var(--ring));
-  
+
   --color-sidebar: hsl(var(--sidebar));
   --color-sidebar-foreground: hsl(var(--sidebar-foreground));
   --color-sidebar-primary: hsl(var(--sidebar-primary));
@@ -117,7 +117,7 @@
   --color-sidebar-accent-foreground: hsl(var(--sidebar-accent-foreground));
   --color-sidebar-border: hsl(var(--sidebar-border));
   --color-sidebar-ring: hsl(var(--sidebar-ring));
-  
+
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -128,12 +128,12 @@
   * {
     @apply border-border;
   }
-  
+
   html {
     background-color: hsl(var(--background));
     color: hsl(var(--foreground));
   }
-  
+
   body {
     background-color: hsl(var(--background));
     color: hsl(var(--foreground));
@@ -175,9 +175,13 @@ textarea::placeholder {
 
 /* Shadow utilities for light mode */
 .card-shadow {
-  box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+  box-shadow:
+    0 1px 3px 0 rgb(0 0 0 / 0.1),
+    0 1px 2px -1px rgb(0 0 0 / 0.1);
 }
 
 .card-shadow-lg {
-  box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  box-shadow:
+    0 10px 15px -3px rgb(0 0 0 / 0.1),
+    0 4px 6px -4px rgb(0 0 0 / 0.1);
 }

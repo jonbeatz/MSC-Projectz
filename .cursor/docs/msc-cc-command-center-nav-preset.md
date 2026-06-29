@@ -4,12 +4,12 @@ Visual preset aligned with `_design_references/Navigation` (floating glass rail,
 
 ## CSS classes (`app/globals.css`)
 
-| Class | Use |
-|--------|-----|
-| **`msc-cc-nav-rail`** | Dark **primary sidebar** — Clients radial (`--msc-clients-route-bg-image`) + cool grey frost stack, blur, rim, sheen `::before`, inset shadow. **Children:** direct `> *` need normal flow; decorative layer is `z-0`. |
-| **`msc-cc-header-glass`** | Dark **sticky top bar** — same radial family, horizontal frost gradient, bottom hairline, blur. |
-| **`msc-cc-header-glass--bite`** | **`lg+` only:** soft **top-left radius** + inset shadow so the header meets the rail without **`clip-path`** (sticky-safe). Paired with **`lg:-ml-2 lg:pl-8`** on the header row in `dashboard-layout.tsx` for alignment. |
-| **`msc-cc-route-canvas`** | Dark (and light) **main-column wash** — layered radials over `hsl(var(--background))`. **Canonical placement:** on **`<main>`** in dark Command Center so the gradient reaches the **left/right/bottom** edges of the content column (see below). **`main.msc-cc-route-canvas`** also sets **`min-height: 100vh`** and **`background-repeat: no-repeat`** in `globals.css`. |
+| Class                           | Use                                                                                                                                                                                                                                                                                                                                                                         |
+| ------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **`msc-cc-nav-rail`**           | Dark **primary sidebar** — Clients radial (`--msc-clients-route-bg-image`) + cool grey frost stack, blur, rim, sheen `::before`, inset shadow. **Children:** direct `> *` need normal flow; decorative layer is `z-0`.                                                                                                                                                      |
+| **`msc-cc-header-glass`**       | Dark **sticky top bar** — same radial family, horizontal frost gradient, bottom hairline, blur.                                                                                                                                                                                                                                                                             |
+| **`msc-cc-header-glass--bite`** | **`lg+` only:** soft **top-left radius** + inset shadow so the header meets the rail without **`clip-path`** (sticky-safe). Paired with **`lg:-ml-2 lg:pl-8`** on the header row in `dashboard-layout.tsx` for alignment.                                                                                                                                                   |
+| **`msc-cc-route-canvas`**       | Dark (and light) **main-column wash** — layered radials over `hsl(var(--background))`. **Canonical placement:** on **`<main>`** in dark Command Center so the gradient reaches the **left/right/bottom** edges of the content column (see below). **`main.msc-cc-route-canvas`** also sets **`min-height: 100vh`** and **`background-repeat: no-repeat`** in `globals.css`. |
 
 **`msc-cc-nav-rail`** and **`msc-cc-header-glass`** support **`prefers-reduced-transparency: reduce`** (solid gradients, blur off).
 

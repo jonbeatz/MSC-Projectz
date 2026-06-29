@@ -1,17 +1,20 @@
 # Jedi-List: Development Roadmap
 
 ## [ ] Phase 1: Initialization (CURRENT)
+
 - [x] Initialize Tauri 2.0 in the Next.js directory.
 - [x] Setup Payload 3.0 with SQLite database.
 - [x] Map v0 frontend components to the new SQLite schema.
 
 ## [ ] Phase 2: Native Bridge
+
 - [x] Implement Rust shell commands for File Explorer access.
 - [x] Implement Rust shell commands for Cursor Editor launch.
 - [x] Route project-card Explorer actions through Tauri `open_folder` with copy-path fallback.
 - [ ] Move local image uploads to the Tauri File System API.
 
 ## [ ] Phase 3: Polish & Deployment
+
 - [x] Refactor Command Center into route-based pages with shared dashboard shell.
 - [x] Guard `/settings` as admin-only while keeping `/profile` available to authenticated users.
 - [x] Expose `/vault` as Code Manager inside the shared Command Center shell.

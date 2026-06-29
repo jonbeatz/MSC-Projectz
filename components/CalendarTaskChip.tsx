@@ -58,9 +58,7 @@ const CalendarTaskChipImpl = function CalendarTaskChip({
   const rawStatus = String(task.status || '')
   const statusDotClass = msc_calendarStatusDotClass(rawStatus)
   const assignee = msc_resolveTaskAssignee(project, task)
-  const label = assignee
-    ? assignee.username?.trim() || assignee.email?.trim() || `User ${String(assignee.id)}`
-    : null
+  const label = assignee ? assignee.username?.trim() || assignee.email?.trim() || `User ${String(assignee.id)}` : null
   const av = assignee ? msc_resolveAvatarUrl(assignee) : null
 
   const due = task.dueDate
@@ -125,8 +123,7 @@ const CalendarTaskChipImpl = function CalendarTaskChip({
     : label
       ? `${label} — Double-click to edit`
       : 'Double-click to edit'
-  const rootTitle =
-    variant === 'default' ? interactionHint : `${fullMetaTitle}. ${interactionHint}`
+  const rootTitle = variant === 'default' ? interactionHint : `${fullMetaTitle}. ${interactionHint}`
 
   if (variant === 'minimal') {
     return (
@@ -180,10 +177,7 @@ const CalendarTaskChipImpl = function CalendarTaskChip({
           clearLongPress()
         }}
       >
-        <span
-          className={cn('h-1.5 w-1.5 shrink-0 rounded-full ring-1 ring-black/35', statusDotClass)}
-          aria-hidden
-        />
+        <span className={cn('h-1.5 w-1.5 shrink-0 rounded-full ring-1 ring-black/35', statusDotClass)} aria-hidden />
         <span className="line-clamp-1 min-w-0 leading-snug">
           <span className="text-muted-foreground/90">{projectName}:</span> {task.title}
         </span>

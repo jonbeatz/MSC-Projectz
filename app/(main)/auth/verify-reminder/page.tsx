@@ -35,16 +35,12 @@ export default async function MSC_Projectz_VerifyReminderPage() {
 
   const maskedEmail = user?.email ? msc_maskEmail(user.email) : 'your email'
   const canUseDevBypass =
-    process.env.NODE_ENV !== 'production' &&
-    (user?.role === 'admin' || user?.role === 'master-admin')
+    process.env.NODE_ENV !== 'production' && (user?.role === 'admin' || user?.role === 'master-admin')
 
   return (
     <main className="min-h-screen bg-background p-4 text-foreground">
       <div className="mx-auto flex min-h-screen w-full max-w-xl items-center justify-center">
-        <MSC_Projectz_VerifyReminderClient
-          maskedEmail={maskedEmail}
-          canUseDevBypass={Boolean(canUseDevBypass)}
-        />
+        <MSC_Projectz_VerifyReminderClient maskedEmail={maskedEmail} canUseDevBypass={Boolean(canUseDevBypass)} />
       </div>
     </main>
   )

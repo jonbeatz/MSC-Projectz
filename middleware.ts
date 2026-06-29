@@ -2,13 +2,7 @@ import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
 import { MSC_DEV_TRUST_BYPASS_COOKIE, MSC_TRUST_GATE_COOKIE } from '@/lib/msc_trust_gate_cookie'
 
-const MSC_AUTH_ALLOWLIST_PREFIXES = [
-  '/_next/',
-  '/auth/verify',
-  '/auth/verify-reminder',
-  '/static/',
-  '/api/public/',
-]
+const MSC_AUTH_ALLOWLIST_PREFIXES = ['/_next/', '/auth/verify', '/auth/verify-reminder', '/static/', '/api/public/']
 
 const MSC_AUTH_ALLOWLIST_EXACT = new Set(['/auth', '/auth/login', '/auth/register'])
 
@@ -18,9 +12,7 @@ function msc_isAllowlistedPath(pathname: string): boolean {
 }
 
 function msc_hasPayloadSessionCookie(req: NextRequest): boolean {
-  return Boolean(
-    req.cookies.get('payload-token')?.value || req.cookies.get('__Secure-payload-token')?.value,
-  )
+  return Boolean(req.cookies.get('payload-token')?.value || req.cookies.get('__Secure-payload-token')?.value)
 }
 
 function msc_isLocalDevRequest(req: NextRequest): boolean {
@@ -55,9 +47,7 @@ export function middleware(req: NextRequest) {
   const isVerified = req.cookies.get(MSC_TRUST_GATE_COOKIE)?.value === '1'
   const isBypassEnabled = msc_isDevBypassMasterSwitchOn()
   const hasDevBypass =
-    isBypassEnabled &&
-    msc_isLocalDevRequest(req) &&
-    req.cookies.get(MSC_DEV_TRUST_BYPASS_COOKIE)?.value === '1'
+    isBypassEnabled && msc_isLocalDevRequest(req) && req.cookies.get(MSC_DEV_TRUST_BYPASS_COOKIE)?.value === '1'
 
   if (isAuthenticated && !isVerified && !hasDevBypass) {
     const url = req.nextUrl.clone()

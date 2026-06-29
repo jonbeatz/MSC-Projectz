@@ -23,7 +23,7 @@ export function DashboardLayout({ children, onAddProject, searchQuery, onSearchC
   const setProjectViewMode = useAppStore((s) => s.setProjectViewMode)
 
   const isDark = appSettings.theme === 'dark'
-  
+
   // Apply theme class to document
   useEffect(() => {
     if (isDark) {
@@ -37,11 +37,16 @@ export function DashboardLayout({ children, onAddProject, searchQuery, onSearchC
 
   const getViewTitle = () => {
     switch (currentView) {
-      case 'dashboard': return 'Dashboard'
-      case 'global-tasks': return 'Tasks'
-      case 'settings': return 'Settings'
-      case 'help': return 'Help & Documentation'
-      default: return 'Dashboard'
+      case 'dashboard':
+        return 'Dashboard'
+      case 'global-tasks':
+        return 'Tasks'
+      case 'settings':
+        return 'Settings'
+      case 'help':
+        return 'Help & Documentation'
+      default:
+        return 'Dashboard'
     }
   }
 
@@ -52,65 +57,50 @@ export function DashboardLayout({ children, onAddProject, searchQuery, onSearchC
         onToggle={() => setSidebarCollapsed(!sidebarCollapsed)}
         onAddProject={onAddProject}
       />
-      
+
       {/* Main Content */}
-      <main
-        className={cn(
-          'transition-all duration-300 min-h-screen',
-          sidebarCollapsed ? 'ml-16' : 'ml-64'
-        )}
-      >
+      <main className={cn('transition-all duration-300 min-h-screen', sidebarCollapsed ? 'ml-16' : 'ml-64')}>
         {/* Header Bar */}
-        <header 
+        <header
           className={cn(
-            "h-16 sticky top-0 z-30 flex items-center justify-between px-6 border-b border-border",
-            isDark 
-              ? "bg-[#121212]/80 backdrop-blur-md" 
-              : "bg-white/90 backdrop-blur-md"
+            'h-16 sticky top-0 z-30 flex items-center justify-between px-6 border-b border-border',
+            isDark ? 'bg-[#121212]/80 backdrop-blur-md' : 'bg-white/90 backdrop-blur-md',
           )}
         >
           <div className="flex items-center gap-4">
             {/* MSC Icon and User Info */}
             <div className="flex items-center gap-2.5">
               <div className="w-7 h-7 rounded-lg overflow-hidden flex-shrink-0 bg-card border border-border">
-                <Image 
-                  src="/msc-icon.png" 
-                  alt="MSC" 
-                  width={28} 
-                  height={28}
-                  className="object-contain"
-                />
+                <Image src="/msc-icon.png" alt="MSC" width={28} height={28} className="object-contain" />
               </div>
-              {user && (
-                <span className="text-sm font-semibold leading-none text-foreground">
-                  {user.username}
-                </span>
-              )}
+              {user && <span className="text-sm font-semibold leading-none text-foreground">{user.username}</span>}
             </div>
-            
+
             <div className="h-6 w-px bg-border" />
-            
+
             <h1 className="text-lg font-semibold text-foreground">{getViewTitle()}</h1>
             <div className="flex items-center gap-2">
               <div className="w-2 h-2 rounded-full animate-pulse bg-primary" />
               <span className="text-xs text-muted-foreground">System Online</span>
             </div>
           </div>
-          
+
           <div className="flex items-center gap-4">
             {/* View Toggle (Bento Grid / List) */}
             {currentView === 'dashboard' && (
-              <div className={cn(
-                'flex items-center p-1 rounded-lg border border-border bg-card',
-                !isDark && 'card-shadow'
-              )}>
+              <div
+                className={cn(
+                  'flex items-center p-1 rounded-lg border border-border bg-card',
+                  !isDark && 'card-shadow',
+                )}
+              >
                 <button
                   onClick={() => setProjectViewMode('grid')}
                   className={cn(
-                    "p-2 rounded-md transition-colors",
-                    appSettings.projectViewMode === 'grid' 
-                      ? "bg-primary text-primary-foreground" 
-                      : "text-muted-foreground hover:text-foreground"
+                    'p-2 rounded-md transition-colors',
+                    appSettings.projectViewMode === 'grid'
+                      ? 'bg-primary text-primary-foreground'
+                      : 'text-muted-foreground hover:text-foreground',
                   )}
                   title="Grid View"
                 >
@@ -119,10 +109,10 @@ export function DashboardLayout({ children, onAddProject, searchQuery, onSearchC
                 <button
                   onClick={() => setProjectViewMode('list')}
                   className={cn(
-                    "p-2 rounded-md transition-colors",
-                    appSettings.projectViewMode === 'list' 
-                      ? "bg-primary text-primary-foreground" 
-                      : "text-muted-foreground hover:text-foreground"
+                    'p-2 rounded-md transition-colors',
+                    appSettings.projectViewMode === 'list'
+                      ? 'bg-primary text-primary-foreground'
+                      : 'text-muted-foreground hover:text-foreground',
                   )}
                   title="List View"
                 >
@@ -143,7 +133,7 @@ export function DashboardLayout({ children, onAddProject, searchQuery, onSearchC
                   className={cn(
                     'pl-10 pr-4 py-2 rounded-lg text-sm w-64 focus:outline-none focus:ring-2 focus:ring-primary',
                     'bg-card border border-border text-foreground placeholder:text-muted-foreground',
-                    !isDark && 'card-shadow'
+                    !isDark && 'card-shadow',
                   )}
                 />
               </div>
@@ -154,24 +144,24 @@ export function DashboardLayout({ children, onAddProject, searchQuery, onSearchC
               onClick={toggleTheme}
               className={cn(
                 'p-2 rounded-lg transition-colors bg-card border border-border text-muted-foreground hover:text-foreground',
-                !isDark && 'card-shadow'
+                !isDark && 'card-shadow',
               )}
               title={isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
             >
               {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
             </button>
-            
+
             <div className="flex items-center gap-3 text-xs text-muted-foreground">
-              <span>{new Date().toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}</span>
+              <span>
+                {new Date().toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}
+              </span>
               <span>{new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}</span>
             </div>
           </div>
         </header>
 
         {/* Page Content */}
-        <div className="p-6">
-          {children}
-        </div>
+        <div className="p-6">{children}</div>
 
         {/* Footer */}
         <footer className="fixed bottom-0 right-0 p-4 text-xs text-muted-foreground">

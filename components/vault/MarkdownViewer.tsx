@@ -9,13 +9,7 @@ import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import type { MscVaultDocument } from '@/lib/vault-content'
 
-function CodeBlock({
-  children,
-  className,
-}: {
-  children: React.ReactNode
-  className?: string
-}) {
+function CodeBlock({ children, className }: { children: React.ReactNode; className?: string }) {
   const [copied, setCopied] = useState(false)
   const codeText = String(children).replace(/\n$/, '')
   const language = className?.replace('language-', '') || 'text'
@@ -29,9 +23,7 @@ function CodeBlock({
   return (
     <div className="group relative overflow-hidden rounded-xl border border-border bg-card">
       <div className="flex items-center justify-between border-b border-border px-4 py-2">
-        <span className="text-xs font-semibold uppercase tracking-wider text-[hsl(var(--msc-accent))]">
-          {language}
-        </span>
+        <span className="text-xs font-semibold uppercase tracking-wider text-[hsl(var(--msc-accent))]">{language}</span>
         <Button
           type="button"
           variant="outline"
@@ -108,20 +100,13 @@ export function MarkdownViewer({ document }: { document: MscVaultDocument | null
                 if (inline) {
                   return <InlineCode>{children}</InlineCode>
                 }
-                return (
-                  <CodeBlock className={className}>
-                    {children}
-                  </CodeBlock>
-                )
+                return <CodeBlock className={className}>{children}</CodeBlock>
               },
               a({ children, className, ...props }) {
                 return (
                   <a
                     {...props}
-                    className={cn(
-                      'text-[hsl(var(--msc-accent))] underline-offset-4 hover:underline',
-                      className,
-                    )}
+                    className={cn('text-[hsl(var(--msc-accent))] underline-offset-4 hover:underline', className)}
                   >
                     {children}
                   </a>

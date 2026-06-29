@@ -14,4 +14,3 @@ Use:
 - `Workflow-Portable/Session-Handoff-Restore/SKILL.md` for closeout/checkpoint updates
 
 Authority rule: if docs conflict with scripts, trust `package.json` and update docs drift in the same session.
-

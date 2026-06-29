@@ -1,4 +1,5 @@
 import { withPayload } from '@payloadcms/next/withPayload'
+import { withSentryConfig } from '@sentry/nextjs'
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
@@ -24,4 +25,12 @@ const nextConfig = {
   },
 }
 
-export default withPayload(nextConfig)
+export default withSentryConfig(
+  withPayload(nextConfig),
+  {
+    // Suppresses source map uploading logs during build
+    silent: !process.env.CI,
+    org: process.env.SENTRY_ORG,
+    project: process.env.SENTRY_PROJECT,
+  },
+)

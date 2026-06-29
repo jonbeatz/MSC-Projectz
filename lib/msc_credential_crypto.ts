@@ -11,7 +11,7 @@ function msc_deriveKey(masterPassword: string): string {
   let hash = 0
   for (let i = 0; i < masterPassword.length; i++) {
     const char = masterPassword.charCodeAt(i)
-    hash = ((hash << 5) - hash) + char
+    hash = (hash << 5) - hash + char
     hash |= 0
   }
   return hash.toString(36)
@@ -39,22 +39,20 @@ function msc_xorDecrypt(encoded: string, key: string): string {
   return new TextDecoder().decode(result)
 }
 
-export function msc_encryptCredentialData(
-  data: unknown,
-  masterPassword: string | null,
-): string {
+export function msc_encryptCredentialData(data: unknown, masterPassword: string | null): string {
   const json = JSON.stringify(data)
   if (!masterPassword) return json
   const key = msc_deriveKey(masterPassword)
   return msc_xorEncrypt(json, key)
 }
 
-export function msc_decryptCredentialData(
-  data: string,
-  masterPassword: string | null,
-): unknown {
+export function msc_decryptCredentialData(data: string, masterPassword: string | null): unknown {
   if (!masterPassword) {
-    try { return JSON.parse(data) } catch { return null }
+    try {
+      return JSON.parse(data)
+    } catch {
+      return null
+    }
   }
   const key = msc_deriveKey(masterPassword)
   try {

@@ -207,10 +207,7 @@ export function AuthScreen() {
           </Button>
 
           <div className="flex flex-col gap-3 pt-1 text-center text-sm">
-            <Link
-              href="/auth/register"
-              className="font-medium text-primary transition-colors hover:text-primary/80"
-            >
+            <Link href="/auth/register" className="font-medium text-primary transition-colors hover:text-primary/80">
               Create account
             </Link>
             <button

@@ -21,12 +21,13 @@ import {
   msc_patchVaultTask,
 } from '@/lib/msc_vault_server_actions'
 import type { MscVaultTaskPatch } from '@/lib/msc_vault_server_actions'
-import { msc_vaultSignOutPayload } from '@/lib/msc_vault_payload_session'
+import { msc_vaultSignInToPayload, msc_vaultSignOutPayload } from '@/lib/msc_vault_payload_session'
 import {
   msc_invitePayloadUserAsMaster,
   msc_deletePayloadUserAsAdmin,
   msc_listPayloadUsersForSettings,
 } from '@/lib/msc_vault_user_admin'
+import type { MscAppRole } from '@/lib/msc_roles'
 import type {
   AppSettings,
   AuthView,
@@ -36,18 +37,18 @@ import type {
   Project,
   ProjectSortMode,
   ProjectViewMode,
-  RegisteredUser,
   Task,
   TaskStatus,
   User,
   ViewType,
 } from '@/lib/types'
+import type { MscUserAdminRow } from '@/types/user-admin'
 
 interface AppState {
   isAuthenticated: boolean
   masterPassword: string | null
   user: User | null
-  users: RegisteredUser[]
+  users: MscUserAdminRow[]
   projects: Project[]
   vaultHydrated: boolean
   /** Payload user id whose project slice is currently loaded. Null means no tenant data is trusted. */
@@ -59,15 +60,15 @@ interface AppState {
 
   setMasterPassword: (password: string) => void
   changeMasterPassword: (oldPassword: string, newPassword: string) => boolean
-  login: (username: string, password: string) => boolean
+  login: (username: string, password: string) => Promise<boolean>
   logout: () => void
   setAuthView: (view: AuthView) => void
 
   updateUser: (updates: Partial<User>) => void
   inviteUser: (username: string, email: string, tempPassword: string) => void
-  deleteUser: (userId: string) => boolean
-  updateUserStatus: (userId: string, status: 'pending' | 'active') => boolean
-  getUsers: () => RegisteredUser[]
+  deleteUser: (userId: string | number) => Promise<boolean>
+  updateUserStatus: (userId: string | number, status: 'pending' | 'active') => Promise<boolean>
+  getUsers: () => MscUserAdminRow[]
 
   setCurrentView: (view: ViewType) => void
 
@@ -155,11 +156,7 @@ function msc_replaceProject(projects: Project[], next: Project): Project[] {
 
 function msc_clearPersistedVaultState(): void {
   if (typeof window === 'undefined') return
-  const projectStateKeys = [
-    'msc-projectz-vault-data',
-    'msc-projectz-projects',
-    'msc-projectz-vault-projects',
-  ]
+  const projectStateKeys = ['msc-projectz-vault-data', 'msc-projectz-projects', 'msc-projectz-vault-projects']
   for (const key of projectStateKeys) {
     localStorage.removeItem(key)
   }
@@ -218,7 +215,7 @@ export const useAppStore = create<AppState>()(
             user: {
               username: username.trim().split('@')[0],
               email: looksEmail ? username.trim().toLowerCase() : '',
-              role: result.role || 'user',
+              role: (result.role as MscAppRole) || 'user',
               payloadUserId: result.userId,
             },
           })
@@ -296,7 +293,6 @@ export const useAppStore = create<AppState>()(
             email,
             username,
             role: 'user',
-            password: tempPassword || undefined,
           })
           if (!result.ok) return
           // Reload users list from Payload
@@ -398,7 +394,9 @@ export const useAppStore = create<AppState>()(
             peek = await msc_peekVaultServerSession()
           }
           if (!peek.ok) {
-            console.warn('[MSC] hydrateVaultFromPayload: Payload session missing after retry; purging stale client auth')
+            console.warn(
+              '[MSC] hydrateVaultFromPayload: Payload session missing after retry; purging stale client auth',
+            )
             get().msc_purgeClientSession()
             set({ projects: [], vaultHydrated: true, vaultUserId: null })
             return
@@ -487,9 +485,7 @@ export const useAppStore = create<AppState>()(
         const { projects } = get()
         const p = projects.find((x) => x.id === projectId)
         if (!p) return
-        const nextCreds = p.credentials.map((c) =>
-          c.id === credentialId ? { ...c, ...updates } : c,
-        )
+        const nextCreds = p.credentials.map((c) => (c.id === credentialId ? { ...c, ...updates } : c))
         const updated = await msc_updateVaultProject(projectId, { credentials: nextCreds })
         set((state) => ({ projects: msc_replaceProject(state.projects, updated) }))
       },
@@ -515,9 +511,7 @@ export const useAppStore = create<AppState>()(
         })
         set((state) => ({
           projects: state.projects.map((p) =>
-            p.id === projectId
-              ? { ...p, tasks: [...p.tasks, task], updatedAt: new Date() }
-              : p,
+            p.id === projectId ? { ...p, tasks: [...p.tasks, task], updatedAt: new Date() } : p,
           ),
         }))
       },
@@ -651,9 +645,7 @@ export const useAppStore = create<AppState>()(
         const task = await msc_quick_add_task(projectId, title)
         set((state) => ({
           projects: state.projects.map((p) =>
-            p.id === projectId
-              ? { ...p, tasks: [...p.tasks, task], updatedAt: new Date() }
-              : p,
+            p.id === projectId ? { ...p, tasks: [...p.tasks, task], updatedAt: new Date() } : p,
           ),
         }))
       },

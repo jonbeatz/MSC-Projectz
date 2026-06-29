@@ -84,10 +84,7 @@ export function DashboardSidebar({
   }
 
   const divider = useGlassRail ? 'border-white/10' : 'border-sidebar-border'
-  const openTasksCount = projects.reduce(
-    (sum, p) => sum + p.tasks.filter((t) => !t.completed && !t.archived).length,
-    0,
-  )
+  const openTasksCount = projects.reduce((sum, p) => sum + p.tasks.filter((t) => !t.completed && !t.archived).length, 0)
 
   const settingsMainActive = pathname.startsWith('/settings')
   const devPlaygroundActive = pathname.startsWith('/admin/dev/email-previews')
@@ -137,7 +134,9 @@ export function DashboardSidebar({
     isMobile
       ? cn(
           'fixed z-50 w-64 max-w-[min(16rem,calc(100vw-1rem))] transform transition-transform duration-300 ease-out',
-          useGlassRail ? 'top-2 bottom-2 left-2' : 'inset-y-0 left-0 h-screen border-r border-sidebar-border bg-sidebar',
+          useGlassRail
+            ? 'top-2 bottom-2 left-2'
+            : 'inset-y-0 left-0 h-screen border-r border-sidebar-border bg-sidebar',
           mobileMenuOpen ? 'translate-x-0' : '-translate-x-full',
           !mobileMenuOpen && 'pointer-events-none',
           !useGlassRail && 'card-shadow-lg',
@@ -154,11 +153,7 @@ export function DashboardSidebar({
   return (
     <>
       {isMobile && mobileMenuOpen && (
-        <div
-          className="fixed inset-0 z-40 bg-black/50 backdrop-blur-[2px]"
-          onClick={onMobileMenuClose}
-          aria-hidden
-        />
+        <div className="fixed inset-0 z-40 bg-black/50 backdrop-blur-[2px]" onClick={onMobileMenuClose} aria-hidden />
       )}
 
       <aside className={asideClass}>
@@ -241,9 +236,7 @@ export function DashboardSidebar({
             Other
           </p>
           <ul className="space-y-1">
-            {otherNav
-              .filter((item) => !item.adminOnly || isAdmin)
-              .map((item) => renderNavItem(item))}
+            {otherNav.filter((item) => !item.adminOnly || isAdmin).map((item) => renderNavItem(item))}
             {isAdmin &&
               (showLabels ? (
                 <li key="settings-group">
@@ -261,9 +254,7 @@ export function DashboardSidebar({
                       onClick={() => go('/settings')}
                       className={cn(
                         'flex min-w-0 flex-1 items-center gap-3 rounded-l-xl px-3 py-3 text-left text-sm font-medium transition-colors',
-                        settingsMainActive
-                          ? 'text-foreground'
-                          : 'text-muted-foreground hover:text-foreground',
+                        settingsMainActive ? 'text-foreground' : 'text-muted-foreground hover:text-foreground',
                         useGlassRail ? 'hover:bg-white/[0.04]' : '',
                       )}
                     >
@@ -274,7 +265,9 @@ export function DashboardSidebar({
                       type="button"
                       className={cn(
                         'flex w-10 shrink-0 items-center justify-center rounded-r-xl border-l transition-colors',
-                        useGlassRail ? 'border-white/10 hover:bg-white/[0.08]' : 'border-sidebar-border hover:bg-sidebar-accent',
+                        useGlassRail
+                          ? 'border-white/10 hover:bg-white/[0.08]'
+                          : 'border-sidebar-border hover:bg-sidebar-accent',
                       )}
                       aria-expanded={settingsGroupOpen}
                       aria-label={settingsGroupOpen ? 'Collapse Settings menu' : 'Expand Settings menu'}

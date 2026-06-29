@@ -53,9 +53,10 @@ function VaultTreeNode({
           <Folder className="h-4 w-4 text-[hsl(var(--msc-accent))]" />
           <span className="truncate">{node.name}</span>
         </button>
-        {isOpen && node.children?.map((child) => (
-          <VaultTreeNode key={child.path} node={child} activePath={activePath} depth={depth + 1} />
-        ))}
+        {isOpen &&
+          node.children?.map((child) => (
+            <VaultTreeNode key={child.path} node={child} activePath={activePath} depth={depth + 1} />
+          ))}
       </div>
     )
   }
@@ -77,22 +78,14 @@ function VaultTreeNode({
   )
 }
 
-export function VaultSidebar({
-  tree,
-  activePath,
-}: {
-  tree: MscVaultTreeNode[]
-  activePath: string | null
-}) {
+export function VaultSidebar({ tree, activePath }: { tree: MscVaultTreeNode[]; activePath: string | null }) {
   const [query, setQuery] = useState('')
   const filteredTree = useMemo(() => msc_filterTree(tree, query), [tree, query])
 
   return (
     <aside className="flex w-64 shrink-0 flex-col border-r border-border bg-card">
       <div className="border-b border-border p-4">
-        <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[hsl(var(--msc-accent))]">
-          Code Manager
-        </p>
+        <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[hsl(var(--msc-accent))]">Code Manager</p>
         <h1 className="mt-1 text-lg font-semibold text-foreground">Docs + Snippets</h1>
         <div className="relative mt-4">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -107,9 +100,7 @@ export function VaultSidebar({
 
       <nav className="flex-1 overflow-y-auto py-3">
         {filteredTree.length > 0 ? (
-          filteredTree.map((node) => (
-            <VaultTreeNode key={node.path} node={node} activePath={activePath} depth={0} />
-          ))
+          filteredTree.map((node) => <VaultTreeNode key={node.path} node={node} activePath={activePath} depth={0} />)
         ) : (
           <p className="px-4 py-3 text-sm text-muted-foreground">No matching files.</p>
         )}

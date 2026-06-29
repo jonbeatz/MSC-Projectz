@@ -47,7 +47,9 @@ export function CalendarAgendaPanel({
     >
       <div className="shrink-0 border-b border-white/[0.06] px-4 py-3.5 sm:px-5 sm:py-4">
         <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground/85">Scheduled</p>
-        <h2 className="mt-1 text-sm font-semibold tracking-tight text-foreground sm:text-[0.95rem]">{heading(selectedYmd)}</h2>
+        <h2 className="mt-1 text-sm font-semibold tracking-tight text-foreground sm:text-[0.95rem]">
+          {heading(selectedYmd)}
+        </h2>
         <Button
           type="button"
           onClick={() => onAddTask(selectedYmd)}
@@ -61,9 +63,7 @@ export function CalendarAgendaPanel({
       <div className="min-h-0 flex-1 overflow-y-auto overscroll-y-contain px-4 py-3 [scrollbar-gutter:stable] sm:px-5 sm:py-4">
         <div className="mx-0 max-md:mx-1 space-y-3 sm:mx-0">
           {dayDetail.emptyState && (
-            <p className="msc-calendar-glass-inset px-3 py-3 text-sm text-muted-foreground">
-              No tasks for this day.
-            </p>
+            <p className="msc-calendar-glass-inset px-3 py-3 text-sm text-muted-foreground">No tasks for this day.</p>
           )}
           {dayDetail.clientGroupedItems.map((group) => (
             <section
@@ -83,8 +83,7 @@ export function CalendarAgendaPanel({
                   )}
                 >
                   <span className="min-w-0">
-                    Client:{' '}
-                    <span className="font-semibold normal-case text-foreground">{group.clientName}</span>
+                    Client: <span className="font-semibold normal-case text-foreground">{group.clientName}</span>
                     <span className="ml-1.5 font-normal text-muted-foreground/90">({group.items.length})</span>
                   </span>
                   <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground/80" aria-hidden />

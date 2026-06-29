@@ -1,18 +1,7 @@
 'use client'
 
 import { Suspense, useState, useEffect } from 'react'
-import {
-  ChevronDown,
-  LayoutGrid,
-  List,
-  LogOut,
-  Menu,
-  Moon,
-  Search,
-  Shield,
-  Sun,
-  UserCircle,
-} from 'lucide-react'
+import { ChevronDown, LayoutGrid, List, LogOut, Menu, Moon, Search, Shield, Sun, UserCircle } from 'lucide-react'
 import { usePathname, useRouter } from 'next/navigation'
 import { cn } from '@/lib/utils'
 import { DashboardSidebar } from './dashboard-sidebar'
@@ -21,13 +10,7 @@ import { Msc_DevStatusIndicator } from '@/components/dev/msc_DevStatusIndicator'
 import { msc_hasAdminAccess } from '@/lib/msc_roles'
 import { UserAvatar } from '@/components/shared/user-avatar'
 import { useIsMobile } from '@/lib/msc_hooks'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -138,9 +121,7 @@ export function DashboardLayout({ children, onAddProject, searchQuery, onSearchC
   }
 
   const sessionUserLabel = getSessionHeaderLabel(user)
-  const sessionAvatar = user
-    ? ((user as typeof user & { avatarUrl?: string | null }).avatarUrl || user.avatar)
-    : null
+  const sessionAvatar = user ? (user as typeof user & { avatarUrl?: string | null }).avatarUrl || user.avatar : null
   const handleSignOut = () => {
     logout()
     router.replace('/login')
@@ -241,9 +222,7 @@ export function DashboardLayout({ children, onAddProject, searchQuery, onSearchC
 
             <div className="hidden h-6 w-px bg-border sm:block" />
 
-            <h1 className="truncate text-base font-semibold text-foreground sm:text-lg">
-              {getViewTitle()}
-            </h1>
+            <h1 className="truncate text-base font-semibold text-foreground sm:text-lg">{getViewTitle()}</h1>
           </div>
 
           <div className="flex max-w-full shrink-0 flex-wrap items-center justify-end gap-1.5 sm:gap-2 md:gap-3 lg:gap-4">
@@ -252,7 +231,10 @@ export function DashboardLayout({ children, onAddProject, searchQuery, onSearchC
 
             {isDashboardRoute && (
               <div
-                className={cn('flex items-center rounded-lg border border-border bg-card p-1', !isDark && 'card-shadow')}
+                className={cn(
+                  'flex items-center rounded-lg border border-border bg-card p-1',
+                  !isDark && 'card-shadow',
+                )}
               >
                 <button
                   onClick={() => setProjectViewMode('grid')}
@@ -357,9 +339,7 @@ export function DashboardLayout({ children, onAddProject, searchQuery, onSearchC
         <footer
           className={cn(
             'z-0 mt-auto w-full p-4 text-right text-xs text-muted-foreground sm:p-4',
-            isDark
-              ? 'border-t border-white/[0.05] bg-transparent'
-              : 'lg:fixed lg:bottom-0 lg:right-0 lg:mt-0',
+            isDark ? 'border-t border-white/[0.05] bg-transparent' : 'lg:fixed lg:bottom-0 lg:right-0 lg:mt-0',
           )}
         >
           Powered by the MSC Media Engine

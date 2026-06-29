@@ -26,9 +26,7 @@ export function msc_parseReferencesJson(raw: string | null | undefined): Project
         const fileName = typeof o.fileName === 'string' ? o.fileName : undefined
         const createdRaw = o.createdAt
         const createdAt =
-          typeof createdRaw === 'string' || typeof createdRaw === 'number'
-            ? new Date(createdRaw)
-            : new Date()
+          typeof createdRaw === 'string' || typeof createdRaw === 'number' ? new Date(createdRaw) : new Date()
         return {
           id,
           title,

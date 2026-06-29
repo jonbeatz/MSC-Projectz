@@ -4,7 +4,11 @@ import type { Payload } from 'payload'
 
 import { msc_coercePayloadRelationId } from '@/lib/msc_vault_payload_ids'
 import { msc_hasAdminAccess } from '@/lib/msc_roles'
-import { msc_vaultUserMayReadProject, msc_vaultUserOwnsProjectForWrite, type MscUserWithRole } from '@/lib/msc_vault_payload_access'
+import {
+  msc_vaultUserMayReadProject,
+  msc_vaultUserOwnsProjectForWrite,
+  type MscUserWithRole,
+} from '@/lib/msc_vault_payload_access'
 
 type MscPacUser = MscUserWithRole
 
@@ -37,11 +41,7 @@ export async function msc_canViewProject(arg: {
   const { payload, user } = arg
   if (!user) return false
   if (msc_hasAdminAccess(user.role)) return true
-  const pid = msc_coercePayloadRelationId(
-    payload,
-    'msc-vault-projects',
-    String(arg.projectId),
-  )
+  const pid = msc_coercePayloadRelationId(payload, 'msc-vault-projects', String(arg.projectId))
   let project: { user?: unknown; members?: unknown } | null
   try {
     project = (await payload.findByID({
@@ -69,11 +69,7 @@ export async function msc_canViewTask(arg: {
   const { payload, user } = arg
   if (!user) return false
   if (msc_hasAdminAccess(user.role)) return true
-  const tid = msc_coercePayloadRelationId(
-    payload,
-    'msc-vault-tasks',
-    String(arg.taskId),
-  )
+  const tid = msc_coercePayloadRelationId(payload, 'msc-vault-tasks', String(arg.taskId))
   let task: MscTaskRowLike | null
   try {
     task = (await payload.findByID({
@@ -115,11 +111,7 @@ export async function msc_canCreateTaskOnProject(arg: {
   const { payload, user } = arg
   if (!user) return false
   if (msc_hasAdminAccess(user.role)) return true
-  const pid = msc_coercePayloadRelationId(
-    payload,
-    'msc-vault-projects',
-    String(arg.projectId),
-  )
+  const pid = msc_coercePayloadRelationId(payload, 'msc-vault-projects', String(arg.projectId))
   let project: { user?: unknown } | null
   try {
     project = (await payload.findByID({
@@ -150,11 +142,7 @@ export async function msc_canWriteVaultProjectAsOwner(arg: {
   const { payload, user } = arg
   if (!user) return false
   if (msc_hasAdminAccess(user.role)) return true
-  const pid = msc_coercePayloadRelationId(
-    payload,
-    'msc-vault-projects',
-    String(arg.projectId),
-  )
+  const pid = msc_coercePayloadRelationId(payload, 'msc-vault-projects', String(arg.projectId))
   let project: { user?: unknown } | null
   try {
     project = (await payload.findByID({

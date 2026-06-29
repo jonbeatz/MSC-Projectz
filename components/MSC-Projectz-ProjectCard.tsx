@@ -142,7 +142,15 @@ export function MSC_Projectz_ProjectCard({
     const credentialStorageKey = msc_getScopedKey(credentialStorageBaseKey, userId)
     const encrypted = msc_encryptCredentialData(managedCredentials, masterPassword)
     window.localStorage.setItem(credentialStorageKey, encrypted)
-  }, [credentialProjectId, credentialStorageBaseKey, credentialsLoaded, managedCredentials, project.id, userId, masterPassword])
+  }, [
+    credentialProjectId,
+    credentialStorageBaseKey,
+    credentialsLoaded,
+    managedCredentials,
+    project.id,
+    userId,
+    masterPassword,
+  ])
 
   const handleOpenInExplorer = async () => {
     if (!safeLocalPath.trim()) return
@@ -183,10 +191,7 @@ export function MSC_Projectz_ProjectCard({
     if (!label || !username || !password) return
 
     const credential: Credential = {
-      id:
-        typeof crypto !== 'undefined' && 'randomUUID' in crypto
-          ? crypto.randomUUID()
-          : `credential-${Date.now()}`,
+      id: typeof crypto !== 'undefined' && 'randomUUID' in crypto ? crypto.randomUUID() : `credential-${Date.now()}`,
       label,
       username,
       password,
@@ -252,9 +257,7 @@ export function MSC_Projectz_ProjectCard({
         <Badge
           className={cn(
             'absolute top-3 right-3 uppercase text-[10px] font-semibold tracking-wider border-0',
-            project.status === 'live'
-              ? 'bg-primary text-primary-foreground'
-              : 'bg-muted text-muted-foreground',
+            project.status === 'live' ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground',
           )}
         >
           {project.status}
@@ -305,13 +308,7 @@ export function MSC_Projectz_ProjectCard({
           )}
         </div>
 
-        {manualMove && (
-          <MscManualProjectMoveControls
-            layout="card"
-            isDark={isDark}
-            manualMove={manualMove}
-          />
-        )}
+        {manualMove && <MscManualProjectMoveControls layout="card" isDark={isDark} manualMove={manualMove} />}
       </div>
 
       <div className="p-4">
@@ -340,10 +337,7 @@ export function MSC_Projectz_ProjectCard({
                 <Button
                   variant="ghost"
                   size="icon"
-                  className={cn(
-                    'h-8 w-8 text-muted-foreground hover:text-primary',
-                    credPopoverOpen && 'text-primary',
-                  )}
+                  className={cn('h-8 w-8 text-muted-foreground hover:text-primary', credPopoverOpen && 'text-primary')}
                   onClick={(e) => e.stopPropagation()}
                   aria-label="Open credential quick-view"
                 >
@@ -377,14 +371,9 @@ export function MSC_Projectz_ProjectCard({
                         const passwordVisible = Boolean(visibleCredentialIds[credential.id])
 
                         return (
-                          <div
-                            key={credential.id}
-                            className="rounded-md border border-border bg-card/70 p-3"
-                          >
+                          <div key={credential.id} className="rounded-md border border-border bg-card/70 p-3">
                             <div className="mb-3 flex items-center justify-between gap-2">
-                              <h5 className="truncate text-sm font-medium text-foreground">
-                                {credential.label}
-                              </h5>
+                              <h5 className="truncate text-sm font-medium text-foreground">{credential.label}</h5>
                               <button
                                 type="button"
                                 onClick={() => msc_deleteManagedCredential(credential.id)}
@@ -428,9 +417,17 @@ export function MSC_Projectz_ProjectCard({
                                       }))
                                     }
                                     className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-primary/10 hover:text-primary"
-                                    aria-label={passwordVisible ? `Hide ${credential.label} password` : `Show ${credential.label} password`}
+                                    aria-label={
+                                      passwordVisible
+                                        ? `Hide ${credential.label} password`
+                                        : `Show ${credential.label} password`
+                                    }
                                   >
-                                    {passwordVisible ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
+                                    {passwordVisible ? (
+                                      <EyeOff className="h-3.5 w-3.5" />
+                                    ) : (
+                                      <Eye className="h-3.5 w-3.5" />
+                                    )}
                                   </button>
                                   <button
                                     type="button"
@@ -475,7 +472,9 @@ export function MSC_Projectz_ProjectCard({
                           type="button"
                           onClick={() => setShowNewCredentialPassword((value) => !value)}
                           className="absolute right-2 top-1/2 -translate-y-1/2 rounded-md p-1 text-muted-foreground transition-colors hover:text-foreground"
-                          aria-label={showNewCredentialPassword ? 'Hide new credential password' : 'Show new credential password'}
+                          aria-label={
+                            showNewCredentialPassword ? 'Hide new credential password' : 'Show new credential password'
+                          }
                         >
                           {showNewCredentialPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                         </button>
@@ -505,14 +504,14 @@ export function MSC_Projectz_ProjectCard({
                     </div>
                   ) : (
                     <Button
-                        type="button"
-                        size="sm"
-                        onClick={() => setCredentialFormOpen(true)}
-                        className="w-full gap-2 bg-primary text-primary-foreground hover:bg-primary/90"
-                      >
-                        <Plus className="h-3.5 w-3.5" />
-                        New +
-                      </Button>
+                      type="button"
+                      size="sm"
+                      onClick={() => setCredentialFormOpen(true)}
+                      className="w-full gap-2 bg-primary text-primary-foreground hover:bg-primary/90"
+                    >
+                      <Plus className="h-3.5 w-3.5" />
+                      New +
+                    </Button>
                   )}
                 </div>
               </PopoverContent>
@@ -577,12 +576,7 @@ export function MSC_Projectz_ProjectCard({
         <div className="mt-3">
           <div className="mt-2 flex min-w-0 items-center">
             {projectMembers.length > 0 ? (
-              <MemberClusterTrigger
-                members={projectMembers}
-                stackLimit={3}
-                fallbackType="icon"
-                className="min-w-0"
-              />
+              <MemberClusterTrigger members={projectMembers} stackLimit={3} fallbackType="icon" className="min-w-0" />
             ) : (
               <button
                 type="button"
@@ -600,10 +594,7 @@ export function MSC_Projectz_ProjectCard({
           </div>
         </div>
 
-        <div
-          className="mt-3 pt-3 border-t border-border space-y-2"
-          onClick={(e) => e.stopPropagation()}
-        >
+        <div className="mt-3 pt-3 border-t border-border space-y-2" onClick={(e) => e.stopPropagation()}>
           <div className="flex h-2 w-full flex-row overflow-hidden rounded-full border border-border bg-muted">
             {counts.total === 0 ? (
               <div className="h-full w-full bg-muted" />
@@ -639,10 +630,7 @@ export function MSC_Projectz_ProjectCard({
               {counts.todo} todo
             </span>
             <span>
-              <span
-                className="inline-block size-2 rounded-sm align-middle mr-1 bg-msc-ui-accent"
-                aria-hidden
-              />
+              <span className="inline-block size-2 rounded-sm align-middle mr-1 bg-msc-ui-accent" aria-hidden />
               {counts.inProgress} in progress
             </span>
             <span>
@@ -655,9 +643,7 @@ export function MSC_Projectz_ProjectCard({
           <div className="flex items-center justify-between gap-2">
             <div className="flex items-center gap-1.5 min-w-0">
               <Key className="w-3.5 h-3.5 shrink-0 text-muted-foreground" />
-              <span className="text-xs text-muted-foreground truncate">
-                {managedCredentials.length} credentials
-              </span>
+              <span className="text-xs text-muted-foreground truncate">{managedCredentials.length} credentials</span>
             </div>
             <div className="flex items-center gap-1 shrink-0">
               <button
@@ -735,4 +721,3 @@ export function MSC_Projectz_ProjectCard({
     </div>
   )
 }
-

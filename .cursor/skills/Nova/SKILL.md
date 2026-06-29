@@ -65,5 +65,3 @@ Before completion, validate:
 ## Non-override rule
 
 If an active legacy project uses a different established namespace/pattern, do not mass-refactor without an explicit migration task.
-
-

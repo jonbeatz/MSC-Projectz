@@ -16,28 +16,13 @@ import { useAppStore } from '@/lib/store'
 import type { Project } from '@/lib/types'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import {
-  Dialog,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog'
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import {
-  MSC_SNIPPET_CATEGORIES,
-  MSC_SNIPPET_LANGUAGES,
-} from '@/components/MSC-Projectz-SnippetDrawer'
+import { MSC_SNIPPET_CATEGORIES, MSC_SNIPPET_LANGUAGES } from '@/components/MSC-Projectz-SnippetDrawer'
 import { MSC_Projectz_SnippetViewer } from '@/components/MSC-Projectz-SnippetViewer'
 import { MSC_Projectz_WorkspaceModalShell } from '@/components/MSC-Projectz-WorkspaceModalShell'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
 import { msc_isQuietInfrastructureUiMessage, msc_publicPayloadError } from '@/lib/msc_public_error'
 import { cn } from '@/lib/utils'
@@ -187,10 +172,7 @@ export function MSC_Projectz_TaskPulseCodeVault({
     await load()
   }
 
-  const showPublishInDetail =
-    Boolean(activeSnippet) &&
-    activeSnippet!.status === 'draft' &&
-    flags.canPublish
+  const showPublishInDetail = Boolean(activeSnippet) && activeSnippet!.status === 'draft' && flags.canPublish
 
   const canSave = Boolean(formTitle.trim() && formContent.trim())
   const isPrivateWorkspace = formVisibility === 'personal'
@@ -210,7 +192,10 @@ export function MSC_Projectz_TaskPulseCodeVault({
   }
 
   return (
-    <div className="msc-task-pulse-code-vault flex min-h-[320px] flex-col gap-3" data-msc-component="task-pulse-code-vault">
+    <div
+      className="msc-task-pulse-code-vault flex min-h-[320px] flex-col gap-3"
+      data-msc-component="task-pulse-code-vault"
+    >
       <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border pb-2">
         <div>
           <h3 className="text-sm font-semibold text-foreground">Snippets</h3>
@@ -223,7 +208,12 @@ export function MSC_Projectz_TaskPulseCodeVault({
             </Button>
           ) : null}
           {flags.canCreate && (
-            <Button type="button" size="sm" className="gap-1.5 bg-primary text-primary-foreground" onClick={() => setCreateOpen(true)}>
+            <Button
+              type="button"
+              size="sm"
+              className="gap-1.5 bg-primary text-primary-foreground"
+              onClick={() => setCreateOpen(true)}
+            >
               <Plus className="h-4 w-4" />
               Add snippet
             </Button>
@@ -253,7 +243,10 @@ export function MSC_Projectz_TaskPulseCodeVault({
       )}
 
       {error && !msc_isQuietInfrastructureUiMessage(error) ? (
-        <p className="rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-xs text-destructive" role="alert">
+        <p
+          className="rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-xs text-destructive"
+          role="alert"
+        >
           {msc_publicPayloadError(error)}
         </p>
       ) : error && msc_isQuietInfrastructureUiMessage(error) ? (
@@ -275,7 +268,8 @@ export function MSC_Projectz_TaskPulseCodeVault({
           <div>
             <p className="text-sm font-medium text-foreground">No snippets yet</p>
             <p className="mt-1 max-w-sm text-xs text-muted-foreground">
-              Capture reusable code and notes for this project. Drafts stay scoped until an owner publishes to the team library.
+              Capture reusable code and notes for this project. Drafts stay scoped until an owner publishes to the team
+              library.
             </p>
           </div>
           {flags.canCreate && (
@@ -325,126 +319,123 @@ export function MSC_Projectz_TaskPulseCodeVault({
         }}
       >
         <MSC_Projectz_WorkspaceModalShell title="New snippet">
-            <div className="flex w-full flex-col gap-6">
-              <div className="flex w-full flex-col gap-2">
-                <Label htmlFor="msc-snippet-title">Title</Label>
-                <Input
-                  id="msc-snippet-title"
-                  value={formTitle}
-                  onChange={(e) => setFormTitle(e.target.value)}
-                  placeholder="Short label"
-                  className="text-sm"
-                />
-              </div>
+          <div className="flex w-full flex-col gap-6">
+            <div className="flex w-full flex-col gap-2">
+              <Label htmlFor="msc-snippet-title">Title</Label>
+              <Input
+                id="msc-snippet-title"
+                value={formTitle}
+                onChange={(e) => setFormTitle(e.target.value)}
+                placeholder="Short label"
+                className="text-sm"
+              />
+            </div>
 
-              <div className="flex w-full flex-col gap-2">
-                <div className="flex w-full items-center justify-between gap-3">
-                  <Label htmlFor="msc-snippet-content" className="mb-0 shrink-0 text-sm font-medium leading-none">
-                    Content
-                  </Label>
-                  <button
-                    type="button"
-                    onClick={() => void handleCopyContent()}
-                    title={contentCopied ? 'Copied' : 'Copy content'}
-                    aria-label={contentCopied ? 'Copied to clipboard' : 'Copy content to clipboard'}
-                    className={cn(
-                      'inline-flex shrink-0 items-center gap-1 rounded-md border px-2 py-1 text-[11px] font-medium transition-all duration-200',
-                      'border-border bg-[#121212] text-muted-foreground hover:border-primary/50 hover:text-foreground',
-                      contentCopied && 'border-primary text-primary',
-                    )}
-                  >
-                    {contentCopied ? (
-                      <Check className="h-3 w-3 shrink-0 text-primary" aria-hidden />
-                    ) : (
-                      <Clipboard className="h-3 w-3 shrink-0" aria-hidden />
-                    )}
-                    <span>{contentCopied ? 'Copied!' : 'Copy'}</span>
-                  </button>
-                </div>
-                <Textarea
-                  id="msc-snippet-content"
-                  value={formContent}
-                  onChange={(e) => setFormContent(e.target.value)}
-                  placeholder="Code or notes..."
-                  rows={10}
-                  className="min-h-[240px] resize-y font-mono text-xs"
-                />
-              </div>
-
-              <div className="grid w-full grid-cols-1 gap-6 sm:grid-cols-2">
-                <div className="flex min-w-0 flex-col gap-2">
-                  <Label htmlFor="msc-snippet-lang">Language</Label>
-                  <Select value={formLanguage} onValueChange={setFormLanguage}>
-                    <SelectTrigger id="msc-snippet-lang" className="w-full min-w-0">
-                      <SelectValue placeholder="Language" />
-                    </SelectTrigger>
-                    <SelectContent position="popper" className="msc-studio-select-content">
-                      {MSC_SNIPPET_LANGUAGES.map((o) => (
-                        <SelectItem key={o.value} value={o.value} className="msc-studio-select-item">
-                          {o.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="flex min-w-0 flex-col gap-2">
-                  <Label htmlFor="msc-snippet-cat">Category</Label>
-                  <Select value={formCategory} onValueChange={setFormCategory}>
-                    <SelectTrigger id="msc-snippet-cat" className="w-full min-w-0">
-                      <SelectValue placeholder="Category" />
-                    </SelectTrigger>
-                    <SelectContent position="popper" className="msc-studio-select-content">
-                      {MSC_SNIPPET_CATEGORIES.map((o) => (
-                        <SelectItem key={o.value} value={o.value} className="msc-studio-select-item">
-                          {o.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-
-              <div className="flex w-full flex-col gap-2">
-                <div className="flex flex-wrap items-center gap-2">
-                  <Label htmlFor="msc-snippet-vis" className="mb-0">
-                    Visibility
-                  </Label>
-                  {isPrivateWorkspace ? (
-                    <Badge
-                      variant="outline"
-                      className="border-msc-ui-accent/45 bg-msc-ui-accent/15 text-[10px] font-semibold uppercase tracking-wide text-sky-100"
-                    >
-                      Private
-                    </Badge>
-                  ) : (
-                    <Badge className="bg-primary/90 text-[10px] font-semibold uppercase tracking-wide text-primary-foreground">
-                      Project library
-                    </Badge>
+            <div className="flex w-full flex-col gap-2">
+              <div className="flex w-full items-center justify-between gap-3">
+                <Label htmlFor="msc-snippet-content" className="mb-0 shrink-0 text-sm font-medium leading-none">
+                  Content
+                </Label>
+                <button
+                  type="button"
+                  onClick={() => void handleCopyContent()}
+                  title={contentCopied ? 'Copied' : 'Copy content'}
+                  aria-label={contentCopied ? 'Copied to clipboard' : 'Copy content to clipboard'}
+                  className={cn(
+                    'inline-flex shrink-0 items-center gap-1 rounded-md border px-2 py-1 text-[11px] font-medium transition-all duration-200',
+                    'border-border bg-[#121212] text-muted-foreground hover:border-primary/50 hover:text-foreground',
+                    contentCopied && 'border-primary text-primary',
                   )}
-                </div>
-                <Select
-                  value={formVisibility}
-                  onValueChange={(v) => setFormVisibility(v as 'personal' | 'project')}
                 >
-                  <SelectTrigger id="msc-snippet-vis" className="w-full min-w-0">
-                    <SelectValue />
+                  {contentCopied ? (
+                    <Check className="h-3 w-3 shrink-0 text-primary" aria-hidden />
+                  ) : (
+                    <Clipboard className="h-3 w-3 shrink-0" aria-hidden />
+                  )}
+                  <span>{contentCopied ? 'Copied!' : 'Copy'}</span>
+                </button>
+              </div>
+              <Textarea
+                id="msc-snippet-content"
+                value={formContent}
+                onChange={(e) => setFormContent(e.target.value)}
+                placeholder="Code or notes..."
+                rows={10}
+                className="min-h-[240px] resize-y font-mono text-xs"
+              />
+            </div>
+
+            <div className="grid w-full grid-cols-1 gap-6 sm:grid-cols-2">
+              <div className="flex min-w-0 flex-col gap-2">
+                <Label htmlFor="msc-snippet-lang">Language</Label>
+                <Select value={formLanguage} onValueChange={setFormLanguage}>
+                  <SelectTrigger id="msc-snippet-lang" className="w-full min-w-0">
+                    <SelectValue placeholder="Language" />
                   </SelectTrigger>
                   <SelectContent position="popper" className="msc-studio-select-content">
-                    <SelectItem value="personal" className="msc-studio-select-item">
-                      Personal (draft workspace)
-                    </SelectItem>
-                    <SelectItem value="project" className="msc-studio-select-item">
-                      Project (share when published)
-                    </SelectItem>
+                    {MSC_SNIPPET_LANGUAGES.map((o) => (
+                      <SelectItem key={o.value} value={o.value} className="msc-studio-select-item">
+                        {o.label}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
-                <p className="text-[11px] leading-relaxed text-muted-foreground">
-                  {isPrivateWorkspace
-                    ? 'Draft stays in your workspace until you publish from the snippet detail view (when allowed).'
-                    : 'When published, teammates with vault access can see this in the project library.'}
-                </p>
+              </div>
+              <div className="flex min-w-0 flex-col gap-2">
+                <Label htmlFor="msc-snippet-cat">Category</Label>
+                <Select value={formCategory} onValueChange={setFormCategory}>
+                  <SelectTrigger id="msc-snippet-cat" className="w-full min-w-0">
+                    <SelectValue placeholder="Category" />
+                  </SelectTrigger>
+                  <SelectContent position="popper" className="msc-studio-select-content">
+                    {MSC_SNIPPET_CATEGORIES.map((o) => (
+                      <SelectItem key={o.value} value={o.value} className="msc-studio-select-item">
+                        {o.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
             </div>
+
+            <div className="flex w-full flex-col gap-2">
+              <div className="flex flex-wrap items-center gap-2">
+                <Label htmlFor="msc-snippet-vis" className="mb-0">
+                  Visibility
+                </Label>
+                {isPrivateWorkspace ? (
+                  <Badge
+                    variant="outline"
+                    className="border-msc-ui-accent/45 bg-msc-ui-accent/15 text-[10px] font-semibold uppercase tracking-wide text-sky-100"
+                  >
+                    Private
+                  </Badge>
+                ) : (
+                  <Badge className="bg-primary/90 text-[10px] font-semibold uppercase tracking-wide text-primary-foreground">
+                    Project library
+                  </Badge>
+                )}
+              </div>
+              <Select value={formVisibility} onValueChange={(v) => setFormVisibility(v as 'personal' | 'project')}>
+                <SelectTrigger id="msc-snippet-vis" className="w-full min-w-0">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent position="popper" className="msc-studio-select-content">
+                  <SelectItem value="personal" className="msc-studio-select-item">
+                    Personal (draft workspace)
+                  </SelectItem>
+                  <SelectItem value="project" className="msc-studio-select-item">
+                    Project (share when published)
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+              <p className="text-[11px] leading-relaxed text-muted-foreground">
+                {isPrivateWorkspace
+                  ? 'Draft stays in your workspace until you publish from the snippet detail view (when allowed).'
+                  : 'When published, teammates with vault access can see this in the project library.'}
+              </p>
+            </div>
+          </div>
           <DialogFooter className="shrink-0 border-t border-border px-4 py-3 sm:justify-between sm:px-6">
             <Button type="button" variant="ghost" onClick={() => setCreateOpen(false)}>
               Cancel
@@ -516,7 +507,12 @@ export function MSC_Projectz_TaskPulseCodeVault({
               Close
             </Button>
             {showPublishInDetail && (
-              <Button type="button" className="gap-1.5 bg-primary text-primary-foreground" disabled={publishBusy} onClick={() => void handlePublish()}>
+              <Button
+                type="button"
+                className="gap-1.5 bg-primary text-primary-foreground"
+                disabled={publishBusy}
+                onClick={() => void handlePublish()}
+              >
                 {publishBusy ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
                 Publish to project
               </Button>

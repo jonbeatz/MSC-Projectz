@@ -34,7 +34,9 @@ export function MSC_Projectz_UsersDirectory({
             <Users className="h-4 w-4 text-msc-ui-accent" />
             Payload directory
           </h3>
-          <p className="mt-1 text-xs text-muted-foreground">Server-backed accounts used by the app and Payload admin.</p>
+          <p className="mt-1 text-xs text-muted-foreground">
+            Server-backed accounts used by the app and Payload admin.
+          </p>
         </div>
         <Button type="button" variant="outline" size="sm" onClick={onRefresh} disabled={loading}>
           <RefreshCw className={cn('h-4 w-4', loading && 'animate-spin')} />

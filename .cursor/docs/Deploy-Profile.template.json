@@ -37,17 +37,8 @@
     "sqliteFilePolicy": "file:./payload.sqlite"
   },
   "checks": {
-    "requiredPackageScripts": [
-      "dev",
-      "verify:next",
-      "pushitlive"
-    ],
-    "requiredDeployFiles": [
-      "msc_package_deploy.mjs",
-      "server.js",
-      "payload.config.ts",
-      ".env.example"
-    ]
+    "requiredPackageScripts": ["dev", "verify:next", "pushitlive"],
+    "requiredDeployFiles": ["msc_package_deploy.mjs", "server.js", "payload.config.ts", ".env.example"]
   },
   "notes": {
     "secretsPolicy": "No plaintext secrets in repo docs. Use encrypted secrets file + local key.",

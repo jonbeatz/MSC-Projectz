@@ -1,19 +1,19 @@
 'use client'
 
 import { useState, useRef } from 'react'
-import { 
-  X, 
-  ChevronLeft, 
-  ChevronRight, 
-  User, 
-  Link2, 
-  Key, 
+import {
+  X,
+  ChevronLeft,
+  ChevronRight,
+  User,
+  Link2,
+  Key,
   Radio,
   Plus,
   Trash2,
   Check,
   ImageIcon,
-  Upload
+  Upload,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
@@ -37,9 +37,9 @@ const steps: { id: WizardStep; label: string; icon: React.ElementType }[] = [
 export function AddProjectModal({ isOpen, onClose }: AddProjectModalProps) {
   const addProject = useAppStore((s) => s.addProject)
   const fileInputRef = useRef<HTMLInputElement>(null)
-  
+
   const [currentStep, setCurrentStep] = useState<WizardStep>('identity')
-  
+
   // Form state
   const [name, setName] = useState('')
   const [thumbnail, setThumbnail] = useState('')
@@ -138,11 +138,8 @@ export function AddProjectModal({ isOpen, onClose }: AddProjectModalProps) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       {/* Backdrop */}
-      <div 
-        className="absolute inset-0 backdrop-blur-sm bg-black/80" 
-        onClick={handleClose} 
-      />
-      
+      <div className="absolute inset-0 backdrop-blur-sm bg-black/80" onClick={handleClose} />
+
       {/* Modal */}
       <div className="relative w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden bg-card border border-border">
         {/* Header */}
@@ -162,40 +159,33 @@ export function AddProjectModal({ isOpen, onClose }: AddProjectModalProps) {
             const Icon = step.icon
             const isActive = step.id === currentStep
             const isCompleted = index < currentStepIndex
-            
+
             return (
               <div key={step.id} className="flex items-center gap-2">
                 <div className="flex items-center gap-2">
                   <div
                     className={cn(
-                      "w-8 h-8 rounded-full flex items-center justify-center transition-colors",
-                      isActive ? "bg-primary text-primary-foreground" : 
-                      isCompleted ? "bg-primary/20 text-primary" : 
-                      "bg-secondary text-muted-foreground"
+                      'w-8 h-8 rounded-full flex items-center justify-center transition-colors',
+                      isActive
+                        ? 'bg-primary text-primary-foreground'
+                        : isCompleted
+                          ? 'bg-primary/20 text-primary'
+                          : 'bg-secondary text-muted-foreground',
                     )}
                   >
-                    {isCompleted ? (
-                      <Check className="w-4 h-4" />
-                    ) : (
-                      <Icon className="w-4 h-4" />
-                    )}
+                    {isCompleted ? <Check className="w-4 h-4" /> : <Icon className="w-4 h-4" />}
                   </div>
                   <span
                     className={cn(
-                      "text-xs font-medium hidden sm:block",
-                      isActive ? "text-foreground" : "text-muted-foreground"
+                      'text-xs font-medium hidden sm:block',
+                      isActive ? 'text-foreground' : 'text-muted-foreground',
                     )}
                   >
                     {step.label}
                   </span>
                 </div>
                 {index < steps.length - 1 && (
-                  <div
-                    className={cn(
-                      "w-8 h-px mx-2",
-                      isCompleted ? "bg-primary" : "bg-border"
-                    )}
-                  />
+                  <div className={cn('w-8 h-px mx-2', isCompleted ? 'bg-primary' : 'bg-border')} />
                 )}
               </div>
             )
@@ -208,7 +198,9 @@ export function AddProjectModal({ isOpen, onClose }: AddProjectModalProps) {
           {currentStep === 'identity' && (
             <div className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="name" className="text-foreground">Project Name</Label>
+                <Label htmlFor="name" className="text-foreground">
+                  Project Name
+                </Label>
                 <Input
                   id="name"
                   placeholder="My Awesome Project"
@@ -219,7 +211,9 @@ export function AddProjectModal({ isOpen, onClose }: AddProjectModalProps) {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="thumbnail" className="text-foreground">Thumbnail URL (Optional)</Label>
+                <Label htmlFor="thumbnail" className="text-foreground">
+                  Thumbnail URL (Optional)
+                </Label>
                 <div className="flex gap-2">
                   <Input
                     id="thumbnail"
@@ -232,16 +226,16 @@ export function AddProjectModal({ isOpen, onClose }: AddProjectModalProps) {
                     disabled={!!thumbnailPreview}
                     className="bg-input border-border text-foreground disabled:opacity-50"
                   />
-                  <input 
-                    type="file" 
+                  <input
+                    type="file"
                     ref={fileInputRef}
                     accept="image/*"
                     onChange={handleFileSelect}
                     className="hidden"
                   />
-                  <Button 
-                    variant="secondary" 
-                    size="icon" 
+                  <Button
+                    variant="secondary"
+                    size="icon"
                     type="button"
                     onClick={() => fileInputRef.current?.click()}
                     title="Upload local image"
@@ -249,19 +243,13 @@ export function AddProjectModal({ isOpen, onClose }: AddProjectModalProps) {
                     <Upload className="w-4 h-4" />
                   </Button>
                 </div>
-                <p className="text-xs text-muted-foreground">
-                  Add a screenshot or logo for visual identification
-                </p>
-                
+                <p className="text-xs text-muted-foreground">Add a screenshot or logo for visual identification</p>
+
                 {/* Thumbnail Preview */}
                 {thumbnailPreview && (
                   <div className="mt-3 relative">
                     <div className="aspect-video rounded-lg overflow-hidden bg-secondary border border-border">
-                      <img 
-                        src={thumbnailPreview} 
-                        alt="Preview" 
-                        className="w-full h-full object-cover"
-                      />
+                      <img src={thumbnailPreview} alt="Preview" className="w-full h-full object-cover" />
                     </div>
                     <Button
                       variant="ghost"
@@ -285,7 +273,9 @@ export function AddProjectModal({ isOpen, onClose }: AddProjectModalProps) {
           {currentStep === 'connectivity' && (
             <div className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="localPath" className="text-foreground">Local Path</Label>
+                <Label htmlFor="localPath" className="text-foreground">
+                  Local Path
+                </Label>
                 <Input
                   id="localPath"
                   placeholder="C:\Projects\my-project"
@@ -294,12 +284,12 @@ export function AddProjectModal({ isOpen, onClose }: AddProjectModalProps) {
                   className="font-mono text-sm bg-input border-border text-foreground"
                   autoFocus
                 />
-                <p className="text-xs text-muted-foreground">
-                  Full path to your project directory
-                </p>
+                <p className="text-xs text-muted-foreground">Full path to your project directory</p>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="liveUrl" className="text-foreground">Live URL (Optional)</Label>
+                <Label htmlFor="liveUrl" className="text-foreground">
+                  Live URL (Optional)
+                </Label>
                 <Input
                   id="liveUrl"
                   placeholder="https://myproject.com"
@@ -307,9 +297,7 @@ export function AddProjectModal({ isOpen, onClose }: AddProjectModalProps) {
                   onChange={(e) => setLiveUrl(e.target.value)}
                   className="bg-input border-border text-foreground"
                 />
-                <p className="text-xs text-muted-foreground">
-                  Production website URL if deployed
-                </p>
+                <p className="text-xs text-muted-foreground">Production website URL if deployed</p>
               </div>
             </div>
           )}
@@ -320,9 +308,7 @@ export function AddProjectModal({ isOpen, onClose }: AddProjectModalProps) {
               <div className="flex items-center justify-between">
                 <div>
                   <h3 className="text-sm font-medium text-foreground">Vault Entries</h3>
-                  <p className="text-xs text-muted-foreground">
-                    Store login credentials securely
-                  </p>
+                  <p className="text-xs text-muted-foreground">Store login credentials securely</p>
                 </div>
                 <Button
                   size="sm"
@@ -337,20 +323,13 @@ export function AddProjectModal({ isOpen, onClose }: AddProjectModalProps) {
               {credentials.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-8 text-center">
                   <Key className="w-8 h-8 mb-2 text-muted-foreground" />
-                  <p className="text-sm text-muted-foreground">
-                    No credentials added yet
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    Click &quot;Add&quot; to store login details
-                  </p>
+                  <p className="text-sm text-muted-foreground">No credentials added yet</p>
+                  <p className="text-xs text-muted-foreground">Click &quot;Add&quot; to store login details</p>
                 </div>
               ) : (
                 <div className="space-y-3 max-h-48 overflow-y-auto pr-1">
                   {credentials.map((cred, index) => (
-                    <div
-                      key={index}
-                      className="p-3 rounded-lg space-y-2 bg-secondary border border-border"
-                    >
+                    <div key={index} className="p-3 rounded-lg space-y-2 bg-secondary border border-border">
                       <div className="flex items-center justify-between">
                         <Input
                           placeholder="Label (e.g., WP Admin)"
@@ -394,9 +373,7 @@ export function AddProjectModal({ isOpen, onClose }: AddProjectModalProps) {
             <div className="space-y-4">
               <div>
                 <h3 className="text-sm font-medium mb-1 text-foreground">Project Status</h3>
-                <p className="text-xs text-muted-foreground">
-                  Is this project running locally or deployed live?
-                </p>
+                <p className="text-xs text-muted-foreground">Is this project running locally or deployed live?</p>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
@@ -404,56 +381,48 @@ export function AddProjectModal({ isOpen, onClose }: AddProjectModalProps) {
                   type="button"
                   onClick={() => setStatus('local')}
                   className={cn(
-                    "p-4 rounded-xl border-2 transition-all text-left",
-                    status === 'local' 
-                      ? "border-primary bg-primary/10" 
-                      : "border-border bg-transparent hover:bg-secondary/50"
+                    'p-4 rounded-xl border-2 transition-all text-left',
+                    status === 'local'
+                      ? 'border-primary bg-primary/10'
+                      : 'border-border bg-transparent hover:bg-secondary/50',
                   )}
                 >
                   <div className="flex items-center gap-2 mb-2">
                     <div
                       className={cn(
-                        "w-4 h-4 rounded-full border-2 flex items-center justify-center",
-                        status === 'local' ? "border-primary" : "border-muted-foreground"
+                        'w-4 h-4 rounded-full border-2 flex items-center justify-center',
+                        status === 'local' ? 'border-primary' : 'border-muted-foreground',
                       )}
                     >
-                      {status === 'local' && (
-                        <div className="w-2 h-2 rounded-full bg-primary" />
-                      )}
+                      {status === 'local' && <div className="w-2 h-2 rounded-full bg-primary" />}
                     </div>
                     <span className="font-medium text-foreground">Local</span>
                   </div>
-                  <p className="text-xs text-muted-foreground">
-                    Development environment
-                  </p>
+                  <p className="text-xs text-muted-foreground">Development environment</p>
                 </button>
 
                 <button
                   type="button"
                   onClick={() => setStatus('live')}
                   className={cn(
-                    "p-4 rounded-xl border-2 transition-all text-left",
-                    status === 'live' 
-                      ? "border-primary bg-primary/10" 
-                      : "border-border bg-transparent hover:bg-secondary/50"
+                    'p-4 rounded-xl border-2 transition-all text-left',
+                    status === 'live'
+                      ? 'border-primary bg-primary/10'
+                      : 'border-border bg-transparent hover:bg-secondary/50',
                   )}
                 >
                   <div className="flex items-center gap-2 mb-2">
                     <div
                       className={cn(
-                        "w-4 h-4 rounded-full border-2 flex items-center justify-center",
-                        status === 'live' ? "border-primary" : "border-muted-foreground"
+                        'w-4 h-4 rounded-full border-2 flex items-center justify-center',
+                        status === 'live' ? 'border-primary' : 'border-muted-foreground',
                       )}
                     >
-                      {status === 'live' && (
-                        <div className="w-2 h-2 rounded-full bg-primary" />
-                      )}
+                      {status === 'live' && <div className="w-2 h-2 rounded-full bg-primary" />}
                     </div>
                     <span className="font-medium text-foreground">Live</span>
                   </div>
-                  <p className="text-xs text-muted-foreground">
-                    Deployed to production
-                  </p>
+                  <p className="text-xs text-muted-foreground">Deployed to production</p>
                 </button>
               </div>
             </div>
@@ -462,29 +431,24 @@ export function AddProjectModal({ isOpen, onClose }: AddProjectModalProps) {
 
         {/* Footer */}
         <div className="flex items-center justify-between px-6 py-4 border-t border-border bg-secondary/50">
-          <Button
-            variant="ghost"
-            onClick={handleBack}
-            disabled={currentStepIndex === 0}
-            className="gap-1.5"
-          >
+          <Button variant="ghost" onClick={handleBack} disabled={currentStepIndex === 0} className="gap-1.5">
             <ChevronLeft className="w-4 h-4" />
             Back
           </Button>
 
           {currentStepIndex === steps.length - 1 ? (
-            <Button 
-              onClick={handleSubmit} 
-              disabled={!canProceed()} 
+            <Button
+              onClick={handleSubmit}
+              disabled={!canProceed()}
               className="gap-1.5 bg-primary text-primary-foreground hover:bg-primary/90"
             >
               Create Project
               <Check className="w-4 h-4" />
             </Button>
           ) : (
-            <Button 
-              onClick={handleNext} 
-              disabled={!canProceed()} 
+            <Button
+              onClick={handleNext}
+              disabled={!canProceed()}
               className="gap-1.5 bg-primary text-primary-foreground hover:bg-primary/90"
             >
               Next

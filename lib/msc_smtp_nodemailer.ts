@@ -28,13 +28,24 @@ function msc_envOutgoingOverride(): SpacemailSMTP {
   return base
 }
 
+function msc_resolveOutgoingFromAddress(layered: MscProjectOutgoingSmtp): string {
+  const fromEnv = process.env.MSC_STUDIO_OUTGOING_FROM?.trim()
+  if (fromEnv) {
+    return fromEnv
+  }
+  if (layered.username.includes('@')) {
+    return layered.username
+  }
+  return 'noreply@localhost'
+}
+
 export function msc_createSmtpTransporter(
   fromProject: EmailSettings | null | undefined,
   globalSmtp: SpacemailSMTP = msc_envOutgoingOverride(),
 ): { transporter: Transporter; fromAddress: string; layered: MscProjectOutgoingSmtp } {
   const layered = msc_mergedOutgoingForSmtp(fromProject, globalSmtp)
   const t = msc_nodemailerOptionsFromSettings(layered)
-  const fromAddress = layered.username.includes('@') ? layered.username : 'noreply@localhost'
+  const fromAddress = msc_resolveOutgoingFromAddress(layered)
   return {
     transporter: nodemailer.createTransport(t),
     fromAddress,

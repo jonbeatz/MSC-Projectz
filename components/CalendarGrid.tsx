@@ -15,13 +15,7 @@ import type { CalendarViewMode, Project } from '@/lib/types'
 import { cn } from '@/lib/utils'
 import { CalendarTaskChip } from '@/components/CalendarTaskChip'
 import { Button } from '@/components/ui/button'
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog'
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 
 const DOW = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
 
@@ -63,10 +57,7 @@ export function CalendarGrid({
     return m
   }, [projects])
 
-  const dayCells = useMemo(
-    () => msc_calendarDayCells(selectedYmd, calendarView),
-    [calendarView, selectedYmd],
-  )
+  const dayCells = useMemo(() => msc_calendarDayCells(selectedYmd, calendarView), [calendarView, selectedYmd])
 
   const baseDate = useMemo(() => new Date(selectedYmd + 'T12:00:00'), [selectedYmd])
   const selectedD = useMemo(() => new Date(selectedYmd + 'T12:00:00'), [selectedYmd])
@@ -129,17 +120,7 @@ export function CalendarGrid({
         <div className="min-h-0 min-w-0 flex-1 overflow-x-visible overflow-y-auto md:hidden">
           <div className="grid grid-cols-2 gap-2 p-0.5 sm:grid-cols-3 sm:gap-2">
             {cellRows.map(
-              ({
-                day,
-                ymd,
-                inMonth,
-                isSel,
-                eligibleItems,
-                previewItems,
-                overflowCount,
-                isToday,
-                dayAriaLabel,
-              }) => (
+              ({ day, ymd, inMonth, isSel, eligibleItems, previewItems, overflowCount, isToday, dayAriaLabel }) => (
                 <div
                   key={ymd}
                   role="button"
@@ -239,84 +220,85 @@ export function CalendarGrid({
                 </div>
                 <div className="mt-1.5 grid grid-cols-7 gap-1.5 md:auto-rows-[9.1rem]">
                   {cellRows.map(
-                  ({
-                    day,
-                    ymd,
-                    inMonth,
-                    isSel,
-                    eligibleItems,
-                    previewItems,
-                    overflowCount,
-                    isToday,
-                    dayAriaLabel,
-                  }) => (
-                    <div key={ymd} className="flex min-h-0 min-w-0 md:h-[9.1rem] md:min-h-0 md:flex-col">
-                      <div
-                        role="button"
-                        tabIndex={0}
-                        onClick={() => activateDayCell(ymd, eligibleItems.length)}
-                        onKeyDown={(e) => {
-                          if (e.key === 'Enter' || e.key === ' ') {
-                            e.preventDefault()
-                            activateDayCell(ymd, eligibleItems.length)
-                          }
-                        }}
-                        className={cn(
-                          'msc-calendar-glass-cell msc-calendar-glass-cell--matrix group flex min-h-0 min-w-0 cursor-pointer flex-col gap-1.5 overflow-hidden px-2.5 py-2 text-left transition',
-                          'md:h-full md:min-h-0 md:max-h-none',
-                          inMonth
-                            ? isSel
-                              ? 'ring-1 ring-dashed ring-white/22 ring-inset hover:bg-white/[0.03]'
-                              : cn(
-                                  'hover:bg-white/[0.025]',
-                                  isToday && 'shadow-[inset_0_0_26px_rgba(255,255,255,0.04)] ring-1 ring-inset ring-white/[0.08]',
-                                )
-                            : 'opacity-[0.36] ring-1 ring-dashed ring-white/[0.05] ring-inset',
-                        )}
-                        aria-label={dayAriaLabel}
-                        aria-pressed={isSel}
-                      >
-                        <span
+                    ({
+                      day,
+                      ymd,
+                      inMonth,
+                      isSel,
+                      eligibleItems,
+                      previewItems,
+                      overflowCount,
+                      isToday,
+                      dayAriaLabel,
+                    }) => (
+                      <div key={ymd} className="flex min-h-0 min-w-0 md:h-[9.1rem] md:min-h-0 md:flex-col">
+                        <div
+                          role="button"
+                          tabIndex={0}
+                          onClick={() => activateDayCell(ymd, eligibleItems.length)}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter' || e.key === ' ') {
+                              e.preventDefault()
+                              activateDayCell(ymd, eligibleItems.length)
+                            }
+                          }}
                           className={cn(
-                            'mb-1 w-7 shrink-0 rounded-md py-0.5 text-center text-[10px] font-medium tabular-nums md:text-xs',
-                            !inMonth && 'text-muted-foreground/45',
-                            inMonth &&
-                              (isToday
-                                ? 'bg-white/[0.065] text-foreground ring-1 ring-inset ring-white/[0.09] shadow-[inset_0_0_12px_rgba(255,255,255,0.05)]'
-                                : 'text-foreground/84'),
+                            'msc-calendar-glass-cell msc-calendar-glass-cell--matrix group flex min-h-0 min-w-0 cursor-pointer flex-col gap-1.5 overflow-hidden px-2.5 py-2 text-left transition',
+                            'md:h-full md:min-h-0 md:max-h-none',
+                            inMonth
+                              ? isSel
+                                ? 'ring-1 ring-dashed ring-white/22 ring-inset hover:bg-white/[0.03]'
+                                : cn(
+                                    'hover:bg-white/[0.025]',
+                                    isToday &&
+                                      'shadow-[inset_0_0_26px_rgba(255,255,255,0.04)] ring-1 ring-inset ring-white/[0.08]',
+                                  )
+                              : 'opacity-[0.36] ring-1 ring-dashed ring-white/[0.05] ring-inset',
                           )}
+                          aria-label={dayAriaLabel}
+                          aria-pressed={isSel}
                         >
-                          {String(day.getDate())}
-                        </span>
-                        <div className="flex min-h-0 flex-1 flex-col gap-1.5 overflow-y-auto overscroll-y-contain [scrollbar-gutter:stable]">
-                          {previewItems.map((x) => {
-                            const project = byProjectId.get(x.projectId)
-                            if (!project) return null
-                            return (
-                              <div key={x.task.id} className="min-w-0 shrink-0 px-0.5">
-                                <CalendarTaskChip
-                                  task={x.task}
-                                  project={project}
-                                  projectName={x.projectName}
-                                  cellYmd={ymd}
-                                  selectedYmd={selectedYmd}
-                                  onSelectYmd={onSelectYmd}
-                                  onEditTask={onEditTask}
-                                  variant="minimal"
-                                />
+                          <span
+                            className={cn(
+                              'mb-1 w-7 shrink-0 rounded-md py-0.5 text-center text-[10px] font-medium tabular-nums md:text-xs',
+                              !inMonth && 'text-muted-foreground/45',
+                              inMonth &&
+                                (isToday
+                                  ? 'bg-white/[0.065] text-foreground ring-1 ring-inset ring-white/[0.09] shadow-[inset_0_0_12px_rgba(255,255,255,0.05)]'
+                                  : 'text-foreground/84'),
+                            )}
+                          >
+                            {String(day.getDate())}
+                          </span>
+                          <div className="flex min-h-0 flex-1 flex-col gap-1.5 overflow-y-auto overscroll-y-contain [scrollbar-gutter:stable]">
+                            {previewItems.map((x) => {
+                              const project = byProjectId.get(x.projectId)
+                              if (!project) return null
+                              return (
+                                <div key={x.task.id} className="min-w-0 shrink-0 px-0.5">
+                                  <CalendarTaskChip
+                                    task={x.task}
+                                    project={project}
+                                    projectName={x.projectName}
+                                    cellYmd={ymd}
+                                    selectedYmd={selectedYmd}
+                                    onSelectYmd={onSelectYmd}
+                                    onEditTask={onEditTask}
+                                    variant="minimal"
+                                  />
+                                </div>
+                              )
+                            })}
+                            {overflowCount > 0 ? (
+                              <div className="shrink-0 px-1 pt-0.5 text-xs font-medium text-muted-foreground">
+                                + {overflowCount} more
                               </div>
-                            )
-                          })}
-                          {overflowCount > 0 ? (
-                            <div className="shrink-0 px-1 pt-0.5 text-xs font-medium text-muted-foreground">
-                              + {overflowCount} more
-                            </div>
-                          ) : null}
+                            ) : null}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  ),
-                )}
+                    ),
+                  )}
                 </div>
               </div>
             </div>
@@ -328,7 +310,7 @@ export function CalendarGrid({
         <DialogContent
           showCloseButton
           className={cn(
-              'msc-calendar-detail-dialog max-h-[min(88vh,40rem)] max-w-[calc(100%-2rem)] gap-0 overflow-hidden border-border p-0 sm:max-w-lg',
+            'msc-calendar-detail-dialog max-h-[min(88vh,40rem)] max-w-[calc(100%-2rem)] gap-0 overflow-hidden border-border p-0 sm:max-w-lg',
             'bg-card/90 text-foreground',
           )}
         >

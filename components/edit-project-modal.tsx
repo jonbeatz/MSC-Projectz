@@ -1,7 +1,24 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
-import { X, Upload, FolderOpen, Globe, ImageIcon, Save, Plus, Trash2, Link2, FileText, Users, Send, Eye, EyeOff, Loader2, Shield } from 'lucide-react'
+import {
+  X,
+  Upload,
+  FolderOpen,
+  Globe,
+  ImageIcon,
+  Save,
+  Plus,
+  Trash2,
+  Link2,
+  FileText,
+  Users,
+  Send,
+  Eye,
+  EyeOff,
+  Loader2,
+  Shield,
+} from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -25,7 +42,7 @@ interface EditProjectModalProps {
 
 export function EditProjectModal({ project, isOpen, onClose }: EditProjectModalProps) {
   const updateProject = useAppStore((s) => s.updateProject)
-  
+
   const [name, setName] = useState('')
   const [thumbnail, setThumbnail] = useState('')
   const [thumbnailMediaId, setThumbnailMediaId] = useState<string | number | null>(null)
@@ -252,12 +269,14 @@ export function EditProjectModal({ project, isOpen, onClose }: EditProjectModalP
 
   const msc_memberInitials = (user: { username?: string | null; email?: string | null }) => {
     const label = user.username?.trim() || user.email || ''
-    return label
-      .split(/[\s@._-]+/)
-      .filter(Boolean)
-      .slice(0, 2)
-      .map((part) => part[0]?.toUpperCase())
-      .join('') || 'U'
+    return (
+      label
+        .split(/[\s@._-]+/)
+        .filter(Boolean)
+        .slice(0, 2)
+        .map((part) => part[0]?.toUpperCase())
+        .join('') || 'U'
+    )
   }
 
   if (!project || !isOpen) return null
@@ -268,7 +287,8 @@ export function EditProjectModal({ project, isOpen, onClose }: EditProjectModalP
     return project.members?.find((m) => String(m.id) === memberId) ?? null
   }
 
-  const rawOwner = project.ownerUserId ?? (project as Project & { owner?: string | number | { id: string | number } }).owner
+  const rawOwner =
+    project.ownerUserId ?? (project as Project & { owner?: string | number | { id: string | number } }).owner
   const ownerId =
     rawOwner && typeof rawOwner === 'object' && 'id' in rawOwner
       ? String(rawOwner.id)
@@ -284,11 +304,8 @@ export function EditProjectModal({ project, isOpen, onClose }: EditProjectModalP
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       {/* Backdrop */}
-      <div 
-        className="absolute inset-0 backdrop-blur-sm bg-black/80" 
-        onClick={onClose} 
-      />
-      
+      <div className="absolute inset-0 backdrop-blur-sm bg-black/80" onClick={onClose} />
+
       {/* Modal */}
       <div className="relative w-full max-w-2xl rounded-2xl shadow-2xl overflow-hidden bg-card border border-border">
         {/* Header */}
@@ -361,12 +378,7 @@ export function EditProjectModal({ project, isOpen, onClose }: EditProjectModalP
                   </div>
                   <div className="flex flex-col gap-2 flex-1">
                     <label className="cursor-pointer">
-                      <input
-                        type="file"
-                        accept="image/*"
-                        onChange={handleThumbnailUpload}
-                        className="hidden"
-                      />
+                      <input type="file" accept="image/*" onChange={handleThumbnailUpload} className="hidden" />
                       <div className="flex items-center gap-2 px-3 py-2 rounded-lg border border-dashed transition-colors text-sm border-border text-muted-foreground hover:border-primary hover:text-primary">
                         <Upload className="w-4 h-4" />
                         Upload Image
@@ -400,7 +412,8 @@ export function EditProjectModal({ project, isOpen, onClose }: EditProjectModalP
                   </p>
                   {!directoryIsMasterAdmin && (
                     <p className="mt-2 rounded-md border border-border bg-muted/30 px-3 py-2 text-xs text-muted-foreground">
-                      Only accounts visible to you appear in the add list. Existing members stay attached until you remove them; a Master Admin can add anyone from the full directory.
+                      Only accounts visible to you appear in the add list. Existing members stay attached until you
+                      remove them; a Master Admin can add anyone from the full directory.
                     </p>
                   )}
                 </div>
@@ -629,10 +642,7 @@ export function EditProjectModal({ project, isOpen, onClose }: EditProjectModalP
                   </div>
                   <div className="space-y-2">
                     <span className="text-xs text-muted-foreground">Encryption</span>
-                    <Select
-                      value={smtpEncryption}
-                      onValueChange={(v) => setSmtpEncryption(v as MscSmtpEncryption)}
-                    >
+                    <Select value={smtpEncryption} onValueChange={(v) => setSmtpEncryption(v as MscSmtpEncryption)}>
                       <SelectTrigger className="w-full border-border bg-input text-foreground">
                         <SelectValue />
                       </SelectTrigger>
@@ -804,16 +814,10 @@ export function EditProjectModal({ project, isOpen, onClose }: EditProjectModalP
 
         {/* Footer */}
         <div className="flex justify-end gap-2 px-6 py-4 border-t border-border bg-secondary/50">
-          <Button 
-            variant="ghost" 
-            onClick={onClose}
-          >
+          <Button variant="ghost" onClick={onClose}>
             Cancel
           </Button>
-          <Button 
-            onClick={handleSave} 
-            className="gap-2 bg-primary text-primary-foreground hover:bg-primary/90"
-          >
+          <Button onClick={handleSave} className="gap-2 bg-primary text-primary-foreground hover:bg-primary/90">
             <Save className="w-4 h-4" />
             Save Changes
           </Button>

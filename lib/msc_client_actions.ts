@@ -11,11 +11,7 @@ import {
   type OnboardingChecklist,
 } from '@/lib/msc_client_domain'
 import { msc_hasAdminAccess } from '@/lib/msc_roles'
-import type {
-  MscClientDetail,
-  MscClientListRow,
-  MscClientPulseStats,
-} from '@/lib/msc_client_types'
+import type { MscClientDetail, MscClientListRow, MscClientPulseStats } from '@/lib/msc_client_types'
 import { msc_publicPayloadError } from '@/lib/msc_public_error'
 import { msc_coercePayloadRelationId } from '@/lib/msc_vault_payload_ids'
 import type { MscUserWithRole } from '@/lib/msc_vault_payload_access'
@@ -63,13 +59,7 @@ function msc_addDays(d: Date, n: number): Date {
   return x
 }
 
-const MSC_CLIENT_ALLOWED_STATUSES = [
-  'lead',
-  'active',
-  'onboarding',
-  'completed',
-  'archived',
-] as const
+const MSC_CLIENT_ALLOWED_STATUSES = ['lead', 'active', 'onboarding', 'completed', 'archived'] as const
 
 type MscPrimaryContactInput = {
   name: string
@@ -94,10 +84,8 @@ export async function msc_createClient(data: {
       return { ok: false, error: 'Client name is required.' }
     }
 
-    const pcName =
-      typeof data.primaryContact?.name === 'string' ? data.primaryContact.name.trim() : ''
-    const pcEmail =
-      typeof data.primaryContact?.email === 'string' ? data.primaryContact.email.trim() : ''
+    const pcName = typeof data.primaryContact?.name === 'string' ? data.primaryContact.name.trim() : ''
+    const pcEmail = typeof data.primaryContact?.email === 'string' ? data.primaryContact.email.trim() : ''
     if (pcName === '') {
       return { ok: false, error: 'Primary contact name is required.' }
     }
@@ -106,9 +94,7 @@ export async function msc_createClient(data: {
     }
     const rawPhone = data.primaryContact?.phone
     const phone =
-      rawPhone !== undefined && rawPhone !== null && String(rawPhone).trim() !== ''
-        ? String(rawPhone).trim()
-        : null
+      rawPhone !== undefined && rawPhone !== null && String(rawPhone).trim() !== '' ? String(rawPhone).trim() : null
 
     const created = await ctx.payload.create({
       collection: 'msc-clients',
@@ -135,9 +121,7 @@ export async function msc_createClient(data: {
   }
 }
 
-export async function msc_archiveClient(
-  clientId: string,
-): Promise<{ ok: true } | { ok: false; error: string }> {
+export async function msc_archiveClient(clientId: string): Promise<{ ok: true } | { ok: false; error: string }> {
   try {
     const ctx = await msc_getVaultLocalApiContext()
     const u = ctx.user as MscUserWithRole | null | undefined
@@ -186,10 +170,8 @@ export async function msc_updateClientProfile(
       return { ok: false, error: 'Invalid client status.' }
     }
 
-    const pcName =
-      typeof data.primaryContact?.name === 'string' ? data.primaryContact.name.trim() : ''
-    const pcEmail =
-      typeof data.primaryContact?.email === 'string' ? data.primaryContact.email.trim() : ''
+    const pcName = typeof data.primaryContact?.name === 'string' ? data.primaryContact.name.trim() : ''
+    const pcEmail = typeof data.primaryContact?.email === 'string' ? data.primaryContact.email.trim() : ''
     if (pcName === '') {
       return { ok: false, error: 'Primary contact name is required.' }
     }
@@ -305,9 +287,9 @@ export async function msc_listClients(): Promise<
   }
 }
 
-export async function msc_getClient(clientId: string): Promise<
-  { ok: true; client: MscClientDetail } | { ok: false; error: string }
-> {
+export async function msc_getClient(
+  clientId: string,
+): Promise<{ ok: true; client: MscClientDetail } | { ok: false; error: string }> {
   try {
     const ctx = await msc_getVaultLocalApiContext()
     const u = ctx.user as MscUserWithRole | null | undefined
@@ -356,9 +338,9 @@ export async function msc_getClient(clientId: string): Promise<
   }
 }
 
-export async function msc_getClientPulse(clientId: string): Promise<
-  { ok: true; pulse: MscClientPulseStats } | { ok: false; error: string }
-> {
+export async function msc_getClientPulse(
+  clientId: string,
+): Promise<{ ok: true; pulse: MscClientPulseStats } | { ok: false; error: string }> {
   try {
     const ctx = await msc_getVaultLocalApiContext()
     const u = ctx.user as MscUserWithRole | null | undefined
@@ -483,9 +465,7 @@ export async function msc_updateClientChecklist(
 
     const rawVault = (existing as unknown as { clientVault?: unknown }).clientVault
     const prevVault =
-      rawVault && typeof rawVault === 'object' && rawVault !== null
-        ? { ...(rawVault as Record<string, unknown>) }
-        : {}
+      rawVault && typeof rawVault === 'object' && rawVault !== null ? { ...(rawVault as Record<string, unknown>) } : {}
 
     await payload.update({
       collection: 'msc-clients',

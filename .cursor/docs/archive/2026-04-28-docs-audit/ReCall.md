@@ -2,27 +2,27 @@
 
 ## 2026-04-27 — Sprint 8 (avatar resolution)
 
-- **Shipped:** **`msc_resolveAvatarUrl`** (**`lib/msc_avatar_url.ts`**); **`msc_mapProjectMember`** sets **`avatarUrl`** only; **`MemberClusterTrigger`** + **`fallbackType`** (**`'icon'`** default); **`MSC-Projectz-ProjectCard`**, **`CalendarTaskChip`**, **`MSC-Projectz-TaskAssignee`** badge; profile **`msc_avatarUrlFromDoc`** DRY.  
-- **Docs:** **`Development-Roadmap.md`** (Sprint 8), **`Agent-Runbook.md`** (*Profile avatars & member clusters*), **`Session-Snapshots.md`**, **`START-HERE.md`** (Core Features).
+- **Shipped:** **`msc_resolveAvatarUrl`** (**`lib/msc_avatar_url.ts`**); **`msc_mapProjectMember`** sets **`avatarUrl`** only; **`MemberClusterTrigger`** + **`fallbackType`** (**`'icon'`** default); **`MSC-Projectz-ProjectCard`**, **`CalendarTaskChip`**, **`MSC-Projectz-TaskAssignee`** badge; profile **`msc_avatarUrlFromDoc`** DRY.
+- **Docs:** **`Development-Roadmap.md`** (Sprint 8), **`Agent-Runbook.md`** (_Profile avatars & member clusters_), **`Session-Snapshots.md`**, **`START-HERE.md`** (Core Features).
 
 ## 2026-04-27 — Current operator pointer
 
 - **Active branch:** `MSC-Projectz-FullDev-v7` (always confirm with `git branch --show-current`). Prior lines: **`MSC-Projectz-FullDev-v6`**, **`v5`**, **`v4`**, **`v3`** on `origin` for history.
-- **Restart point + app map:** **`START-HERE.md`** → *Current Restart Point* and *Architecture* (Command Center under `app/(main)/(command-center)/`, Payload admin in `app/(payload)/`, root `app/layout.tsx` pass-through only).
+- **Restart point + app map:** **`START-HERE.md`** → _Current Restart Point_ and _Architecture_ (Command Center under `app/(main)/(command-center)/`, Payload admin in `app/(payload)/`, root `app/layout.tsx` pass-through only).
 - **Calendar:** **`/calendar`** — Phase **9** responsive grid, day-detail **Dialog**, **`CalendarGrid`** / **`MSC-Projectz-Calendar`**; docs in **`Development-Roadmap.md`**, **`Session-Snapshots`**, **`Project-Truth`** / **`START-HERE`**. **`useIsMaxMd`** where sub-`md` sheet/agenda applies. **Primary branch:** **`MSC-Projectz-FullDev-v7`**.
 - **Deploy / recovery:** **`FlightPro.md`** remains the master deploy SOP; local recovery patterns in **`Agent-Runbook.md`**.
 
 ## 2026-04-26 — Docs + deploy alignment
 
-- **`FlightPro.md`** is the master file for **deploy** (`pushitlive` → `msc_package_deploy.mjs` → `final_deploy.zip`), **COPY_PLAN** contents, **local recovery** (no dependency on a `dev:recover` script), and a **“how to keep this file current”** section for the next fix.  
-- **`START-HERE.md`:** the canonical primary line is **`MSC-Projectz-FullDev-v7`** — see *Current Restart Point* for the live SHA (prior checkpoints **v6** / **v5** / **v4** / **v3** on **`origin`**).  
-- **`Agent-Runbook.md`** recovery section matches **real** `package.json` scripts (`clean:next`, `dev`, `verify:next`).  
-- **`Jedi-List`**: deploy packaging v1 marked done; optional Spaceship `pushitup:*` scripts remain organization-specific until re-added to `package.json`.  
-- New checkpoint: **`Restore-Points.md`** — `RP-2026-04-26-docs-flightpro-deploy`.  
+- **`FlightPro.md`** is the master file for **deploy** (`pushitlive` → `msc_package_deploy.mjs` → `final_deploy.zip`), **COPY_PLAN** contents, **local recovery** (no dependency on a `dev:recover` script), and a **“how to keep this file current”** section for the next fix.
+- **`START-HERE.md`:** the canonical primary line is **`MSC-Projectz-FullDev-v7`** — see _Current Restart Point_ for the live SHA (prior checkpoints **v6** / **v5** / **v4** / **v3** on **`origin`**).
+- **`Agent-Runbook.md`** recovery section matches **real** `package.json` scripts (`clean:next`, `dev`, `verify:next`).
+- **`Jedi-List`**: deploy packaging v1 marked done; optional Spaceship `pushitup:*` scripts remain organization-specific until re-added to `package.json`.
+- New checkpoint: **`Restore-Points.md`** — `RP-2026-04-26-docs-flightpro-deploy`.
 
 ## 2026-04-25 Session Resume Notes
 
-*Recorded 2026-04-25 on `MSC-Projectz-v4` at `aa764ba`; the “Current app shape” bullets were refreshed 2026-04-27 for the `app/(main)/` route group. Branch/commit lines below describe that day’s checkpoint, not necessarily today’s branch.*
+_Recorded 2026-04-25 on `MSC-Projectz-v4` at `aa764ba`; the “Current app shape” bullets were refreshed 2026-04-27 for the `app/(main)/` route group. Branch/commit lines below describe that day’s checkpoint, not necessarily today’s branch._
 
 Start on branch `MSC-Projectz-v4`. The GitHub remote is `https://github.com/jonbeatz/MSC-Projectz.git`. The latest local commit is `aa764ba` (`Refine project card bridge and auth diagnostics`), and the branch is currently ahead of `origin/MSC-Projectz-v4` by one commit.
 

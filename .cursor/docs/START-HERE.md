@@ -6,15 +6,15 @@ Use this quick flow at the beginning of every session:
 
 1. Confirm branch and working tree: `git branch --show-current` and `git status -sb`.
 2. Re-read canonical docs in order (below), starting with this file.
-4. Load deploy profile context from `.cursor/docs/Deploy-Profile.template.json` (+ local override if present).
-5. Confirm script truth in `package.json` before using any command alias.
-6. For runtime edits (`app/`, `components/`, `lib/`, `collections/`, config), run build gate before closeout:
+3. Load deploy profile context from `.cursor/docs/Deploy-Profile.template.json` (+ local override if present).
+4. Confirm script truth in `package.json` before using any command alias.
+5. For runtime edits (`app/`, `components/`, `lib/`, `collections/`, config), run build gate before closeout:
    - `npm run verify:next`
-7. Ensure local dev is healthy on port `3000`:
+6. Ensure local dev is healthy on port `3000`:
    - `npm run dev`
    - smoke test `/` and `/admin` on `http://127.0.0.1:3000`
-8. Read latest handoff in `Session-Snapshots.md` and continue from its "Start-next checklist".
-9. Final startup confirmation line (must be exact): **`Ready to start Jedi Master`**.
+7. Read latest handoff in `Session-Snapshots.md` and continue from its "Start-next checklist".
+8. Final startup confirmation line (must be exact): **`Ready to start Jedi Master`**.
 
 ### Morning startup response contract (assistant)
 
@@ -76,11 +76,11 @@ If localhost is broken, follow recovery in `FlightPro.md` and `Agent-Runbook.md`
 
 ### Known fixes (do this first)
 
-- **Dashboard “Authentication required to fetch vault projects” while UI looks signed in:** client/store raced ahead of **Payload httpOnly** session on the first server action. **Do not** revert the mitigation — read **`.cursor/docs/incidents/Vault-Session-Hydration-Race.md`**. Use **one** local origin (`127.0.0.1` *or* `localhost`, not both) for cookies.
+- **Dashboard “Authentication required to fetch vault projects” while UI looks signed in:** client/store raced ahead of **Payload httpOnly** session on the first server action. **Do not** revert the mitigation — read **`.cursor/docs/incidents/Vault-Session-Hydration-Race.md`**. Use **one** local origin (`127.0.0.1` _or_ `localhost`, not both) for cookies.
 - **Payload admin crash (`/admin/login` 500, `CodeEditor` config undefined):** ensure `app/(payload)/layout.tsx` uses Payload `RootLayout` wiring with `config` + `importMap` + `handleServerFunctions` serverFunction.
 - **After any admin layout/component wiring change:** run `npm run generate:importmap`, then `npm run verify:next`, then `npm run dev`, then smoke `/` + `/admin`.
 - **Reference records:** see latest resolved incident in `Session-Snapshots.md` (`2026-04-27 08:11`) and permanent guardrail in `Agent-Runbook.md` (`Payload admin guardrail` section).
-- **Local `gate-user-*.@msc.local` in Settings → Users:** optional audit test accounts, not the dev trust bypass. To remove them from SQLite, **`npm run db:prune-gate-users`** (see `Agent-Runbook.md` → *Local SQLite: gate-user*).
+- **Local `gate-user-*.@msc.local` in Settings → Users:** optional audit test accounts, not the dev trust bypass. To remove them from SQLite, **`npm run db:prune-gate-users`** (see `Agent-Runbook.md` → _Local SQLite: gate-user_).
 - **Paused retry streams (2026-04-28):** before resuming media thumbnail migration or Clients glassmorphism, read:
 - **Media migration now completed (2026-04-28):** project thumbnails are linked via `thumbnailMedia`; legacy text thumbnail values were cleaned for migrated rows; media usage cleanup is now owner-safe and dry-run by default.
 - **Paused retry stream (remaining):** Clients glassmorphism continues to use debug note history; read before revisiting:
@@ -98,6 +98,7 @@ For `Ready to begin`, this first `Ok Jon` line confirms docs context is loaded f
 Use once at flow start to confirm context/docs were read, then continue normally.
 
 Recognized triggers:
+
 - `Ready to start Jedi Master` (use after docs-read completion check)
 - `Ready to begin`
 - `Lets Start`
@@ -128,52 +129,52 @@ Ship a production-ready **Payload 3** + **Next.js 16** command center (with opti
 
 ## Current Restart Point
 
-* **Branch:** `MSC-Projectz-FullDev-v10` (primary line; keep recent prior branches for checkpoint history)
-* **Remote:** `origin` → `https://github.com/jonbeatz/MSC-Projectz.git`
-* **Latest recorded commit (this doc refresh):** confirm SHA with `git log -1 --oneline` on `MSC-Projectz-FullDev-v10`.
-* **Layout / admin shell baseline:** `d5422dd` — *fix(admin): split app shell from Payload and harden local dev*
-* **Working-state note:** docs were expanded for start/continue workflow, snapshots, and closeout. Always trust `git status -sb` as the live state.
-* **Architecture:** Command Center routes live under `app/(main)/(command-center)/` (group `(main)` owns the app `<html>`/`<body>`); login and auth live under `app/(main)/`. Payload admin/API use `app/(payload)/` with its own document via `RootLayout`. Root `app/layout.tsx` only returns `children` so those shells are siblings, not nested documents.
-* **Verification (operators):** after code changes, run **`npm run verify:next`** from the repo root. For a quick local smoke, **`npm run dev`** on port **3000** and check **`/`** and **`/admin`** (expect **200**).
-* **MSC-Projectz-Master-v3.0 (Vader Dark FrostedUI):** clean restore branch for **frosted** Command Center chrome (glass rail/header, **`msc-cc-route-canvas`** on **`<main>`**, **`msc-ui-accent`**, in-flow dark footer) + operator preset docs. Roll forward/back: **`Restore-Points.md`** → **RP-2026-04-29-master-v3-vader-dark-frosted-ui**.
+- **Branch:** `MSC-Projectz-FullDev-v10` (primary line; keep recent prior branches for checkpoint history)
+- **Remote:** `origin` → `https://github.com/jonbeatz/MSC-Projectz.git`
+- **Latest recorded commit (this doc refresh):** confirm SHA with `git log -1 --oneline` on `MSC-Projectz-FullDev-v10`.
+- **Layout / admin shell baseline:** `d5422dd` — _fix(admin): split app shell from Payload and harden local dev_
+- **Working-state note:** docs were expanded for start/continue workflow, snapshots, and closeout. Always trust `git status -sb` as the live state.
+- **Architecture:** Command Center routes live under `app/(main)/(command-center)/` (group `(main)` owns the app `<html>`/`<body>`); login and auth live under `app/(main)/`. Payload admin/API use `app/(payload)/` with its own document via `RootLayout`. Root `app/layout.tsx` only returns `children` so those shells are siblings, not nested documents.
+- **Verification (operators):** after code changes, run **`npm run verify:next`** from the repo root. For a quick local smoke, **`npm run dev`** on port **3000** and check **`/`** and **`/admin`** (expect **200**).
+- **MSC-Projectz-Master-v3.0 (Vader Dark FrostedUI):** clean restore branch for **frosted** Command Center chrome (glass rail/header, **`msc-cc-route-canvas`** on **`<main>`**, **`msc-ui-accent`**, in-flow dark footer) + operator preset docs. Roll forward/back: **`Restore-Points.md`** → **RP-2026-04-29-master-v3-vader-dark-frosted-ui**.
 
 ## Core Features
 
-* **Project Dashboard:** Bento-style view of studio projects. **Sort** (app header on `/dashboard`): **manual** (persisted per-row **`manualRank`**) or **name** / **updated** / **status** via `msc_sortProjectsForDashboard`. **Move up / down** (grid + list) when **Sort: manual**: **admin / master-admin** see controls on every card and may swap with any neighbor; **standard users** only when you **own** the project, and the **adjacent** row must also be yours (shared projects in the way are skipped—server **`msc_moveProjectManual`**). If reorder fails with **`no such column`** on **`payload_locked_documents`**, run **`npm run repair:sqlite`**—that fixes **`payload_locked_documents_rels`** drift, not **`msc_vault_projects`** alone.  
-* **Command Center (responsive):** &lt;1024px: **drawer** nav + backdrop (`components/dashboard-sidebar.tsx`, `dashboard-layout.tsx`); **lg+:** collapsible **rail**; **`useIsMobile`** in `lib/msc_hooks.ts` matches the same breakpoint; project **search** in the app header is **lg+** only.  
-* **Task Drawer / pulse:** Task workflows and indicators (see `components/MSC-Projectz-TaskPulse.tsx`, `components/task-drawer.tsx`).  
-* **Code Manager (`/vault`):** split-pane workspace with Markdown and vault utilities.  
-* **Calendar (`/calendar`):** month/week grid of tasks by due date. **Layout (Phase 9.1):** **`grid-cols-1 md:grid-cols-7`**, **`gap-px`** zinc frame; **below `md`** days stack with a **weekday+date** line per row; **from `md`** a **Mon–Sun** header row uses **`hidden md:contents`**. Rows use **`min-h-[150px]`** and **`h-auto`** (no **`1fr`** row stretch). **Day detail:** **`Dialog`** (**`#121212`**) lists all tasks for the tapped day; **cell preview** shows up to **3** tasks plus **`+ N more`** (**`text-zinc-500`**). **Mobile agenda:** an **Agenda** control opens the existing **bottom sheet** (selecting a day no longer auto-opens the sheet). Use **`useIsMaxMd`** where needed. Day cells avoid nested **`<button>`** (see **`CalendarGrid`** / **`MSC-Projectz-Calendar.tsx`** re-export, **`CalendarTaskChip`**).  
-* **Clients (`/clients`):** clients collection + route (see `MSC-Projectz-ClientsRouteView`, `MSC-Projectz-ClientDrawer`).  
-* **Vault snippets (dashboard):** snippet drawer/viewer, **`MSC-Projectz-VaultSnippets`** Payload collection; snippet form uses **neutral zinc focus** on inputs (see `app/globals.css` + `components/ui/input.tsx` / `textarea.tsx`).
-* **Audit Logs (embedded in Settings):** admin-only audit trail section with filterable history/details for sensitive user-management actions.  
-* **Credentials & Explorer:** project cards with key popovers; native folder open via Tauri when available.  
-* **Member avatars (dashboard):** project-card **`MemberClusterTrigger`** and related surfaces use **`msc_resolveAvatarUrl`** (**`lib/msc_avatar_url.ts`**) and default **`fallbackType="icon"`** (Lucide **`User`** when no photo). Mapper **`msc_mapProjectMember`** normalizes **`avatarUrl`** for vault payloads.  
-* **Persistence:** Local **SQLite** via Payload; uploads under **`./media`**.  
-* **Theming:** Soft Studio light mode scoped with `.light` / `[data-theme='light']` (see `app/globals.css`, `components/dashboard-layout.tsx`).  
-* **Command Center dark canvas:** Gradient class **`msc-cc-route-canvas`** is applied on **`<main>`** in **`dashboard-layout.tsx`** (not on individual route wrappers). If **dark vertical/horizontal gutters** reappear beside the wash, check for **shell `px-*`** on the layout content wrapper or a **second** canvas only on the inner page — authoritative notes live in **`.cursor/docs/msc-cc-command-center-nav-preset.md`**. Command Center UI accent: **`--msc-ui-accent-hex`** / **`msc-ui-accent`** (default cool blue **`#599ede`**) in **`app/globals.css`**.  
-* **Tenancy:** Server actions should assert current-user ownership; browser storage must stay user-scoped (see `Agent-Runbook.md`).
-* **RBAC UI gate:** Use `RoleGate` (`components/shared/RoleGate.tsx`) for role-scoped rendering. `AdminGate` is deprecated/removed.
+- **Project Dashboard:** Bento-style view of studio projects. **Sort** (app header on `/dashboard`): **manual** (persisted per-row **`manualRank`**) or **name** / **updated** / **status** via `msc_sortProjectsForDashboard`. **Move up / down** (grid + list) when **Sort: manual**: **admin / master-admin** see controls on every card and may swap with any neighbor; **standard users** only when you **own** the project, and the **adjacent** row must also be yours (shared projects in the way are skipped—server **`msc_moveProjectManual`**). If reorder fails with **`no such column`** on **`payload_locked_documents`**, run **`npm run repair:sqlite`**—that fixes **`payload_locked_documents_rels`** drift, not **`msc_vault_projects`** alone.
+- **Command Center (responsive):** &lt;1024px: **drawer** nav + backdrop (`components/dashboard-sidebar.tsx`, `dashboard-layout.tsx`); **lg+:** collapsible **rail**; **`useIsMobile`** in `lib/msc_hooks.ts` matches the same breakpoint; project **search** in the app header is **lg+** only.
+- **Task Drawer / pulse:** Task workflows and indicators (see `components/MSC-Projectz-TaskPulse.tsx`, `components/task-drawer.tsx`).
+- **Code Manager (`/vault`):** split-pane workspace with Markdown and vault utilities.
+- **Calendar (`/calendar`):** month/week grid of tasks by due date. **Layout (Phase 9.1):** **`grid-cols-1 md:grid-cols-7`**, **`gap-px`** zinc frame; **below `md`** days stack with a **weekday+date** line per row; **from `md`** a **Mon–Sun** header row uses **`hidden md:contents`**. Rows use **`min-h-[150px]`** and **`h-auto`** (no **`1fr`** row stretch). **Day detail:** **`Dialog`** (**`#121212`**) lists all tasks for the tapped day; **cell preview** shows up to **3** tasks plus **`+ N more`** (**`text-zinc-500`**). **Mobile agenda:** an **Agenda** control opens the existing **bottom sheet** (selecting a day no longer auto-opens the sheet). Use **`useIsMaxMd`** where needed. Day cells avoid nested **`<button>`** (see **`CalendarGrid`** / **`MSC-Projectz-Calendar.tsx`** re-export, **`CalendarTaskChip`**).
+- **Clients (`/clients`):** clients collection + route (see `MSC-Projectz-ClientsRouteView`, `MSC-Projectz-ClientDrawer`).
+- **Vault snippets (dashboard):** snippet drawer/viewer, **`MSC-Projectz-VaultSnippets`** Payload collection; snippet form uses **neutral zinc focus** on inputs (see `app/globals.css` + `components/ui/input.tsx` / `textarea.tsx`).
+- **Audit Logs (embedded in Settings):** admin-only audit trail section with filterable history/details for sensitive user-management actions.
+- **Credentials & Explorer:** project cards with key popovers; native folder open via Tauri when available.
+- **Member avatars (dashboard):** project-card **`MemberClusterTrigger`** and related surfaces use **`msc_resolveAvatarUrl`** (**`lib/msc_avatar_url.ts`**) and default **`fallbackType="icon"`** (Lucide **`User`** when no photo). Mapper **`msc_mapProjectMember`** normalizes **`avatarUrl`** for vault payloads.
+- **Persistence:** Local **SQLite** via Payload; uploads under **`./media`**.
+- **Theming:** Soft Studio light mode scoped with `.light` / `[data-theme='light']` (see `app/globals.css`, `components/dashboard-layout.tsx`).
+- **Command Center dark canvas:** Gradient class **`msc-cc-route-canvas`** is applied on **`<main>`** in **`dashboard-layout.tsx`** (not on individual route wrappers). If **dark vertical/horizontal gutters** reappear beside the wash, check for **shell `px-*`** on the layout content wrapper or a **second** canvas only on the inner page — authoritative notes live in **`.cursor/docs/msc-cc-command-center-nav-preset.md`**. Command Center UI accent: **`--msc-ui-accent-hex`** / **`msc-ui-accent`** (default cool blue **`#599ede`**) in **`app/globals.css`**.
+- **Tenancy:** Server actions should assert current-user ownership; browser storage must stay user-scoped (see `Agent-Runbook.md`).
+- **RBAC UI gate:** Use `RoleGate` (`components/shared/RoleGate.tsx`) for role-scoped rendering. `AdminGate` is deprecated/removed.
 
 ## Identity
 
-* **Name:** Jon Beatz  
-* **System Name:** Vader  
-* **Theme:** Studio Dark / Soft Studio Light  
+- **Name:** Jon Beatz
+- **System Name:** Vader
+- **Theme:** Studio Dark / Soft Studio Light
 
 ## Documentation map (read order)
 
 Source of truth: `Docs-Architecture.md` owns this order.
 
-1. **`START-HERE.md`** (this file) — startup contract and operating baseline  
-2. **`Session-Snapshots.md`** — latest handoff + start-next checklist  
-3. **`Development-Roadmap.md`** — current roadmap and shipped sprint history  
-4. **`Agent-Runbook.md`** — runtime guardrails, recovery, coding rules  
-5. **`FlightPro.md`** — deploy + packaging + local recovery SOP  
-6. **`Spaceship.md`** — host/provider context  
-7. **`Deploy-Profile.template.json`**, **`Deploy-Profile.local.example.json`** — non-secret deploy profile contract  
-8. **`Deploy-Secrets-Workflow.md`** — encrypted secret handling workflow  
-9. **`Restore-Points.md`** — rollback checkpoints  
+1. **`START-HERE.md`** (this file) — startup contract and operating baseline
+2. **`Session-Snapshots.md`** — latest handoff + start-next checklist
+3. **`Development-Roadmap.md`** — current roadmap and shipped sprint history
+4. **`Agent-Runbook.md`** — runtime guardrails, recovery, coding rules
+5. **`FlightPro.md`** — deploy + packaging + local recovery SOP
+6. **`Spaceship.md`** — host/provider context
+7. **`Deploy-Profile.template.json`**, **`Deploy-Profile.local.example.json`** — non-secret deploy profile contract
+8. **`Deploy-Secrets-Workflow.md`** — encrypted secret handling workflow
+9. **`Restore-Points.md`** — rollback checkpoints
 
 ```
 MSC-Projectz

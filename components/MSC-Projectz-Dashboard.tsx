@@ -58,11 +58,12 @@ export function MSC_Projectz_Dashboard({
       msc_hardResetVaultState()
       return
     }
+  }, [sessionUser?.payloadUserId, msc_hardResetVaultState])
+
   useEffect(() => {
-    if (
-      msc_prevUserId.current !== undefined &&
-      String(msc_prevUserId.current) !== String(id)
-    ) {
+    const id = sessionUser?.payloadUserId
+    if (id === undefined) return
+    if (msc_prevUserId.current !== undefined && String(msc_prevUserId.current) !== String(id)) {
       msc_hardResetVaultState()
     }
     msc_prevUserId.current = id

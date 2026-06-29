@@ -2,11 +2,7 @@
  * Client-only helper: downscale large camera screenshots before Server Actions POST.
  * Returns the original string if not an image data URL or if canvas is unavailable.
  */
-export async function msc_compressDataUrlImage(
-  dataUrl: string,
-  maxEdge = 1280,
-  jpegQuality = 0.85,
-): Promise<string> {
+export async function msc_compressDataUrlImage(dataUrl: string, maxEdge = 1280, jpegQuality = 0.85): Promise<string> {
   if (typeof window === 'undefined' || !dataUrl.startsWith('data:image/')) {
     return dataUrl
   }

@@ -37,4 +37,3 @@ export function MSC_Projectz_WorkspaceModalShell({
     </DialogContent>
   )
 }
-

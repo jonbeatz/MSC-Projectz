@@ -94,7 +94,12 @@ export async function msc_verifyEmailAction(token: string): Promise<MscVerifyEma
       },
       overrideAccess: true,
     })
-    msc_logVerificationTelemetry({ kind: 'verify_token_ok', userId: user.id, ip: clientIp, extra: { firstVerify: true } })
+    msc_logVerificationTelemetry({
+      kind: 'verify_token_ok',
+      userId: user.id,
+      ip: clientIp,
+      extra: { firstVerify: true },
+    })
     const c = await cookies()
     c.set({
       name: MSC_TRUST_GATE_COOKIE,

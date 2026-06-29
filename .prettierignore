@@ -1,0 +1,5 @@
+node_modules
+.next
+deploy_package
+_coverage
+dist

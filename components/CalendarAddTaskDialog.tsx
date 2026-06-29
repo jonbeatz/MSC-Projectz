@@ -15,13 +15,7 @@ import {
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { useAppStore } from '@/lib/store'
 import type { Project } from '@/lib/types'
 import { cn } from '@/lib/utils'
@@ -58,7 +52,7 @@ export function CalendarAddTaskDialog({
   const addTask = useAppStore((s) => s.addTask)
 
   const selectedProject = useMemo(
-    () => (projectId ? projects.find((p) => p.id === projectId) ?? null : null),
+    () => (projectId ? (projects.find((p) => p.id === projectId) ?? null) : null),
     [projectId, projects],
   )
 
@@ -89,8 +83,8 @@ export function CalendarAddTaskDialog({
         <DialogHeader>
           <DialogTitle className="text-foreground">Add task</DialogTitle>
           <DialogDescription className="text-muted-foreground">
-            New task for <span className="text-foreground/90">{formatDueHeading(dueYmd)}</span> — due
-            date is set to the selected day.
+            New task for <span className="text-foreground/90">{formatDueHeading(dueYmd)}</span> — due date is set to the
+            selected day.
           </DialogDescription>
         </DialogHeader>
 
@@ -102,11 +96,7 @@ export function CalendarAddTaskDialog({
             <>
               <div className="space-y-2">
                 <Label>Project</Label>
-                <Select
-                  value={projectId}
-                  onValueChange={setProjectId}
-                  disabled={projects.length === 0}
-                >
+                <Select value={projectId} onValueChange={setProjectId} disabled={projects.length === 0}>
                   <SelectTrigger>
                     <SelectValue placeholder="Project" />
                   </SelectTrigger>
@@ -149,12 +139,7 @@ export function CalendarAddTaskDialog({
         </div>
 
         <DialogFooter>
-          <Button
-            type="button"
-            variant="secondary"
-            onClick={() => onOpenChange(false)}
-            disabled={busy}
-          >
+          <Button type="button" variant="secondary" onClick={() => onOpenChange(false)} disabled={busy}>
             Cancel
           </Button>
           <Button

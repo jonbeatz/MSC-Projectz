@@ -18,8 +18,7 @@ msc_loadEnv({ path: resolve(__dirname, '../.env') })
 const msc_SEED_EMAIL = 'jonf822@seed.msc'
 const msc_SEED_PASSWORD = 'dracula22'
 const msc_SEED_PROJECT_NAME = 'Vader - Test Integration'
-const msc_SEED_PROJECT_NOTES =
-  'Verification project for Vader Vault multi-tenancy. Seeded by scripts/msc_seed_data.ts.'
+const msc_SEED_PROJECT_NOTES = 'Verification project for Vader Vault multi-tenancy. Seeded by scripts/msc_seed_data.ts.'
 
 function msc_coerceUserId(payload: Payload, id: string | number): string | number {
   const t = payload.collections['users']?.customIDType || payload.db?.defaultIDType || 'text'
@@ -37,11 +36,13 @@ async function msc_findUserByEmail(payload: Payload) {
     depth: 0,
     overrideAccess: true,
   })
-  return docs[0] as {
-    id: string | number
-    email?: string
-    role?: 'master-admin' | 'admin' | 'user'
-  } | undefined
+  return docs[0] as
+    | {
+        id: string | number
+        email?: string
+        role?: 'master-admin' | 'admin' | 'user'
+      }
+    | undefined
 }
 
 async function msc_ensureAdminUser(payload: Payload): Promise<string | number> {

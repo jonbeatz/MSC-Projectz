@@ -3,6 +3,7 @@
 Portable master setup, deploy, and context schema you can reuse across all projects.
 
 Use this as your one-page operating system:
+
 - Copy sections into new repos.
 - Keep names/commands synced to each repo's `package.json`.
 - Keep Local vs Live responsibilities explicit.
@@ -38,42 +39,42 @@ Use this block at the top of each project doc:
 
 ```yaml
 project_context:
-  name: "<Project Name>"
-  repository: "<git url>"
+  name: '<Project Name>'
+  repository: '<git url>'
   branch_strategy:
-    main: "<main or trunk>"
-    working_branch: "<feature/...>"
+    main: '<main or trunk>'
+    working_branch: '<feature/...>'
   stack:
-    frontend: "<Next.js/React/etc>"
-    backend: "<Payload/Node/etc>"
-    database: "<SQLite/Postgres/etc>"
+    frontend: '<Next.js/React/etc>'
+    backend: '<Payload/Node/etc>'
+    database: '<SQLite/Postgres/etc>'
   environments:
     local:
-      label: "Local (Cursor / PC repo root)"
-      base_url: "http://127.0.0.1:3000"
+      label: 'Local (Cursor / PC repo root)'
+      base_url: 'http://127.0.0.1:3000'
     live:
-      label: "Live (cPanel -> Terminal)"
-      base_url: "https://example.com"
+      label: 'Live (cPanel -> Terminal)'
+      base_url: 'https://example.com'
   build_gate:
-    command: "<npm run verify:next or equivalent>"
+    command: '<npm run verify:next or equivalent>'
     smoke_urls:
-      - "/"
-      - "/admin"
+      - '/'
+      - '/admin'
   deploy_method:
-    artifact: "<zip/.next/image>"
-    local_command: "<npm run pushitlive or equivalent>"
-    live_restart: "<host panel restart action>"
+    artifact: '<zip/.next/image>'
+    local_command: '<npm run pushitlive or equivalent>'
+    live_restart: '<host panel restart action>'
   critical_files:
-    - ".env"
-    - "package.json"
-    - "server.js"
+    - '.env'
+    - 'package.json'
+    - 'server.js'
   recovery:
-    primary: "<dev recover command>"
+    primary: '<dev recover command>'
     fallback_manual:
-      - "free dev port"
-      - "clear stale build cache"
-      - "restart dev"
-      - "smoke test URLs"
+      - 'free dev port'
+      - 'clear stale build cache'
+      - 'restart dev'
+      - 'smoke test URLs'
 ```
 
 ---
@@ -138,6 +139,7 @@ Use this checklist whenever bootstrapping a new repo:
 
 ```md
 Deploy Summary
+
 - Artifact: <name + timestamp>
 - Upload: <success/failures + retries>
 - Restart: <done/not done>
@@ -165,6 +167,7 @@ Use this when localhost is broken, white screen appears, or port is down.
    - otherwise run clean build + dev + smoke.
 
 Rule of thumb:
+
 - Never only list these steps; execute and report statuses.
 - Prefer `127.0.0.1` first when `localhost` is flaky.
 
@@ -218,6 +221,7 @@ For Cursor skill-based workflows, this is the minimum practical set:
   - Prevents doc drift, enforces source order, keeps command docs honest.
 
 Project-specific skill families (activate only when relevant):
+
 - Nova / NovaMira Design for WordPress/Divi convention work.
 - Payload-focused rules for blocks-first admin schema work.
 

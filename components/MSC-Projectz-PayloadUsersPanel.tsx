@@ -5,15 +5,17 @@ import { Mail, Plus, RefreshCw, Shield, Trash2, User as UserIcon } from 'lucide-
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import {
   msc_createPayloadUserAsAdmin,
   msc_deletePayloadUserAsAdmin,
+  msc_invitePayloadUserAsMaster,
   msc_listPayloadUsersForSettings,
   type MscPayloadUserRow,
 } from '@/lib/msc_vault_user_admin'
 import type { MscUserAdminRole } from '@/types/user-admin'
 import { cn } from '@/lib/utils'
-import { msc_isNewPasswordCompliant } from '@/lib/msc_password_policy'
+import { msc_isNewPasswordCompliant, msc_validateNewPassword } from '@/lib/msc_password_policy'
 
 /**
  * Server-backed directory (Payload `users`) for tenant isolation. Requires `msc_vaultSignInToPayload` first.
@@ -24,9 +26,11 @@ export function MSC_Projectz_PayloadUsersPanel() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [email, setEmail] = useState('')
+  const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [role, setRole] = useState<MscUserAdminRole>('user')
   const [submitting, setSubmitting] = useState(false)
+  const [tab, setTab] = useState<'invite' | 'password'>('invite')
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -47,14 +51,46 @@ export function MSC_Projectz_PayloadUsersPanel() {
     void load()
   }, [load])
 
-  const onCreate = async () => {
-    if (!email.trim() || !password) return
+  const onInvite = async () => {
+    if (!email.trim()) return
     setSubmitting(true)
     setError(null)
-    const r = await msc_createPayloadUserAsAdmin({ email, password, role })
+    const r = await msc_invitePayloadUserAsMaster({
+      email: email.trim(),
+      username: username.trim() || undefined,
+      role,
+    })
     setSubmitting(false)
     if (r.ok) {
       setEmail('')
+      setUsername('')
+      setPassword('')
+      setRole('user')
+      void load()
+    } else {
+      setError(r.error)
+    }
+  }
+
+  const onCreateWithPassword = async () => {
+    const pw = msc_validateNewPassword(password)
+    if (!pw.ok) {
+      setError(pw.message)
+      return
+    }
+    if (!email.trim()) return
+    setSubmitting(true)
+    setError(null)
+    const r = await msc_createPayloadUserAsAdmin({
+      email: email.trim(),
+      username: username.trim() || undefined,
+      password,
+      role,
+    })
+    setSubmitting(false)
+    if (r.ok) {
+      setEmail('')
+      setUsername('')
       setPassword('')
       setRole('user')
       void load()
@@ -151,54 +187,115 @@ export function MSC_Projectz_PayloadUsersPanel() {
         <div className="rounded-lg border border-border bg-secondary/30 p-4 space-y-3">
           <h4 className="text-sm font-medium flex items-center gap-2">
             <Plus className="w-4 h-4 text-primary" />
-            Create server user
+            Invite or create user
           </h4>
-          <div className="space-y-2">
-            <Label className="text-xs text-muted-foreground">Email</Label>
-            <div className="relative">
-              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-              <Input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="pl-10 bg-input border-border"
-                placeholder="teammate@example.com"
-              />
-            </div>
-          </div>
-          <div className="space-y-2">
-            <Label className="text-xs text-muted-foreground">Password (min. 6)</Label>
-            <Input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="bg-input border-border"
-            />
-          </div>
-          <div className="flex items-center gap-2">
-            <Label className="text-xs text-muted-foreground">Role</Label>
-            <select
-              value={role}
-              onChange={(e) => setRole(e.target.value as MscUserAdminRole)}
-              className="h-9 rounded-md border border-border bg-input px-2 text-sm"
-            >
-              <option value="user">User</option>
-              <option value="admin">Admin</option>
-              <option value="master-admin">Master Admin</option>
-            </select>
-          </div>
-          <Button
-            type="button"
-            className="w-full sm:w-auto bg-primary text-primary-foreground"
-            onClick={() => void onCreate()}
-            disabled={submitting || !email.trim() || !msc_isNewPasswordCompliant(password)}
-          >
-            {submitting ? 'Creating…' : 'Create user'}
-          </Button>
+          <Tabs value={tab} onValueChange={(v) => setTab(v as 'invite' | 'password')} className="w-full">
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="invite">Invite by email</TabsTrigger>
+              <TabsTrigger value="password">Advanced</TabsTrigger>
+            </TabsList>
+            <TabsContent value="invite" className="mt-3 space-y-3">
+              <div className="space-y-2">
+                <Label className="text-xs text-muted-foreground">Email</Label>
+                <div className="relative">
+                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <Input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="pl-10 bg-input border-border"
+                    placeholder="teammate@example.com"
+                  />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label className="text-xs text-muted-foreground">Username (optional)</Label>
+                <Input
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  className="bg-input border-border"
+                  placeholder="Display name"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label className="text-xs text-muted-foreground">Role</Label>
+                <select
+                  value={role}
+                  onChange={(e) => setRole(e.target.value as MscUserAdminRole)}
+                  className="h-9 w-full max-w-xs rounded-md border border-border bg-input px-2 text-sm"
+                >
+                  <option value="user">User</option>
+                  <option value="admin">Admin</option>
+                  <option value="master-admin">Master Admin</option>
+                </select>
+              </div>
+              <Button
+                type="button"
+                className="w-full sm:w-auto bg-primary text-primary-foreground"
+                onClick={() => void onInvite()}
+                disabled={submitting || !email.trim()}
+              >
+                {submitting ? 'Sending…' : 'Send invite'}
+              </Button>
+            </TabsContent>
+            <TabsContent value="password" className="mt-3 space-y-3">
+              <div className="space-y-2">
+                <Label className="text-xs text-muted-foreground">Email</Label>
+                <div className="relative">
+                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <Input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="pl-10 bg-input border-border"
+                    placeholder="teammate@example.com"
+                  />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label className="text-xs text-muted-foreground">Username (optional)</Label>
+                <Input
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  className="bg-input border-border"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label className="text-xs text-muted-foreground">Password</Label>
+                <Input
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="bg-input border-border"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label className="text-xs text-muted-foreground">Role</Label>
+                <select
+                  value={role}
+                  onChange={(e) => setRole(e.target.value as MscUserAdminRole)}
+                  className="h-9 w-full max-w-xs rounded-md border border-border bg-input px-2 text-sm"
+                >
+                  <option value="user">User</option>
+                  <option value="admin">Admin</option>
+                  <option value="master-admin">Master Admin</option>
+                </select>
+              </div>
+              <Button
+                type="button"
+                className="w-full sm:w-auto bg-primary text-primary-foreground"
+                onClick={() => void onCreateWithPassword()}
+                disabled={submitting || !email.trim() || !msc_isNewPasswordCompliant(password)}
+              >
+                {submitting ? 'Creating…' : 'Create user'}
+              </Button>
+            </TabsContent>
+          </Tabs>
         </div>
       )}
       <p className="text-xs text-muted-foreground">
-        Master Admin manages the full user directory. Other admins see only their own row here. Vault visibility follows vault rules. Sign in from the lock screen (same credentials as{' '}
+        Master Admin manages the full user directory. Other admins see only their own row here. Vault visibility follows
+        vault rules. Sign in from the lock screen (same credentials as{' '}
         <span className="text-foreground/90">/admin</span>) so the browser holds the Payload session cookie.
       </p>
     </div>

@@ -5,10 +5,10 @@ Purpose: Give Cursor a **structured snapshot** of the Brave page (links, images,
 
 ## What replaced the old `Playwrightfix/.playwright-mcp/` dumps
 
-| Old (`Playwrightfix`) | New (this repo) |
-|------------------------|-----------------|
-| Ad-hoc `page-*.yml` from Cursor Playwright MCP | `npm run playwright:dump-dom` → **`Playwright-Tests/dom-handoff-latest.json`** |
-| Huge `console-*.log` | Not replicated here — use **DevTools** or **Cursor Playwright MCP** when you need full console streams |
+| Old (`Playwrightfix`)                          | New (this repo)                                                                                        |
+| ---------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| Ad-hoc `page-*.yml` from Cursor Playwright MCP | `npm run playwright:dump-dom` → **`Playwright-Tests/dom-handoff-latest.json`**                         |
+| Huge `console-*.log`                           | Not replicated here — use **DevTools** or **Cursor Playwright MCP** when you need full console streams |
 
 ## Recommended flow
 

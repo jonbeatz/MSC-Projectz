@@ -1,10 +1,13 @@
 'use server'
 
+import { msc_generateCompliantRandomPassword } from '@/lib/msc_invite_password'
 import { msc_validateNewPassword } from '@/lib/msc_password_policy'
+import { msc_generateVerificationToken, msc_sendVerificationEmail } from '@/lib/msc_auth_verification'
 import { msc_logAdminAction } from '@/lib/msc_vault_audit'
 import { msc_requirePayloadAdminForSettings } from '@/lib/msc_vault_admin_guard'
 import type {
   MscCreateUserAdminInput,
+  MscInviteUserAdminInput,
   MscResetUserAdminPasswordInput,
   MscUpdateUserAdminRoleInput,
   MscUserAdminActionResult,
@@ -26,6 +29,7 @@ type MscPayloadUserDoc = {
   role?: MscUserAdminRole | null
   username?: string | null
   createdAt?: string
+  isVerified?: boolean
 }
 
 function msc_normalizePayloadRole(role: unknown): MscUserAdminRole {
@@ -46,6 +50,7 @@ function msc_mapPayloadUserDocToRow(doc: MscPayloadUserDoc, currentUserId: strin
     username: doc.username ?? null,
     createdAt: doc.createdAt,
     isCurrentUser: String(doc.id) === String(currentUserId),
+    isVerified: Boolean(doc.isVerified),
   }
 }
 
@@ -123,6 +128,8 @@ export async function msc_createPayloadUserAsAdmin(
         email,
         password: input.password,
         role: input.role,
+        /** Master-created with known password: skip email verification gate. */
+        isVerified: true,
         ...(username ? { username } : {}),
       },
       overrideAccess: true,
@@ -135,6 +142,7 @@ export async function msc_createPayloadUserAsAdmin(
         email,
         role: input.role,
         username: username || null,
+        passwordMode: true,
       },
     })
     return { ok: true, id: created.id }
@@ -144,9 +152,86 @@ export async function msc_createPayloadUserAsAdmin(
   }
 }
 
-export async function msc_deletePayloadUserAsAdmin(
-  id: string | number,
-): Promise<MscUserAdminActionResult> {
+/**
+ * Master Admin: create an unverified user, email them verify link + temporary sign-in password.
+ * After they click the link, they sign in at `/auth` and should change password in Profile.
+ */
+export async function msc_invitePayloadUserAsMaster(
+  input: MscInviteUserAdminInput,
+): Promise<{ ok: true; id: string | number } | { ok: false; error: string }> {
+  const admin = await msc_requirePayloadAdminForSettings()
+  if (!admin.ok) return admin
+  if (!admin.isMasterAdmin) {
+    return { ok: false, error: 'Unauthorized: only a Master Admin can send email invites.' }
+  }
+
+  const email = input.email.trim().toLowerCase()
+  const username = input.username?.trim()
+  if (!email) {
+    return { ok: false, error: 'Valid email is required' }
+  }
+  if (!msc_validatePayloadRole(input.role)) {
+    return { ok: false, error: 'Valid role is required' }
+  }
+
+  try {
+    const existing = await admin.ctx.payload.find({
+      collection: 'users',
+      where: { email: { equals: email } },
+      limit: 1,
+      depth: 0,
+      overrideAccess: true,
+    })
+    if (existing.docs.length > 0) {
+      return { ok: false, error: 'An account with this email already exists.' }
+    }
+  } catch {
+    return { ok: false, error: 'Unable to validate this request right now.' }
+  }
+
+  const tempPassword = msc_generateCompliantRandomPassword()
+  const verification = msc_generateVerificationToken()
+
+  try {
+    const created = await admin.ctx.payload.create({
+      collection: 'users',
+      data: {
+        email,
+        password: tempPassword,
+        role: input.role,
+        isVerified: false,
+        verificationToken: verification.tokenHash,
+        verificationTokenExpires: verification.expiresAt.toISOString(),
+        lastVerificationSentAt: new Date().toISOString(),
+        ...(username ? { username } : {}),
+      },
+      overrideAccess: true,
+    })
+    void msc_logAdminAction(admin.ctx.payload, {
+      actorId: admin.currentUserId,
+      targetId: created.id,
+      action: MSC_AUDIT_USER_CREATE,
+      details: {
+        email,
+        role: input.role,
+        username: username || null,
+        invited: true,
+      },
+    })
+    void msc_sendVerificationEmail({
+      email,
+      name: username || null,
+      token: verification.rawToken,
+      inviteTemporaryPassword: tempPassword,
+    }).catch((err) => console.error('[msc] Invite verification email failed:', err))
+    return { ok: true, id: (created as { id: string | number }).id }
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : 'Unable to invite user'
+    return { ok: false, error: msg }
+  }
+}
+
+export async function msc_deletePayloadUserAsAdmin(id: string | number): Promise<MscUserAdminActionResult> {
   const admin = await msc_requirePayloadAdminForSettings()
   if (!admin.ok) return admin
   if (!admin.isMasterAdmin) {
@@ -237,10 +322,7 @@ export async function msc_resetPayloadUserPasswordAsAdmin(
 ): Promise<MscUserAdminActionResult> {
   const admin = await msc_requirePayloadAdminForSettings()
   if (!admin.ok) return admin
-  if (
-    !admin.isMasterAdmin &&
-    String(input.id) !== String(admin.currentUserId)
-  ) {
+  if (!admin.isMasterAdmin && String(input.id) !== String(admin.currentUserId)) {
     return { ok: false, error: 'Unauthorized: you can only reset your own password.' }
   }
 

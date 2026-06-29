@@ -95,23 +95,23 @@ type TabType = 'inbox' | 'archived'
 
 // Status configuration (DB values todo | in-progress | done; display via MSC_TASK_STATUS_LABELS)
 const statusConfig: Record<TaskStatus, { label: string; icon: typeof Circle; color: string; bgClass: string }> = {
-  'todo': { 
-    label: MSC_TASK_STATUS_LABELS.todo, 
-    icon: Circle, 
+  todo: {
+    label: MSC_TASK_STATUS_LABELS.todo,
+    icon: Circle,
     color: 'text-muted-foreground',
-    bgClass: 'bg-muted/50'
+    bgClass: 'bg-muted/50',
   },
-  'in-progress': { 
-    label: MSC_TASK_STATUS_LABELS['in-progress'], 
-    icon: Clock, 
+  'in-progress': {
+    label: MSC_TASK_STATUS_LABELS['in-progress'],
+    icon: Clock,
     color: 'text-msc-ui-accent',
-    bgClass: 'bg-transparent'
+    bgClass: 'bg-transparent',
   },
-  'done': { 
-    label: MSC_TASK_STATUS_LABELS.done, 
-    icon: CheckCircle2, 
+  done: {
+    label: MSC_TASK_STATUS_LABELS.done,
+    icon: CheckCircle2,
     color: 'text-primary',
-    bgClass: 'bg-primary/10'
+    bgClass: 'bg-primary/10',
   },
 }
 
@@ -129,14 +129,14 @@ export function GlobalTasksView() {
   const [editingText, setEditingText] = useState('')
   const [editingAssignedToId, setEditingAssignedToId] = useState<string | null>(null)
   const editInputRef = useRef<HTMLInputElement>(null)
-  
+
   const projects = useAppStore((s) => s.projects)
   const cycleTaskStatus = useAppStore((s) => s.cycleTaskStatus)
   const updateTaskTitle = useAppStore((s) => s.updateTaskTitle)
   const deleteTask = useAppStore((s) => s.deleteTask)
   const addTask = useAppStore((s) => s.addTask)
   const appSettings = useAppStore((s) => s.appSettings)
-  
+
   const isDark = appSettings.theme === 'dark'
 
   useEffect(() => {
@@ -166,11 +166,12 @@ export function GlobalTasksView() {
 
   const visibleProjectTasks = selectedProject?.tasks.filter((task) => !task.archived) ?? []
   const totalProjectTasks = visibleProjectTasks.length
-  const completedProjectTasks =
-    visibleProjectTasks.filter((task) => task.status === 'done' || task.completed).length
+  const completedProjectTasks = visibleProjectTasks.filter((task) => task.status === 'done' || task.completed).length
   const projectProgress =
-    totalProjectTasks > 0 ? Math.round((completedProjectTasks / totalProjectTasks) * 100) : selectedProject?.progress ?? 0
-  
+    totalProjectTasks > 0
+      ? Math.round((completedProjectTasks / totalProjectTasks) * 100)
+      : (selectedProject?.progress ?? 0)
+
   useEffect(() => {
     if (editingTaskId && editInputRef.current) {
       editInputRef.current.focus()
@@ -189,29 +190,33 @@ export function GlobalTasksView() {
 
   // Get all incomplete tasks grouped by project (todo + in-progress)
   const inboxTasks = useMemo(() => {
-    const grouped: Record<string, { projectId: string; projectName: string; projectThumbnail?: string; tasks: Task[] }> = {}
-    
+    const grouped: Record<
+      string,
+      { projectId: string; projectName: string; projectThumbnail?: string; tasks: Task[] }
+    > = {}
+
     activeProjects.forEach((project) => {
-      const incompleteTasks = project.tasks.filter((t) => 
-        (t.status || 'todo') !== 'done' && !t.archived
-      )
+      const incompleteTasks = project.tasks.filter((t) => (t.status || 'todo') !== 'done' && !t.archived)
       if (incompleteTasks.length > 0) {
         grouped[project.id] = {
           projectId: project.id,
           projectName: project.name,
           projectThumbnail: project.thumbnail,
-          tasks: incompleteTasks.map(t => ({ ...t, status: t.status || 'todo' })),
+          tasks: incompleteTasks.map((t) => ({ ...t, status: t.status || 'todo' })),
         }
       }
     })
-    
+
     return grouped
   }, [activeProjects])
-  
+
   // Get all done tasks grouped by project
   const archivedTasks = useMemo(() => {
-    const grouped: Record<string, { projectId: string; projectName: string; projectThumbnail?: string; tasks: Task[] }> = {}
-    
+    const grouped: Record<
+      string,
+      { projectId: string; projectName: string; projectThumbnail?: string; tasks: Task[] }
+    > = {}
+
     activeProjects.forEach((project) => {
       const completedTasks = project.tasks.filter((t) => t.status === 'done' || t.archived)
       if (completedTasks.length > 0) {
@@ -219,14 +224,14 @@ export function GlobalTasksView() {
           projectId: project.id,
           projectName: project.name,
           projectThumbnail: project.thumbnail,
-          tasks: completedTasks.map(t => ({ ...t, status: t.status || 'done' })),
+          tasks: completedTasks.map((t) => ({ ...t, status: t.status || 'done' })),
         }
       }
     })
-    
+
     return grouped
   }, [activeProjects])
-  
+
   const handleQuickAdd = async () => {
     if (!quickAddText.trim() || !selectedProject) return
     await addTask(selectedProject.id, quickAddText.trim())
@@ -236,13 +241,13 @@ export function GlobalTasksView() {
   const handleCycleStatus = async (projectId: string, taskId: string) => {
     await cycleTaskStatus(projectId, taskId)
   }
-  
+
   const handleStartEdit = (task: Task) => {
     setEditingTaskId(task.id)
     setEditingText(task.title)
     setEditingAssignedToId(task.assignedTo ? String(task.assignedTo.id) : null)
   }
-  
+
   const handleSaveEdit = async (projectId: string) => {
     if (!editingTaskId || !editingText.trim()) {
       setEditingTaskId(null)
@@ -253,18 +258,14 @@ export function GlobalTasksView() {
     setEditingText('')
     setEditingAssignedToId(null)
   }
-  
+
   const inboxCount = Object.values(inboxTasks).reduce((sum, group) => sum + group.tasks.length, 0)
   const archivedCount = Object.values(archivedTasks).reduce((sum, group) => sum + group.tasks.length, 0)
 
   const renderProjectThumbnail = (thumbnail: string | undefined, projectName: string) => {
     if (thumbnail) {
       return (
-        <img
-          src={thumbnail}
-          className="h-9 w-9 rounded-md border border-white/10 object-cover"
-          alt={projectName}
-        />
+        <img src={thumbnail} className="h-9 w-9 rounded-md border border-white/10 object-cover" alt={projectName} />
       )
     }
 
@@ -502,10 +503,7 @@ export function GlobalTasksView() {
         <div key={label} className="space-y-1.5">
           <h4 className="px-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">{label}</h4>
           <div
-            className={cn(
-              'msc-tasks-workspace-slab overflow-hidden rounded-lg',
-              !isDark && 'border-border bg-card',
-            )}
+            className={cn('msc-tasks-workspace-slab overflow-hidden rounded-lg', !isDark && 'border-border bg-card')}
           >
             {items.map((task) => renderTaskCompactRow(task, group.projectId, {}))}
           </div>
@@ -537,7 +535,10 @@ export function GlobalTasksView() {
         )}
       >
         <div>
-          <nav className="mb-1.5 flex flex-wrap items-center gap-1.5 text-[11px] text-muted-foreground" aria-label="Breadcrumb">
+          <nav
+            className="mb-1.5 flex flex-wrap items-center gap-1.5 text-[11px] text-muted-foreground"
+            aria-label="Breadcrumb"
+          >
             <span>Dashboard</span>
             <ChevronRight className="h-3 w-3 opacity-50" />
             <span className="text-foreground/80">{selectedProject?.name ?? 'No Project'}</span>
@@ -555,8 +556,7 @@ export function GlobalTasksView() {
               Inbox <span className="ml-1 tabular-nums text-foreground">{inboxCount}</span>
             </span>
             <span className="rounded-md border border-white/8 bg-black/35 px-2 py-0.5 text-[10px] font-medium text-muted-foreground">
-              {MSC_TASK_STATUS_LABELS.done}{' '}
-              <span className="ml-1 tabular-nums text-foreground">{archivedCount}</span>
+              {MSC_TASK_STATUS_LABELS.done} <span className="ml-1 tabular-nums text-foreground">{archivedCount}</span>
             </span>
           </div>
         </div>
@@ -686,12 +686,7 @@ export function GlobalTasksView() {
         )}
         aria-label="Task workspace"
       >
-        <div
-          className={cn(
-            'flex flex-col gap-3 border-b pb-4',
-            isDark ? 'border-white/6' : 'border-border',
-          )}
-        >
+        <div className={cn('flex flex-col gap-3 border-b pb-4', isDark ? 'border-white/6' : 'border-border')}>
           <div className="flex flex-wrap items-end justify-between gap-2">
             <div>
               <p className="text-[9px] font-semibold uppercase tracking-[0.22em] text-muted-foreground">Library</p>
@@ -943,7 +938,9 @@ export function GlobalTasksView() {
                     <div className="flex flex-wrap items-center gap-3">
                       {renderProjectThumbnail(group.projectThumbnail, group.projectName)}
                       <div>
-                        <h2 className="text-base font-semibold tracking-tight text-muted-foreground">{group.projectName}</h2>
+                        <h2 className="text-base font-semibold tracking-tight text-muted-foreground">
+                          {group.projectName}
+                        </h2>
                         <p className="text-[11px] text-muted-foreground">
                           {filtered.length} completed / archived
                           {(taskSearch.trim() || priorityFilter !== 'all') && filtered.length !== group.tasks.length
@@ -975,4 +972,3 @@ export function GlobalTasksView() {
     </div>
   )
 }
-

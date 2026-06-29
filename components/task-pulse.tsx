@@ -51,12 +51,7 @@ export function TaskPulse({ project }: TaskPulseProps) {
           )}
         </div>
         {!isAdding && (
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-7 w-7"
-            onClick={() => setIsAdding(true)}
-          >
+          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setIsAdding(true)}>
             <Plus className="w-4 h-4" />
           </Button>
         )}
@@ -80,10 +75,7 @@ export function TaskPulse({ project }: TaskPulseProps) {
           <div className="px-4 py-8 text-center">
             <Circle className="w-8 h-8 mx-auto mb-2 opacity-50 text-muted-foreground" />
             <p className="text-sm text-muted-foreground">No tasks yet</p>
-            <button
-              onClick={() => setIsAdding(true)}
-              className="text-xs mt-1 text-primary"
-            >
+            <button onClick={() => setIsAdding(true)} className="text-xs mt-1 text-primary">
               Add your first task
             </button>
           </div>
@@ -94,11 +86,7 @@ export function TaskPulse({ project }: TaskPulseProps) {
                 key={task.id}
                 className="group flex items-center gap-3 px-4 py-2.5 transition-colors border-b border-border hover:bg-secondary/50"
               >
-                <button
-                  type="button"
-                  onClick={() => void toggleTask(project.id, task.id)}
-                  className="shrink-0"
-                >
+                <button type="button" onClick={() => void toggleTask(project.id, task.id)} className="shrink-0">
                   {task.completed ? (
                     <CheckCircle2 className="w-4 h-4 text-primary" />
                   ) : (
@@ -108,7 +96,7 @@ export function TaskPulse({ project }: TaskPulseProps) {
                 <span
                   className={cn(
                     'flex-1 text-sm transition-colors',
-                    task.completed ? 'line-through text-muted-foreground' : 'text-foreground'
+                    task.completed ? 'line-through text-muted-foreground' : 'text-foreground',
                   )}
                 >
                   {task.title}
@@ -161,4 +149,3 @@ export function TaskPulse({ project }: TaskPulseProps) {
     </div>
   )
 }
-

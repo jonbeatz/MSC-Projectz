@@ -7,20 +7,8 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import {
-  Sheet,
-  SheetContent,
-  SheetFooter,
-  SheetHeader,
-  SheetTitle,
-} from '@/components/ui/sheet'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
+import { Sheet, SheetContent, SheetFooter, SheetHeader, SheetTitle } from '@/components/ui/sheet'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
 import { cn } from '@/lib/utils'
 
@@ -112,8 +100,7 @@ export function MSC_Projectz_SnippetDrawer({
     'w-full min-w-0 border-border transition-[color,box-shadow] focus-visible:border-zinc-600 focus-visible:ring-[3px] focus-visible:ring-zinc-700/45 dark:focus-visible:border-zinc-500 dark:focus-visible:ring-zinc-600/40'
 
   /** Title + Content — reinforce zero ring atop global Studio rules. */
-  const snippetTextFieldOverrides =
-    '!ring-0 !ring-offset-0 focus-visible:!ring-0 focus-visible:!border-zinc-600'
+  const snippetTextFieldOverrides = '!ring-0 !ring-offset-0 focus-visible:!ring-0 focus-visible:!border-zinc-600'
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
@@ -230,10 +217,7 @@ export function MSC_Projectz_SnippetDrawer({
                   </Badge>
                 ) : null}
               </div>
-              <Select
-                value={formVisibility}
-                onValueChange={(v) => setFormVisibility(v as 'personal' | 'project')}
-              >
+              <Select value={formVisibility} onValueChange={(v) => setFormVisibility(v as 'personal' | 'project')}>
                 <SelectTrigger id="msc-snippet-vis" className={cn('w-full min-w-0', fieldSurface)}>
                   <SelectValue />
                 </SelectTrigger>

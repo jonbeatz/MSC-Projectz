@@ -1,16 +1,7 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
-import { 
-  X, 
-  Plus, 
-  Trash2, 
-  Pencil,
-  FolderOpen,
-  Circle,
-  Clock,
-  CheckCircle2
-} from 'lucide-react'
+import { X, Plus, Trash2, Pencil, FolderOpen, Circle, Clock, CheckCircle2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { useAppStore } from '@/lib/store'
@@ -25,23 +16,23 @@ interface TaskDrawerProps {
 
 // Status configuration with Tailwind classes
 const statusConfig: Record<TaskStatus, { label: string; icon: typeof Circle; colorClass: string; bgClass: string }> = {
-  'todo': { 
-    label: 'To Do', 
-    icon: Circle, 
+  todo: {
+    label: 'To Do',
+    icon: Circle,
     colorClass: 'text-muted-foreground',
-    bgClass: 'bg-muted/50'
+    bgClass: 'bg-muted/50',
   },
-  'in-progress': { 
-    label: 'In Progress', 
-    icon: Clock, 
+  'in-progress': {
+    label: 'In Progress',
+    icon: Clock,
     colorClass: 'text-amber-500',
-    bgClass: 'bg-amber-500/10'
+    bgClass: 'bg-amber-500/10',
   },
-  'done': { 
-    label: 'Done', 
-    icon: CheckCircle2, 
+  done: {
+    label: 'Done',
+    icon: CheckCircle2,
     colorClass: 'text-primary',
-    bgClass: 'bg-primary/10'
+    bgClass: 'bg-primary/10',
   },
 }
 
@@ -50,46 +41,46 @@ export function TaskDrawer({ isOpen, onClose, project }: TaskDrawerProps) {
   const [editingTaskId, setEditingTaskId] = useState<string | null>(null)
   const [editingText, setEditingText] = useState('')
   const editInputRef = useRef<HTMLInputElement>(null)
-  
+
   const addTask = useAppStore((s) => s.addTask)
   const cycleTaskStatus = useAppStore((s) => s.cycleTaskStatus)
   const updateTaskTitle = useAppStore((s) => s.updateTaskTitle)
   const deleteTask = useAppStore((s) => s.deleteTask)
   const appSettings = useAppStore((s) => s.appSettings)
   const projects = useAppStore((s) => s.projects)
-  
+
   // Get live project data from store
-  const liveProject = projects.find(p => p.id === project?.id) || project
-  
+  const liveProject = projects.find((p) => p.id === project?.id) || project
+
   const isDark = appSettings.theme === 'dark'
-  
+
   useEffect(() => {
     if (editingTaskId && editInputRef.current) {
       editInputRef.current.focus()
     }
   }, [editingTaskId])
-  
+
   const handleAddTask = () => {
     if (!newTaskText.trim() || !liveProject) return
     addTask(liveProject.id, newTaskText.trim())
     setNewTaskText('')
   }
-  
+
   const handleCycleStatus = (taskId: string) => {
     if (!liveProject) return
     cycleTaskStatus(liveProject.id, taskId)
   }
-  
+
   const handleDeleteTask = (taskId: string) => {
     if (!liveProject) return
     deleteTask(liveProject.id, taskId)
   }
-  
+
   const handleStartEdit = (task: Task) => {
     setEditingTaskId(task.id)
     setEditingText(task.title)
   }
-  
+
   const handleSaveEdit = () => {
     if (!liveProject || !editingTaskId || !editingText.trim()) {
       setEditingTaskId(null)
@@ -99,7 +90,7 @@ export function TaskDrawer({ isOpen, onClose, project }: TaskDrawerProps) {
     setEditingTaskId(null)
     setEditingText('')
   }
-  
+
   const handleKeyDown = (e: React.KeyboardEvent, action: 'add' | 'edit') => {
     if (e.key === 'Enter') {
       if (action === 'add') handleAddTask()
@@ -109,14 +100,14 @@ export function TaskDrawer({ isOpen, onClose, project }: TaskDrawerProps) {
       setEditingTaskId(null)
     }
   }
-  
+
   if (!liveProject) return null
-  
+
   // Separate tasks by status
-  const todoTasks = liveProject.tasks.filter(t => (t.status || 'todo') === 'todo' && !t.archived)
-  const inProgressTasks = liveProject.tasks.filter(t => t.status === 'in-progress' && !t.archived)
-  const doneTasks = liveProject.tasks.filter(t => t.status === 'done' || t.archived)
-  
+  const todoTasks = liveProject.tasks.filter((t) => (t.status || 'todo') === 'todo' && !t.archived)
+  const inProgressTasks = liveProject.tasks.filter((t) => t.status === 'in-progress' && !t.archived)
+  const doneTasks = liveProject.tasks.filter((t) => t.status === 'done' || t.archived)
+
   const totalTasks = liveProject.tasks.length
   const completedCount = doneTasks.length
   const progress = totalTasks > 0 ? Math.round((completedCount / totalTasks) * 100) : 0
@@ -127,33 +118,31 @@ export function TaskDrawer({ isOpen, onClose, project }: TaskDrawerProps) {
     const StatusIcon = config.icon
     const isDone = status === 'done'
     const isInProgress = status === 'in-progress'
-    
+
     return (
-      <div 
+      <div
         key={task.id}
         className={cn(
           'group flex items-center gap-3 p-3 rounded-lg transition-all border',
           isDone && 'opacity-60',
-          isInProgress 
-            ? 'bg-amber-500/5 border-amber-500/30' 
-            : 'bg-secondary border-border'
+          isInProgress ? 'bg-amber-500/5 border-amber-500/30' : 'bg-secondary border-border',
         )}
       >
         {/* Status Badge - Clickable */}
         <button
           onClick={() => handleCycleStatus(task.id)}
           className={cn(
-            "flex items-center gap-1.5 px-2 py-1 rounded-md transition-all hover:scale-105 flex-shrink-0",
-            config.bgClass
+            'flex items-center gap-1.5 px-2 py-1 rounded-md transition-all hover:scale-105 flex-shrink-0',
+            config.bgClass,
           )}
           title={`Status: ${config.label} (click to change)`}
         >
-          <StatusIcon className={cn("w-3.5 h-3.5", config.colorClass)} />
-          <span className={cn("text-[10px] font-medium uppercase tracking-wider", config.colorClass)}>
+          <StatusIcon className={cn('w-3.5 h-3.5', config.colorClass)} />
+          <span className={cn('text-[10px] font-medium uppercase tracking-wider', config.colorClass)}>
             {config.label}
           </span>
         </button>
-        
+
         {/* Task Title - Editable */}
         {editingTaskId === task.id ? (
           <Input
@@ -165,17 +154,17 @@ export function TaskDrawer({ isOpen, onClose, project }: TaskDrawerProps) {
             className="flex-1 h-8 text-sm bg-card border-primary text-foreground"
           />
         ) : (
-          <span 
+          <span
             className={cn(
               'flex-1 text-sm cursor-pointer transition-colors hover:opacity-80',
-              isDone ? 'line-through text-muted-foreground' : 'text-foreground'
+              isDone ? 'line-through text-muted-foreground' : 'text-foreground',
             )}
             onClick={() => handleStartEdit(task)}
           >
             {task.title}
           </span>
         )}
-        
+
         {/* Actions */}
         <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
           <button
@@ -198,20 +187,20 @@ export function TaskDrawer({ isOpen, onClose, project }: TaskDrawerProps) {
   return (
     <>
       {/* Backdrop */}
-      <div 
+      <div
         className={cn(
           'fixed inset-0 z-50 transition-opacity duration-300 bg-black/50',
-          isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
+          isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none',
         )}
         onClick={onClose}
       />
-      
+
       {/* Drawer */}
       <div
         className={cn(
           'fixed right-0 top-0 h-screen w-full max-w-md z-50 transform transition-transform duration-300 ease-out flex flex-col',
           'bg-background border-l border-border',
-          isOpen ? 'translate-x-0' : 'translate-x-full'
+          isOpen ? 'translate-x-0' : 'translate-x-full',
         )}
       >
         {/* Header */}
@@ -222,9 +211,7 @@ export function TaskDrawer({ isOpen, onClose, project }: TaskDrawerProps) {
             </div>
             <div>
               <h2 className="font-semibold text-foreground">{liveProject.name}</h2>
-              <p className="text-xs truncate max-w-[200px] text-muted-foreground">
-                {liveProject.localPath}
-              </p>
+              <p className="text-xs truncate max-w-[200px] text-muted-foreground">{liveProject.localPath}</p>
             </div>
           </div>
           <button
@@ -234,7 +221,7 @@ export function TaskDrawer({ isOpen, onClose, project }: TaskDrawerProps) {
             <X className="w-5 h-5" />
           </button>
         </div>
-        
+
         {/* Progress Summary */}
         <div className="p-4 flex-shrink-0 border-b border-border">
           <div className="flex items-center justify-between mb-2">
@@ -242,7 +229,7 @@ export function TaskDrawer({ isOpen, onClose, project }: TaskDrawerProps) {
             <span className="text-sm font-semibold text-primary">{progress}%</span>
           </div>
           <div className="h-2 rounded-full overflow-hidden bg-muted">
-            <div 
+            <div
               className="h-full rounded-full transition-all duration-300 bg-primary"
               style={{ width: `${progress}%` }}
             />
@@ -262,7 +249,7 @@ export function TaskDrawer({ isOpen, onClose, project }: TaskDrawerProps) {
             </span>
           </div>
         </div>
-        
+
         {/* Add Task Input */}
         <div className="p-4 flex-shrink-0 border-b border-border">
           <div className="flex gap-2">
@@ -273,7 +260,7 @@ export function TaskDrawer({ isOpen, onClose, project }: TaskDrawerProps) {
               onKeyDown={(e) => handleKeyDown(e, 'add')}
               className="text-base bg-secondary border-border text-foreground placeholder:text-muted-foreground"
             />
-            <Button 
+            <Button
               onClick={handleAddTask}
               disabled={!newTaskText.trim()}
               size="icon"
@@ -283,7 +270,7 @@ export function TaskDrawer({ isOpen, onClose, project }: TaskDrawerProps) {
             </Button>
           </div>
         </div>
-        
+
         {/* Task List - Scrollable */}
         <div className="flex-1 overflow-y-auto p-4">
           {/* To Do Tasks */}
@@ -293,12 +280,10 @@ export function TaskDrawer({ isOpen, onClose, project }: TaskDrawerProps) {
                 <Circle className="w-3 h-3" />
                 To Do ({todoTasks.length})
               </h3>
-              <div className="space-y-2">
-                {todoTasks.map(renderTask)}
-              </div>
+              <div className="space-y-2">{todoTasks.map(renderTask)}</div>
             </div>
           )}
-          
+
           {/* In Progress Tasks */}
           {inProgressTasks.length > 0 && (
             <div className="mb-6">
@@ -306,12 +291,10 @@ export function TaskDrawer({ isOpen, onClose, project }: TaskDrawerProps) {
                 <Clock className="w-3 h-3" />
                 In Progress ({inProgressTasks.length})
               </h3>
-              <div className="space-y-2">
-                {inProgressTasks.map(renderTask)}
-              </div>
+              <div className="space-y-2">{inProgressTasks.map(renderTask)}</div>
             </div>
           )}
-          
+
           {/* Done Tasks */}
           {doneTasks.length > 0 && (
             <div>
@@ -319,12 +302,10 @@ export function TaskDrawer({ isOpen, onClose, project }: TaskDrawerProps) {
                 <CheckCircle2 className="w-3 h-3" />
                 Done ({doneTasks.length})
               </h3>
-              <div className="space-y-2">
-                {doneTasks.map(renderTask)}
-              </div>
+              <div className="space-y-2">{doneTasks.map(renderTask)}</div>
             </div>
           )}
-          
+
           {/* Empty State */}
           {todoTasks.length === 0 && inProgressTasks.length === 0 && doneTasks.length === 0 && (
             <div className="flex flex-col items-center justify-center py-12">

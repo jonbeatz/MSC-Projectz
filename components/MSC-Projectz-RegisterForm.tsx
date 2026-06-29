@@ -5,7 +5,11 @@ import { useState } from 'react'
 import { ArrowLeft, CheckCircle2, Lock, Mail, User } from 'lucide-react'
 
 import { msc_registerUser } from '@/lib/msc_auth_actions'
-import { msc_isNewPasswordCompliant, msc_newPasswordPolicyHint, msc_validateNewPassword } from '@/lib/msc_password_policy'
+import {
+  msc_isNewPasswordCompliant,
+  msc_newPasswordPolicyHint,
+  msc_validateNewPassword,
+} from '@/lib/msc_password_policy'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 
@@ -115,12 +119,7 @@ export function MSC_Projectz_RegisterForm() {
       <Button
         type="submit"
         className="w-full"
-        disabled={
-          msc_submitting ||
-          !msc_name.trim() ||
-          !msc_email.trim() ||
-          !msc_isNewPasswordCompliant(msc_password)
-        }
+        disabled={msc_submitting || !msc_name.trim() || !msc_email.trim() || !msc_isNewPasswordCompliant(msc_password)}
       >
         {msc_submitting ? 'Submitting…' : 'Request Access'}
       </Button>

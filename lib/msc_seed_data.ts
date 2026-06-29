@@ -17,9 +17,7 @@ export type MscSeedDatabaseResult =
     }
   | { ok: false; error: string }
 
-export type MscBackfillDemoResult =
-  | { ok: true; message: string; clientsUpdated: number }
-  | { ok: false; error: string }
+export type MscBackfillDemoResult = { ok: true; message: string; clientsUpdated: number } | { ok: false; error: string }
 
 const MSC_SEED_MARKER_NAME = 'Nebula Digital'
 
@@ -326,11 +324,13 @@ export async function msc_backfillDemoClientPresentation(): Promise<MscBackfillD
         depth: 0,
         overrideAccess: true,
       })
-      const doc = found.docs[0] as {
-        id: string | number
-        clientVault?: unknown
-        primaryContact?: { name?: string; email?: string; phone?: string | null; user?: unknown }
-      } | undefined
+      const doc = found.docs[0] as
+        | {
+            id: string | number
+            clientVault?: unknown
+            primaryContact?: { name?: string; email?: string; phone?: string | null; user?: unknown }
+          }
+        | undefined
       if (!doc) continue
 
       const prevVault =

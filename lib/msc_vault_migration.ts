@@ -7,8 +7,7 @@ import { msc_getScopedKey, type MscScopedUserId } from '@/lib/msc_scoped_storage
 export const MSC_VAULT_LEGACY_SNIPPETS_KEY_BASE = 'msc-projectz-vault-snippets'
 
 export type MscMigrateLegacySnippetsResult =
-  | { ok: true; imported: number }
-  | { ok: false; error: string; imported: number }
+  { ok: true; imported: number } | { ok: false; error: string; imported: number }
 
 export function msc_hasLegacyVaultSnippets(userId: MscScopedUserId): boolean {
   if (typeof window === 'undefined') return false
@@ -64,8 +63,7 @@ export async function msc_migrateLegacySnippets(params: {
   }
 
   const rows = parsed.filter(
-    (item): item is Record<string, unknown> =>
-      item !== null && typeof item === 'object' && !Array.isArray(item),
+    (item): item is Record<string, unknown> => item !== null && typeof item === 'object' && !Array.isArray(item),
   )
 
   if (rows.length === 0) {
