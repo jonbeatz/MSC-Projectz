@@ -58,7 +58,7 @@ export function MSC_Projectz_Dashboard({
       msc_hardResetVaultState()
       return
     }
-    console.log('DASHBOARD: Reactively fetching for:', sessionUser?.email)
+  useEffect(() => {
     if (
       msc_prevUserId.current !== undefined &&
       String(msc_prevUserId.current) !== String(id)
@@ -66,11 +66,7 @@ export function MSC_Projectz_Dashboard({
       msc_hardResetVaultState()
     }
     msc_prevUserId.current = id
-  }, [sessionUser?.payloadUserId, sessionUser?.email, msc_hardResetVaultState])
-
-  useEffect(() => {
-    console.log('DASHBOARD: Rendering projects for:', sessionUser?.email)
-  }, [sessionUser?.email, projects.length])
+  }, [sessionUser?.payloadUserId, msc_hardResetVaultState])
 
   if (projects.length === 0) {
     return (

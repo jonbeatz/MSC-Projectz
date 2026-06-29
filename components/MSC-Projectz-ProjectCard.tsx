@@ -32,6 +32,7 @@ import { useAppStore } from '@/lib/store'
 import { getSafePath } from '@/lib/env-utils'
 import { msc_open_project_folder } from '@/lib/msc_native_system_bridge'
 import { msc_getScopedKey } from '@/lib/msc_scoped_storage'
+import { msc_encryptCredentialData, msc_decryptCredentialData } from '@/lib/msc_credential_crypto'
 import { MscManualProjectMoveControls, type MscManualProjectMove } from '@/components/msc_ManualProjectMoveControls'
 import { MemberClusterTrigger } from '@/components/MemberClusterTrigger'
 
@@ -72,6 +73,7 @@ export function MSC_Projectz_ProjectCard({
 }: MSC_Projectz_ProjectCardProps) {
   const appSettings = useAppStore((s) => s.appSettings)
   const userId = useAppStore((s) => s.user?.payloadUserId)
+  const masterPassword = useAppStore((s) => s.masterPassword)
   const addTask = useAppStore((s) => s.addTask)
   const isDark = appSettings.theme === 'dark'
 
@@ -111,9 +113,11 @@ export function MSC_Projectz_ProjectCard({
     try {
       const stored = window.localStorage.getItem(credentialStorageKey)
       if (stored) {
-        const parsed = JSON.parse(stored) as Credential[]
-        if (Array.isArray(parsed)) {
-          setManagedCredentials(parsed)
+        const decrypted = msc_decryptCredentialData(stored, masterPassword)
+        if (decrypted && Array.isArray(decrypted)) {
+          setManagedCredentials(decrypted as Credential[])
+        } else {
+          setManagedCredentials(project.credentials)
         }
       } else {
         setManagedCredentials(project.credentials)
@@ -128,7 +132,7 @@ export function MSC_Projectz_ProjectCard({
     setCredentialFormOpen(false)
     setShowNewCredentialPassword(false)
     setCredentialsLoaded(true)
-  }, [credentialStorageBaseKey, project.credentials, project.id, userId])
+  }, [credentialStorageBaseKey, project.credentials, project.id, userId, masterPassword])
 
   useEffect(() => {
     if (!credentialsLoaded) return
@@ -136,8 +140,9 @@ export function MSC_Projectz_ProjectCard({
     if (userId === undefined || userId === null) return
 
     const credentialStorageKey = msc_getScopedKey(credentialStorageBaseKey, userId)
-    window.localStorage.setItem(credentialStorageKey, JSON.stringify(managedCredentials))
-  }, [credentialProjectId, credentialStorageBaseKey, credentialsLoaded, managedCredentials, project.id, userId])
+    const encrypted = msc_encryptCredentialData(managedCredentials, masterPassword)
+    window.localStorage.setItem(credentialStorageKey, encrypted)
+  }, [credentialProjectId, credentialStorageBaseKey, credentialsLoaded, managedCredentials, project.id, userId, masterPassword])
 
   const handleOpenInExplorer = async () => {
     if (!safeLocalPath.trim()) return
@@ -348,7 +353,7 @@ export function MSC_Projectz_ProjectCard({
               <PopoverContent
                 align="end"
                 sideOffset={8}
-                className="z-50 w-72 rounded-md border border-[#2a2a2a] bg-[#1c1c1c] p-4 text-foreground shadow-xl"
+                className="z-50 w-72 rounded-md border border-border bg-card p-4 text-foreground shadow-xl"
                 onClick={(e) => e.stopPropagation()}
               >
                 <div className="space-y-3 font-sans text-sm">
@@ -374,7 +379,7 @@ export function MSC_Projectz_ProjectCard({
                         return (
                           <div
                             key={credential.id}
-                            className="rounded-md border border-[#2a2a2a] bg-background/70 p-3"
+                            className="rounded-md border border-border bg-card/70 p-3"
                           >
                             <div className="mb-3 flex items-center justify-between gap-2">
                               <h5 className="truncate text-sm font-medium text-foreground">
@@ -445,18 +450,18 @@ export function MSC_Projectz_ProjectCard({
                   )}
 
                   {credentialFormOpen ? (
-                    <div className="space-y-3 rounded-md border border-[#2a2a2a] bg-background/70 p-3">
+                    <div className="space-y-3 rounded-md border border-border bg-card/70 p-3">
                       <Input
                         value={newCredentialLabel}
                         onChange={(e) => setNewCredentialLabel(e.target.value)}
                         placeholder="Label, e.g. Client Access"
-                        className="bg-[#1c1c1c] text-sm text-foreground"
+                        className="bg-card text-sm text-foreground"
                       />
                       <Input
                         value={newCredentialUsername}
                         onChange={(e) => setNewCredentialUsername(e.target.value)}
                         placeholder="Username"
-                        className="bg-[#1c1c1c] text-sm text-foreground"
+                        className="bg-card text-sm text-foreground"
                       />
                       <div className="relative">
                         <Input
@@ -464,7 +469,7 @@ export function MSC_Projectz_ProjectCard({
                           onChange={(e) => setNewCredentialPassword(e.target.value)}
                           placeholder="Password"
                           type={showNewCredentialPassword ? 'text' : 'password'}
-                          className="bg-[#1c1c1c] pr-10 text-sm text-foreground"
+                          className="bg-card pr-10 text-sm text-foreground"
                         />
                         <button
                           type="button"

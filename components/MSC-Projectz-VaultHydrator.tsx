@@ -51,7 +51,6 @@ export function MSC_Projectz_VaultHydrator() {
     if (!isAuthenticated) return
     if (key == null) return
     if (vaultHydrated) return
-    console.log('DASHBOARD: Reactively fetching for:', user?.email)
     void hydrateVaultFromPayload()
   }, [isAuthenticated, key, user?.email, vaultHydrated, hydrateVaultFromPayload])
 

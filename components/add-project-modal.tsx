@@ -162,12 +162,6 @@ export function AddProjectModal({ isOpen, onClose }: AddProjectModalProps) {
 
     try {
       setIsSubmitting(true)
-      console.log('ADD_PROJECT: auth context before create', {
-        hasPayloadUserId: user?.payloadUserId != null,
-        payloadUserId: user?.payloadUserId ?? null,
-        email: user?.email ?? null,
-        headerFormat: 'server-action httpOnly Payload cookie; no client Authorization header',
-      })
       const thumbOut = (thumbnailPreview || thumbnail).trim()
       await addProject({
         name: trimmedName,

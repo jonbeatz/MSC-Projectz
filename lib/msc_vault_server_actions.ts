@@ -80,17 +80,6 @@ function msc_resolvePayloadRequestOrigin(h: Headers): string {
   return `${proto}://${host}`
 }
 
-async function msc_logVaultAuthDebug(actionName: string, user: unknown) {
-  const h = await headers()
-  const cookieHeader = h.get('cookie') || ''
-  console.log(`SERVER: ${actionName} auth context`, {
-    hasCookieHeader: cookieHeader.length > 0,
-    hasPayloadTokenCookie: /payload-token|payload.*-token|msc.*-token/i.test(cookieHeader),
-    userId: (user as { id?: string | number } | null)?.id ?? null,
-    role: (user as { role?: string | null } | null)?.role ?? null,
-  })
-}
-
 type MscVaultSessionUser = { id: string | number; role?: 'master-admin' | 'admin' | 'user' | null }
 
 function msc_requireVaultSessionUser(
@@ -501,13 +490,11 @@ export async function msc_loadVaultProjects(): Promise<Project[]> {
   const ctx = await msc_getVaultLocalApiContext()
   const o = msc_vaultLocalApiOptions(ctx)
   const { payload } = ctx
-  await msc_logVaultAuthDebug('load projects', ctx.user)
   if (!ctx.user) {
     console.warn('[MSC] msc_loadVaultProjects: no Payload session on server (returning empty list)')
     return []
   }
   const u = ctx.user as MscVaultSessionUser
-  console.log('SERVER: Fetching projects for User ID:', u.id)
   /** Defense in depth: app runtime reads projects owned by or shared with the current user. */
   const projectWhere: Where = {
     or: [
@@ -552,9 +539,7 @@ export async function msc_createVaultProject(
   const ctx = await msc_getVaultLocalApiContext()
   const o = msc_vaultLocalApiOptions(ctx)
   const { payload } = ctx
-  await msc_logVaultAuthDebug('create project', ctx.user)
   const u = msc_requireVaultSessionUser(ctx, 'create a project')
-  console.log('SERVER: create project currentUserId', { currentUserId: u.id })
   const ownerId = msc_coercePayloadRelationId(payload, 'users', String(u.id))
   const maxRow = await payload.find({
     collection: 'msc-vault-projects',

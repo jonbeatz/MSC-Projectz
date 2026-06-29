@@ -80,11 +80,6 @@ export async function msc_uploadProfileAvatar(formData: FormData): Promise<MscPr
   } as Parameters<typeof payload.create>[0])
 
   const media = created as MscMediaDoc
-  console.log('SERVER: upload profile avatar result', {
-    currentUserId: ctx.user.id,
-    mediaId: media.id,
-    hasUrl: Boolean(media.url),
-  })
 
   return {
     id: media.id,
@@ -101,14 +96,6 @@ export async function msc_updateCurrentUserProfile(input: {
   if (!ctx.user) {
     throw new Error('Authentication required to update profile.')
   }
-
-  console.log('SERVER: update profile payload received', {
-    currentUserId: ctx.user.id,
-    email: input.email,
-    username: input.username,
-    avatar: input.avatar,
-    avatarType: typeof input.avatar,
-  })
 
   const payload = await getPayload({ config })
   if (input.avatar !== null && input.avatar !== undefined && String(input.avatar).trim() !== '') {

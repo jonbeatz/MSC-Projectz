@@ -1,5 +1,5 @@
-import { AuthScreen } from '@/components/auth-screen'
+import { redirect } from 'next/navigation'
 
-export default function MSC_Projectz_AuthPage() {
-  return <AuthScreen />
+export default function MSC_Projectz_AuthRedirect() {
+  redirect('/login')
 }

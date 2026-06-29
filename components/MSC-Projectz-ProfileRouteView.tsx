@@ -67,12 +67,6 @@ export function MSC_Projectz_ProfileRouteView() {
       email,
       avatar: avatarId,
     }
-    console.log('PROFILE_SAVE: sending payload', {
-      ...payload,
-      avatarType: typeof payload.avatar,
-      avatarPreviewIsBlob: typeof avatar === 'string' && avatar.startsWith('blob:'),
-      avatarPreviewIsDataUrl: typeof avatar === 'string' && avatar.startsWith('data:'),
-    })
     try {
       const updatedUser = await msc_updateCurrentUserProfile(payload)
       updateUser(updatedUser)

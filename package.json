@@ -40,7 +40,12 @@
     "tauri:build": "tauri build",
     "build:prod": "npm run deploy:preflight && node msc_package_deploy.mjs",
     "pushitlive": "npm run build:prod",
-    "test:local": "npm run build && node server.js"
+    "test:local": "npm run build && node server.js",
+    "backup": "node scripts/msc-projectz-backup.mjs",
+    "backup:quick": "node scripts/msc-projectz-backup.mjs --standard --yes",
+    "backup:full": "node scripts/msc-projectz-backup.mjs --full --yes",
+    "backup:standard": "node scripts/msc-projectz-backup.mjs --standard",
+    "backup:clean": "powershell -NoProfile -Command \"$d='G:\\Cursor_Project_BackUpz\\MSC-Projectz'; if(Test-Path $d){gci $d|?{$_.PSIsContainer}|sort CreationTime -Descending|select -Skip 10|%{rm $_.FullName -Recurse -Force}; Write-Host '[MSC] Cleaned old backups'}\""
   },
   "dependencies": {
     "@libsql/client": "^0.14.0",

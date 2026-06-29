@@ -22,6 +22,11 @@ import {
 } from '@/lib/msc_vault_server_actions'
 import type { MscVaultTaskPatch } from '@/lib/msc_vault_server_actions'
 import { msc_vaultSignOutPayload } from '@/lib/msc_vault_payload_session'
+import {
+  msc_invitePayloadUserAsMaster,
+  msc_deletePayloadUserAsAdmin,
+  msc_listPayloadUsersForSettings,
+} from '@/lib/msc_vault_user_admin'
 import type {
   AppSettings,
   AuthView,
@@ -119,11 +124,10 @@ interface AppState {
 }
 
 const generateId = (): string => {
-  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
-    const r = (Math.random() * 16) | 0
-    const v = c === 'x' ? r : (r & 0x3) | 0x8
-    return v.toString(16)
-  })
+  if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+    return crypto.randomUUID()
+  }
+  return `id-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`
 }
 
 const defaultAppSettings: AppSettings = {
@@ -201,20 +205,27 @@ export const useAppStore = create<AppState>()(
         return false
       },
 
-      login: (username, password) => {
-        const { user } = get()
-        const looksEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(username.trim())
-        void password
-        set({
-          isAuthenticated: true,
-          masterPassword: null,
-          user: user || {
-            username: username.trim(),
-            email: looksEmail ? username.trim().toLowerCase() : '',
-            role: 'user',
-          },
-        })
-        return true
+      login: async (username, password) => {
+        try {
+          const result = await msc_vaultSignInToPayload(username, password)
+          if (!result.ok) {
+            return false
+          }
+          const looksEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(username.trim())
+          set({
+            isAuthenticated: true,
+            masterPassword: null,
+            user: {
+              username: username.trim().split('@')[0],
+              email: looksEmail ? username.trim().toLowerCase() : '',
+              role: result.role || 'user',
+              payloadUserId: result.userId,
+            },
+          })
+          return true
+        } catch {
+          return false
+        }
       },
 
       logout: () => {
@@ -274,43 +285,45 @@ export const useAppStore = create<AppState>()(
       setAuthView: (view) => set({ authView: view }),
 
       updateUser: (updates) => {
-        const currentUserId = get().user?.payloadUserId ?? null
-        console.log('UPDATE_PROFILE: store auth context', {
-          hasPayloadUserId: currentUserId != null,
-          currentUserId,
-        })
         set((state) => ({
           user: state.user ? { ...state.user, ...updates } : null,
         }))
       },
 
-      inviteUser: (username, email, tempPassword) => {
-        void tempPassword
-        const newUser: RegisteredUser = {
-          id: generateId(),
-          username,
-          email,
-          role: 'user',
-          status: 'active',
-          createdAt: new Date(),
+      inviteUser: async (username, email, tempPassword) => {
+        try {
+          const result = await msc_invitePayloadUserAsMaster({
+            email,
+            username,
+            role: 'user',
+            password: tempPassword || undefined,
+          })
+          if (!result.ok) return
+          // Reload users list from Payload
+          const list = await msc_listPayloadUsersForSettings()
+          if (list.ok) {
+            set({ users: list.users })
+          }
+        } catch {
+          // Silently fail — user management actions should surface errors in the UI
         }
-        set((state) => ({
-          users: [...state.users, newUser],
-        }))
       },
 
-      deleteUser: (userId) => {
-        const { users, user } = get()
-        if (user && users.some((u) => u.id === userId)) {
+      deleteUser: async (userId) => {
+        try {
+          const result = await msc_deletePayloadUserAsAdmin(userId)
+          if (!result.ok) return false
+          // Remove locally too for immediate feedback
           set((state) => ({
             users: state.users.filter((u) => u.id !== userId),
           }))
           return true
+        } catch {
+          return false
         }
-        return false
       },
 
-      updateUserStatus: (userId, status) => {
+      updateUserStatus: async (userId, status) => {
         const { users } = get()
         if (users.some((u) => u.id === userId)) {
           set((state) => ({
@@ -408,12 +421,6 @@ export const useAppStore = create<AppState>()(
       },
 
       addProject: async (project) => {
-        const { user } = get()
-        console.log('ADD_PROJECT: store auth context', {
-          hasPayloadUserId: user?.payloadUserId != null,
-          payloadUserId: user?.payloadUserId ?? null,
-          email: user?.email ?? null,
-        })
         try {
           const created = await msc_createVaultProject(project)
           set((state) => ({ projects: [...state.projects, created] }))
